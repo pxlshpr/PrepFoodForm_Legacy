@@ -1,12 +1,6 @@
 import SwiftUI
 import CameraImagePicker
 
-struct FoodLabelScanView: View {
-    var body: some View {
-        EmptyView()
-    }
-}
-
 public struct FoodForm: View {
     
     @State public var isPresentingDetails = false
@@ -18,6 +12,8 @@ public struct FoodForm: View {
     @State public var capturedImage: UIImage? = nil
     @State public var capturedImages: [UIImage] = []
 
+    @StateObject var viewModel = ViewModel()
+    
     public init() {
         
     }
@@ -27,7 +23,7 @@ public struct FoodForm: View {
 //        navigationStack
         navigationView
             .sheet(isPresented: $isPresentingDetails) {
-                FoodForm.DetailsForm()
+                FoodForm.DetailsForm(viewModel: viewModel)
             }
             .sheet(isPresented: $isPresentingNutrientsPer) {
                 FoodForm.NutrientsPerForm()
@@ -40,8 +36,6 @@ public struct FoodForm: View {
             }
             .sheet(isPresented: $isPresentingFoodLabelScanner) {
                 CameraImagePicker(capturedImage: $capturedImage)
-//                CustomCameraView(capturedImage: $capturedImage)
-//                FoodLabelScanView()
             }
             .onChange(of: capturedImage) { newValue in
                 guard let image = newValue else {
@@ -70,7 +64,7 @@ public struct FoodForm: View {
 
     var formNavigationView: some View {
         Form {
-            metadataSection
+            detailsSection
             servingSection
             nutrientsSection
             sourceSection
@@ -80,12 +74,12 @@ public struct FoodForm: View {
     
     //MARK: - Sections
     
-    var metadataSection: some View {
+    var detailsSection: some View {
         Section("Details") {
             Button {
                 isPresentingDetails = true
             } label: {
-                metadataCell
+                DetailsCell(viewModel: viewModel)
             }
         }
     }
@@ -163,10 +157,6 @@ public struct FoodForm: View {
         }
     }
     
-    //MARK: - Cells
-    var metadataCell: some View {
-        Text("Add details")
-    }
     
     var servingCell: some View {
         Text("Set serving size")

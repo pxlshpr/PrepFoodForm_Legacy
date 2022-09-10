@@ -3,14 +3,13 @@ import SwiftUISugar
 import CodeScanner
 
 extension FoodForm {
+    
     struct DetailsForm: View {
-        @State var isPresentingEmojiPicker = false
-        @State var isPresentingBarcodeScanner = false
-        @State var name = ""
-        @State var emoji = ""
-        @State var detail = ""
-        @State var brand = ""
-        @State var barcode = ""
+        
+        @ObservedObject var viewModel: ViewModel
+        
+        @State var showingEmojiPicker = false
+        @State var showingCodeScanner = false
     }
 }
 
@@ -22,10 +21,10 @@ extension FoodForm.DetailsForm {
             .navigationTitle("Details")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .sheet(isPresented: $isPresentingEmojiPicker) {
-            FoodForm.DetailsForm.EmojiPicker(emoji: $emoji)
+        .sheet(isPresented: $showingEmojiPicker) {
+            FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
         }
-        .sheet(isPresented: $isPresentingBarcodeScanner) {
+        .sheet(isPresented: $showingCodeScanner) {
             CodeScanner(handleScan: self.handleScan)
         }
     }
@@ -33,26 +32,26 @@ extension FoodForm.DetailsForm {
     var form: some View {
         Form {
             Section("Name") {
-                TextField("Required", text: $name)
+                TextField("Required", text: $viewModel.name)
             }
             Section("Emoji") {
                 Button {
-                    isPresentingEmojiPicker = true
+                    showingEmojiPicker = true
                 } label: {
                     emojiCell
                 }
             }
             Section("Detail") {
-                TextField("", text: $detail)
+                TextField("", text: $viewModel.detail)
             }
             Section("Brand") {
-                TextField("", text: $brand)
+                TextField("", text: $viewModel.brand)
             }
             Section("Barcode") {
                 Button {
-                    isPresentingBarcodeScanner = true
+                    showingCodeScanner = true
                 } label: {
-                    Text(barcode.isEmpty ? "Scan a barcode" : barcode)
+                    Text(viewModel.barcode.isEmpty ? "Scan a barcode" : viewModel.barcode)
                 }
 //                TextField("", text: $brand)
 //                    .keyboardType(.alphabet)
@@ -63,8 +62,8 @@ extension FoodForm.DetailsForm {
     }
     
     var emojiCell: some View {
-        Text(emoji.isEmpty ? "Choose an emoji (required)" : emoji)
-            .if(!emoji.isEmpty) { text in
+        Text(viewModel.emoji.isEmpty ? "Choose an emoji (required)" : viewModel.emoji)
+            .if(!viewModel.emoji.isEmpty) { text in
                 text.font(Font.system(size: 50.0))
             }
     }
@@ -85,11 +84,11 @@ extension FoodForm.DetailsForm {
     }
     
     func handleScan(result: Result<String, CodeScanner.ScanError>) {
-        isPresentingBarcodeScanner = false
+        showingCodeScanner = false
         
         switch result {
         case .success(let code):
-            barcode = code
+            viewModel.barcode = code
         case .failure(let error):
             print("Scanning failed: \(error)")
         }
