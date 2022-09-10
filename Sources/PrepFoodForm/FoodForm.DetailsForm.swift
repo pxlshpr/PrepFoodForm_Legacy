@@ -84,7 +84,7 @@ extension FoodForm.DetailsForm {
         }
     }
     
-    func handleScan(result: Result<String, CodeScanRawView.ScanError>) {
+    func handleScan(result: Result<String, CodeScanner.ScanError>) {
         isPresentingBarcodeScanner = false
         
         switch result {
