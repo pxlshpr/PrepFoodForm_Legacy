@@ -50,7 +50,7 @@ public struct FoodForm: View {
         NavigationStack {
             VStack {
                 formNavigationView
-                addButton
+                savePublicallyButton
             }
             .navigationBarTitle("New Food")
             .navigationBarTitleDisplayMode(.inline)
@@ -61,18 +61,19 @@ public struct FoodForm: View {
         NavigationView {
             VStack {
                 formNavigationView
-                addButton
+                savePublicallyButton
+                savePrivatelyButton
             }
             .navigationBarTitle("New Food")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
     
-    var addButton: some View {
+    var savePublicallyButton: some View {
         Button {
 //            tappedAdd()
         } label: {
-            Text("Add")
+            Text("Save")
                 .bold()
                 .foregroundColor(.white)
                 .padding(.vertical)
@@ -87,6 +88,25 @@ public struct FoodForm: View {
 //        .disabled(name.isEmpty)
     }
 
+    var savePrivatelyButton: some View {
+        Button {
+            
+        } label: {
+            Text("Save as Private Food")
+                .bold()
+                .foregroundColor(.accentColor)
+                .padding(.vertical)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(.clear)
+                )
+                .padding(.horizontal)
+                .padding(.horizontal)
+                .contentShape(Rectangle())
+        }
+//        .disabled(name.isEmpty)
+    }
 
     var formNavigationView: some View {
         Form {
