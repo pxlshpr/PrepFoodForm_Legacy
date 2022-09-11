@@ -159,7 +159,7 @@ public struct FoodForm: View {
     
     
     var servingCell: some View {
-        Text("Set serving size")
+        Text("Set serving")
     }
     
     var nutrientsCell: some View {
