@@ -58,7 +58,9 @@ extension FoodForm.NutrientsPerForm {
                 servingSizeSection
             }
             sizesSection
-            densitiesSection
+            if servingUnit != "serving" || !servingSizeAmount.isEmpty {
+                densitiesSection
+            }
         }
     }
     
@@ -155,9 +157,17 @@ extension FoodForm.NutrientsPerForm {
     }
     
     var servingSizeSection: some View {
-        Section("Serving Size") {
+        var header: some View {
+            Text("Serving Size")
+        }
+        
+        var footer: some View {
+            Text("Specifying the serving size will also let you log this food using its \(servingSizeUnit == "g" ? "weight" : "volume")")
+        }
+        
+        return Section(header: header, footer: footer) {
             HStack {
-                TextField("Amount", text: $servingSizeAmount)
+                TextField("Optional", text: $servingSizeAmount)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
                 Picker("", selection: $servingSizeUnit) {
