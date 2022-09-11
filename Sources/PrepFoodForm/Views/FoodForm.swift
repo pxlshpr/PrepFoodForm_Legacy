@@ -73,7 +73,7 @@ public struct FoodForm: View {
         Button {
 //            tappedAdd()
         } label: {
-            Text("Save")
+            Text("Save to Public Database")
                 .bold()
                 .foregroundColor(.white)
                 .padding(.vertical)
