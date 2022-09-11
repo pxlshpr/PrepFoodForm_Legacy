@@ -7,11 +7,11 @@ extension FoodForm {
 
 extension FoodForm.SourceForm {
     var body: some View {
-        NavigationView {
+//        NavigationView {
             list
                 .navigationTitle("Source")
                 .navigationBarTitleDisplayMode(.inline)
-        }
+//        }
     }
     
     var list: some View {

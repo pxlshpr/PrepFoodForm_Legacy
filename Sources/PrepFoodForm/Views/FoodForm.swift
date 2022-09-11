@@ -48,19 +48,45 @@ public struct FoodForm: View {
     
     var navigationStack: some View  {
         NavigationStack {
-            formNavigationView
-                .navigationBarTitle("New Food")
-                .navigationBarTitleDisplayMode(.inline)
+            VStack {
+                formNavigationView
+                addButton
+            }
+            .navigationBarTitle("New Food")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
     
     var navigationView: some View {
         NavigationView {
-            formNavigationView
-                .navigationBarTitle("New Food")
-                .navigationBarTitleDisplayMode(.inline)
+            VStack {
+                formNavigationView
+                addButton
+            }
+            .navigationBarTitle("New Food")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
+    
+    var addButton: some View {
+        Button {
+//            tappedAdd()
+        } label: {
+            Text("Add")
+                .bold()
+                .foregroundColor(.white)
+                .padding(.vertical)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundColor(.accentColor)
+                )
+                .padding(.horizontal)
+                .padding(.horizontal)
+        }
+//        .disabled(name.isEmpty)
+    }
+
 
     var formNavigationView: some View {
         Form {
@@ -76,8 +102,8 @@ public struct FoodForm: View {
     
     var detailsSection: some View {
         Section("Details") {
-            Button {
-                isPresentingDetails = true
+            NavigationLink {
+                DetailsForm(viewModel: viewModel)
             } label: {
                 DetailsCell(viewModel: viewModel)
             }
@@ -85,12 +111,18 @@ public struct FoodForm: View {
     }
     
     var servingSection: some View {
-        Section("Nutrients Per") {
-            Button {
-                isPresentingNutrientsPer = true
+        Section("Serving") {
+            NavigationLink {
+                NutrientsPerForm()
             } label: {
-                servingCell
+                Text("Required")
+                    .foregroundColor(Color(.tertiaryLabel))
             }
+//            Button {
+//                isPresentingNutrientsPer = true
+//            } label: {
+//                servingCell
+//            }
         }
 
     }
@@ -98,31 +130,43 @@ public struct FoodForm: View {
     var nutrientsSection: some View {
         Group {
             Section("Nutrients") {
-                Button {
-                    isPresentingNutrients = true
+                NavigationLink {
+                    NutrientsList()
                 } label: {
-                    nutrientsCell
+                    Text("Required")
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
-                Button {
-                    #if targetEnvironment(simulator)
-                    addDummyImageForSimulator()
-                    #else
-                    isPresentingFoodLabelScanner = true
-                    #endif
-                } label: {
-                    foodLabelScanCell
-                }
+//                Button {
+//                    isPresentingNutrients = true
+//                } label: {
+//                    nutrientsCell
+//                }
+//                Button {
+//                    #if targetEnvironment(simulator)
+//                    addDummyImageForSimulator()
+//                    #else
+//                    isPresentingFoodLabelScanner = true
+//                    #endif
+//                } label: {
+//                    foodLabelScanCell
+//                }
             }
         }
     }
     
     var sourceSection: some View {
         Section("Source") {
-            Button {
-                isPresentingSource = true
+            NavigationLink {
+                SourceForm()
             } label: {
-                sourceCell
+                Text("Optional")
+                    .foregroundColor(Color(.quaternaryLabel))
             }
+//            Button {
+//                isPresentingSource = true
+//            } label: {
+//                sourceCell
+//            }
         }
     }
     

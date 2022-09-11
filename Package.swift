@@ -17,6 +17,7 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/pxlshpr/ISEmojiView", from: "0.3.3"),
+        .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.5"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.168"),
         .package(url: "https://github.com/pxlshpr/CodeScanner", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.1"),
@@ -30,6 +31,7 @@ let package = Package(
             name: "PrepFoodForm",
             dependencies: [
                 .product(name: "ISEmojiView", package: "isemojiview"),
+                .product(name: "NamePicker", package: "namepicker"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),
                 .product(name: "CodeScanner", package: "codescanner"),
                 .product(name: "CameraImagePicker", package: "cameraimagepicker"),

@@ -4,7 +4,8 @@ extension FoodForm {
     struct NutrientsPerForm: View {
         
         @State var servingAmount = ""
-        @State var servingUnit: String = "serving"
+        @State var servingUnit: String = "g"
+        @State var pickerServingUnit: String = "g"
 
         @State var servingSizeAmount = ""
         @State var servingSizeUnit: String = "g"
@@ -32,12 +33,10 @@ extension FoodForm.NutrientsPerForm.Controller {
 
 extension FoodForm.NutrientsPerForm {
     var body: some View {
-        NavigationView {
-            form
-                .toolbar { bottomToolbarContent }
-                .navigationTitle("Nutrients Per")
-                .navigationBarTitleDisplayMode(.inline)
-        }
+        form
+        .toolbar { bottomToolbarContent }
+        .navigationTitle("Serving")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSizesList) {
             SizesList()
         }
@@ -57,12 +56,9 @@ extension FoodForm.NutrientsPerForm {
             amountSection
             if servingUnit == "serving" {
                 servingSizeSection
-                    .animation(.default, value: servingUnit)
-//                    .transition(.opacity)
-                
             }
             sizesSection
-            volumesSection
+            densitiesSection
         }
     }
     
@@ -81,8 +77,40 @@ extension FoodForm.NutrientsPerForm {
         }
     }
     
+
+    var densitiesSection: some View {
+        var header: some View {
+            Text("Density")
+        }
+        
+        @ViewBuilder
+        var footer: some View {
+            if servingUnit == "g" || servingSizeUnit == "g" {
+                Text("Specifying a density will also let you log this food using volume-measurements – such as cups, tablespoons, etc.")
+            } else if servingUnit == "cup" || servingSizeUnit == "cup" {
+                Text("Specifying a density will also let you log this food using weight-measurements – such as grams, ounces, etc.")
+            }
+        }
+        
+        return Section(header: header, footer: footer) {
+            NavigationLink {
+                DensitiesForm()
+            } label: {
+                Text("Optional")
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
+        }
+    }
     var sizesSection: some View {
-        Section("Sizes") {
+        var header: some View {
+            Text("Sizes")
+        }
+        
+        var footer: some View {
+            Text("Sizes let you give names to preset measurements of this food – like biscuit, bottle, pack, etc.")
+        }
+        
+        return Section(header: header, footer: footer) {
             Button {
                 showingAddSizeForm = true
             } label: {
@@ -96,41 +124,38 @@ extension FoodForm.NutrientsPerForm {
 //            }
         }
     }
-
-    var volumesSection: some View {
-        Section("Volumes") {
-            Button {
-                
-            } label: {
-                Text("Add a volume-based size")
-            }
-//            NavigationLink {
-//                FoodForm.NutrientsPerForm.SizesList()
-//            } label: {
-//                Text("Volumes")
-//            }
-        }
-    }
-
+    
     var amountSection: some View {
-        Section {
+        var header: some View {
+            Text("Amount")
+        }
+        
+        var footer: some View {
+            Text("This is how much of this food you'll be specifying the nutritional values for.")
+        }
+        return Section(header: header, footer: footer) {
             HStack {
-                TextField("Amount", text: $servingAmount)
+                TextField("Required", text: $servingAmount)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
-                Picker("", selection: $servingUnit) {
+                Picker("", selection: $pickerServingUnit) {
                     ForEach(servingUnits, id: \.self) {
                         Text($0).tag($0)
                     }
                 }
                 .pickerStyle(.menu)
                 .labelsHidden()
+                .onChange(of: pickerServingUnit) { newValue in
+                    withAnimation {
+                        servingUnit = pickerServingUnit
+                    }
+                }
             }
         }
     }
     
     var servingSizeSection: some View {
-        Section("Serving") {
+        Section("Serving Size") {
             HStack {
                 TextField("Amount", text: $servingSizeAmount)
                     .multilineTextAlignment(.leading)

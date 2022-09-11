@@ -13,11 +13,11 @@ extension FoodForm.DetailsForm {
 extension FoodForm.DetailsForm.EmojiPicker {
     
     var body: some View {
-        NavigationView {
+//        NavigationView {
             content
                 .navigationTitle("Pick an Emoji")
                 .navigationBarTitleDisplayMode(.inline)
-        }
+//        }
     }
     
     var content: some View {

@@ -15,12 +15,12 @@ extension FoodForm {
 
 extension FoodForm.DetailsForm {
     var body: some View {
-        NavigationView {
+//        NavigationView {
             form
             .toolbar { bottomToolbarContent }
             .navigationTitle("Details")
             .navigationBarTitleDisplayMode(.inline)
-        }
+//        }
         .sheet(isPresented: $showingEmojiPicker) {
             FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
         }
@@ -35,11 +35,16 @@ extension FoodForm.DetailsForm {
                 TextField("Required", text: $viewModel.name)
             }
             Section("Emoji") {
-                Button {
-                    showingEmojiPicker = true
+                NavigationLink {
+                    EmojiPicker(emoji: $viewModel.emoji)
                 } label: {
                     emojiCell
                 }
+//                Button {
+//                    showingEmojiPicker = true
+//                } label: {
+//                    emojiCell
+//                }
             }
             Section("Detail") {
                 TextField("", text: $viewModel.detail)
@@ -62,10 +67,19 @@ extension FoodForm.DetailsForm {
     }
     
     var emojiCell: some View {
-        Text(viewModel.emoji.isEmpty ? "Choose an emoji (required)" : viewModel.emoji)
-            .if(!viewModel.emoji.isEmpty) { text in
-                text.font(Font.system(size: 50.0))
+        Group {
+            if viewModel.emoji.isEmpty {
+                Text("Required")
+                    .foregroundColor(Color(.tertiaryLabel))
+            } else {
+                Text(viewModel.emoji)
+                    .font(Font.system(size: 50.0))
             }
+        }
+//        Text(viewModel.emoji.isEmpty ? "Choose an emoji (required)" : viewModel.emoji)
+//            .if(!viewModel.emoji.isEmpty) { text in
+//                text.font(Font.system(size: 50.0))
+//            }
     }
 
     var bottomToolbarContent: some ToolbarContent {

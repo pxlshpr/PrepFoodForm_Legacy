@@ -1,4 +1,5 @@
 import SwiftUI
+import NamePicker
 
 extension FoodForm.NutrientsPerForm {
     struct SizeForm: View {
@@ -17,8 +18,12 @@ extension FoodForm.NutrientsPerForm.SizeForm {
                 .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $showingNamePicker) {
-            Text("Name Picker")
-                .presentationDetents([.medium, .large])
+            NavigationView {
+                namePicker
+                    .navigationTitle("Size Name")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.medium, .large])
         }
     }
     
@@ -40,18 +45,25 @@ extension FoodForm.NutrientsPerForm.SizeForm {
     
     var nameSection: some View {
         Section("Name") {
-            NavigationLink {
-                Text("Name Picker here")
-//                DiaryView.AddMeal.Name(name: $name)
-//                    .environmentObject(diaryController)
+//            NavigationLink {
+//                namePicker
+            Button {
+                showingNamePicker = true
             } label: {
                 if name.isEmpty {
                     Text("Required")
                         .foregroundColor(.secondary)
                 } else {
                     Text(name)
+                        .foregroundColor(.primary)
                 }
             }
         }
+    }
+    
+    var namePicker: some View {
+        NamePicker(name: $name,
+                   presetStrings: ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
+        )
     }
 }

@@ -26,14 +26,14 @@ extension FoodForm {
 
 extension FoodForm.NutrientsList {
     var body: some View {
-        NavigationView {
+//        NavigationView {
 //            form
 //            list
             scrollView
                 .toolbar { bottomToolbarContent }
                 .navigationTitle("Nutrients")
                 .navigationBarTitleDisplayMode(.inline)
-        }
+//        }
     }
 
     var formBackgroundColor: Color {

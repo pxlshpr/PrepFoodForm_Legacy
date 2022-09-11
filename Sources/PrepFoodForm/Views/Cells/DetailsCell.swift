@@ -21,7 +21,8 @@ extension FoodForm.DetailsCell {
     }
     
     var emptyContent: some View {
-        Text("Add details")
+        Text("Required")
+            .foregroundColor(Color(.tertiaryLabel))
     }
     
     var filledContent: some View {
@@ -40,7 +41,8 @@ extension FoodForm.DetailsCell {
                 Text(viewModel.name)
                     .bold()
             } else {
-                Text("(No Name)")
+                Text("[Name Required]")
+                    .foregroundColor(Color(.tertiaryLabel))
             }
         }
         
@@ -78,7 +80,7 @@ extension FoodForm.DetailsCell {
             }
             Spacer()
             barcode
-            Image(systemName: "chevron.forward")
+//            Image(systemName: "chevron.forward")
         }
             .foregroundColor(.primary)
     }
