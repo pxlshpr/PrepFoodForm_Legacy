@@ -8,15 +8,23 @@ extension FoodForm.ServingForm {
         @Environment(\.dismiss) var dismiss
         @ObservedObject var viewModel: FoodForm.ViewModel
         @State var type: UnitType
-        @State var pickedUnit: AmountUnit
+        @State var pickedUnit: FormUnit
         
-        init(viewModel: FoodForm.ViewModel) {
+        var delegate: UnitSelectorDelegate
+        var includeServing: Bool
+
+        init(viewModel: FoodForm.ViewModel, pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, delegate: UnitSelectorDelegate) {
+            self.delegate = delegate
+            self.includeServing = includeServing
             self.viewModel = viewModel
-            _pickedUnit = State(initialValue: viewModel.amountUnit)
-            _type = State(initialValue: viewModel.amountUnit.unitType)
+            _pickedUnit = State(initialValue: pickedUnit)
+            _type = State(initialValue: pickedUnit.unitType)
         }
-        
     }
+}
+
+protocol UnitSelectorDelegate {
+    func didPickUnit(unit: FormUnit)
 }
 
 extension FoodForm.ServingForm.UnitSelector {
@@ -31,12 +39,15 @@ extension FoodForm.ServingForm.UnitSelector {
         .onChange(of: pickedUnit) { newValue in
             pickedUnitChanged(to: newValue)
         }
+        .onChange(of: type) { newValue in
+            if type == .serving {
+                pickedUnit(unit: .serving)
+            }
+        }
     }
     
-    func pickedUnitChanged(to newUnit: AmountUnit) {
-        withAnimation {
-            viewModel.amountUnit = newUnit
-        }
+    func pickedUnitChanged(to newUnit: FormUnit) {
+        delegate.didPickUnit(unit: newUnit)
         Haptics.feedback(style: .heavy)
         dismiss()
     }
@@ -47,9 +58,16 @@ extension FoodForm.ServingForm.UnitSelector {
         }
     }
     
+    var unitTypes: [UnitType] {
+        guard includeServing else {
+            return UnitType.allCases.filter({ $0 != .serving })
+        }
+        return UnitType.allCases
+    }
+    
     var typePicker: some View {
         Picker("", selection: $type) {
-            ForEach(UnitType.allCases, id: \.self) { type in
+            ForEach(unitTypes, id: \.self) { type in
                 Text(type.description).tag(type)
             }
         }
@@ -70,13 +88,24 @@ extension FoodForm.ServingForm.UnitSelector {
         }
     }
     
-    func pickedUnit(unit: AmountUnit) {
+    func pickedUnit(unit: FormUnit) {
         self.pickedUnit = unit
+        if unit == .serving {
+            dismiss()
+        }
     }
     
+    var weightUnits: [WeightUnit] {
+        [.g, .oz, .mg, .lb, .kg]
+    }
+
+    var volumeUnits: [VolumeUnit] {
+        [.cup, .mL, .fluidOunce, .teaspoon, .tablespoon, .liter, .pint, .quart, .gallon]
+    }
+
     var weightsList: some View {
         List {
-            ForEach(WeightUnit.allCases, id: \.self) { weightUnit in
+            ForEach(weightUnits, id: \.self) { weightUnit in
                 Button {
                     pickedUnit(unit: .weight(weightUnit))
                 } label: {
@@ -103,7 +132,7 @@ extension FoodForm.ServingForm.UnitSelector {
     
     var volumesList: some View {
         List {
-            ForEach(VolumeUnit.allCases, id: \.self) { volumeUnit in
+            ForEach(volumeUnits, id: \.self) { volumeUnit in
                 Button {
                     pickedUnit(unit: .volume(volumeUnit))
                 } label: {
@@ -152,9 +181,13 @@ extension FoodForm.ServingForm.UnitSelector {
             Button {
                 
             } label: {
-                Text("Add a size")
+                HStack {
+                    Text("Add a size")
+                    Spacer()
+                }
             }
             .buttonStyle(.borderless)
+            .contentShape(Rectangle())
         }
     }
 }

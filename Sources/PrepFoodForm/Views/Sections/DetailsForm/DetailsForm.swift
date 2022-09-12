@@ -61,7 +61,7 @@ extension FoodForm.DetailsForm {
             }
             Section("Detail") {
                 TextField("", text: $viewModel.detail)
-                    .placeholder(when: viewModel.brand.isEmpty) {
+                    .placeholder(when: viewModel.detail.isEmpty) {
                         Text("Optional").foregroundColor(Color(.quaternaryLabel))
                     }
             }

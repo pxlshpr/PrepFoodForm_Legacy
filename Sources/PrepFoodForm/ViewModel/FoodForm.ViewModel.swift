@@ -15,13 +15,13 @@ extension FoodForm {
 
         //MARK: Serving
         @Published var amountString: String = ""
-        @Published var amountUnit: AmountUnit = .serving
+        @Published var amountUnit: FormUnit = .serving
 //        @Published var amountWeightUnit: WeightUnit? = nil
 //        @Published var amountVolumeUnit: VolumeUnit? = nil
 //        @Published var amountUnitIsServing: Bool = true
 
-        @Published var servingAmountString: String = ""
-        @Published var servingAmountUnit: SelectionOption = WeightUnit.g
+        @Published var servingString: String = ""
+        @Published var servingUnit: FormUnit = .weight(.g)
     }
 }
 
@@ -31,7 +31,7 @@ extension FoodForm.ViewModel {
     }
     
     var hasNutrientsPerServingContent: Bool {
-        !servingAmountString.isEmpty
+        !servingString.isEmpty
     }
     
     var amount: Double {
@@ -47,15 +47,19 @@ extension FoodForm.ViewModel {
     }
     
     var servingAmount: Double {
-        Double(servingAmountString) ?? 0
+        Double(servingString) ?? 0
     }
     
-    var servingAmountUnitDescription: String {
-        servingAmountUnit.title(isPlural: servingAmount > 1) ?? ""
+    var servingUnitDescription: String {
+        servingUnit.description
     }
     
-    var servingAmountDescription: String {
-        "\(servingAmountString) \(servingAmountUnitDescription)"
+    var servingUnitShortString: String {
+        servingUnit.shortDescription
+    }
+    
+    var servingDescription: String {
+        "\(servingString) \(servingUnitDescription)"
     }
     
     var amountUnitString: String {

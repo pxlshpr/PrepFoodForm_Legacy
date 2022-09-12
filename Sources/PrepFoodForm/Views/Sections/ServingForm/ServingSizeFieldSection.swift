@@ -2,7 +2,7 @@ import SwiftUI
 import PrepUnits
 
 extension FoodForm.ServingForm {
-    struct AmountFieldSection: View {
+    struct ServingSizeFieldSection: View {
         @ObservedObject var viewModel: FoodForm.ViewModel
         @StateObject var controller: Controller
         @State var showingUnitSelector = false
@@ -16,8 +16,7 @@ extension FoodForm.ServingForm {
     }
 }
 
-
-extension FoodForm.ServingForm.AmountFieldSection {
+extension FoodForm.ServingForm.ServingSizeFieldSection {
     class Controller: ObservableObject {
         var viewModel: FoodForm.ViewModel
         init(viewModel: FoodForm.ViewModel) {
@@ -26,14 +25,15 @@ extension FoodForm.ServingForm.AmountFieldSection {
     }
 }
 
-extension FoodForm.ServingForm.AmountFieldSection.Controller: UnitSelectorDelegate {
+extension FoodForm.ServingForm.ServingSizeFieldSection.Controller: UnitSelectorDelegate {
     func didPickUnit(unit: FormUnit) {
         withAnimation {
-            viewModel.amountUnit = unit
+            viewModel.servingUnit = unit
         }
     }
 }
-extension FoodForm.ServingForm.AmountFieldSection {
+
+extension FoodForm.ServingForm.ServingSizeFieldSection {
     
     var body: some View {
         Section(header: header, footer: footer) {
@@ -51,16 +51,19 @@ extension FoodForm.ServingForm.AmountFieldSection {
                 .presentationDetents([.medium])
         }
         .sheet(isPresented: $showingUnitSelector) {
-            FoodForm.ServingForm.UnitSelector(viewModel: viewModel, pickedUnit: viewModel.amountUnit, delegate: controller)
+            FoodForm.ServingForm.UnitSelector(viewModel: viewModel, pickedUnit: viewModel.servingUnit, includeServing: false, delegate: controller)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.hidden)
         }
     }
     
     var textField: some View {
-        TextField("Required", text: $viewModel.amountString)
+        TextField("", text: $viewModel.servingString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
+            .placeholder(when: viewModel.servingString.isEmpty) {
+                Text("Optional").foregroundColor(Color(.quaternaryLabel))
+            }
     }
     
     var unitButton: some View {
@@ -68,7 +71,7 @@ extension FoodForm.ServingForm.AmountFieldSection {
             showingUnitSelector = true
         } label: {
             HStack(spacing: 5) {
-                Text(viewModel.amountUnitShortString)
+                Text(viewModel.servingUnitShortString)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
@@ -77,10 +80,37 @@ extension FoodForm.ServingForm.AmountFieldSection {
     }
 
     var header: some View {
-        Text("Amount")
+        Text(viewModel.servingSizeHeaderString)
     }
-    
+
     var footer: some View {
-        Text("This is how much of this food the nutritional values are for. You'll be able to log this food using the unit you choose.")
+        Text(viewModel.servingSizeFooterString)
+    }
+}
+
+extension FoodForm.ViewModel {
+    var servingSizeHeaderString: String {
+        switch servingUnit {
+        case .weight:
+            return "Serving Weight"
+        case .volume:
+            return "Serving Volume"
+        case .size:
+            return "Serving Size"
+        case .serving:
+            return "Unsupported"
+        }
+    }
+    var servingSizeFooterString: String {
+        switch servingUnit {
+        case .weight:
+            return "Enter this to also log this food using its weight."
+        case .volume:
+            return "Enter this to also log this food using its volume."
+        case .size:
+            return "Enter this to also log this food using its [insert unitType of size here]"
+        case .serving:
+            return "Unsupported"
+        }
     }
 }

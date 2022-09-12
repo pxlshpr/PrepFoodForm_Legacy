@@ -1,13 +1,13 @@
 import PrepUnits
 
-enum AmountUnit {
+enum FormUnit {
     case weight(WeightUnit)
     case volume(VolumeUnit)
     case size
     case serving
 }
 
-extension AmountUnit {
+extension FormUnit {
     var unitType: UnitType {
         switch self {
         case .weight:
@@ -22,7 +22,7 @@ extension AmountUnit {
     }
 }
 
-extension AmountUnit: CustomStringConvertible {
+extension FormUnit: CustomStringConvertible {
     var description: String {
         switch self {
         case .weight(let weightUnit):
@@ -49,8 +49,8 @@ extension AmountUnit: CustomStringConvertible {
         }
     }
 }
-extension AmountUnit: Equatable {
-    static func ==(lhs: AmountUnit, rhs: AmountUnit) -> Bool {
+extension FormUnit: Equatable {
+    static func ==(lhs: FormUnit, rhs: FormUnit) -> Bool {
         switch (lhs, rhs) {
         case (.serving, .serving):
             return true

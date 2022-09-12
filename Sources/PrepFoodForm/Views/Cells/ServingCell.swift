@@ -29,7 +29,7 @@ extension FoodForm.ServingCell {
             HStack(spacing: 0) {
                 Text(viewModel.amountDescription)
                 if viewModel.hasNutrientsPerServingContent {
-                    Text(" (\(viewModel.servingAmountDescription))")
+                    Text(" (\(viewModel.servingDescription))")
                         .foregroundColor(.secondary)
                 }
             }
@@ -66,7 +66,7 @@ public struct ServingCellPreview: View {
     
     func populateData() {
         viewModel.amountString = "1"
-        viewModel.servingAmountString = "25"
+        viewModel.servingString = "25"
     }
 }
 struct ServingCell_Previews: PreviewProvider {

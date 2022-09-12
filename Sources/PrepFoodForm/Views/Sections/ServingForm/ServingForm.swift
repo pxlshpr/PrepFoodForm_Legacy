@@ -46,7 +46,7 @@ extension FoodForm.ServingForm {
         Form {
             AmountFieldSection(viewModel: viewModel)
             if viewModel.amountUnit == .serving {
-                servingSizeSection
+                ServingSizeFieldSection(viewModel: viewModel)
             }
             sizesSection
             if servingUnit != "serving" || !servingSizeAmount.isEmpty {
@@ -79,9 +79,9 @@ extension FoodForm.ServingForm {
         @ViewBuilder
         var footer: some View {
             if servingUnit == "g" || servingSizeUnit == "g" {
-                Text("Specifying a density will also let you log this food using volume units – such as cups, tablespoons, etc.")
+                Text("Specifying a density will also let you log this food using volume units.")
             } else if servingUnit == "cup" || servingSizeUnit == "cup" {
-                Text("Specifying a density will also let you log this food using weight units – such as grams, ounces, etc.")
+                Text("Specifying a density will also let you log this food using weight units.")
             }
         }
         
@@ -101,7 +101,7 @@ extension FoodForm.ServingForm {
         }
         
         var footer: some View {
-            Text("Sizes give you additional ways to log this food in frequently eaten amounts — like biscuit, bottle, pack, etc.")
+            Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, pack, etc.")
         }
         
         return Section(header: header, footer: footer) {
@@ -116,34 +116,6 @@ extension FoodForm.ServingForm {
 //                Text("Sizes")
 //                    .foregroundColor(.accentColor)
 //            }
-        }
-    }
-    
-    var servingSizeSection: some View {
-        var header: some View {
-            Text("Serving Weight")
-        }
-        
-        var footer: some View {
-            Text("Enter this to also log this food using its \(servingSizeUnit == "g" ? "weight" : "volume").")
-        }
-        
-        return Section(header: header, footer: footer) {
-            HStack {
-                TextField("", text: $servingSizeAmount)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                    .placeholder(when: viewModel.brand.isEmpty) {
-                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
-                    }
-                Picker("", selection: $servingSizeUnit) {
-                    ForEach(servingSizeUnits, id: \.self) {
-                        Text($0).tag($0)
-                    }
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-            }
         }
     }
 }
