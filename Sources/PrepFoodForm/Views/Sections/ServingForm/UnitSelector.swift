@@ -24,8 +24,8 @@ extension FoodForm.ServingForm.UnitSelector {
     var body: some View {
         NavigationView {
             list
-            .navigationTitle("Pick a unit")
-            .navigationBarTitleDisplayMode(.inline)
+//            .navigationTitle("Pick a unit")
+//            .navigationBarTitleDisplayMode(.inline)
             .toolbar { bottomBarContent }
         }
         .onChange(of: pickedUnit) { newValue in
@@ -42,7 +42,7 @@ extension FoodForm.ServingForm.UnitSelector {
     }
     
     var bottomBarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
+        ToolbarItemGroup(placement: .principal) {
             typePicker
         }
     }

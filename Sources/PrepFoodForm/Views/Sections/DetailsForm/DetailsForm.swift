@@ -2,6 +2,19 @@ import SwiftUI
 import SwiftUISugar
 import CodeScanner
 
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content) -> some View {
+
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+}
+
 extension FoodForm {
     
     struct DetailsForm: View {
@@ -48,9 +61,15 @@ extension FoodForm.DetailsForm {
             }
             Section("Detail") {
                 TextField("", text: $viewModel.detail)
+                    .placeholder(when: viewModel.brand.isEmpty) {
+                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                    }
             }
             Section("Brand") {
                 TextField("", text: $viewModel.brand)
+                    .placeholder(when: viewModel.brand.isEmpty) {
+                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                    }
             }
             Section("Barcode") {
                 Button {

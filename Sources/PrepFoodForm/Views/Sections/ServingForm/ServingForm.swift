@@ -130,9 +130,12 @@ extension FoodForm.ServingForm {
         
         return Section(header: header, footer: footer) {
             HStack {
-                TextField("Optional", text: $servingSizeAmount)
+                TextField("", text: $servingSizeAmount)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
+                    .placeholder(when: viewModel.brand.isEmpty) {
+                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                    }
                 Picker("", selection: $servingSizeUnit) {
                     ForEach(servingSizeUnits, id: \.self) {
                         Text($0).tag($0)
