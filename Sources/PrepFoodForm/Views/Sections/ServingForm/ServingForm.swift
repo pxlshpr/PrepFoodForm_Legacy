@@ -101,7 +101,7 @@ extension FoodForm.ServingForm {
         }
         
         var footer: some View {
-            Text("Sizes let you log this food in frequently eaten amounts — like biscuit, bottle, pack, etc.")
+            Text("Sizes give you additional ways to log this food in frequently eaten amounts — like biscuit, bottle, pack, etc.")
         }
         
         return Section(header: header, footer: footer) {

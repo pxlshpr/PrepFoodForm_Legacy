@@ -73,7 +73,7 @@ public struct FoodForm: View {
         Button {
 //            tappedAdd()
         } label: {
-            Text("Save to Public Database")
+            Text("Save")
                 .bold()
                 .foregroundColor(.white)
                 .padding(.vertical)
@@ -92,7 +92,7 @@ public struct FoodForm: View {
         Button {
             
         } label: {
-            Text("Save as Private Food")
+            Text("Save Privately")
                 .bold()
                 .foregroundColor(.accentColor)
                 .padding(.vertical)
@@ -131,7 +131,7 @@ public struct FoodForm: View {
     }
     
     var servingSection: some View {
-        Section("Serving") {
+        Section("Nutrients per") {
             NavigationLink {
                 ServingForm(viewModel: viewModel)
             } label: {
