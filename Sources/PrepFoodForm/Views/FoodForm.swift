@@ -26,7 +26,7 @@ public struct FoodForm: View {
                 FoodForm.DetailsForm(viewModel: viewModel)
             }
             .sheet(isPresented: $isPresentingNutrientsPer) {
-                FoodForm.NutrientsPerForm()
+                FoodForm.ServingForm(viewModel: viewModel)
             }
             .sheet(isPresented: $isPresentingNutrients) {
                 FoodForm.NutrientsList()
@@ -48,25 +48,25 @@ public struct FoodForm: View {
     
     var navigationStack: some View  {
         NavigationStack {
-            VStack {
-                formNavigationView
-                savePublicallyButton
-            }
-            .navigationBarTitle("New Food")
-            .navigationBarTitleDisplayMode(.inline)
+            contents
         }
     }
     
     var navigationView: some View {
         NavigationView {
-            VStack {
-                formNavigationView
-                savePublicallyButton
-                savePrivatelyButton
-            }
-            .navigationBarTitle("New Food")
-            .navigationBarTitleDisplayMode(.inline)
+            contents
         }
+    }
+    
+    var contents: some View {
+        VStack {
+            formNavigationView
+            savePublicallyButton
+            savePrivatelyButton
+        }
+        .background(Color(.systemGroupedBackground))
+        .navigationBarTitle("New Food")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     var savePublicallyButton: some View {
@@ -133,16 +133,10 @@ public struct FoodForm: View {
     var servingSection: some View {
         Section("Serving") {
             NavigationLink {
-                NutrientsPerForm()
+                ServingForm(viewModel: viewModel)
             } label: {
-                Text("Required")
-                    .foregroundColor(Color(.tertiaryLabel))
+                ServingCell(viewModel: viewModel)
             }
-//            Button {
-//                isPresentingNutrientsPer = true
-//            } label: {
-//                servingCell
-//            }
         }
 
     }

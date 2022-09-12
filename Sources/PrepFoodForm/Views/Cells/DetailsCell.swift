@@ -119,7 +119,7 @@ struct DetailsCellPreview: View {
         NavigationView {
             Form {
                 Section("Details") {
-                    Button {
+                    NavigationLink {
                     } label: {
                         FoodForm.DetailsCell(viewModel: viewModel)
                     }

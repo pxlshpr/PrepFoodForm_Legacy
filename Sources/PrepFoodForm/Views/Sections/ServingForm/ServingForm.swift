@@ -1,7 +1,9 @@
 import SwiftUI
 
 extension FoodForm {
-    struct NutrientsPerForm: View {
+    struct ServingForm: View {
+
+        @ObservedObject var viewModel: ViewModel
         
         @State var servingAmount = ""
         @State var servingUnit: String = "g"
@@ -13,8 +15,6 @@ extension FoodForm {
         @State var servingUnits = ["g", "cup", "serving"]
         @State var servingSizeUnits = ["g", "cup"]
         
-        @StateObject var controller = Controller()
-        
         @State var showingSizesList = false
         @State var showingVolumesList = false
         @State var showingAddSizeForm = false
@@ -22,20 +22,11 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.NutrientsPerForm {
-    class Controller: ObservableObject {
-    }
-}
-
-extension FoodForm.NutrientsPerForm.Controller {
-    
-}
-
-extension FoodForm.NutrientsPerForm {
+extension FoodForm.ServingForm {
     var body: some View {
         form
         .toolbar { bottomToolbarContent }
-        .navigationTitle("Serving")
+        .navigationTitle("Nutrients per")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSizesList) {
             SizesList()
@@ -53,8 +44,8 @@ extension FoodForm.NutrientsPerForm {
     
     var form: some View {
         Form {
-            amountSection
-            if servingUnit == "serving" {
+            AmountFieldSection(viewModel: viewModel)
+            if viewModel.amountUnit == .serving {
                 servingSizeSection
             }
             sizesSection
@@ -88,15 +79,16 @@ extension FoodForm.NutrientsPerForm {
         @ViewBuilder
         var footer: some View {
             if servingUnit == "g" || servingSizeUnit == "g" {
-                Text("Specifying a density will also let you log this food using volume-measurements – such as cups, tablespoons, etc.")
+                Text("Specifying a density will also let you log this food using volume units – such as cups, tablespoons, etc.")
             } else if servingUnit == "cup" || servingSizeUnit == "cup" {
-                Text("Specifying a density will also let you log this food using weight-measurements – such as grams, ounces, etc.")
+                Text("Specifying a density will also let you log this food using weight units – such as grams, ounces, etc.")
             }
         }
         
         return Section(header: header, footer: footer) {
             NavigationLink {
-                DensitiesForm()
+                Text("huh")
+//                DensitiesForm()
             } label: {
                 Text("Optional")
                     .foregroundColor(Color(.quaternaryLabel))
@@ -109,7 +101,7 @@ extension FoodForm.NutrientsPerForm {
         }
         
         var footer: some View {
-            Text("Sizes let you give names to preset measurements of this food – like biscuit, bottle, pack, etc.")
+            Text("Sizes let you log this food in frequently eaten amounts — like biscuit, bottle, pack, etc.")
         }
         
         return Section(header: header, footer: footer) {
@@ -119,7 +111,7 @@ extension FoodForm.NutrientsPerForm {
                 Text("Add a size")
             }
 //            NavigationLink {
-//                FoodForm.NutrientsPerForm.SizesList()
+//                FoodForm.ServingForm.SizesList()
 //            } label: {
 //                Text("Sizes")
 //                    .foregroundColor(.accentColor)
@@ -127,42 +119,13 @@ extension FoodForm.NutrientsPerForm {
         }
     }
     
-    var amountSection: some View {
-        var header: some View {
-            Text("Amount")
-        }
-        
-        var footer: some View {
-            Text("This is how much of this food you'll be specifying the nutritional values for.")
-        }
-        return Section(header: header, footer: footer) {
-            HStack {
-                TextField("Required", text: $servingAmount)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                Picker("", selection: $pickerServingUnit) {
-                    ForEach(servingUnits, id: \.self) {
-                        Text($0).tag($0)
-                    }
-                }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .onChange(of: pickerServingUnit) { newValue in
-                    withAnimation {
-                        servingUnit = pickerServingUnit
-                    }
-                }
-            }
-        }
-    }
-    
     var servingSizeSection: some View {
         var header: some View {
-            Text("Serving Size")
+            Text("Serving Weight")
         }
         
         var footer: some View {
-            Text("Specifying the serving size will also let you log this food using its \(servingSizeUnit == "g" ? "weight" : "volume")")
+            Text("Enter this to also log this food using its \(servingSizeUnit == "g" ? "weight" : "volume").")
         }
         
         return Section(header: header, footer: footer) {

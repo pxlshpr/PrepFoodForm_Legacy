@@ -1,7 +1,7 @@
 import SwiftUI
 import NamePicker
 
-extension FoodForm.NutrientsPerForm {
+extension FoodForm.ServingForm {
     struct SizeForm: View {
         @State var name: String = ""
         
@@ -9,7 +9,7 @@ extension FoodForm.NutrientsPerForm {
     }
 }
 
-extension FoodForm.NutrientsPerForm.SizeForm {
+extension FoodForm.ServingForm.SizeForm {
     
     var body: some View {
         NavigationView {

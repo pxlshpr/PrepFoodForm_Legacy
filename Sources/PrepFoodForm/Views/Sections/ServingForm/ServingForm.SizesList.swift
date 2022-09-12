@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension FoodForm.NutrientsPerForm {
+extension FoodForm.ServingForm {
     struct SizesList: View {
         @State var listType: ListType = .standard
         @State var isPresentingAddSize: Bool = false
@@ -8,7 +8,7 @@ extension FoodForm.NutrientsPerForm {
     }
 }
 
-extension FoodForm.NutrientsPerForm.SizesList {
+extension FoodForm.ServingForm.SizesList {
 
     var body: some View {
         Text("Sizes List")

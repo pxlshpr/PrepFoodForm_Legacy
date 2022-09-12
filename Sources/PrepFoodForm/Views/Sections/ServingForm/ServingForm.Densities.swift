@@ -1,12 +1,12 @@
 import SwiftUI
 
-extension FoodForm.NutrientsPerForm {
+extension FoodForm.ServingForm {
     struct DensitiesForm: View {
         
     }
 }
 
-extension FoodForm.NutrientsPerForm.DensitiesForm {
+extension FoodForm.ServingForm.DensitiesForm {
     var body: some View {
         Form {
             densitySection
