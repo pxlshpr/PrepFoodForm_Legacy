@@ -6,17 +6,15 @@ extension FoodForm.ServingForm {
     struct UnitSelector: View {
         
         @Environment(\.dismiss) var dismiss
-        @ObservedObject var viewModel: FoodForm.ViewModel
         @State var type: UnitType
         @State var pickedUnit: FormUnit
         
         var delegate: UnitSelectorDelegate
         var includeServing: Bool
 
-        init(viewModel: FoodForm.ViewModel, pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, delegate: UnitSelectorDelegate) {
+        init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, delegate: UnitSelectorDelegate) {
             self.delegate = delegate
             self.includeServing = includeServing
-            self.viewModel = viewModel
             _pickedUnit = State(initialValue: pickedUnit)
             _type = State(initialValue: pickedUnit.unitType)
         }

@@ -36,6 +36,7 @@ extension FoodForm.ServingForm {
         }
         .sheet(isPresented: $showingAddSizeForm) {
             SizeForm()
+                .presentationDetents([.medium, .large])
         }
         .sheet(isPresented: $showingAddVolumeForm) {
             SizesList()

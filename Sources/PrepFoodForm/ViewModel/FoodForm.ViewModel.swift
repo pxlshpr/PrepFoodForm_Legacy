@@ -59,7 +59,7 @@ extension FoodForm.ViewModel {
     }
     
     var servingDescription: String {
-        "\(servingString) \(servingUnitDescription)"
+        "\(servingString) \(servingUnitShortString)"
     }
     
     var amountUnitString: String {
