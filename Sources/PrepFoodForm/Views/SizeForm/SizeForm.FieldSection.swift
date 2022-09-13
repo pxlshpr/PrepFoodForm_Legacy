@@ -104,7 +104,7 @@ public struct SizeFormFieldPreview: View {
         }
         
         var footer: some View {
-            Text("This will let you log this food in volumes of different densities or thicknesses, like – ‘cups shredded’, ‘cups sliced’.")
+            Text("This will let you log this food in volumes of a different density or thickness, like – ‘cups shredded’, ‘cups sliced’.")
         }
         
         return Section(footer: footer) {

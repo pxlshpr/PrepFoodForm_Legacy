@@ -23,8 +23,10 @@ struct SizeForm: View {
         NavigationStack(path: $viewModel.path) {
             VStack {
                 form
-                addButton
-                addAndAddAnotherButton
+                if viewModel.hasEnoughData {
+                    addButton
+                    addAndAddAnotherButton
+                }
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Add Size")
