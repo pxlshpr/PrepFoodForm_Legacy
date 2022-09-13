@@ -22,6 +22,12 @@ extension SizeForm {
 
 extension SizeForm.ViewModel {
     
+    var isValid: Bool {
+        guard let amount = amount else { return false }
+        return !name.isEmpty
+        && quantity > 0
+    }
+    
     var amount: Double? {
         guard let amount = Double(amountString) else {
             return nil

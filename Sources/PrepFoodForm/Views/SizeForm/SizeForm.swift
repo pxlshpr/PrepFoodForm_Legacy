@@ -23,7 +23,7 @@ struct SizeForm: View {
         NavigationStack(path: $viewModel.path) {
             VStack {
                 form
-                if viewModel.hasEnoughData {
+                if viewModel.isValid {
                     addButton
                     addAndAddAnotherButton
                 }

@@ -54,6 +54,8 @@ extension SizeForm.Field {
     var namePicker: some View {
         NamePicker(
             name: $viewModel.name,
+            showClearButton: true,
+            lowercased: true,
             presetStrings: ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
         )
         .navigationTitle("Size Name")
@@ -108,7 +110,7 @@ public struct SizeFormFieldPreview: View {
         }
         
         return Section(footer: footer) {
-            Toggle("Use volume prefix", isOn: $showingVolumePrefix)
+            Toggle("Use a volume prefix", isOn: $showingVolumePrefix)
         }
     }
 
