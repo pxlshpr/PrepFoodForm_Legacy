@@ -70,6 +70,7 @@ extension SizeForm.Field {
                 if string.isEmpty {
                     HStack(spacing: 5) {
                         Text(placeholder)
+                            .foregroundColor(Color(.tertiaryLabel))
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
