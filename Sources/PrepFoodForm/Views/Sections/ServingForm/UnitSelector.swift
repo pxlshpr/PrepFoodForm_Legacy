@@ -2,22 +2,20 @@ import SwiftUI
 import PrepUnits
 import SwiftHaptics
 
-extension FoodForm.ServingForm {
-    struct UnitSelector: View {
-        
-        @Environment(\.dismiss) var dismiss
-        @State var type: UnitType
-        @State var pickedUnit: FormUnit
-        
-        var delegate: UnitSelectorDelegate
-        var includeServing: Bool
+struct UnitSelector: View {
+    
+    @Environment(\.dismiss) var dismiss
+    @State var type: UnitType
+    @State var pickedUnit: FormUnit
+    
+    var delegate: UnitSelectorDelegate
+    var includeServing: Bool
 
-        init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, delegate: UnitSelectorDelegate) {
-            self.delegate = delegate
-            self.includeServing = includeServing
-            _pickedUnit = State(initialValue: pickedUnit)
-            _type = State(initialValue: pickedUnit.unitType)
-        }
+    init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, delegate: UnitSelectorDelegate) {
+        self.delegate = delegate
+        self.includeServing = includeServing
+        _pickedUnit = State(initialValue: pickedUnit)
+        _type = State(initialValue: pickedUnit.unitType)
     }
 }
 
@@ -25,14 +23,13 @@ protocol UnitSelectorDelegate {
     func didPickUnit(unit: FormUnit)
 }
 
-extension FoodForm.ServingForm.UnitSelector {
+extension UnitSelector {
     
     var body: some View {
-        NavigationView {
+        VStack {
+            typePicker
+                .padding(.horizontal)
             list
-//            .navigationTitle("Pick a unit")
-//            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { bottomBarContent }
         }
         .onChange(of: pickedUnit) { newValue in
             pickedUnitChanged(to: newValue)
@@ -44,10 +41,25 @@ extension FoodForm.ServingForm.UnitSelector {
         }
     }
     
+    @ViewBuilder
+    var list: some View {
+        switch type {
+        case .weight:
+            weightsList
+        case .volume:
+            volumesList
+        case .serving:
+            servingList
+        case .size:
+            sizesList
+        }
+    }
+    
+    
     func pickedUnitChanged(to newUnit: FormUnit) {
         delegate.didPickUnit(unit: newUnit)
         Haptics.feedback(style: .heavy)
-        dismiss()
+//        dismiss()
     }
     
     var bottomBarContent: some ToolbarContent {
@@ -72,25 +84,11 @@ extension FoodForm.ServingForm.UnitSelector {
         .pickerStyle(.segmented)
     }
     
-    @ViewBuilder
-    var list: some View {
-        switch type {
-        case .weight:
-            weightsList
-        case .volume:
-            volumesList
-        case .serving:
-            servingList
-        case .size:
-            sizesList
-        }
-    }
-    
     func pickedUnit(unit: FormUnit) {
         self.pickedUnit = unit
-        if unit == .serving {
-            dismiss()
-        }
+//        if unit == .serving {
+//            dismiss()
+//        }
     }
     
     var weightUnits: [WeightUnit] {
@@ -189,3 +187,26 @@ extension FoodForm.ServingForm.UnitSelector {
         }
     }
 }
+
+
+public struct UnitSelectorPreview: View {
+    
+    @StateObject var viewModel = SizeForm.ViewModel()
+    
+    public init() { }
+    
+    public var body: some View {
+        NavigationView {
+            UnitSelector(delegate: viewModel)
+                .navigationTitle("Pick a Unit")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
+
+struct UnitSelector_Previews: PreviewProvider {
+    static var previews: some View {
+        UnitSelectorPreview()
+    }
+}
+

@@ -9,6 +9,7 @@ struct SizeForm: View {
         case name
         case amount
         case volumePrefix
+        case amountUnit
     }
 
     @StateObject var viewModel = ViewModel()
@@ -33,7 +34,7 @@ struct SizeForm: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .sheet(isPresented: $showingUnitSelector) {
-            FoodForm.ServingForm.UnitSelector(pickedUnit: viewModel.amountUnit, delegate: viewModel)
+            UnitSelector(pickedUnit: viewModel.amountUnit, delegate: viewModel)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.hidden)
         }
@@ -127,31 +128,5 @@ struct SizeForm: View {
                     .labelsHidden()
             }
         }
-    }
-    
-    var amountSection: some View {
-        let type = viewModel.amountUnit.unitType.description.lowercased()
-        let nameComponent = viewModel.name.isEmpty ? "" : " of \(viewModel.quantityString) \(viewModel.name.lowercased())"
-        return Section("Equivalent \(type)\(nameComponent)") {
-            HStack {
-                TextField("Required", text: $viewModel.amountString)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                unitButton
-            }
-        }
-    }
-    
-    var unitButton: some View {
-        Button {
-            showingUnitSelector = true
-        } label: {
-            HStack(spacing: 5) {
-                Text(viewModel.amountUnit.shortDescription)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-        }
-        .buttonStyle(.borderless)
     }
 }

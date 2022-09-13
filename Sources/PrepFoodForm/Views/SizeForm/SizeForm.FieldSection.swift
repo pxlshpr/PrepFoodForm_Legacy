@@ -18,9 +18,11 @@ extension SizeForm.Field {
             case .quantity:
                 Text("Quantity form")
             case .amount:
-                Text("Amount form")
+                SizeForm.AmountForm(viewModel: viewModel)
             case .volumePrefix:
                 Text("Volume prefix picker")
+            case .amountUnit:
+                UnitSelector(delegate: viewModel)
             }
         }
     }
@@ -71,8 +73,8 @@ extension SizeForm.Field {
                     HStack(spacing: 5) {
                         Text(placeholder)
                             .foregroundColor(Color(.tertiaryLabel))
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
+//                        Image(systemName: "chevron.up.chevron.down")
+//                            .imageScale(.small)
                     }
                 } else {
                     Text(string)

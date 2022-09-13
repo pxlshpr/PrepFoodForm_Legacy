@@ -51,7 +51,7 @@ extension FoodForm.ServingForm.AmountFieldSection {
                 .presentationDetents([.medium])
         }
         .sheet(isPresented: $showingUnitSelector) {
-            FoodForm.ServingForm.UnitSelector(pickedUnit: viewModel.amountUnit, delegate: controller)
+            UnitSelector(pickedUnit: viewModel.amountUnit, delegate: controller)
                 .presentationDetents([.medium])
                 .presentationDragIndicator(.hidden)
         }
