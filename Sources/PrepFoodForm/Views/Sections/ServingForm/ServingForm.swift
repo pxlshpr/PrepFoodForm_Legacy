@@ -88,9 +88,8 @@ extension FoodForm.ServingForm {
         }
         
         return Section(header: header, footer: footer) {
-            NavigationLink {
-                Text("huh")
-//                DensitiesForm()
+            NavigationLinkButton {
+                viewModel.path.append(.densityForm)
             } label: {
                 Text("Optional")
                     .foregroundColor(Color(.quaternaryLabel))

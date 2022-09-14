@@ -23,7 +23,7 @@ extension SizeForm {
 extension SizeForm.ViewModel {
     
     var isValid: Bool {
-        guard let amount = amount else { return false }
+        guard let _ = amount else { return false }
         return !name.isEmpty
         && quantity > 0
     }
@@ -48,13 +48,5 @@ extension SizeForm.ViewModel {
         }
         
         return "\(amount.cleanAmount) \(amountUnit.shortDescription)"
-    }
-}
-
-extension SizeForm.ViewModel: UnitSelectorDelegate {
-    func didPickUnit(unit: FormUnit) {
-        withAnimation {
-            amountUnit = unit
-        }
     }
 }

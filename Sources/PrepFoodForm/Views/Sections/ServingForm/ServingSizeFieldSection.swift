@@ -4,32 +4,8 @@ import PrepUnits
 extension FoodForm.ServingForm {
     struct ServingSizeFieldSection: View {
         @ObservedObject var viewModel: FoodForm.ViewModel
-        @StateObject var controller: Controller
-        @State var showingUnitSelector = false
         @State var showingAmountUnits = false
         @State var showingSizes = false
-        
-        init(viewModel: FoodForm.ViewModel) {
-            self.viewModel = viewModel
-            _controller = StateObject(wrappedValue: Controller(viewModel: viewModel))
-        }
-    }
-}
-
-extension FoodForm.ServingForm.ServingSizeFieldSection {
-    class Controller: ObservableObject {
-        var viewModel: FoodForm.ViewModel
-        init(viewModel: FoodForm.ViewModel) {
-            self.viewModel = viewModel
-        }
-    }
-}
-
-extension FoodForm.ServingForm.ServingSizeFieldSection.Controller: UnitSelectorDelegate {
-    func didPickUnit(unit: FormUnit) {
-        withAnimation {
-            viewModel.servingUnit = unit
-        }
     }
 }
 
@@ -50,11 +26,6 @@ extension FoodForm.ServingForm.ServingSizeFieldSection {
             Text("Sizes")
                 .presentationDetents([.medium])
         }
-        .sheet(isPresented: $showingUnitSelector) {
-            UnitSelector(pickedUnit: viewModel.servingUnit, includeServing: false, delegate: controller)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.hidden)
-        }
     }
     
     var textField: some View {
@@ -68,7 +39,7 @@ extension FoodForm.ServingForm.ServingSizeFieldSection {
     
     var unitButton: some View {
         Button {
-            showingUnitSelector = true
+            viewModel.path.append(.servingUnitSelector)
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.servingUnitShortString)

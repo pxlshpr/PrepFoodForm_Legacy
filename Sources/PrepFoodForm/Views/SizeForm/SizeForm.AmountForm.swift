@@ -36,7 +36,7 @@ extension SizeForm.AmountForm {
     
     var unitButton: some View {
         Button {
-            viewModel.path.append(.amountUnit)
+            viewModel.path.append(.sizeAmountUnit)
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.amountUnit.shortDescription)

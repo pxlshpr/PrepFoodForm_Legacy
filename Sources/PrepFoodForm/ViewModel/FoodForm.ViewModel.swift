@@ -3,7 +3,7 @@ import PrepUnits
 import SwiftUISugar
 
 extension FoodForm {
-    
+        
     class ViewModel: ObservableObject {
         
         //MARK: Details
@@ -22,6 +22,8 @@ extension FoodForm {
 
         @Published var servingString: String = ""
         @Published var servingUnit: FormUnit = .weight(.g)
+        
+        @Published var path: [Route] = []
     }
 }
 

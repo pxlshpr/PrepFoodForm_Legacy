@@ -19,42 +19,54 @@ public struct FoodForm: View {
     }
     
     public var body: some View {
-        
-//        navigationStack
-        navigationView
-            .sheet(isPresented: $isPresentingDetails) {
-                FoodForm.DetailsForm(viewModel: viewModel)
-            }
-            .sheet(isPresented: $isPresentingNutrientsPer) {
-                FoodForm.ServingForm(viewModel: viewModel)
-            }
-            .sheet(isPresented: $isPresentingNutrients) {
-                FoodForm.NutrientsList()
-            }
-            .sheet(isPresented: $isPresentingSource) {
-                FoodForm.SourceForm()
-            }
-            .sheet(isPresented: $isPresentingFoodLabelScanner) {
-                CameraImagePicker(capturedImage: $capturedImage)
-            }
-            .onChange(of: capturedImage) { newValue in
-                guard let image = newValue else {
-                    return
+        NavigationStack(path: $viewModel.path) {
+            contents
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .amountUnitSelector:
+                        UnitPicker(pickedUnit: viewModel.amountUnit) { unit in
+                            viewModel.amountUnit = unit
+                        }
+                    case .servingUnitSelector:
+                        UnitPicker(pickedUnit: viewModel.servingUnit, includeServing: false) { unit in
+                            viewModel.servingUnit = unit
+                        }
+                    case .nutrientsPerForm:
+                        ServingForm(viewModel: viewModel)
+                    case .detailsForm:
+                        DetailsForm(viewModel: viewModel)
+                    case .nutrientsList:
+                        NutrientsList()
+                    case .sourceForm:
+                        SourceForm()
+                    case .detailsFormEmoji:
+                        FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
+                    case .densityForm:
+                        DensityForm()
+                    }
                 }
-                capturedImages.append(image)
-                capturedImage = nil
-            }
-    }
-    
-    var navigationStack: some View  {
-        NavigationStack {
-            contents
         }
-    }
-    
-    var navigationView: some View {
-        NavigationView {
-            contents
+        .sheet(isPresented: $isPresentingDetails) {
+            FoodForm.DetailsForm(viewModel: viewModel)
+        }
+        .sheet(isPresented: $isPresentingNutrientsPer) {
+            FoodForm.ServingForm(viewModel: viewModel)
+        }
+        .sheet(isPresented: $isPresentingNutrients) {
+            FoodForm.NutrientsList()
+        }
+        .sheet(isPresented: $isPresentingSource) {
+            FoodForm.SourceForm()
+        }
+        .sheet(isPresented: $isPresentingFoodLabelScanner) {
+            CameraImagePicker(capturedImage: $capturedImage)
+        }
+        .onChange(of: capturedImage) { newValue in
+            guard let image = newValue else {
+                return
+            }
+            capturedImages.append(image)
+            capturedImage = nil
         }
     }
     
@@ -122,8 +134,8 @@ public struct FoodForm: View {
     
     var detailsSection: some View {
         Section("Details") {
-            NavigationLink {
-                DetailsForm(viewModel: viewModel)
+            NavigationLinkButton {
+                viewModel.path.append(.detailsForm)
             } label: {
                 DetailsCell(viewModel: viewModel)
             }
@@ -132,8 +144,8 @@ public struct FoodForm: View {
     
     var servingSection: some View {
         Section("Nutrients per") {
-            NavigationLink {
-                ServingForm(viewModel: viewModel)
+            NavigationLinkButton {
+                viewModel.path.append(.nutrientsPerForm)
             } label: {
                 ServingCell(viewModel: viewModel)
             }
@@ -142,45 +154,24 @@ public struct FoodForm: View {
     }
     
     var nutrientsSection: some View {
-        Group {
-            Section("Nutrients") {
-                NavigationLink {
-                    NutrientsList()
-                } label: {
-                    Text("Required")
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-//                Button {
-//                    isPresentingNutrients = true
-//                } label: {
-//                    nutrientsCell
-//                }
-//                Button {
-//                    #if targetEnvironment(simulator)
-//                    addDummyImageForSimulator()
-//                    #else
-//                    isPresentingFoodLabelScanner = true
-//                    #endif
-//                } label: {
-//                    foodLabelScanCell
-//                }
+        Section("Nutrients") {
+            NavigationLinkButton {
+                viewModel.path.append(.nutrientsList)
+            } label: {
+                Text("Required")
+                    .foregroundColor(Color(.tertiaryLabel))
             }
         }
     }
     
     var sourceSection: some View {
         Section("Source") {
-            NavigationLink {
-                SourceForm()
+            NavigationLinkButton {
+                viewModel.path.append(.sourceForm)
             } label: {
                 Text("Optional")
                     .foregroundColor(Color(.quaternaryLabel))
             }
-//            Button {
-//                isPresentingSource = true
-//            } label: {
-//                sourceCell
-//            }
         }
     }
     

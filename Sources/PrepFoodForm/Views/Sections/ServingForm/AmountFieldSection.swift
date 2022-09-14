@@ -4,35 +4,11 @@ import PrepUnits
 extension FoodForm.ServingForm {
     struct AmountFieldSection: View {
         @ObservedObject var viewModel: FoodForm.ViewModel
-        @StateObject var controller: Controller
-        @State var showingUnitSelector = false
         @State var showingAmountUnits = false
         @State var showingSizes = false
-        
-        init(viewModel: FoodForm.ViewModel) {
-            self.viewModel = viewModel
-            _controller = StateObject(wrappedValue: Controller(viewModel: viewModel))
-        }
     }
 }
 
-
-extension FoodForm.ServingForm.AmountFieldSection {
-    class Controller: ObservableObject {
-        var viewModel: FoodForm.ViewModel
-        init(viewModel: FoodForm.ViewModel) {
-            self.viewModel = viewModel
-        }
-    }
-}
-
-extension FoodForm.ServingForm.AmountFieldSection.Controller: UnitSelectorDelegate {
-    func didPickUnit(unit: FormUnit) {
-        withAnimation {
-            viewModel.amountUnit = unit
-        }
-    }
-}
 extension FoodForm.ServingForm.AmountFieldSection {
     
     var body: some View {
@@ -50,11 +26,6 @@ extension FoodForm.ServingForm.AmountFieldSection {
             Text("Sizes")
                 .presentationDetents([.medium])
         }
-        .sheet(isPresented: $showingUnitSelector) {
-            UnitSelector(pickedUnit: viewModel.amountUnit, delegate: controller)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.hidden)
-        }
     }
     
     var textField: some View {
@@ -65,7 +36,7 @@ extension FoodForm.ServingForm.AmountFieldSection {
     
     var unitButton: some View {
         Button {
-            showingUnitSelector = true
+            viewModel.path.append(.amountUnitSelector)
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.amountUnitShortString)

@@ -9,12 +9,10 @@ struct SizeForm: View {
         case name
         case amount
         case volumePrefix
-        case amountUnit
+        case sizeAmountUnit
     }
 
     @StateObject var viewModel = ViewModel()
-    
-    @State var showingUnitSelector = false
     
     init() {
         
@@ -32,11 +30,6 @@ struct SizeForm: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Add Size")
             .navigationBarTitleDisplayMode(.inline)
-        }
-        .sheet(isPresented: $showingUnitSelector) {
-            UnitSelector(pickedUnit: viewModel.amountUnit, delegate: viewModel)
-                .presentationDetents([.medium])
-                .presentationDragIndicator(.hidden)
         }
         .onChange(of: viewModel.quantityString) { newValue in
             viewModel.quantity = Double(newValue) ?? 0

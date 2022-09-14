@@ -21,8 +21,11 @@ extension SizeForm.Field {
                 SizeForm.AmountForm(viewModel: viewModel)
             case .volumePrefix:
                 Text("Volume prefix picker")
-            case .amountUnit:
-                UnitSelector(delegate: viewModel)
+            case .sizeAmountUnit:
+                UnitPicker(pickedUnit: viewModel.amountUnit) { unit in
+                    viewModel.amountUnit = unit
+                }
+                .navigationTitle("Choose a unit")
             }
         }
     }
