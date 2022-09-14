@@ -2,7 +2,7 @@ import SwiftUI
 
 extension SizeForm.SizeField {
     struct AmountForm: View {        
-        @StateObject var viewModel: SizeForm.ViewModel
+        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
     }
 }
 
@@ -22,17 +22,17 @@ extension SizeForm.SizeField.AmountForm {
     //MARK: - Components
     
     var textField: some View {
-        TextField("Required", text: $viewModel.amountString)
+        TextField("Required", text: $sizeFormViewModel.amountString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
     }
     
     var unitButton: some View {
         Button {
-            viewModel.path.append(.amountUnit)
+            sizeFormViewModel.path.append(.amountUnit)
         } label: {
             HStack(spacing: 5) {
-                Text(viewModel.amountUnit.shortDescription)
+                Text(sizeFormViewModel.amountUnit.shortDescription)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
@@ -41,22 +41,22 @@ extension SizeForm.SizeField.AmountForm {
     }
     
     var header: some View {
-        Text(viewModel.amountUnit.unitType.description.lowercased())
+        Text(sizeFormViewModel.amountUnit.unitType.description.lowercased())
     }
     
     @ViewBuilder
     var footer: some View {
-        Text("\(viewModel.amountIsValid ? "This is" : "Enter") \(description).")
+        Text("\(sizeFormViewModel.amountIsValid ? "This is" : "Enter") \(description).")
     }
     
     //MARK: - Helpers
     
     var quantiativeName: String {
-        "\(viewModel.quantityString) \(viewModel.name.isEmpty ? "of this size" : viewModel.name.lowercased())"
+        "\(sizeFormViewModel.quantityString) \(sizeFormViewModel.name.isEmpty ? "of this size" : sizeFormViewModel.name.lowercased())"
     }
     
     var description: String {
-        switch viewModel.amountUnit {
+        switch sizeFormViewModel.amountUnit {
         case .volume:
             return "the volume of \(quantiativeName)"
         case .weight:

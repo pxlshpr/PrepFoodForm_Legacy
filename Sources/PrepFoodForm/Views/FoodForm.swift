@@ -32,9 +32,11 @@ public struct FoodForm: View {
                             viewModel.servingUnit = unit
                         }
                     case .nutrientsPerForm:
-                        ServingForm(viewModel: viewModel)
+                        NutrientsPerForm()
+                            .environmentObject(viewModel)
                     case .detailsForm:
-                        DetailsForm(viewModel: viewModel)
+                        DetailsForm()
+                            .environmentObject(viewModel)
                     case .nutrientsList:
                         NutrientsList()
                     case .sourceForm:
@@ -43,20 +45,11 @@ public struct FoodForm: View {
                         FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
                     case .densityForm:
                         DensityForm()
+                    case .sizesList:
+                        SizesList()
+                            .environmentObject(viewModel)
                     }
                 }
-        }
-        .sheet(isPresented: $isPresentingDetails) {
-            FoodForm.DetailsForm(viewModel: viewModel)
-        }
-        .sheet(isPresented: $isPresentingNutrientsPer) {
-            FoodForm.ServingForm(viewModel: viewModel)
-        }
-        .sheet(isPresented: $isPresentingNutrients) {
-            FoodForm.NutrientsList()
-        }
-        .sheet(isPresented: $isPresentingSource) {
-            FoodForm.SourceForm()
         }
         .sheet(isPresented: $isPresentingFoodLabelScanner) {
             CameraImagePicker(capturedImage: $capturedImage)
@@ -110,7 +103,8 @@ public struct FoodForm: View {
             NavigationLinkButton {
                 viewModel.path.append(.detailsForm)
             } label: {
-                DetailsCell(viewModel: viewModel)
+                DetailsCell()
+                    .environmentObject(viewModel)
             }
         }
     }
@@ -120,7 +114,8 @@ public struct FoodForm: View {
             NavigationLinkButton {
                 viewModel.path.append(.nutrientsPerForm)
             } label: {
-                ServingCell(viewModel: viewModel)
+                ServingCell()
+                    .environmentObject(viewModel)
             }
         }
 

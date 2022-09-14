@@ -4,7 +4,7 @@ import AVFoundation
 
 extension FoodForm {
     struct DetailsCell: View {
-        @ObservedObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: ViewModel
     }
 }
 
@@ -121,7 +121,8 @@ struct DetailsCellPreview: View {
                 Section("Details") {
                     NavigationLink {
                     } label: {
-                        FoodForm.DetailsCell(viewModel: viewModel)
+                        FoodForm.DetailsCell()
+                            .environmentObject(viewModel)
                     }
                 }
             }

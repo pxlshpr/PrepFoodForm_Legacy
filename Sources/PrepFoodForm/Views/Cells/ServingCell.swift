@@ -3,7 +3,7 @@ import PrepUnits
 
 extension FoodForm {
     struct ServingCell: View {
-        @ObservedObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: ViewModel
     }
 }
 
@@ -50,11 +50,13 @@ public struct ServingCellPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                FoodForm.ServingForm.AmountFieldSection(viewModel: viewModel)
+                FoodForm.NutrientsPerForm.AmountFieldSection()
+                    .environmentObject(viewModel)
                 Section("Nutrients per") {
                     NavigationLink {
                     } label: {
-                        FoodForm.ServingCell(viewModel: viewModel)
+                        FoodForm.ServingCell()
+                            .environmentObject(viewModel)
                     }
                 }
             }

@@ -5,7 +5,9 @@ import SwiftUISugar
 extension FoodForm {
         
     class ViewModel: ObservableObject {
-        
+
+        @Published var path: [Route] = []
+
         //MARK: Details
         @Published var name: String = ""
         @Published var emoji = ""
@@ -13,17 +15,18 @@ extension FoodForm {
         @Published var brand = ""
         @Published var barcode = ""
 
-        //MARK: Serving
+        //MARK: Nutrients Per
         @Published var amountString: String = ""
         @Published var amountUnit: FormUnit = .serving
-//        @Published var amountWeightUnit: WeightUnit? = nil
-//        @Published var amountVolumeUnit: VolumeUnit? = nil
-//        @Published var amountUnitIsServing: Bool = true
-
         @Published var servingString: String = ""
         @Published var servingUnit: FormUnit = .weight(.g)
-        
-        @Published var path: [Route] = []
+        @Published var sizes: [Size] = []
+    }
+}
+
+extension FoodForm.ViewModel {
+    func add(size: Size) {
+        sizes.append(size)
     }
 }
 

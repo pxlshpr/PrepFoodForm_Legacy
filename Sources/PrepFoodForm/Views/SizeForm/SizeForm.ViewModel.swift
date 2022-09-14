@@ -21,6 +21,21 @@ extension SizeForm {
 }
 
 extension SizeForm.ViewModel {
+    var size: Size? {
+        guard isValid, let amount = amount else {
+            return nil
+        }
+        return Size(
+            quantity: quantity,
+            volumePrefixUnit: showingVolumePrefix ? volumePrefixUnit : nil,
+            name: name,
+            amount: amount,
+            amountUnit: amountUnit
+        )
+    }
+}
+
+extension SizeForm.ViewModel {
     
     var isValid: Bool {
         guard let _ = amount else { return false }

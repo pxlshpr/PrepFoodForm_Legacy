@@ -1,9 +1,9 @@
 import SwiftUI
 
 extension FoodForm {
-    struct ServingForm: View {
+    struct NutrientsPerForm: View {
 
-        @ObservedObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: ViewModel
         
         @State var servingAmount = ""
         @State var servingUnit: String = "g"
@@ -22,7 +22,7 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.ServingForm {
+extension FoodForm.NutrientsPerForm {
     var body: some View {
         form
         .toolbar { bottomToolbarContent }
@@ -36,6 +36,7 @@ extension FoodForm.ServingForm {
         }
         .sheet(isPresented: $showingAddSizeForm) {
             SizeForm()
+                .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
         }
@@ -46,9 +47,9 @@ extension FoodForm.ServingForm {
     
     var form: some View {
         Form {
-            AmountFieldSection(viewModel: viewModel)
+            AmountFieldSection()
             if viewModel.amountUnit == .serving {
-                ServingSizeFieldSection(viewModel: viewModel)
+                ServingSizeFieldSection()
             }
             sizesSection
             if servingUnit != "serving" || !servingSizeAmount.isEmpty {
@@ -106,17 +107,19 @@ extension FoodForm.ServingForm {
         }
         
         return Section(header: header, footer: footer) {
-            Button {
-                showingAddSizeForm = true
-            } label: {
-                Text("Add a size")
+            if viewModel.sizes.isEmpty {
+                Button {
+                    showingAddSizeForm = true
+                } label: {
+                    SizesCell()
+                }
+            } else {
+                NavigationLinkButton {
+                    viewModel.path.append(.sizesList)
+                } label: {
+                    SizesCell()
+                }
             }
-//            NavigationLink {
-//                FoodForm.ServingForm.SizesList()
-//            } label: {
-//                Text("Sizes")
-//                    .foregroundColor(.accentColor)
-//            }
         }
     }
 }

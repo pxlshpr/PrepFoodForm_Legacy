@@ -10,5 +10,6 @@ extension FoodForm {
         case sourceForm
         case detailsFormEmoji
         case densityForm
+        case sizesList
     }
 }

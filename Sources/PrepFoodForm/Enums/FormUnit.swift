@@ -1,6 +1,6 @@
 import PrepUnits
 
-enum FormUnit {
+enum FormUnit: Hashable {
     case weight(WeightUnit)
     case volume(VolumeUnit)
     case size

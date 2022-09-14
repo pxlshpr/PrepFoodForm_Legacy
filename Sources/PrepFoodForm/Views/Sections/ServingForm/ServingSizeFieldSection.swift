@@ -1,15 +1,15 @@
 import SwiftUI
 import PrepUnits
 
-extension FoodForm.ServingForm {
+extension FoodForm.NutrientsPerForm {
     struct ServingSizeFieldSection: View {
-        @ObservedObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodForm.ViewModel
         @State var showingAmountUnits = false
         @State var showingSizes = false
     }
 }
 
-extension FoodForm.ServingForm.ServingSizeFieldSection {
+extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
     
     var body: some View {
         Section(header: header, footer: footer) {

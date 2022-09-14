@@ -2,17 +2,19 @@ import SwiftUI
 import NamePicker
 
 struct SizeForm: View {
-
-    @StateObject var viewModel = ViewModel()
+    
+    @EnvironmentObject var viewModel: FoodForm.ViewModel
+    @Environment(\.dismiss) var dismiss
+    @StateObject var sizeFormViewModel = ViewModel()
     @State var showingVolumePrefixToggle: Bool = false
     
     init() { }
     
     var body: some View {
-        NavigationStack(path: $viewModel.path) {
+        NavigationStack(path: $sizeFormViewModel.path) {
             VStack {
                 form
-                if viewModel.isValid {
+                if sizeFormViewModel.isValid {
                     addButton
                     addAndAddAnotherButton
                 }
@@ -21,22 +23,23 @@ struct SizeForm: View {
             .navigationTitle("Add Size")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .onChange(of: viewModel.quantityString) { newValue in
-            viewModel.quantity = Double(newValue) ?? 0
+        .onChange(of: sizeFormViewModel.quantityString) { newValue in
+            sizeFormViewModel.quantity = Double(newValue) ?? 0
         }
-        .onChange(of: viewModel.quantity) { newValue in
-            viewModel.quantityString = "\(newValue.cleanAmount)"
+        .onChange(of: sizeFormViewModel.quantity) { newValue in
+            sizeFormViewModel.quantityString = "\(newValue.cleanAmount)"
         }
         .onChange(of: showingVolumePrefixToggle) { newValue in
             withAnimation {
-                viewModel.showingVolumePrefix = showingVolumePrefixToggle
+                sizeFormViewModel.showingVolumePrefix = showingVolumePrefixToggle
             }
         }
     }
     
     var form: some View {
         Form {
-            SizeField(viewModel: viewModel)
+            SizeField()
+                .environmentObject(sizeFormViewModel)
             volumePrefixSection
         }
     }
@@ -68,7 +71,11 @@ struct SizeForm: View {
     
     var addButton: some View {
         FormPrimaryButton(title: "Add") {
-            
+            guard let size = sizeFormViewModel.size else {
+                return
+            }
+            viewModel.add(size: size)
+            dismiss()
         }
     }
 

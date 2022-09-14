@@ -2,7 +2,7 @@ import SwiftUI
 
 extension SizeForm.SizeField {
     struct QuantityForm: View {
-        @StateObject var viewModel: SizeForm.ViewModel
+        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
     }
 }
 
@@ -22,13 +22,13 @@ extension SizeForm.SizeField.QuantityForm {
     //MARK: - Components
     
     var textField: some View {
-        TextField("Enter the quantity", text: $viewModel.quantityString)
+        TextField("Enter the quantity", text: $sizeFormViewModel.quantityString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
     }
 
     var stepper: some View {
-        Stepper("", value: $viewModel.quantity, in: 1...100000)
+        Stepper("", value: $sizeFormViewModel.quantity, in: 1...100000)
             .labelsHidden()
     }
 

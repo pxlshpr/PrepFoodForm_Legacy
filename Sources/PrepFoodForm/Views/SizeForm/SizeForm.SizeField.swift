@@ -3,7 +3,7 @@ import NamePicker
 
 extension SizeForm {
     struct SizeField: View {
-        @ObservedObject var viewModel: SizeForm.ViewModel
+        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
     }
 }
 
@@ -16,16 +16,18 @@ extension SizeForm.SizeField {
             case .name:
                 namePicker
             case .quantity:
-                QuantityForm(viewModel: viewModel)
+                QuantityForm()
+                    .environmentObject(sizeFormViewModel)
             case .amount:
-                AmountForm(viewModel: viewModel)
+                AmountForm()
+                    .environmentObject(sizeFormViewModel)
             case .volumePrefix:
-                UnitPicker(pickedUnit: viewModel.volumePrefixUnit, filteredType: .volume) { unit in
-                    viewModel.volumePrefixUnit = unit
+                UnitPicker(pickedUnit: sizeFormViewModel.volumePrefixUnit, filteredType: .volume) { unit in
+                    sizeFormViewModel.volumePrefixUnit = unit
                 }
             case .amountUnit:
-                UnitPicker(pickedUnit: viewModel.amountUnit) { unit in
-                    viewModel.amountUnit = unit
+                UnitPicker(pickedUnit: sizeFormViewModel.amountUnit) { unit in
+                    sizeFormViewModel.amountUnit = unit
                 }
             }
         }
@@ -33,27 +35,27 @@ extension SizeForm.SizeField {
     
     var content: some View {
         HStack {
-            button(viewModel.quantityString) {
-                viewModel.path.append(.quantity)
+            button(sizeFormViewModel.quantityString) {
+                sizeFormViewModel.path.append(.quantity)
             }
             .padding(.horizontal)
             Spacer()
             symbol("×")
             Spacer()
-            if viewModel.showingVolumePrefix {
-                button(viewModel.volumePrefixUnit.shortDescription) {
-                    viewModel.path.append(.volumePrefix)
+            if sizeFormViewModel.showingVolumePrefix {
+                button(sizeFormViewModel.volumePrefixUnit.shortDescription) {
+                    sizeFormViewModel.path.append(.volumePrefix)
                 }
                 symbol(", ")
             }
-            button(viewModel.nameFieldString, placeholder: "name") {
-                viewModel.path.append(.name)
+            button(sizeFormViewModel.nameFieldString, placeholder: "name") {
+                sizeFormViewModel.path.append(.name)
             }
             Spacer()
             symbol("=")
             Spacer()
-            button(viewModel.amountFieldString, placeholder: "amount") {
-                viewModel.path.append(.amount)
+            button(sizeFormViewModel.amountFieldString, placeholder: "amount") {
+                sizeFormViewModel.path.append(.amount)
             }
         }
         .frame(maxWidth: .infinity)
@@ -61,7 +63,7 @@ extension SizeForm.SizeField {
     
     var namePicker: some View {
         NamePicker(
-            name: $viewModel.name,
+            name: $sizeFormViewModel.name,
             showClearButton: true,
             lowercased: true,
             presetStrings: ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
@@ -124,7 +126,8 @@ public struct SizeFormFieldPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                SizeForm.SizeField(viewModel: viewModel)
+                SizeForm.SizeField()
+                    .environmentObject(viewModel)
                 volumePrefixToggle
             }
         }

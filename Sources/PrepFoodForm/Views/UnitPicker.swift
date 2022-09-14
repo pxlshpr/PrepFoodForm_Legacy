@@ -141,7 +141,7 @@ extension UnitPicker {
             weightsGroupContents
         } label: {
             Text("Weights")
-                .foregroundColor(weightsExpanded ? Color(.tertiaryLabel) : .secondary)
+                .foregroundColor(weightsExpanded ? Color(.tertiaryLabel) : .primary)
         }
     }
     
@@ -150,7 +150,7 @@ extension UnitPicker {
             volumesGroupContents
         } label: {
             Text("Volumes")
-                .foregroundColor(volumesExpanded ? Color(.tertiaryLabel) : .secondary)
+                .foregroundColor(volumesExpanded ? Color(.tertiaryLabel) : .primary)
         }
     }
     
@@ -159,7 +159,7 @@ extension UnitPicker {
             sizesGroupContents
         } label: {
             Text("Sizes")
-                .foregroundColor(sizesExpanded ? Color(.tertiaryLabel) : .secondary)
+                .foregroundColor(sizesExpanded ? Color(.tertiaryLabel) : .primary)
         }
     }
     
