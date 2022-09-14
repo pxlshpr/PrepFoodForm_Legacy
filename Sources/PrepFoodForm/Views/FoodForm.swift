@@ -12,10 +12,11 @@ public struct FoodForm: View {
     @State public var capturedImage: UIImage? = nil
     @State public var capturedImages: [UIImage] = []
 
-    @StateObject var viewModel = ViewModel()
+    @StateObject var viewModel: ViewModel
     
-    public init() {
-        
+    public init(prefilledWithMockData: Bool = false) {
+        let viewModel = ViewModel(prefilledWithMockData: prefilledWithMockData)
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
@@ -114,7 +115,7 @@ public struct FoodForm: View {
             NavigationLinkButton {
                 viewModel.path.append(.nutrientsPerForm)
             } label: {
-                ServingCell()
+                NutrientsPerCell()
                     .environmentObject(viewModel)
             }
         }

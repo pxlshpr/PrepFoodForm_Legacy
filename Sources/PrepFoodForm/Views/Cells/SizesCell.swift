@@ -47,15 +47,21 @@ extension FoodForm.NutrientsPerForm.SizesCell {
 
 extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     var body: some View {
-        HStack {
-            if sizeViewModel.quantity != 1 {
-                Text(sizeViewModel.quantityString)
-                    .foregroundColor(Color(.secondaryLabel))
-            }
+        HStack(spacing: 0) {
             Text(sizeViewModel.fullNameString)
                 .foregroundColor(.primary)
-            Text(sizeViewModel.amountString)
-                .foregroundColor(.secondary)
+            Text(", ")
+                .foregroundColor(Color(.quaternaryLabel))
+            HStack {
+                if sizeViewModel.quantity != 1 {
+                    Text(sizeViewModel.quantityString)
+                        .foregroundColor(Color(.tertiaryLabel))
+                    Text("=")
+                        .foregroundColor(Color(.quaternaryLabel))
+                }
+                Text(sizeViewModel.amountString)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
         }
     }
 }
@@ -87,7 +93,7 @@ extension FoodForm.NutrientsPerForm.SizesCell {
                     Text("…")
                         .foregroundColor(Color(.quaternaryLabel))
                     Text("\(viewModel.allSizes.count - 4) more")
-                        .foregroundColor(Color(.tertiaryLabel))
+                        .foregroundColor(Color(.secondaryLabel))
                 }
             }
         }

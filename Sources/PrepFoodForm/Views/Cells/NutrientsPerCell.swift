@@ -2,12 +2,12 @@ import SwiftUI
 import PrepUnits
 
 extension FoodForm {
-    struct ServingCell: View {
+    struct NutrientsPerCell: View {
         @EnvironmentObject var viewModel: ViewModel
     }
 }
 
-extension FoodForm.ServingCell {
+extension FoodForm.NutrientsPerCell {
     
     var body: some View {
         Group {
@@ -28,6 +28,7 @@ extension FoodForm.ServingCell {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
                 Text(viewModel.amountDescription)
+                    .foregroundColor(.primary)
                 if viewModel.hasNutrientsPerServingContent {
                     Text(" (\(viewModel.servingDescription))")
                         .foregroundColor(.secondary)
@@ -55,7 +56,7 @@ public struct ServingCellPreview: View {
                 Section("Nutrients per") {
                     NavigationLink {
                     } label: {
-                        FoodForm.ServingCell()
+                        FoodForm.NutrientsPerCell()
                             .environmentObject(viewModel)
                     }
                 }

@@ -23,6 +23,25 @@ extension FoodForm {
         
         @Published var standardSizes: [Size] = []
         @Published var volumePrefixedSizes: [Size] = []
+        
+        init(prefilledWithMockData: Bool = false) {
+            guard prefilledWithMockData else {
+                return
+            }
+            self.name = "Carrot"
+            self.emoji = "🥕"
+            self.detail = "Baby"
+            self.brand = "Woolworths"
+            self.barcode = "5012345678900"
+            
+            self.amountString = "1"
+            self.amountUnit = .serving
+            self.servingString = "50"
+            self.servingUnit = .weight(.g)
+            
+            self.standardSizes = mockStandardSizes
+            self.volumePrefixedSizes = mockVolumePrefixedSizes
+        }
     }
 }
 
