@@ -9,29 +9,33 @@ extension FoodForm.NutrientsPerForm {
 struct SizeViewModel: Hashable {
     let size: Size
     
+    var volumePrefixString: String? {
+        guard let unit = size.volumePrefixUnit else {
+            return nil
+        }
+        return unit.shortDescription
+    }
     var nameString: String {
+        size.name
+    }
+    
+    var fullNameString: String {
         if let volumePrefixUnit = size.volumePrefixUnit {
-            return "\(volumePrefixUnit.shortDescription), \(size.name)"
+            return "\(volumePrefixUnit.shortDescription), \(nameString)"
         } else {
-            return size.name
+            return nameString
         }
     }
     
-    var quantityString: String? {
-        guard size.quantity != 1 else {
-            return nil
-        }
-        return size.quantity.cleanAmount
+    var quantity: Double {
+        size.quantity
+    }
+    var quantityString: String {
+        size.quantity.cleanAmount
     }
     
     var amountString: String {
         "\(size.amount.cleanAmount) \(size.amountUnit.shortDescription)"
-    }
-}
-
-extension FoodForm.ViewModel {
-    var sizesViewModels: [SizeViewModel] {
-        sizes.map { SizeViewModel(size: $0) }
     }
 }
 
@@ -44,11 +48,11 @@ extension FoodForm.NutrientsPerForm.SizesCell {
 extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     var body: some View {
         HStack {
-            if let quantityString = sizeViewModel.quantityString {
-                Text(quantityString)
+            if sizeViewModel.quantity != 1 {
+                Text(sizeViewModel.quantityString)
                     .foregroundColor(Color(.secondaryLabel))
             }
-            Text(sizeViewModel.nameString)
+            Text(sizeViewModel.fullNameString)
                 .foregroundColor(.primary)
             Text(sizeViewModel.amountString)
                 .foregroundColor(.secondary)
@@ -60,7 +64,7 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     
     var body: some View {
         Group {
-            if viewModel.sizes.isEmpty {
+            if viewModel.allSizes.isEmpty {
                 emptyContent
             } else {
                 filledContent
@@ -75,14 +79,14 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     
     var filledContent: some View {
         VStack(alignment: .leading) {
-            ForEach(viewModel.sizesViewModels.prefix(4), id: \.self) {
+            ForEach(viewModel.allSizesViewModels.prefix(4), id: \.self) {
                 SizeCell(sizeViewModel: $0)
             }
-            if viewModel.sizesViewModels.count > 4 {
+            if viewModel.allSizesViewModels.count > 4 {
                 HStack {
                     Text("…")
                         .foregroundColor(Color(.quaternaryLabel))
-                    Text("\(viewModel.sizes.count - 4) more")
+                    Text("\(viewModel.allSizes.count - 4) more")
                         .foregroundColor(Color(.tertiaryLabel))
                 }
             }
@@ -114,14 +118,8 @@ struct SizesCellPreview: View {
     }
     
     func populateData() {
-        viewModel.sizes = [
-            Size(quantity: 1, name: "small", amount: 80, amountUnit: .weight(.g)),
-            Size(quantity: 2, name: "medium", amount: 180, amountUnit: .weight(.g)),
-            Size(quantity: 1, name: "large", amount: 240, amountUnit: .weight(.g)),
-            Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, amountUnit: .weight(.g)),
-            Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountUnit: .weight(.g)),
-            Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountUnit: .weight(.g)),
-        ]
+        viewModel.standardSizes = mockStandardSizes
+        viewModel.volumePrefixedSizes = mockVolumePrefixedSizes
     }
 }
 struct SizesCell_Previews: PreviewProvider {
@@ -129,3 +127,15 @@ struct SizesCell_Previews: PreviewProvider {
         SizesCellPreview()
     }
 }
+
+let mockStandardSizes = [
+    Size(quantity: 1, name: "small", amount: 80, amountUnit: .weight(.g)),
+    Size(quantity: 2, name: "medium", amount: 180, amountUnit: .weight(.g)),
+    Size(quantity: 1, name: "large", amount: 240, amountUnit: .weight(.g)),
+]
+
+let mockVolumePrefixedSizes = [
+    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, amountUnit: .weight(.g)),
+    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountUnit: .weight(.g)),
+    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountUnit: .weight(.g)),
+]

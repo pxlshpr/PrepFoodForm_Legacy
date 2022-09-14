@@ -107,7 +107,7 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Section(header: header, footer: footer) {
-            if viewModel.sizes.isEmpty {
+            if viewModel.allSizes.isEmpty {
                 Button {
                     showingAddSizeForm = true
                 } label: {

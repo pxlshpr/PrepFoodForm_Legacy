@@ -20,17 +20,45 @@ extension FoodForm {
         @Published var amountUnit: FormUnit = .serving
         @Published var servingString: String = ""
         @Published var servingUnit: FormUnit = .weight(.g)
-        @Published var sizes: [Size] = []
+        
+        @Published var standardSizes: [Size] = []
+        @Published var volumePrefixedSizes: [Size] = []
     }
 }
 
 extension FoodForm.ViewModel {
     func add(size: Size) {
-        sizes.append(size)
+        withAnimation {
+            if size.isVolumePrefixed {
+                volumePrefixedSizes.append(size)
+            } else {
+                standardSizes.append(size)
+            }
+        }
     }
 }
 
 extension FoodForm.ViewModel {
+    var allSizes: [Size] {
+        standardSizes + volumePrefixedSizes
+    }
+    
+    var allSizesViewModels: [SizeViewModel] {
+        allSizes.map { SizeViewModel(size: $0) }
+    }
+
+    var standardSizesViewModels: [SizeViewModel] {
+        standardSizes
+            .filter({ $0.volumePrefixUnit == nil })
+            .map { SizeViewModel(size: $0) }
+    }
+
+    var volumePrefixedSizesViewModels: [SizeViewModel] {
+        volumePrefixedSizes
+            .filter({ $0.volumePrefixUnit != nil })
+            .map { SizeViewModel(size: $0) }
+    }
+
     var hasNutrientsPerContent: Bool {
         !amountString.isEmpty
     }
