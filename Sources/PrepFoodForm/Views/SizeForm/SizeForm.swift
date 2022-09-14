@@ -1,22 +1,12 @@
 import SwiftUI
 import NamePicker
 
-
 struct SizeForm: View {
 
-    enum Route: Hashable {
-        case quantity
-        case name
-        case amount
-        case volumePrefix
-        case sizeAmountUnit
-    }
-
     @StateObject var viewModel = ViewModel()
+    @State var showingVolumePrefixToggle: Bool = false
     
-    init() {
-        
-    }
+    init() { }
     
     var body: some View {
         NavigationStack(path: $viewModel.path) {
@@ -37,11 +27,16 @@ struct SizeForm: View {
         .onChange(of: viewModel.quantity) { newValue in
             viewModel.quantityString = "\(newValue.cleanAmount)"
         }
+        .onChange(of: showingVolumePrefixToggle) { newValue in
+            withAnimation {
+                viewModel.showingVolumePrefix = showingVolumePrefixToggle
+            }
+        }
     }
     
     var form: some View {
         Form {
-            Field(viewModel: viewModel)
+            SizeField(viewModel: viewModel)
             volumePrefixSection
         }
     }
@@ -67,59 +62,19 @@ struct SizeForm: View {
         }
         
         return Section(footer: footer) {
-            Toggle("Use volume prefix", isOn: $viewModel.showingVolumePrefix)
+            Toggle("Use volume prefix", isOn: $showingVolumePrefixToggle)
         }
     }
     
     var addButton: some View {
-        Button {
-//            tappedAdd()
-        } label: {
-            Text("Add")
-                .bold()
-                .foregroundColor(.white)
-                .padding(.vertical)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(.accentColor)
-                )
-                .padding(.horizontal)
-                .padding(.horizontal)
+        FormPrimaryButton(title: "Add") {
+            
         }
-//        .disabled(name.isEmpty)
     }
 
     var addAndAddAnotherButton: some View {
-        Button {
+        FormSecondaryButton(title: "Add and Add Another") {
             
-        } label: {
-            Text("Add and Add Another")
-                .bold()
-                .foregroundColor(.accentColor)
-                .padding(.vertical)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(.clear)
-                )
-                .padding(.horizontal)
-                .padding(.horizontal)
-                .contentShape(Rectangle())
-        }
-//        .disabled(name.isEmpty)
-    }
-    
-    var quantitySection: some View {
-        Section("Quantity") {
-            HStack {
-                TextField("Required", text: $viewModel.quantityString)
-                    .multilineTextAlignment(.leading)
-                    .keyboardType(.decimalPad)
-                Spacer()
-                Stepper("", value: $viewModel.quantity, in: 1...1000)
-                    .labelsHidden()
-            }
         }
     }
 }

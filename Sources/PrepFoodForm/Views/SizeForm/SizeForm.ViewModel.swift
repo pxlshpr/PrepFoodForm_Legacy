@@ -11,7 +11,7 @@ extension SizeForm {
         @Published var amountUnit: FormUnit = .weight(.g)
 
         @Published var showingVolumePrefix = false
-        @Published var nameVolumeUnit: FormUnit = .volume(.cup)
+        @Published var volumePrefixUnit: FormUnit = .volume(.cup)
         
         @Published var quantity: Double = 1
 
@@ -28,11 +28,14 @@ extension SizeForm.ViewModel {
         && quantity > 0
     }
     
-    var amount: Double? {
-        guard let amount = Double(amountString) else {
-            return nil
+    var amountIsValid: Bool {
+        guard let amount = amount, amount > 0 else {
+            return false
         }
-        return amount > 0 ? amount : nil
+        return true
+    }
+    var amount: Double? {
+        Double(amountString) ?? 0
     }
     
     var nameFieldString: String {
@@ -43,7 +46,7 @@ extension SizeForm.ViewModel {
     }
     
     var amountFieldString: String {
-        guard let amount = amount else {
+        guard let amount = amount, amountIsValid else {
             return ""
         }
         

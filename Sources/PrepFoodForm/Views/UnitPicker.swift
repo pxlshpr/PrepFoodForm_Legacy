@@ -7,20 +7,22 @@ struct UnitPicker: View {
     @Environment(\.dismiss) var dismiss
     @State var type: UnitType
     @State var pickedUnit: FormUnit
-    
+
+    var includeServing: Bool
+    var filteredType: UnitType?
+    var didPickUnit: (FormUnit) -> ()
+
     @State private var date = Date.now
     @State private var datePickerShown = false
-    
-    var includeServing: Bool
-
     @State private var weightsExpanded: Bool
     @State private var volumesExpanded: Bool
     @State private var sizesExpanded: Bool
 
-    var didPickUnit: (FormUnit) -> ()
-    init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, didPickUnit: @escaping (FormUnit) -> ()) {
+    init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, filteredType: UnitType? = nil, didPickUnit: @escaping (FormUnit) -> ())
+    {
         self.didPickUnit = didPickUnit
         self.includeServing = includeServing
+        self.filteredType = filteredType
         _pickedUnit = State(initialValue: pickedUnit)
         _type = State(initialValue: pickedUnit.unitType)
         
@@ -48,7 +50,7 @@ struct UnitPicker: View {
 extension UnitPicker {
     
     var body: some View {
-        newList
+        list
             .onChange(of: pickedUnit) { newValue in
                 pickedUnitChanged(to: newValue)
             }
@@ -57,19 +59,27 @@ extension UnitPicker {
                     pickedUnit(unit: .serving)
                 }
             }
+            .navigationTitle(navigationTitleString)
     }
     
-    var newList: some View {
+    var navigationTitleString: String {
+        let name: String
+        if let filteredType = filteredType {
+            name = filteredType.description.lowercased()
+        } else {
+            name = "unit"
+        }
+        return "Pick a \(name)"
+    }
+    
+    //MARK: - Components
+    
+    var list: some View {
         List {
-            if includeServing {
-                Section {
-                    servingButton
-                }
-            }
-            Section {
-                weightsGroup
-                volumesGroup
-                sizesGroup
+            if let filteredType = filteredType {
+                singleGroup(for: filteredType)
+            } else {
+                sectionedListContents
             }
         }
         .onChange(of: weightsExpanded) { newValue in
@@ -95,82 +105,124 @@ extension UnitPicker {
         }
     }
     
-    var weightsGroup: some View {
-        DisclosureGroup(isExpanded: $weightsExpanded) {
-            ForEach(weightUnits, id: \.self) { weightUnit in
-                Button {
-                    pickedUnit(unit: .weight(weightUnit))
-                } label: {
-                    HStack {
-//                        HStack {
-//                            Text("\(weightUnit.description) • \(weightUnit.shortDescription)")
-//                                .textCase(.lowercase)
-//                        }
-                        HStack {
-                            Text(weightUnit.description)
-                                .textCase(.lowercase)
-                                .foregroundColor(.primary)
-                            Text("•")
-                                .foregroundColor(Color(.quaternaryLabel))
-                            Text(weightUnit.shortDescription)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        if case .weight(let pickedWeightUnit) = pickedUnit, pickedWeightUnit == weightUnit {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.accentColor)
-                        }
-                    }
+    var sectionedListContents: some View {
+        Group {
+            if includeServing {
+                Section {
+                    servingButton
                 }
             }
+            Section {
+                weightsGroup
+                volumesGroup
+                sizesGroup
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func singleGroup(for type: UnitType) -> some View {
+        switch type {
+        case .weight:
+            weightsGroupContents
+        case .volume:
+            volumesGroupContents
+        case .serving:
+            EmptyView()
+        case .size:
+            sizesGroupContents
+        }
+    }
+    
+    //MARK: - Groups
+    
+    var weightsGroup: some View {
+        DisclosureGroup(isExpanded: $weightsExpanded) {
+            weightsGroupContents
         } label: {
             Text("Weights")
-                .foregroundColor(weightsExpanded ? Color(.tertiaryLabel) : .primary)
+                .foregroundColor(weightsExpanded ? Color(.tertiaryLabel) : .secondary)
         }
     }
     
     var volumesGroup: some View {
         DisclosureGroup(isExpanded: $volumesExpanded) {
-            ForEach(volumeUnits, id: \.self) { volumeUnit in
-                Button {
-                    pickedUnit(unit: .volume(volumeUnit))
-                } label: {
-                    HStack {
-//                        HStack {
-//                            Text("\(volumeUnit.description) • \(volumeUnit.shortDescription)")
-//                                .textCase(.lowercase)
-//                        }
-                        HStack {
-                            Text(volumeUnit.description)
-                                .textCase(.lowercase)
-                                .foregroundColor(.primary)
-                            Text("•")
-                                .foregroundColor(Color(.quaternaryLabel))
-                            Text(volumeUnit.shortDescription)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                        if case .volume(let pickedVolumeUnit) = pickedUnit, pickedVolumeUnit == volumeUnit {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(.accentColor)
-                        }
-                    }
-                }
-            }
+            volumesGroupContents
         } label: {
             Text("Volumes")
-                .foregroundColor(volumesExpanded ? Color(.tertiaryLabel) : .primary)
+                .foregroundColor(volumesExpanded ? Color(.tertiaryLabel) : .secondary)
         }
     }
     
     var sizesGroup: some View {
         DisclosureGroup(isExpanded: $sizesExpanded) {
-            addSizeButton
+            sizesGroupContents
         } label: {
             Text("Sizes")
-                .foregroundColor(sizesExpanded ? Color(.tertiaryLabel) : .primary)
+                .foregroundColor(sizesExpanded ? Color(.tertiaryLabel) : .secondary)
         }
     }
+    
+    //MARK: - Group Contents
+    var weightsGroupContents: some View {
+        ForEach(weightUnits, id: \.self) { weightUnit in
+            Button {
+                pickedUnit(unit: .weight(weightUnit))
+            } label: {
+                HStack {
+                    HStack {
+                        Text(weightUnit.description)
+                            .textCase(.lowercase)
+                            .foregroundColor(.primary)
+                        Text("•")
+                            .foregroundColor(Color(.quaternaryLabel))
+                        Text(weightUnit.shortDescription)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    if case .weight(let pickedWeightUnit) = pickedUnit, pickedWeightUnit == weightUnit {
+                        Image(systemName: "checkmark")
+                            .foregroundColor(.accentColor)
+                    }
+                }
+            }
+        }
+    }
+    
+    var volumesGroupContents: some View {
+        ForEach(volumeUnits, id: \.self) { volumeUnit in
+            Button {
+                pickedUnit(unit: .volume(volumeUnit))
+            } label: {
+                HStack {
+//                        HStack {
+//                            Text("\(volumeUnit.description) • \(volumeUnit.shortDescription)")
+//                                .textCase(.lowercase)
+//                        }
+                    HStack {
+                        Text(volumeUnit.description)
+                            .textCase(.lowercase)
+                            .foregroundColor(.primary)
+                        Text("•")
+                            .foregroundColor(Color(.quaternaryLabel))
+                        Text(volumeUnit.shortDescription)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                    if case .volume(let pickedVolumeUnit) = pickedUnit, pickedVolumeUnit == volumeUnit {
+                        Image(systemName: "checkmark")
+                            .foregroundColor(.accentColor)
+                    }
+                }
+            }
+        }
+    }
+    
+    var sizesGroupContents: some View {
+        addSizeButton
+    }
+    
+    //MARK: - Buttons
     
     var addSizeButton: some View {
         Button {
@@ -201,6 +253,8 @@ extension UnitPicker {
             }
         }
     }
+    
+    //MARK: - Units
     
     var weightUnits: [WeightUnit] {
         [.g, .oz, .mg, .lb, .kg]
@@ -240,7 +294,6 @@ struct UnitSelector_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             UnitSelectorPreview()
-                .navigationTitle("Pick a unit")
                 .navigationBarTitleDisplayMode(.inline)
         }
 //        .toolbarBackground(Color.green, for: .navigationBar)

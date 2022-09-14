@@ -82,42 +82,15 @@ public struct FoodForm: View {
     }
     
     var savePublicallyButton: some View {
-        Button {
-//            tappedAdd()
-        } label: {
-            Text("Save")
-                .bold()
-                .foregroundColor(.white)
-                .padding(.vertical)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(.accentColor)
-                )
-                .padding(.horizontal)
-                .padding(.horizontal)
+        FormPrimaryButton(title: "Save") {
+            
         }
-//        .disabled(name.isEmpty)
     }
 
     var savePrivatelyButton: some View {
-        Button {
+        FormSecondaryButton(title: "Save Privately") {
             
-        } label: {
-            Text("Save Privately")
-                .bold()
-                .foregroundColor(.accentColor)
-                .padding(.vertical)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(.clear)
-                )
-                .padding(.horizontal)
-                .padding(.horizontal)
-                .contentShape(Rectangle())
         }
-//        .disabled(name.isEmpty)
     }
 
     var formNavigationView: some View {

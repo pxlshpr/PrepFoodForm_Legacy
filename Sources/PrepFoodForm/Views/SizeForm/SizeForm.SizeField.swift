@@ -2,12 +2,12 @@ import SwiftUI
 import NamePicker
 
 extension SizeForm {
-    struct Field: View {
+    struct SizeField: View {
         @ObservedObject var viewModel: SizeForm.ViewModel
     }
 }
 
-extension SizeForm.Field {
+extension SizeForm.SizeField {
     
     var body: some View {
         content
@@ -16,16 +16,17 @@ extension SizeForm.Field {
             case .name:
                 namePicker
             case .quantity:
-                Text("Quantity form")
+                QuantityForm(viewModel: viewModel)
             case .amount:
-                SizeForm.AmountForm(viewModel: viewModel)
+                AmountForm(viewModel: viewModel)
             case .volumePrefix:
-                Text("Volume prefix picker")
-            case .sizeAmountUnit:
+                UnitPicker(pickedUnit: viewModel.volumePrefixUnit, filteredType: .volume) { unit in
+                    viewModel.volumePrefixUnit = unit
+                }
+            case .amountUnit:
                 UnitPicker(pickedUnit: viewModel.amountUnit) { unit in
                     viewModel.amountUnit = unit
                 }
-                .navigationTitle("Choose a unit")
             }
         }
     }
@@ -35,11 +36,12 @@ extension SizeForm.Field {
             button(viewModel.quantityString) {
                 viewModel.path.append(.quantity)
             }
+            .padding(.horizontal)
             Spacer()
             symbol("×")
             Spacer()
             if viewModel.showingVolumePrefix {
-                button("cup") {
+                button(viewModel.volumePrefixUnit.shortDescription) {
                     viewModel.path.append(.volumePrefix)
                 }
                 symbol(", ")
@@ -54,6 +56,7 @@ extension SizeForm.Field {
                 viewModel.path.append(.amount)
             }
         }
+        .frame(maxWidth: .infinity)
     }
     
     var namePicker: some View {
@@ -76,14 +79,11 @@ extension SizeForm.Field {
                     HStack(spacing: 5) {
                         Text(placeholder)
                             .foregroundColor(Color(.tertiaryLabel))
-//                        Image(systemName: "chevron.up.chevron.down")
-//                            .imageScale(.small)
                     }
                 } else {
                     Text(string)
             }
         }
-//        .padding()
         .contentShape(Rectangle())
         .foregroundColor(.accentColor)
         .buttonStyle(.borderless)
@@ -124,7 +124,7 @@ public struct SizeFormFieldPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                SizeForm.Field(viewModel: viewModel)
+                SizeForm.SizeField(viewModel: viewModel)
                 volumePrefixToggle
             }
         }
