@@ -83,19 +83,23 @@ struct SizesList: View {
 
     var list: some View {
         List {
-            Section {
-                ForEach(viewModel.standardSizesViewModels, id: \.self) {
-                    Cell(sizeViewModel: $0)
+            if !viewModel.standardSizes.isEmpty {
+                Section {
+                    ForEach(viewModel.standardSizesViewModels, id: \.self) {
+                        Cell(sizeViewModel: $0)
+                    }
+                    .onDelete(perform: deleteStandardSizes)
+                    .onMove(perform: moveStandardSizes)
                 }
-                .onDelete(perform: deleteStandardSizes)
-                .onMove(perform: moveStandardSizes)
             }
-            Section(header: volumePrefixedHeader, footer: volumePrefixedFooter) {
-                ForEach(viewModel.volumePrefixedSizesViewModels, id: \.self) {
-                    Cell(sizeViewModel: $0)
+            if !viewModel.volumePrefixedSizes.isEmpty {
+                Section(header: volumePrefixedHeader, footer: volumePrefixedFooter) {
+                    ForEach(viewModel.volumePrefixedSizesViewModels, id: \.self) {
+                        Cell(sizeViewModel: $0)
+                    }
+                    .onDelete(perform: deleteVolumePrefixedSizes)
+                    .onMove(perform: moveVolumePrefixedSizes)
                 }
-                .onDelete(perform: deleteVolumePrefixedSizes)
-                .onMove(perform: moveVolumePrefixedSizes)
             }
         }
     }

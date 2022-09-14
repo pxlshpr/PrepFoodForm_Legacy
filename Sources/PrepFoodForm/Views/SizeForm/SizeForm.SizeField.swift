@@ -4,6 +4,7 @@ import NamePicker
 extension SizeForm {
     struct SizeField: View {
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
+        @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
     }
 }
 
@@ -22,11 +23,17 @@ extension SizeForm.SizeField {
                 AmountForm()
                     .environmentObject(sizeFormViewModel)
             case .volumePrefix:
-                UnitPicker(pickedUnit: sizeFormViewModel.volumePrefixUnit, filteredType: .volume) { unit in
+                UnitPicker(
+                    pickedUnit: sizeFormViewModel.volumePrefixUnit,
+                    filteredType: .volume)
+                { unit in
                     sizeFormViewModel.volumePrefixUnit = unit
                 }
             case .amountUnit:
-                UnitPicker(pickedUnit: sizeFormViewModel.amountUnit) { unit in
+                UnitPicker(
+                    sizes: foodFormViewModel.allSizes,
+                    pickedUnit: sizeFormViewModel.amountUnit)
+                { unit in
                     sizeFormViewModel.amountUnit = unit
                 }
             }

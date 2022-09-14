@@ -10,4 +10,12 @@ struct Size: Hashable, Equatable {
     var isVolumePrefixed: Bool {
         volumePrefixUnit != nil
     }
+    
+    var prefixedName: String {
+        if let volumePrefixUnit = volumePrefixUnit {
+            return "\(volumePrefixUnit.shortDescription) \(name)"
+        } else {
+            return name
+        }
+    }
 }

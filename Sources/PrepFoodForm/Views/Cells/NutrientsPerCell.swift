@@ -26,11 +26,13 @@ extension FoodForm.NutrientsPerCell {
     
     var filledContent: some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 0) {
+            HStack {
                 Text(viewModel.amountDescription)
                     .foregroundColor(.primary)
                 if viewModel.hasNutrientsPerServingContent {
-                    Text(" (\(viewModel.servingDescription))")
+                    Text("•")
+                        .foregroundColor(Color(.quaternaryLabel))
+                    Text("\(viewModel.servingDescription)")
                         .foregroundColor(.secondary)
                 }
             }

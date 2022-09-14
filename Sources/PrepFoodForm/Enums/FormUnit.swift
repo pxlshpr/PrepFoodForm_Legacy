@@ -1,9 +1,9 @@
 import PrepUnits
 
-enum FormUnit: Hashable {
+indirect enum FormUnit: Hashable {
     case weight(WeightUnit)
     case volume(VolumeUnit)
-    case size
+    case size(Size, FormUnit?)
     case serving
 }
 
@@ -29,8 +29,9 @@ extension FormUnit: CustomStringConvertible {
             return weightUnit.description
         case .volume(let volumeUnit):
             return volumeUnit.description
-        case .size:
-            return "[size]"
+        case .size(let size, let volumePrefixUnit):
+            //TODO: prefix name with volumePrefixUnit
+            return size.prefixedName
         case .serving:
             return "serving"
         }
@@ -42,8 +43,9 @@ extension FormUnit: CustomStringConvertible {
             return weightUnit.shortDescription
         case .volume(let volumeUnit):
             return volumeUnit.shortDescription
-        case .size:
-            return "[size]"
+        case .size(let size, let volumePrefixUnit):
+            //TODO: prefix name with volumePrefixUnit
+            return size.prefixedName
         case .serving:
             return "serving"
         }
@@ -54,8 +56,8 @@ extension FormUnit: Equatable {
         switch (lhs, rhs) {
         case (.serving, .serving):
             return true
-        case (.size, .size):
-            return true
+        case (.size(let lhsSize, let lhsVolumePrefixUnit), .size(let rhsSize, let rhsVolumePrefixUnit)):
+            return lhsSize == rhsSize && lhsVolumePrefixUnit == rhsVolumePrefixUnit
         case (.weight(let lhsWeightUnit), .weight(let rhsWeightUnit)):
             return lhsWeightUnit == rhsWeightUnit
         case (.volume(let lhsVolumeUnit), .volume(let rhsVolumeUnit)):

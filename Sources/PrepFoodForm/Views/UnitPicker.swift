@@ -8,6 +8,7 @@ struct UnitPicker: View {
     @State var type: UnitType
     @State var pickedUnit: FormUnit
 
+    var sizes: [Size]
     var includeServing: Bool
     var filteredType: UnitType?
     var didPickUnit: (FormUnit) -> ()
@@ -18,8 +19,9 @@ struct UnitPicker: View {
     @State private var volumesExpanded: Bool
     @State private var sizesExpanded: Bool
 
-    init(pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, filteredType: UnitType? = nil, didPickUnit: @escaping (FormUnit) -> ())
+    init(sizes: [Size] = [], pickedUnit: FormUnit = .weight(.g), includeServing: Bool = true, filteredType: UnitType? = nil, didPickUnit: @escaping (FormUnit) -> ())
     {
+        self.sizes = sizes
         self.didPickUnit = didPickUnit
         self.includeServing = includeServing
         self.filteredType = filteredType
@@ -218,8 +220,46 @@ extension UnitPicker {
         }
     }
     
+    @ViewBuilder
     var sizesGroupContents: some View {
+//        VStack {
+        if !sizes.isEmpty {
+            ForEach(sizes.map { SizeViewModel(size: $0) }, id: \.self) { sizeViewModel in
+                Button {
+                    pickedUnit(unit: .size(sizeViewModel.size, nil))
+                } label: {
+                    HStack {
+                        //TODO: Display name here based on picked volumePrefixUnit for size, so we need to save it when using a Size as a unit
+                        Text(sizeViewModel.fullNameString)
+                            .foregroundColor(.primary)
+                        Text("•")
+                            .foregroundColor(Color(.quaternaryLabel))
+                        HStack {
+                            if sizeViewModel.quantity != 1 {
+                                Text(sizeViewModel.quantityString)
+                                    .foregroundColor(Color(.secondaryLabel))
+                                Text("=")
+                                    .foregroundColor(Color(.tertiaryLabel))
+                            }
+                            Text(sizeViewModel.amountString)
+                                .foregroundColor(Color(.secondaryLabel))
+                        }
+                        Spacer()
+                        if case .size(let pickedSize, _) = pickedUnit,
+                           pickedSize == sizeViewModel.size {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.accentColor)
+                        }
+                    }
+                }
+                .buttonStyle(.borderless)
+                .contentShape(Rectangle())
+            }
+        }
         addSizeButton
+//            }
+//            addSizeButton
+//        }
     }
     
     //MARK: - Buttons
@@ -284,7 +324,7 @@ public struct UnitSelectorPreview: View {
     public init() { }
     
     public var body: some View {
-        UnitPicker { pickedUnit in
+        UnitPicker(sizes: mockStandardSizes) { pickedUnit in
             
         }
     }

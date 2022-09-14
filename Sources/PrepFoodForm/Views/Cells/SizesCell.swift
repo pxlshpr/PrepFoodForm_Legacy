@@ -47,20 +47,21 @@ extension FoodForm.NutrientsPerForm.SizesCell {
 
 extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     var body: some View {
-        HStack(spacing: 0) {
+        HStack {
             Text(sizeViewModel.fullNameString)
                 .foregroundColor(.primary)
-            Text(", ")
-                .foregroundColor(Color(.quaternaryLabel))
+            Spacer()
+//            Text("•")
+//                .foregroundColor(Color(.tertiaryLabel))
             HStack {
                 if sizeViewModel.quantity != 1 {
                     Text(sizeViewModel.quantityString)
-                        .foregroundColor(Color(.tertiaryLabel))
+                        .foregroundColor(Color(.secondaryLabel))
                     Text("=")
-                        .foregroundColor(Color(.quaternaryLabel))
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
                 Text(sizeViewModel.amountString)
-                    .foregroundColor(Color(.tertiaryLabel))
+                    .foregroundColor(Color(.secondaryLabel))
             }
         }
     }
@@ -84,19 +85,50 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     }
     
     var filledContent: some View {
-        VStack(alignment: .leading) {
-            ForEach(viewModel.allSizesViewModels.prefix(4), id: \.self) {
+        VStack(alignment: .leading, spacing: 5) {
+            ForEach(viewModel.summarySizeViewModels, id: \.self) {
                 SizeCell(sizeViewModel: $0)
+//                if !(!viewModel.shouldShowExcessSizesCount && index == viewModel.summarySizeViewModels.indices.last) {
+//                    Divider()
+//                }
             }
-            if viewModel.allSizesViewModels.count > 4 {
+            if let excessCount = viewModel.numberOfExcessSizes {
                 HStack {
-                    Text("…")
+                    Image(systemName: "plus.circle.fill")
                         .foregroundColor(Color(.quaternaryLabel))
-                    Text("\(viewModel.allSizes.count - 4) more")
+                    Text("\(excessCount) more")
                         .foregroundColor(Color(.secondaryLabel))
                 }
+                .padding(.vertical, 5)
+                .padding(.leading, 7)
+                .padding(.trailing, 9)
+                .background(
+                    Capsule(style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+                .padding(.top, 5)
             }
         }
+    }
+}
+
+extension FoodForm.ViewModel {
+    var maxNumberOfSummarySizeViewModels: Int {
+        4
+    }
+    
+    var shouldShowExcessSizesCount: Bool {
+        numberOfExcessSizes != nil
+    }
+    
+    var numberOfExcessSizes: Int? {
+        guard allSizes.count > 4 else {
+            return nil
+        }
+        return allSizes.count - maxNumberOfSummarySizeViewModels
+    }
+    var summarySizeViewModels: [SizeViewModel] {
+        Array(allSizesViewModels.prefix(maxNumberOfSummarySizeViewModels))
     }
 }
 

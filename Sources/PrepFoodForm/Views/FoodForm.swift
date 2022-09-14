@@ -25,11 +25,18 @@ public struct FoodForm: View {
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .amountUnitSelector:
-                        UnitPicker(pickedUnit: viewModel.amountUnit) { unit in
+                        UnitPicker(
+                            sizes: viewModel.allSizes,
+                            pickedUnit: viewModel.amountUnit
+                        ) { unit in
                             viewModel.amountUnit = unit
                         }
                     case .servingUnitSelector:
-                        UnitPicker(pickedUnit: viewModel.servingUnit, includeServing: false) { unit in
+                        UnitPicker(
+                            sizes: viewModel.allSizes,
+                            pickedUnit: viewModel.servingUnit,
+                            includeServing: false
+                        ) { unit in
                             viewModel.servingUnit = unit
                         }
                     case .nutrientsPerForm:

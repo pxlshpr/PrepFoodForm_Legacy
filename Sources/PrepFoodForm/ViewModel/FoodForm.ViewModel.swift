@@ -17,7 +17,14 @@ extension FoodForm {
 
         //MARK: Nutrients Per
         @Published var amountString: String = ""
-        @Published var amountUnit: FormUnit = .serving
+        @Published var amountUnit: FormUnit = .serving {
+            didSet {
+                if amountUnit != .serving {
+                    servingString = ""
+                    servingUnit = .weight(.g)
+                }
+            }
+        }
         @Published var servingString: String = ""
         @Published var servingUnit: FormUnit = .weight(.g)
         
