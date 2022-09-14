@@ -2,7 +2,9 @@ import SwiftUI
 
 extension SizeForm.SizeField {
     struct AmountForm: View {        
+        @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
+        @State var showingUnitPickerForAmount = false
     }
 }
 
@@ -17,9 +19,21 @@ extension SizeForm.SizeField.AmountForm {
             }
         }
         .navigationTitle("Amount")
+        .sheet(isPresented: $showingUnitPickerForAmount) {
+            unitPickerForAmount
+        }
     }
     
     //MARK: - Components
+    
+    var unitPickerForAmount: some View {
+        UnitPicker(
+            sizes: foodFormViewModel.allSizes,
+            pickedUnit: sizeFormViewModel.amountUnit)
+        { unit in
+            sizeFormViewModel.amountUnit = unit
+        }
+    }
     
     var textField: some View {
         TextField("Required", text: $sizeFormViewModel.amountString)
@@ -29,7 +43,8 @@ extension SizeForm.SizeField.AmountForm {
     
     var unitButton: some View {
         Button {
-            sizeFormViewModel.path.append(.amountUnit)
+//            sizeFormViewModel.path.append(.amountUnit)
+            showingUnitPickerForAmount = true
         } label: {
             HStack(spacing: 5) {
                 Text(sizeFormViewModel.amountUnit.shortDescription)

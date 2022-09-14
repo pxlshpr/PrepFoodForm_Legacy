@@ -22,13 +22,7 @@ extension SizesList.Cell {
                 Text(sizeViewModel.nameString)
             }
             Spacer()
-            if sizeViewModel.quantity != 1 {
-                Text(sizeViewModel.quantityString)
-                    .foregroundColor(Color(.secondaryLabel))
-                Text("=")
-                    .foregroundColor(Color(.quaternaryLabel))
-            }
-            Text(sizeViewModel.amountString)
+            Text(sizeViewModel.scaledAmountString)
                 .foregroundColor(Color(.secondaryLabel))
         }
     }

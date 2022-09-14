@@ -19,8 +19,14 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
             }
         }
         .sheet(isPresented: $showingAmountUnits) {
-            Text("Amount units")
-                .presentationDetents([.medium])
+            UnitPicker(
+                sizes: viewModel.allSizes,
+                pickedUnit: viewModel.amountUnit
+            ) { unit in
+                withAnimation {
+                    viewModel.amountUnit = unit
+                }
+            }
         }
         .sheet(isPresented: $showingSizes) {
             Text("Sizes")
@@ -36,7 +42,8 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
     
     var unitButton: some View {
         Button {
-            viewModel.path.append(.amountUnitSelector)
+            showingAmountUnits = true
+//            viewModel.path.append(.amountUnitSelector)
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.amountUnitShortString)

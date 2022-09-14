@@ -37,6 +37,17 @@ struct SizeViewModel: Hashable {
     var amountString: String {
         "\(size.amount.cleanAmount) \(size.amountUnit.shortDescription)"
     }
+    
+    var scaledAmount: Double {
+        guard size.quantity > 0 else {
+            return 0
+        }
+        return size.amount / size.quantity
+    }
+    
+    var scaledAmountString: String {
+        "\(scaledAmount.cleanAmount) \(size.amountUnit.shortDescription)"
+    }
 }
 
 extension FoodForm.NutrientsPerForm.SizesCell {
@@ -54,13 +65,7 @@ extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
 //            Text("•")
 //                .foregroundColor(Color(.tertiaryLabel))
             HStack {
-                if sizeViewModel.quantity != 1 {
-                    Text(sizeViewModel.quantityString)
-                        .foregroundColor(Color(.secondaryLabel))
-                    Text("=")
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-                Text(sizeViewModel.amountString)
+                Text(sizeViewModel.scaledAmountString)
                     .foregroundColor(Color(.secondaryLabel))
             }
         }

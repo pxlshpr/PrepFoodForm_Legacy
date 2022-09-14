@@ -1,4 +1,5 @@
 import Foundation
+import PrepUnits
 
 struct Size: Hashable, Equatable {
     var quantity: Double
@@ -16,6 +17,14 @@ struct Size: Hashable, Equatable {
             return "\(volumePrefixUnit.shortDescription) \(name)"
         } else {
             return name
+        }
+    }
+    
+    func namePrefixed(with volumeUnit: VolumeUnit?) -> String {
+        if let volumeUnit = volumeUnit {
+            return "\(volumeUnit.shortDescription) \(name)"
+        } else {
+            return prefixedName
         }
     }
 }

@@ -3,7 +3,7 @@ import PrepUnits
 indirect enum FormUnit: Hashable {
     case weight(WeightUnit)
     case volume(VolumeUnit)
-    case size(Size, FormUnit?)
+    case size(Size, VolumeUnit?)
     case serving
 }
 
@@ -30,8 +30,7 @@ extension FormUnit: CustomStringConvertible {
         case .volume(let volumeUnit):
             return volumeUnit.description
         case .size(let size, let volumePrefixUnit):
-            //TODO: prefix name with volumePrefixUnit
-            return size.prefixedName
+            return size.namePrefixed(with: volumePrefixUnit)
         case .serving:
             return "serving"
         }
@@ -44,8 +43,7 @@ extension FormUnit: CustomStringConvertible {
         case .volume(let volumeUnit):
             return volumeUnit.shortDescription
         case .size(let size, let volumePrefixUnit):
-            //TODO: prefix name with volumePrefixUnit
-            return size.prefixedName
+            return size.namePrefixed(with: volumePrefixUnit)
         case .serving:
             return "serving"
         }

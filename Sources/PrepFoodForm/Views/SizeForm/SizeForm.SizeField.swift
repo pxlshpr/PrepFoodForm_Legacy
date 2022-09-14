@@ -5,6 +5,8 @@ extension SizeForm {
     struct SizeField: View {
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
         @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
+        
+        @State var showingUnitPickerForVolumePrefix = false
     }
 }
 
@@ -23,20 +25,22 @@ extension SizeForm.SizeField {
                 AmountForm()
                     .environmentObject(sizeFormViewModel)
             case .volumePrefix:
-                UnitPicker(
-                    pickedUnit: sizeFormViewModel.volumePrefixUnit,
-                    filteredType: .volume)
-                { unit in
-                    sizeFormViewModel.volumePrefixUnit = unit
-                }
+                unitPickerForVolumePrefix
             case .amountUnit:
-                UnitPicker(
-                    sizes: foodFormViewModel.allSizes,
-                    pickedUnit: sizeFormViewModel.amountUnit)
-                { unit in
-                    sizeFormViewModel.amountUnit = unit
-                }
+                EmptyView()
             }
+        }
+        .sheet(isPresented: $showingUnitPickerForVolumePrefix) {
+            unitPickerForVolumePrefix
+        }
+    }
+    
+    var unitPickerForVolumePrefix: some View {
+        UnitPicker(
+            pickedUnit: sizeFormViewModel.volumePrefixUnit,
+            filteredType: .volume)
+        { unit in
+            sizeFormViewModel.volumePrefixUnit = unit
         }
     }
     
@@ -51,7 +55,8 @@ extension SizeForm.SizeField {
             Spacer()
             if sizeFormViewModel.showingVolumePrefix {
                 button(sizeFormViewModel.volumePrefixUnit.shortDescription) {
-                    sizeFormViewModel.path.append(.volumePrefix)
+                    showingUnitPickerForVolumePrefix = true
+//                    sizeFormViewModel.path.append(.volumePrefix)
                 }
                 symbol(", ")
             }

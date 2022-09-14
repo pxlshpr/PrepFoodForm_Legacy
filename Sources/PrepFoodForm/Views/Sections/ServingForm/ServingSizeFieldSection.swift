@@ -5,6 +5,7 @@ extension FoodForm.NutrientsPerForm {
     struct ServingSizeFieldSection: View {
         @EnvironmentObject var viewModel: FoodForm.ViewModel
         @State var showingAmountUnits = false
+        @State var showingServingUnits = false
         @State var showingSizes = false
     }
 }
@@ -18,9 +19,16 @@ extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
                 unitButton
             }
         }
-        .sheet(isPresented: $showingAmountUnits) {
-            Text("Amount units")
-                .presentationDetents([.medium])
+        .sheet(isPresented: $showingServingUnits) {
+            UnitPicker(
+                sizes: viewModel.allSizes,
+                pickedUnit: viewModel.servingUnit,
+                includeServing: false
+            ) { unit in
+                withAnimation {
+                    viewModel.servingUnit = unit
+                }
+            }
         }
         .sheet(isPresented: $showingSizes) {
             Text("Sizes")
@@ -39,7 +47,8 @@ extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
     
     var unitButton: some View {
         Button {
-            viewModel.path.append(.servingUnitSelector)
+            showingServingUnits = true
+//            viewModel.path.append(.servingUnitSelector)
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.servingUnitShortString)
