@@ -43,6 +43,7 @@ extension FoodForm.NutrientsPerForm {
         .sheet(isPresented: $showingAddVolumeForm) {
             SizesList()
         }
+        .scrollDismissesKeyboard(.interactively)
     }
     
     var form: some View {
