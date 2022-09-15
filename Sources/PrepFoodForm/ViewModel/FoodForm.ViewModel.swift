@@ -247,13 +247,16 @@ extension FoodForm.ViewModel {
     var densityVolumeAmount: Double {
         Double(densityVolumeString) ?? 0
     }
+    
+    var hasValidDensity: Bool {
+        densityWeightAmount > 0
+        && densityVolumeAmount > 0
+        && densityWeightUnit.unitType == .weight
+        && densityVolumeUnit.unitType == .volume
+    }
 
     var densityDescription: String? {
-        guard densityWeightAmount > 0,
-              densityVolumeAmount > 0,
-              densityWeightUnit.unitType == .weight,
-              densityVolumeUnit.unitType == .volume
-        else {
+        guard hasValidDensity else {
             return nil
         }
                 
@@ -261,9 +264,42 @@ extension FoodForm.ViewModel {
         let volume = "\(densityVolumeAmount.cleanAmount) \(densityVolumeUnit.shortDescription)"
         
         if isWeightBased {
-            return "\(weight) equals \(volume)"
+            return "\(weight) = \(volume)"
         } else {
-            return "\(volume) equals \(weight)"
+            return "\(volume) = \(weight)"
         }
     }
+    
+    var lhsDensityAmountString: String {
+        if isWeightBased {
+            return densityWeightAmount.cleanAmount
+        } else {
+            return densityVolumeAmount.cleanAmount
+        }
+    }
+    
+    var rhsDensityAmountString: String {
+        if isWeightBased {
+            return densityVolumeAmount.cleanAmount
+        } else {
+            return densityWeightAmount.cleanAmount
+        }
+    }
+
+    var lhsDensityUnitString: String {
+        if isWeightBased {
+            return densityWeightUnit.shortDescription
+        } else {
+            return densityVolumeUnit.shortDescription
+        }
+    }
+    
+    var rhsDensityUnitString: String {
+        if isWeightBased {
+            return densityVolumeUnit.shortDescription
+        } else {
+            return densityWeightUnit.shortDescription
+        }
+    }
+
 }

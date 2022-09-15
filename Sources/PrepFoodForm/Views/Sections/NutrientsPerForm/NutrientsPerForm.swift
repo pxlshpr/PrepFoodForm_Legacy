@@ -93,9 +93,23 @@ extension FoodForm.NutrientsPerForm {
         
         return Section(header: header, footer: footer) {
             NavigationLink(value: FoodForm.Route.densityForm) {
-                if let densityDescription = viewModel.densityDescription {
-                    Text(densityDescription)
-                        .foregroundColor(.primary)
+                if viewModel.hasValidDensity {
+                    HStack {
+                        HStack(spacing: 2) {
+                            Text(viewModel.lhsDensityAmountString)
+                                .foregroundColor(Color(.label))
+                            Text(viewModel.lhsDensityUnitString)
+                                .foregroundColor(Color(.secondaryLabel))
+                        }
+                        Text("=")
+                            .foregroundColor(Color(.tertiaryLabel))
+                        HStack(spacing: 2) {
+                            Text(viewModel.rhsDensityAmountString)
+                                .foregroundColor(Color(.label))
+                            Text(viewModel.rhsDensityUnitString)
+                                .foregroundColor(Color(.secondaryLabel))
+                        }
+                    }
                 } else {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
