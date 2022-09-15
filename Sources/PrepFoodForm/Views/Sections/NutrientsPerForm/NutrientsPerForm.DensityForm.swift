@@ -20,7 +20,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     
     var body: some View {
         form
-        .navigationTitle("Weight-to-Volume Ratio")
+        .navigationTitle(navigationTitle)
     }
     
     var navigationTitle: String {

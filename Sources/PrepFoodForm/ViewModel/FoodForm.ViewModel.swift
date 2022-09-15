@@ -36,11 +36,9 @@ extension FoodForm {
                 /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
                 modifyServingUnitIfServingBased()
                 updateShouldShowDensitiesSection()
-                
-                
-                if !servingString.isEmpty && amountString.isEmpty {
-                    amountString = "1"
-                }
+//                if !servingString.isEmpty && amountString.isEmpty {
+//                    amountString = "1"
+//                }
             }
         }
         @Published var servingUnit: FormUnit = .weight(.g) {

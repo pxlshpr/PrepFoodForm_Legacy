@@ -37,7 +37,7 @@ public struct FoodForm: View {
                     case .detailsFormEmoji:
                         FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
                     case .densityForm:
-                        FoodForm.NutrientsPerForm.DensityForm()
+                        FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
                             .environmentObject(viewModel)
                     case .sizesList:
                         SizesList()

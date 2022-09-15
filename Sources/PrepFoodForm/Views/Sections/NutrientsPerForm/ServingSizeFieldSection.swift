@@ -78,8 +78,10 @@ extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
         Text(viewModel.servingSizeHeaderString)
     }
 
+    @ViewBuilder
     var footer: some View {
         Text(viewModel.servingSizeFooterString)
+            .foregroundColor(viewModel.servingString.isEmpty ? .secondary : Color(.quaternaryLabel))
     }
 }
 
@@ -99,11 +101,11 @@ extension FoodForm.ViewModel {
     var servingSizeFooterString: String {
         switch servingUnit {
         case .weight:
-            return "Enter this to also log this food using its weight."
+            return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
         case .volume:
-            return "Enter this to also log this food using its volume."
-        case .size:
-            return "Enter this to also log this food using its [insert unitType of size here]"
+            return "This is the volume of 1 serving. Enter this to log this food using its volume in addition to servings."
+        case .size(let size, _):
+            return "This is how many \(size.prefixedName) is 1 serving."
         case .serving:
             return "Unsupported"
         }

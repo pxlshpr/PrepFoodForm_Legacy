@@ -71,7 +71,9 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
         Text("Amount")
     }
     
+    @ViewBuilder
     var footer: some View {
         Text("This is how much of this food the nutritional values are for. You'll be able to log this food using the unit you choose.")
+            .foregroundColor(viewModel.amountString.isEmpty ? .secondary : Color(.quaternaryLabel))
     }
 }

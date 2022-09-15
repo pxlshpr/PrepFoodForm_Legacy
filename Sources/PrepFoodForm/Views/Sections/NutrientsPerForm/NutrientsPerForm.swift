@@ -84,11 +84,14 @@ extension FoodForm.NutrientsPerForm {
         
         @ViewBuilder
         var footer: some View {
-            if viewModel.isWeightBased {
-                Text("Setting this will also let you log this food using volume units.")
-            } else if viewModel.isVolumeBased {
-                Text("Setting this will also let you log this food using weight units.")
+            Group {
+                if viewModel.isWeightBased {
+                    Text("Enter this to be able to log this food using volume units, like cups.")
+                } else if viewModel.isVolumeBased {
+                    Text("Enter this to be able to log this food using using its weight.")
+                }
             }
+            .foregroundColor(!viewModel.hasValidDensity ? .secondary : Color(.quaternaryLabel))
         }
         
         return Section(header: header, footer: footer) {
@@ -128,8 +131,10 @@ extension FoodForm.NutrientsPerForm {
             Text("Sizes")
         }
         
+        @ViewBuilder
         var footer: some View {
             Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, pack, etc.")
+                .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? .secondary : Color(.quaternaryLabel))
         }
         
         return Section(header: header, footer: footer) {
