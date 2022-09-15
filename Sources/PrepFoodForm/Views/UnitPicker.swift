@@ -17,16 +17,18 @@ struct UnitPicker: View {
     var includeServing: Bool
     var allowAddSize: Bool
     var filteredType: UnitType?
+    var servingDescription: String?
     
     var didPickUnit: (FormUnit) -> ()
     var didTapAddSize: (() -> ())?
 
-    init(sizes: [Size] = [], pickedUnit unit: FormUnit = .weight(.g), includeServing: Bool = true, allowAddSize: Bool = true, filteredType: UnitType? = nil, didTapAddSize: (() -> ())? = nil, didPickUnit: @escaping (FormUnit) -> ())
+    init(sizes: [Size] = [], pickedUnit unit: FormUnit = .weight(.g), includeServing: Bool = true, servingDescription: String? = nil, allowAddSize: Bool = true, filteredType: UnitType? = nil, didTapAddSize: (() -> ())? = nil, didPickUnit: @escaping (FormUnit) -> ())
     {
         self.sizes = sizes
         self.didPickUnit = didPickUnit
         self.didTapAddSize = didTapAddSize
         self.includeServing = includeServing
+        self.servingDescription = servingDescription
         self.allowAddSize = allowAddSize
         self.filteredType = filteredType
         
@@ -67,6 +69,11 @@ extension UnitPicker {
     }
     
     //MARK: - Components
+    
+    var shouldShowAddSizeButton: Bool {
+        allowAddSize && standardSizeViewModels.isEmpty && volumePrefixedSizeViewModels.isEmpty
+    }
+    
     var longList: some View {
         List {
             if let filteredType = filteredType {
@@ -74,32 +81,34 @@ extension UnitPicker {
                     filteredList(for: filteredType)
                 }
             } else {
-                Section("Recents") {
-                    if shouldShowServing {
-                        servingButton
-                    }
-                    weightUnitButton(for: .g)
-                    volumeUnitButton(for: .mL)
-                }
-                Section("Weights") {
-                    weightsGroupContents
-                }
-                Section("Volumes") {
-                    volumesGroupContents
-                }
                 if !standardSizeViewModels.isEmpty {
                     Section("Sizes") {
                         standardSizeContents
                     }
                 }
                 if !volumePrefixedSizeViewModels.isEmpty {
-                    Section("Volume-Prefixed Sizes") {
+                    Section("Volume Prefixed Sizes") {
                         volumePrefixedSizeContents
                     }
                 }
-                if allowAddSize {
+                if shouldShowAddSizeButton {
                     Section {
                         addSizeButton
+                    }
+                }
+                Section {
+                    if shouldShowServing {
+                        servingButton
+                    }
+                    weightUnitButton(for: .g)
+                    volumeUnitButton(for: .mL)
+                }
+                Section("Other Units") {
+                    DisclosureGroup("Weights") {
+                        weightsGroupContents
+                    }
+                    DisclosureGroup("Volumes") {
+                        volumesGroupContents
                     }
                 }
             }
@@ -277,9 +286,15 @@ extension UnitPicker {
                 pickedUnit(unit: .size(size, volumeUnit))
             } label: {
                 HStack {
-                    Text(volumeUnit.description)
-                        .textCase(.lowercase)
-                        .foregroundColor(.primary)
+                    HStack(spacing: 0) {
+                        Text(volumeUnit.description)
+                            .textCase(.lowercase)
+                            .foregroundColor(.primary)
+                        Text(", ")
+                            .foregroundColor(Color(.tertiaryLabel))
+                        Text(size.name)
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
                     Spacer()
                     Text(volumeUnit.shortDescription)
                         .foregroundColor(.secondary)
@@ -317,14 +332,17 @@ extension UnitPicker {
     
     var volumePrefixedSizeContents: some View {
         ForEach(volumePrefixedSizeViewModels, id: \.self) { sizeViewModel in
-            NavigationLinkButton {
-                path.append(.volumePrefixes(sizeViewModel.size))
-            } label: {
-                HStack {
-                    Text(sizeViewModel.nameString)
-                        .foregroundColor(.primary)
-                }
+            DisclosureGroup(sizeViewModel.nameString) {
+                volumePrefixes(for: sizeViewModel.size)
             }
+//            NavigationLinkButton {
+//                path.append(.volumePrefixes(sizeViewModel.size))
+//            } label: {
+//                HStack {
+//                    Text(sizeViewModel.nameString)
+//                        .foregroundColor(.primary)
+//                }
+//            }
         }
     }
     
@@ -372,6 +390,10 @@ extension UnitPicker {
                     .textCase(.lowercase)
                     .foregroundColor(.primary)
                 Spacer()
+                if let servingDescription = servingDescription {
+                    Text(servingDescription)
+                        .foregroundColor(Color(.secondaryLabel))
+                }
 //                if case .serving = pickedUnit {
 //                    Image(systemName: "checkmark")
 //                        .foregroundColor(.accentColor)

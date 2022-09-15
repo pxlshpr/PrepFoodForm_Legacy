@@ -66,6 +66,8 @@ extension FoodForm {
                 
                 self.standardSizes = mockStandardSizes
                 self.volumePrefixedSizes = mockVolumePrefixedSizes
+                
+                self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             }
         }
     }
