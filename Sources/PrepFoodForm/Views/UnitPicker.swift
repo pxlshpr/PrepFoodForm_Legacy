@@ -17,6 +17,7 @@ struct UnitPicker: View {
     var includeServing: Bool
     var allowAddSize: Bool
     var filteredType: UnitType?
+    
     var didPickUnit: (FormUnit) -> ()
     var didTapAddSize: (() -> ())?
 
@@ -45,7 +46,8 @@ extension UnitPicker {
     
     var body: some View {
         NavigationStack(path: $path) {
-            finalList
+//            drillDownList
+            longList
             .navigationTitle(navigationTitleString)
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: Route.self) { route in
@@ -62,6 +64,86 @@ extension UnitPicker {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.hidden)
+    }
+    
+    //MARK: - Components
+    var longList: some View {
+        List {
+            if let filteredType = filteredType {
+                Section {
+                    filteredList(for: filteredType)
+                }
+            } else {
+                Section("Recents") {
+                    if shouldShowServing {
+                        servingButton
+                    }
+                    weightUnitButton(for: .g)
+                    volumeUnitButton(for: .mL)
+                }
+                Section("Weights") {
+                    weightsGroupContents
+                }
+                Section("Volumes") {
+                    volumesGroupContents
+                }
+                if !standardSizeViewModels.isEmpty {
+                    Section("Sizes") {
+                        standardSizeContents
+                    }
+                }
+                if !volumePrefixedSizeViewModels.isEmpty {
+                    Section("Volume-Prefixed Sizes") {
+                        volumePrefixedSizeContents
+                    }
+                }
+                if allowAddSize {
+                    Section {
+                        addSizeButton
+                    }
+                }
+            }
+        }
+    }
+
+    var drillDownList: some View {
+        List {
+            if let filteredType = filteredType {
+                Section {
+                    filteredList(for: filteredType)
+                }
+            } else {
+                Section {
+                    if shouldShowServing {
+                        servingButton
+                    }
+                    weightUnitButton(for: .g)
+                    volumeUnitButton(for: .mL)
+                }
+                Section("Other Units") {
+                    NavigationLinkButton {
+                        path.append(.weights)
+                    } label: {
+                        Text("Weights")
+                            .foregroundColor(.primary)
+                    }
+                    NavigationLinkButton {
+                        path.append(.volumes)
+                    } label: {
+                        Text("Volumes")
+                            .foregroundColor(.primary)
+                    }
+                    if allowAddSize || !sizes.isEmpty {
+                        NavigationLinkButton {
+                            path.append(.sizes)
+                        } label: {
+                            Text("Sizes")
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+            }
+        }
     }
     
     @ViewBuilder
@@ -117,46 +199,6 @@ extension UnitPicker {
             sizesGroupContents
         default:
             EmptyView()
-        }
-    }
-    
-    var finalList: some View {
-        List {
-            if let filteredType = filteredType {
-                Section {
-                    filteredList(for: filteredType)
-                }
-            } else {
-                Section {
-                    if shouldShowServing {
-                        servingButton
-                    }
-                    weightUnitButton(for: .g)
-                    volumeUnitButton(for: .mL)
-                }
-                Section("Other Units") {
-                    NavigationLinkButton {
-                        path.append(.weights)
-                    } label: {
-                        Text("Weights")
-                            .foregroundColor(.primary)
-                    }
-                    NavigationLinkButton {
-                        path.append(.volumes)
-                    } label: {
-                        Text("Volumes")
-                            .foregroundColor(.primary)
-                    }
-                    if allowAddSize || !sizes.isEmpty {
-                        NavigationLinkButton {
-                            path.append(.sizes)
-                        } label: {
-                            Text("Sizes")
-                                .foregroundColor(.primary)
-                        }
-                    }
-                }
-            }
         }
     }
     
@@ -254,40 +296,48 @@ extension UnitPicker {
         sizes.filter({ $0.isVolumePrefixed }).map { SizeViewModel(size: $0) }
     }
 
+    var standardSizeContents: some View {
+        ForEach(standardSizeViewModels, id: \.self) { sizeViewModel in
+            Button {
+                pickedUnit(unit: .size(sizeViewModel.size, nil))
+            } label: {
+                HStack {
+                    Text(sizeViewModel.nameString)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    HStack {
+                        Text(sizeViewModel.scaledAmountString)
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                }
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
+    var volumePrefixedSizeContents: some View {
+        ForEach(volumePrefixedSizeViewModels, id: \.self) { sizeViewModel in
+            NavigationLinkButton {
+                path.append(.volumePrefixes(sizeViewModel.size))
+            } label: {
+                HStack {
+                    Text(sizeViewModel.nameString)
+                        .foregroundColor(.primary)
+                }
+            }
+        }
+    }
+    
     var sizesGroupContents: some View {
         Group {
             if !standardSizeViewModels.isEmpty {
                 Section {
-                    ForEach(standardSizeViewModels, id: \.self) { sizeViewModel in
-                        Button {
-                            pickedUnit(unit: .size(sizeViewModel.size, nil))
-                        } label: {
-                            HStack {
-                                Text(sizeViewModel.nameString)
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                HStack {
-                                    Text(sizeViewModel.scaledAmountString)
-                                        .foregroundColor(Color(.secondaryLabel))
-                                }
-                            }
-                        }
-                        .buttonStyle(.borderless)
-                    }
+                    standardSizeContents
                 }
             }
             if !volumePrefixedSizeViewModels.isEmpty {
                 Section("Volume prefixed") {
-                    ForEach(volumePrefixedSizeViewModels, id: \.self) { sizeViewModel in
-                        NavigationLinkButton {
-                            path.append(.volumePrefixes(sizeViewModel.size))
-                        } label: {
-                            HStack {
-                                Text(sizeViewModel.nameString)
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    }
+                    volumePrefixedSizeContents
                 }
             }
             if allowAddSize {

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftHaptics
 
 extension SizeForm.SizeField {
     struct AmountForm: View {        
@@ -39,10 +40,18 @@ extension SizeForm.SizeField.AmountForm {
             sizeFormViewModel.amountUnit = unit
         }
         .sheet(isPresented: $showingSizeForm) {
-            SizeForm(includeServing: foodFormViewModel.hasServing, allowAddSize: false)
-                .environmentObject(sizeFormViewModel)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
+            SizeForm(includeServing: foodFormViewModel.hasServing, allowAddSize: false) { size in
+                withAnimation {
+                    sizeFormViewModel.amountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        Haptics.feedback(style: .rigid)
+                        showingUnitPickerForAmount = false
+                    }
+                }
+            }
+            .environmentObject(sizeFormViewModel)
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
         }
     }
     

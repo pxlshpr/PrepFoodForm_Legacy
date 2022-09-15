@@ -18,6 +18,13 @@ extension FormUnit {
             return false
         }
     }
+    
+    var defaultVolumeUnit: VolumeUnit? {
+        guard case .size(_, let volumeUnit) = self else {
+            return nil
+        }
+        return volumeUnit
+    }
 }
 
 extension Size {

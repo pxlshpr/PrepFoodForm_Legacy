@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepUnits
+import SwiftHaptics
 
 extension FoodForm.NutrientsPerForm {
     struct AmountFieldSection: View {
@@ -30,10 +31,18 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
                 }
             }
             .sheet(isPresented: $showingSizeForm) {
-                SizeForm(includeServing: false, allowAddSize: false)
-                    .environmentObject(viewModel)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
+                SizeForm(includeServing: false, allowAddSize: false) { size in
+                    withAnimation {
+                        viewModel.amountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            Haptics.feedback(style: .rigid)
+                            showingAmountUnits = false
+                        }
+                    }
+                }
+                .environmentObject(viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
             }
         }
     }

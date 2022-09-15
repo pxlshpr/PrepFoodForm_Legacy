@@ -34,24 +34,39 @@ extension FoodForm {
         
         @Published var standardSizes: [Size] = []
         @Published var volumePrefixedSizes: [Size] = []
+        @Published var summarySizeViewModels: [SizeViewModel] = []
         
-        init(prefilledWithMockData: Bool = false) {
+        init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
             guard prefilledWithMockData else {
                 return
             }
-            self.name = "Carrot"
-            self.emoji = "🥕"
-            self.detail = "Baby"
-            self.brand = "Woolworths"
-            self.barcode = "5012345678900"
             
-            self.amountString = "1"
-            self.amountUnit = .serving
-            self.servingString = "50"
-            self.servingUnit = .weight(.g)
-            
-            self.standardSizes = mockStandardSizes
-            self.volumePrefixedSizes = mockVolumePrefixedSizes
+            if onlyServing {
+                let sizes = [
+                    Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
+                ]
+                
+                self.standardSizes = sizes
+                self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
+
+                self.amountString = "1"
+                self.servingString = "0.2"
+                self.servingUnit = .size(standardSizes.first!, nil)
+            } else {
+                self.name = "Carrot"
+                self.emoji = "🥕"
+                self.detail = "Baby"
+                self.brand = "Woolworths"
+                self.barcode = "5012345678900"
+                
+                self.amountString = "1"
+                self.amountUnit = .serving
+                self.servingString = "50"
+                self.servingUnit = .weight(.g)
+                
+                self.standardSizes = mockStandardSizes
+                self.volumePrefixedSizes = mockVolumePrefixedSizes
+            }
         }
     }
 }
@@ -62,9 +77,23 @@ extension FoodForm.ViewModel {
         /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
         modifyServingUnitIfServingBased()
     }
-    
+
+    func modifyServingAmount(for newUnit: FormUnit) {
+        guard newUnit.isServingBased, case .size(let size, _) = newUnit else {
+            return
+        }
+        let newServingAmount: Double
+        if size.amount > 0 {
+            newServingAmount = size.quantity / size.amount
+        } else {
+            newServingAmount = 0
+        }
+        
+        servingString = "\(newServingAmount.clean)"
+    }
+
     func modifyServingUnitIfServingBased() {
-        guard servingUnit.isServingBased, case .size(let size, let volumeUnit) = servingUnit else {
+        guard servingUnit.isServingBased, case .size(let size, _) = servingUnit else {
             return
         }
         let newAmount: Double
@@ -75,9 +104,9 @@ extension FoodForm.ViewModel {
         }
         
         print("Now we need to change: \(size) to new amount \(newAmount)")
-        var newSize = size
-        newSize.amount = newAmount
-        servingUnit = .size(newSize, volumeUnit)
+        
+        standardSizes.first!.amount = newAmount
+        updateSummary()
     }
     
     func add(size: Size) {

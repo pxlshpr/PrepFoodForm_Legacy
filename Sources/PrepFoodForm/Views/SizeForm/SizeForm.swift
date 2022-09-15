@@ -8,7 +8,10 @@ struct SizeForm: View {
     @StateObject var sizeFormViewModel: ViewModel
     @State var showingVolumePrefixToggle: Bool = false
     
-    init(includeServing: Bool = true, allowAddSize: Bool = true) {
+    var didAddSize: ((Size) -> ())?
+    
+    init(includeServing: Bool = true, allowAddSize: Bool = true, didAddSize: ((Size) -> ())? = nil) {
+        self.didAddSize = didAddSize
         _sizeFormViewModel = StateObject(wrappedValue: ViewModel(includeServing: includeServing, allowAddSize: allowAddSize))
     }
     
@@ -18,12 +21,15 @@ struct SizeForm: View {
                 form
                 if sizeFormViewModel.isValid {
                     addButton
-                    addAndAddAnotherButton
+                    if didAddSize == nil {
+                        addAndAddAnotherButton
+                    }
                 }
             }
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Add Size")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar { navigationLeadingContent }
         }
         .onChange(of: sizeFormViewModel.quantityString) { newValue in
             sizeFormViewModel.quantity = Double(newValue) ?? 0
@@ -34,6 +40,16 @@ struct SizeForm: View {
         .onChange(of: showingVolumePrefixToggle) { newValue in
             withAnimation {
                 sizeFormViewModel.showingVolumePrefix = showingVolumePrefixToggle
+            }
+        }
+    }
+    
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button("Fill") {
+                sizeFormViewModel.amountString = "5"
+                sizeFormViewModel.amountUnit = .weight(.g)
+                sizeFormViewModel.name = "cookie"
             }
         }
     }
@@ -72,9 +88,13 @@ struct SizeForm: View {
     }
     
     var addButton: some View {
-        FormPrimaryButton(title: "Add") {
+        let title = didAddSize == nil ? "Add" : "Add and Choose"
+        return FormPrimaryButton(title: title) {
             guard let size = sizeFormViewModel.size else {
                 return
+            }
+            if let didAddSize = didAddSize {
+                didAddSize(size)
             }
             viewModel.add(size: size)
             dismiss()

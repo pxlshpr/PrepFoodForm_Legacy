@@ -8,15 +8,38 @@ extension SizeForm {
 
         @Published var path: [Route] = []
         
-        @Published var name: String = ""
-        @Published var quantityString: String = "1"
-        @Published var amountString: String = ""
+        @Published var name: String = "" {
+            didSet {
+                withAnimation {
+                    isValid = getIsValid()
+                }
+            }
+        }
+        
+        @Published var quantityString: String = "1" {
+            didSet {
+                withAnimation {
+                    isValid = getIsValid()
+                }
+            }
+        }
+        
+        @Published var amountString: String = "" {
+            didSet {
+                withAnimation {
+                    isValid = getIsValid()
+                }
+            }
+        }
+        
         @Published var amountUnit: FormUnit = .weight(.g)
 
         @Published var showingVolumePrefix = false
         @Published var volumePrefixUnit: FormUnit = .volume(.cup)
         
         @Published var quantity: Double = 1
+        
+        @Published var isValid: Bool = false
 
         init(includeServing: Bool = true, allowAddSize: Bool = true) {
             self.includeServing = includeServing
@@ -42,8 +65,8 @@ extension SizeForm.ViewModel {
 
 extension SizeForm.ViewModel {
     
-    var isValid: Bool {
-        guard let _ = amount else { return false }
+    func getIsValid() -> Bool {
+        guard !amountString.isEmpty, let _ = amount else { return false }
         return !name.isEmpty
         && quantity > 0
     }

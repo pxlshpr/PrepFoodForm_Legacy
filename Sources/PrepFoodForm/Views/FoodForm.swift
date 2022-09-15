@@ -14,11 +14,11 @@ public struct FoodForm: View {
 
     @StateObject var viewModel: ViewModel
     
-    public init(prefilledWithMockData: Bool = false) {
-        let viewModel = ViewModel(prefilledWithMockData: prefilledWithMockData)
+    public init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
+        let viewModel = ViewModel(prefilledWithMockData: prefilledWithMockData, onlyServing: onlyServing)
         _viewModel = StateObject(wrappedValue: viewModel)
     }
-    
+
     public var body: some View {
         NavigationStack(path: $viewModel.path) {
             contents

@@ -1,12 +1,38 @@
 import Foundation
 import PrepUnits
 
-struct Size: Hashable, Equatable {
+extension Size: Equatable {
+    static func ==(lhs: Size, rhs: Size) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+}
+
+extension Size: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(quantity)
+        hasher.combine(volumePrefixUnit)
+        hasher.combine(name)
+        hasher.combine(amount)
+        hasher.combine(amountUnit)
+    }
+}
+
+class Size: Identifiable {
+    var id = UUID()
     var quantity: Double
     var volumePrefixUnit: FormUnit? = nil
     var name: String
     var amount: Double
     var amountUnit: FormUnit
+    
+    init(quantity: Double, volumePrefixUnit: FormUnit? = nil, name: String, amount: Double, amountUnit: FormUnit) {
+        self.quantity = quantity
+        self.volumePrefixUnit = volumePrefixUnit
+        self.name = name
+        self.amount = amount
+        self.amountUnit = amountUnit
+    }
     
     var isVolumePrefixed: Bool {
         volumePrefixUnit != nil

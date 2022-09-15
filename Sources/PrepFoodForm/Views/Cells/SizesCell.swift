@@ -91,11 +91,8 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     
     var filledContent: some View {
         VStack(alignment: .leading, spacing: 5) {
-            ForEach(viewModel.summarySizeViewModels, id: \.self) {
+            ForEach(viewModel.summarySizeViewModels, id: \.self.size.hashValue) {
                 SizeCell(sizeViewModel: $0)
-//                if !(!viewModel.shouldShowExcessSizesCount && index == viewModel.summarySizeViewModels.indices.last) {
-//                    Divider()
-//                }
             }
             if let excessCount = viewModel.numberOfExcessSizes {
                 HStack {
@@ -132,8 +129,13 @@ extension FoodForm.ViewModel {
         }
         return allSizes.count - maxNumberOfSummarySizeViewModels
     }
-    var summarySizeViewModels: [SizeViewModel] {
+    
+    func getSummarySizeViewModels() -> [SizeViewModel] {
         Array(allSizesViewModels.prefix(maxNumberOfSummarySizeViewModels))
+    }
+    
+    func updateSummary() {
+        summarySizeViewModels = getSummarySizeViewModels()
     }
 }
 
