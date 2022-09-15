@@ -57,11 +57,29 @@ extension FoodForm {
 }
 
 extension FoodForm.ViewModel {
+    
     func servingAmountChanged() {
-        if servingUnit.isServingBased {
-            
-        }
+        /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
+        modifyServingUnitIfServingBased()
     }
+    
+    func modifyServingUnitIfServingBased() {
+        guard servingUnit.isServingBased, case .size(let size, let volumeUnit) = servingUnit else {
+            return
+        }
+        let newAmount: Double
+        if servingAmount > 0 {
+            newAmount = size.quantity / servingAmount
+        } else {
+            newAmount = 0
+        }
+        
+        print("Now we need to change: \(size) to new amount \(newAmount)")
+        var newSize = size
+        newSize.amount = newAmount
+        servingUnit = .size(newSize, volumeUnit)
+    }
+    
     func add(size: Size) {
         withAnimation {
             if size.isVolumePrefixed {

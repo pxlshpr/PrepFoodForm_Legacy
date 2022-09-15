@@ -9,10 +9,23 @@ indirect enum FormUnit: Hashable {
 
 extension FormUnit {
     var isServingBased: Bool {
-        unitType == .serving
-        || unitType == .size
+        switch self {
+        case .size(let size, _):
+            return size.isServingBased
+        case .serving:
+            return true
+        default:
+            return false
+        }
     }
 }
+
+extension Size {
+    var isServingBased: Bool {
+        amountUnit.isServingBased
+    }
+}
+
 extension FormUnit {
     var unitType: UnitType {
         switch self {
