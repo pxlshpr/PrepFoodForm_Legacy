@@ -24,6 +24,7 @@ extension SizeForm.SizeField.AmountForm {
         .sheet(isPresented: $showingUnitPickerForAmount) {
             unitPickerForAmount
         }
+        .scrollDismissesKeyboard(.interactively)
     }
     
     //MARK: - Components
@@ -33,6 +34,7 @@ extension SizeForm.SizeField.AmountForm {
             sizes: foodFormViewModel.allSizes,
             pickedUnit: sizeFormViewModel.amountUnit,
             includeServing: sizeFormViewModel.includeServing,
+            servingDescription: foodFormViewModel.servingDescription,
             allowAddSize: sizeFormViewModel.allowAddSize)
         {
             showingSizeForm = true

@@ -17,6 +17,7 @@ extension SizeForm.SizeField.QuantityForm {
             }
         }
         .navigationTitle("Quantity")
+        .scrollDismissesKeyboard(.interactively)
     }
     
     //MARK: - Components

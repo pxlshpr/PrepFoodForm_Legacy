@@ -22,8 +22,9 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
         .sheet(isPresented: $showingAmountUnits) {
             UnitPicker(
                 sizes: viewModel.allSizes,
-                pickedUnit: viewModel.amountUnit)
-            {
+                pickedUnit: viewModel.amountUnit,
+                servingDescription: viewModel.servingDescription
+            ) {
                 showingSizeForm = true
             } didPickUnit: { unit in
                 withAnimation {
