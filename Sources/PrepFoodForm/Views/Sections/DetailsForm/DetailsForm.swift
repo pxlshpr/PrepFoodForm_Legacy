@@ -25,6 +25,8 @@ extension FoodForm.DetailsForm {
         .sheet(isPresented: $showingCodeScanner) {
             CodeScanner(handleScan: self.handleScan)
         }
+        .scrollDismissesKeyboard(.interactively)
+        .interactiveDismissDisabled()
     }
     
     var form: some View {

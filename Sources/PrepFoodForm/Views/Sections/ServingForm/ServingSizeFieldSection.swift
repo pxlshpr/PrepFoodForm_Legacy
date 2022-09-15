@@ -4,9 +4,8 @@ import PrepUnits
 extension FoodForm.NutrientsPerForm {
     struct ServingSizeFieldSection: View {
         @EnvironmentObject var viewModel: FoodForm.ViewModel
-        @State var showingAmountUnits = false
         @State var showingServingUnits = false
-        @State var showingSizes = false
+        @State var showingSizeForm = false
     }
 }
 
@@ -23,16 +22,20 @@ extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
             UnitPicker(
                 sizes: viewModel.allSizes,
                 pickedUnit: viewModel.servingUnit,
-                includeServing: false
-            ) { unit in
+                includeServing: false)
+            {
+                showingSizeForm = true
+            } didPickUnit: { unit in
                 withAnimation {
                     viewModel.servingUnit = unit
                 }
             }
-        }
-        .sheet(isPresented: $showingSizes) {
-            Text("Sizes")
-                .presentationDetents([.medium])
+            .sheet(isPresented: $showingSizeForm) {
+                SizeForm(includeServing: true, allowAddSize: false)
+                    .environmentObject(viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
         }
     }
     

@@ -25,7 +25,11 @@ extension FoodForm {
                 }
             }
         }
-        @Published var servingString: String = ""
+        @Published var servingString: String = "" {
+            didSet {
+                servingAmountChanged()
+            }
+        }
         @Published var servingUnit: FormUnit = .weight(.g)
         
         @Published var standardSizes: [Size] = []
@@ -53,6 +57,11 @@ extension FoodForm {
 }
 
 extension FoodForm.ViewModel {
+    func servingAmountChanged() {
+        if servingUnit.isServingBased {
+            
+        }
+    }
     func add(size: Size) {
         withAnimation {
             if size.isVolumePrefixed {
@@ -62,9 +71,7 @@ extension FoodForm.ViewModel {
             }
         }
     }
-}
-
-extension FoodForm.ViewModel {
+    
     var allSizes: [Size] {
         standardSizes + volumePrefixedSizes
     }
@@ -91,6 +98,10 @@ extension FoodForm.ViewModel {
     
     var hasNutrientsPerServingContent: Bool {
         !servingString.isEmpty
+    }
+    
+    var hasServing: Bool {
+        amountUnit == .serving
     }
     
     var amount: Double {

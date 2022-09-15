@@ -5,6 +5,7 @@ extension SizeForm.SizeField {
         @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
         @State var showingUnitPickerForAmount = false
+        @State var showingSizeForm = false
     }
 }
 
@@ -29,9 +30,19 @@ extension SizeForm.SizeField.AmountForm {
     var unitPickerForAmount: some View {
         UnitPicker(
             sizes: foodFormViewModel.allSizes,
-            pickedUnit: sizeFormViewModel.amountUnit)
-        { unit in
+            pickedUnit: sizeFormViewModel.amountUnit,
+            includeServing: sizeFormViewModel.includeServing,
+            allowAddSize: sizeFormViewModel.allowAddSize)
+        {
+            showingSizeForm = true
+        } didPickUnit: { unit in
             sizeFormViewModel.amountUnit = unit
+        }
+        .sheet(isPresented: $showingSizeForm) {
+            SizeForm(includeServing: foodFormViewModel.hasServing, allowAddSize: false)
+                .environmentObject(sizeFormViewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
         }
     }
     

@@ -2,9 +2,12 @@ import SwiftUI
 
 extension SizeForm {
     class ViewModel: ObservableObject {
-        
-        @Published var path: [Route] = []
 
+        @Published var includeServing: Bool
+        @Published var allowAddSize: Bool
+
+        @Published var path: [Route] = []
+        
         @Published var name: String = ""
         @Published var quantityString: String = "1"
         @Published var amountString: String = ""
@@ -15,7 +18,9 @@ extension SizeForm {
         
         @Published var quantity: Double = 1
 
-        init() {
+        init(includeServing: Bool = true, allowAddSize: Bool = true) {
+            self.includeServing = includeServing
+            self.allowAddSize = allowAddSize
         }
     }
 }

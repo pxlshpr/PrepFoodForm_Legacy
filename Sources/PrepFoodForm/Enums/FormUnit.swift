@@ -8,6 +8,12 @@ indirect enum FormUnit: Hashable {
 }
 
 extension FormUnit {
+    var isServingBased: Bool {
+        unitType == .serving
+        || unitType == .size
+    }
+}
+extension FormUnit {
     var unitType: UnitType {
         switch self {
         case .weight:

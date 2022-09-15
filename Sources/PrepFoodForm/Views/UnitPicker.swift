@@ -15,14 +15,18 @@ struct UnitPicker: View {
     
     var sizes: [Size]
     var includeServing: Bool
+    var allowAddSize: Bool
     var filteredType: UnitType?
     var didPickUnit: (FormUnit) -> ()
+    var didTapAddSize: (() -> ())?
 
-    init(sizes: [Size] = [], pickedUnit unit: FormUnit = .weight(.g), includeServing: Bool = true, filteredType: UnitType? = nil, didPickUnit: @escaping (FormUnit) -> ())
+    init(sizes: [Size] = [], pickedUnit unit: FormUnit = .weight(.g), includeServing: Bool = true, allowAddSize: Bool = true, filteredType: UnitType? = nil, didTapAddSize: (() -> ())? = nil, didPickUnit: @escaping (FormUnit) -> ())
     {
         self.sizes = sizes
         self.didPickUnit = didPickUnit
+        self.didTapAddSize = didTapAddSize
         self.includeServing = includeServing
+        self.allowAddSize = allowAddSize
         self.filteredType = filteredType
         
         _pickedUnit = State(initialValue: unit)
@@ -143,11 +147,13 @@ extension UnitPicker {
                         Text("Volumes")
                             .foregroundColor(.primary)
                     }
-                    NavigationLinkButton {
-                        path.append(.sizes)
-                    } label: {
-                        Text("Sizes")
-                            .foregroundColor(.primary)
+                    if allowAddSize || !sizes.isEmpty {
+                        NavigationLinkButton {
+                            path.append(.sizes)
+                        } label: {
+                            Text("Sizes")
+                                .foregroundColor(.primary)
+                        }
                     }
                 }
             }
@@ -175,7 +181,7 @@ extension UnitPicker {
         } else {
             name = "unit"
         }
-        return "Units"
+        return "Choose a \(name)"
     }
     
     func weightUnitButton(for weightUnit: WeightUnit) -> some View {
@@ -284,8 +290,10 @@ extension UnitPicker {
                     }
                 }
             }
-            Section {
-                addSizeButton
+            if allowAddSize {
+                Section {
+                    addSizeButton
+                }
             }
         }
     }
@@ -294,7 +302,7 @@ extension UnitPicker {
     
     var addSizeButton: some View {
         Button {
-            
+            didTapAddSize?()
         } label: {
             HStack {
                 Text("Add a size")

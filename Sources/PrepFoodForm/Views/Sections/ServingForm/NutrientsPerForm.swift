@@ -44,6 +44,7 @@ extension FoodForm.NutrientsPerForm {
             SizesList()
         }
         .scrollDismissesKeyboard(.interactively)
+        .interactiveDismissDisabled()
     }
     
     var form: some View {

@@ -5,10 +5,12 @@ struct SizeForm: View {
     
     @EnvironmentObject var viewModel: FoodForm.ViewModel
     @Environment(\.dismiss) var dismiss
-    @StateObject var sizeFormViewModel = ViewModel()
+    @StateObject var sizeFormViewModel: ViewModel
     @State var showingVolumePrefixToggle: Bool = false
     
-    init() { }
+    init(includeServing: Bool = true, allowAddSize: Bool = true) {
+        _sizeFormViewModel = StateObject(wrappedValue: ViewModel(includeServing: includeServing, allowAddSize: allowAddSize))
+    }
     
     var body: some View {
         NavigationStack(path: $sizeFormViewModel.path) {

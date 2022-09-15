@@ -5,7 +5,7 @@ extension FoodForm.NutrientsPerForm {
     struct AmountFieldSection: View {
         @EnvironmentObject var viewModel: FoodForm.ViewModel
         @State var showingAmountUnits = false
-        @State var showingSizes = false
+        @State var showingSizeForm = false
     }
 }
 
@@ -21,16 +21,20 @@ extension FoodForm.NutrientsPerForm.AmountFieldSection {
         .sheet(isPresented: $showingAmountUnits) {
             UnitPicker(
                 sizes: viewModel.allSizes,
-                pickedUnit: viewModel.amountUnit
-            ) { unit in
+                pickedUnit: viewModel.amountUnit)
+            {
+                showingSizeForm = true
+            } didPickUnit: { unit in
                 withAnimation {
                     viewModel.amountUnit = unit
                 }
             }
-        }
-        .sheet(isPresented: $showingSizes) {
-            Text("Sizes")
-                .presentationDetents([.medium])
+            .sheet(isPresented: $showingSizeForm) {
+                SizeForm(includeServing: false, allowAddSize: false)
+                    .environmentObject(viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
         }
     }
     
