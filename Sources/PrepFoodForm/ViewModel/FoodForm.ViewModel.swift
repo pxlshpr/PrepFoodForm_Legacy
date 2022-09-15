@@ -88,6 +88,11 @@ extension FoodForm {
                 self.servingString = "50"
                 self.servingUnit = .weight(.g)
                 
+                self.densityWeightString = "20"
+                self.densityWeightUnit = .weight(.g)
+                self.densityVolumeString = "25"
+                self.densityVolumeUnit = .volume(.mL)
+                
                 self.standardSizes = mockStandardSizes
                 self.volumePrefixedSizes = mockVolumePrefixedSizes
                 
@@ -256,9 +261,9 @@ extension FoodForm.ViewModel {
         let volume = "\(densityVolumeAmount.cleanAmount) \(densityVolumeUnit.shortDescription)"
         
         if isWeightBased {
-            return "\(weight) : \(volume)"
+            return "\(weight) equals \(volume)"
         } else {
-            return "\(volume) : \(weight)"
+            return "\(volume) equals \(weight)"
         }
     }
 }

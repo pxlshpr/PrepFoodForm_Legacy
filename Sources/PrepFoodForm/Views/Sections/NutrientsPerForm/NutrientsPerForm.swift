@@ -50,10 +50,10 @@ extension FoodForm.NutrientsPerForm {
                 ServingSizeFieldSection()
             }
             sizesSection
-//            if viewModel.shouldShowDensitiesSection {
+            if viewModel.shouldShowDensitiesSection {
                 densitiesSection
-                    .opacity(viewModel.shouldShowDensitiesSection ? 1 : 0)
-//            }
+//                    .opacity(viewModel.shouldShowDensitiesSection ? 1 : 0)
+            }
         }
     }
     
