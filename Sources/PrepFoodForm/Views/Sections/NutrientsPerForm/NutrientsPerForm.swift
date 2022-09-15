@@ -5,16 +5,6 @@ extension FoodForm {
 
         @EnvironmentObject var viewModel: ViewModel
         
-        @State var servingAmount = ""
-        @State var servingUnit: String = "g"
-        @State var pickerServingUnit: String = "g"
-
-        @State var servingSizeAmount = ""
-        @State var servingSizeUnit: String = "g"
-
-        @State var servingUnits = ["g", "cup", "serving"]
-        @State var servingSizeUnits = ["g", "cup"]
-        
         @State var showingSizesList = false
         @State var showingVolumesList = false
         @State var showingAddSizeForm = false
@@ -60,7 +50,7 @@ extension FoodForm.NutrientsPerForm {
                 ServingSizeFieldSection()
             }
             sizesSection
-            if servingUnit != "serving" || !servingSizeAmount.isEmpty {
+            if viewModel.shouldShowDensitiesSection {
                 densitiesSection
             }
         }
@@ -81,28 +71,41 @@ extension FoodForm.NutrientsPerForm {
         }
     }
     
-
     var densitiesSection: some View {
+        @ViewBuilder
         var header: some View {
-            Text("Density")
+            if viewModel.isWeightBased {
+                Text("Weight-to-Volume Ratio")
+            } else if viewModel.isVolumeBased {
+                Text("Volume-to-Weight Ratio")
+            }
         }
         
         @ViewBuilder
         var footer: some View {
-            if servingUnit == "g" || servingSizeUnit == "g" {
-                Text("Specifying a density will also let you log this food using volume units.")
-            } else if servingUnit == "cup" || servingSizeUnit == "cup" {
-                Text("Specifying a density will also let you log this food using weight units.")
+            if viewModel.isWeightBased {
+                Text("Setting this will also let you log this food using volume units.")
+            } else if viewModel.isVolumeBased {
+                Text("Setting this will also let you log this food using weight units.")
             }
         }
         
         return Section(header: header, footer: footer) {
-            NavigationLinkButton {
-                viewModel.path.append(.densityForm)
-            } label: {
-                Text("Optional")
-                    .foregroundColor(Color(.quaternaryLabel))
+            NavigationLink(value: FoodForm.Route.densityForm) {
+                if let densityDescription = viewModel.densityDescription {
+                    Text(densityDescription)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("Optional")
+                        .foregroundColor(Color(.quaternaryLabel))
+                }
             }
+//            NavigationLinkButton {
+//                viewModel.path.append(.densityForm)
+//            } label: {
+//                Text("Optional")
+//                    .foregroundColor(Color(.quaternaryLabel))
+//            }
         }
     }
     var sizesSection: some View {

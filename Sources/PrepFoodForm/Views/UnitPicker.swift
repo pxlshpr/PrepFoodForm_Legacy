@@ -96,10 +96,12 @@ extension UnitPicker {
                         addSizeButton
                     }
                 }
-                Section {
-                    if shouldShowServing {
+                if shouldShowServing {
+                    Section {
                         servingButton
                     }
+                }
+                Section {
                     weightUnitButton(for: .g)
                     volumeUnitButton(for: .mL)
                 }
@@ -228,7 +230,7 @@ extension UnitPicker {
     var navigationTitleString: String {
         let name: String
         if let filteredType = filteredType {
-            name = filteredType.description.lowercased()
+            name = filteredType.description.lowercased() + " unit"
         } else {
             name = "unit"
         }

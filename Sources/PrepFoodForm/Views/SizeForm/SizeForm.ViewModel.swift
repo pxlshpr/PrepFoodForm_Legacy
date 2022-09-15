@@ -53,9 +53,10 @@ extension SizeForm.ViewModel {
         guard isValid, let amount = amount else {
             return nil
         }
+        let shouldSaveVolumePrefix = amountUnit.unitType == .weight && showingVolumePrefix
         return Size(
             quantity: quantity,
-            volumePrefixUnit: showingVolumePrefix ? volumePrefixUnit : nil,
+            volumePrefixUnit: shouldSaveVolumePrefix ? volumePrefixUnit : nil,
             name: name,
             amount: amount,
             amountUnit: amountUnit

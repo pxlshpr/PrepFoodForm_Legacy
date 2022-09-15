@@ -16,9 +16,15 @@ extension FoodForm {
         @Published var barcode = ""
 
         //MARK: Nutrients Per
-        @Published var amountString: String = ""
+        @Published var amountString: String = "" {
+            didSet {
+                updateShouldShowDensitiesSection()
+            }
+        }
+        
         @Published var amountUnit: FormUnit = .serving {
             didSet {
+                updateShouldShowDensitiesSection()
                 if amountUnit != .serving {
                     servingString = ""
                     servingUnit = .weight(.g)
@@ -27,14 +33,32 @@ extension FoodForm {
         }
         @Published var servingString: String = "" {
             didSet {
-                servingAmountChanged()
+                /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
+                modifyServingUnitIfServingBased()
+                updateShouldShowDensitiesSection()
+                
+                
+                if !servingString.isEmpty && amountString.isEmpty {
+                    amountString = "1"
+                }
             }
         }
-        @Published var servingUnit: FormUnit = .weight(.g)
+        @Published var servingUnit: FormUnit = .weight(.g) {
+            didSet {
+                updateShouldShowDensitiesSection()
+            }
+        }
+        
+        @Published var shouldShowDensitiesSection: Bool = false
         
         @Published var standardSizes: [Size] = []
         @Published var volumePrefixedSizes: [Size] = []
         @Published var summarySizeViewModels: [SizeViewModel] = []
+        
+        @Published var densityWeightString: String = ""
+        @Published var densityWeightUnit: FormUnit = .weight(.g)
+        @Published var densityVolumeString: String = ""
+        @Published var densityVolumeUnit: FormUnit = .volume(.mL)
         
         init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
             guard prefilledWithMockData else {
@@ -73,11 +97,33 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.ViewModel {
+extension FormUnit {
+    var isWeightBased: Bool {
+        unitType == .weight
+    }
     
-    func servingAmountChanged() {
-        /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
-        modifyServingUnitIfServingBased()
+    var isVolumeBased: Bool {
+        unitType == .volume
+    }
+}
+
+extension FoodForm.ViewModel {
+
+    func updateShouldShowDensitiesSection() {
+        withAnimation {
+            shouldShowDensitiesSection =
+            ((amountUnit.isWeightBased || amountUnit.isVolumeBased) && amount > 0)
+            ||
+            ((servingUnit.isWeightBased || servingUnit.isVolumeBased) && servingAmount > 0)
+        }
+    }
+
+    var isWeightBased: Bool {
+        amountUnit.isWeightBased || servingUnit.isWeightBased
+    }
+
+    var isVolumeBased: Bool {
+        amountUnit.isVolumeBased || servingUnit.isVolumeBased
     }
 
     func modifyServingAmount(for newUnit: FormUnit) {
@@ -189,4 +235,30 @@ extension FoodForm.ViewModel {
         amountUnit.shortDescription
     }
 
+    var densityWeightAmount: Double {
+        Double(densityWeightString) ?? 0
+    }
+
+    var densityVolumeAmount: Double {
+        Double(densityVolumeString) ?? 0
+    }
+
+    var densityDescription: String? {
+        guard densityWeightAmount > 0,
+              densityVolumeAmount > 0,
+              densityWeightUnit.unitType == .weight,
+              densityVolumeUnit.unitType == .volume
+        else {
+            return nil
+        }
+                
+        let weight = "\(densityWeightAmount.cleanAmount) \(densityWeightUnit.shortDescription)"
+        let volume = "\(densityVolumeAmount.cleanAmount) \(densityVolumeUnit.shortDescription)"
+        
+        if isWeightBased {
+            return "\(weight) : \(volume)"
+        } else {
+            return "\(volume) : \(weight)"
+        }
+    }
 }

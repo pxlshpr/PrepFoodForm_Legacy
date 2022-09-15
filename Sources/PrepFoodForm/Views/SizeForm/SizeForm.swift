@@ -58,7 +58,9 @@ struct SizeForm: View {
         Form {
             SizeField()
                 .environmentObject(sizeFormViewModel)
-            volumePrefixSection
+            if sizeFormViewModel.amountString.isEmpty || sizeFormViewModel.amountUnit.unitType == .weight {
+                volumePrefixSection
+            }
         }
     }
     
