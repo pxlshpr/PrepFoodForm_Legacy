@@ -1,18 +1,17 @@
 import SwiftUI
 import PrepUnits
 
-extension FoodForm.NutrientsList {
-    struct Cell: View {
-        
-        @State var nutrientType: NutrientType
+extension FoodForm.NutritionFacts {
+    struct Cell_Legacy: View {
+        @State var nutrientType: NutritionFactType
         @State var name: String
         @State var amount: String
         @State var unit: String
-        @State var inputType: NutrientInputType
+        @State var inputType: NutritionFactInputType
     }
 }
 
-extension FoodForm.NutrientsList.Cell {
+extension FoodForm.NutritionFacts.Cell_Legacy {
     var body: some View {
         content
     }
@@ -42,7 +41,7 @@ extension FoodForm.NutrientsList.Cell {
             inputIcon
             disclosureArrow
         }
-        .foregroundColor(nutrientType.color)
+        .foregroundColor(.black)
     }
     
     @ViewBuilder
@@ -69,44 +68,5 @@ extension FoodForm.NutrientsList.Cell {
                 .foregroundColor(.secondary)
             Spacer()
         }
-    }
-    
-    //MARK: - Helpers
-    
-    enum NutrientType {
-        case energy
-        case macro(Macro)
-        case micro
-        
-        var color: Color {
-            switch self {
-            case .energy:
-                return .accentColor
-            case .macro(let macro):
-                return macro.color
-            case .micro:
-                return .gray
-//                return Color(.secondaryLabel)
-            }
-        }
-    }
-    
-    enum NutrientInputType {
-        /// When user manually inputs the value by means of the keyboard, copy-pasting, etc.
-        case manuallyEntered
-        
-        /// When the user opts for using the value filled in via the classifier
-        case filledIn
-        
-        /// When the user selects a different recognized text of the image from what was chosen to be filled in with
-        case selected
-        
-        var image: String {
-            switch self {
-            case .manuallyEntered: return "keyboard"
-            case .filledIn: return "text.viewfinder"
-            case .selected: return "rectangle.and.hand.point.up.left.filled"
-            }
-        }
-    }
+    }    
 }

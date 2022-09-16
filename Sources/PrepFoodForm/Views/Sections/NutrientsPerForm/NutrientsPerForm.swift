@@ -22,7 +22,7 @@ extension FoodForm.NutrientsPerForm {
             viewModel.updateSummary()
         }
         .toolbar { bottomToolbarContent }
-        .navigationTitle("Nutrients per")
+        .navigationTitle("Serving")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSizesList) {
             SizesList()
@@ -58,7 +58,7 @@ extension FoodForm.NutrientsPerForm {
     var fieldSection: some View {
         
         var footer: some View {
-            Text("This is how much of this food the nutritional values are for.")
+            Text("How much of this food the nutrition facts are for.")
                 .foregroundColor(viewModel.amountString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
@@ -147,7 +147,7 @@ extension FoodForm.NutrientsPerForm {
         
         @ViewBuilder
         var footer: some View {
-            Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, pack, etc.")
+            Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, container, etc.")
                 .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         

@@ -1,4 +1,4 @@
 import SwiftUI
 
-let FormFooterFilledColor = Color(.tertiaryLabel)
+let FormFooterFilledColor = Color(.secondaryLabel)
 let FormFooterEmptyColor = Color(.secondaryLabel)

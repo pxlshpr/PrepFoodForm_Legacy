@@ -1,8 +1,8 @@
 import SwiftUI
 
-extension FoodForm.NutrientsList {
+extension FoodForm.NutritionFacts {
  
-    struct Form: View {
+    struct AmountForm: View {
         
         @State var amount: String
         @State var unit: String
@@ -12,7 +12,7 @@ extension FoodForm.NutrientsList {
     }
 }
 
-extension FoodForm.NutrientsList.Form {
+extension FoodForm.NutritionFacts.AmountForm {
     var body: some View {
         Form {
             HStack {

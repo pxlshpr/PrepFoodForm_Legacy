@@ -112,6 +112,7 @@ struct SizesCellPreview: View {
         viewModel.volumePrefixedSizes = mockVolumePrefixedSizes
     }
 }
+
 struct SizesCell_Previews: PreviewProvider {
     static var previews: some View {
         SizesCellPreview()

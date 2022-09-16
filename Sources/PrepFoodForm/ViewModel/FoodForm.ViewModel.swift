@@ -58,6 +58,13 @@ extension FoodForm {
         @Published var densityVolumeString: String = ""
         @Published var densityVolumeUnit: FormUnit = .volume(.mL)
         
+        @Published var energy: NutritionFact? = nil
+        @Published var carb: NutritionFact? = nil
+        @Published var fat: NutritionFact? = nil
+        @Published var protein: NutritionFact? = nil
+        @Published var macronutrients: [NutritionFact] = []
+        @Published var micronutrients: [NutritionFact] = []
+
         init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
             guard prefilledWithMockData else {
                 return
