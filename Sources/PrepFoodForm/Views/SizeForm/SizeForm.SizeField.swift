@@ -59,7 +59,6 @@ extension SizeForm.SizeField {
                 if sizeFormViewModel.showingVolumePrefix {
                     button(sizeFormViewModel.volumePrefixUnit.shortDescription) {
                         showingUnitPickerForVolumePrefix = true
-    //                    sizeFormViewModel.path.append(.volumePrefix)
                     }
                     .layoutPriority(2)
                     symbol(", ")
@@ -82,7 +81,7 @@ extension SizeForm.SizeField {
                 Spacer()
             }
         }
-        .frame(maxWidth: .infinity)
+//        .frame(maxWidth: .infinity)
     }
     
     var namePicker: some View {

@@ -100,24 +100,18 @@ extension FoodForm {
     }
 }
 
-extension FormUnit {
-    var isWeightBased: Bool {
-        unitType == .weight
-    }
-    
-    var isVolumeBased: Bool {
-        unitType == .volume
-    }
-}
-
 extension FoodForm.ViewModel {
 
+    var shouldShowServingInField: Bool {
+        !amountString.isEmpty && amountIsServing
+    }
+    
     func updateShouldShowDensitiesSection() {
         withAnimation {
             shouldShowDensitiesSection =
-            ((amountUnit.isWeightBased || amountUnit.isVolumeBased) && amount > 0)
+            (amountUnit.isMeasurementBased && amount > 0)
             ||
-            ((servingUnit.isWeightBased || servingUnit.isVolumeBased) && servingAmount > 0)
+            (servingUnit.isMeasurementBased && servingAmount > 0)
         }
     }
 
@@ -131,6 +125,10 @@ extension FoodForm.ViewModel {
 
     var isVolumeBased: Bool {
         amountUnit.isVolumeBased || servingUnit.isVolumeBased
+    }
+    
+    var shouldShowSizesSection: Bool {
+        !amountString.isEmpty
     }
 
     func modifyServingAmount(for newUnit: FormUnit) {
@@ -174,6 +172,10 @@ extension FoodForm.ViewModel {
         }
     }
     
+    var isMeasurementBased: Bool {
+        amountUnit.isMeasurementBased || servingUnit.isMeasurementBased
+    }
+    
     var allSizes: [Size] {
         standardSizes + volumePrefixedSizes
     }
@@ -210,12 +212,11 @@ extension FoodForm.ViewModel {
         Double(amountString) ?? 0
     }
     
-//    var amountUnitDescription: String {
-//        amountUnit.title(isPlural: amount > 1) ?? ""
-//    }
-    
     var amountDescription: String {
-        "\(amountString) \(amountUnitShortString)"
+        guard !amountString.isEmpty else {
+            return ""
+        }
+        return "\(amountString) \(amountUnitShortString)"
     }
     
     var servingAmount: Double {
@@ -231,7 +232,10 @@ extension FoodForm.ViewModel {
     }
     
     var servingDescription: String {
-        "\(servingString) \(servingUnitShortString)"
+        guard !servingString.isEmpty else {
+            return ""
+        }
+        return "\(servingString) \(servingUnitShortString)"
     }
     
     var amountUnitString: String {
@@ -303,5 +307,29 @@ extension FoodForm.ViewModel {
             return densityWeightUnit.shortDescription
         }
     }
-
+    
+    var servingSizeHeaderString: String {
+        switch servingUnit {
+        case .weight:
+            return "Serving Weight"
+        case .volume:
+            return "Serving Volume"
+        case .size:
+            return "Serving Size"
+        case .serving:
+            return "Unsupported"
+        }
+    }
+    var servingSizeFooterString: String {
+        switch servingUnit {
+        case .weight:
+            return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
+        case .volume:
+            return "This is the volume of 1 serving. Enter this to log this food using its volume in addition to servings."
+        case .size(let size, _):
+            return "This is how many \(size.prefixedName) is 1 serving."
+        case .serving:
+            return "Unsupported"
+        }
+    }
 }

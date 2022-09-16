@@ -2,12 +2,19 @@ import SwiftUI
 
 extension FoodForm {
     enum Route: Hashable {
-        case nutrientsPerForm
+        
         case detailsForm
-        case nutrientsList
-        case sourceForm
         case detailsFormEmoji
-        case densityForm
+
+        case nutrientsPerForm
+        case amountForm
+        case servingForm
         case sizesList
+        case densityForm
+
+        case nutrientsList
+        
+        case sourceForm
+        
     }
 }

@@ -6,50 +6,6 @@ extension FoodForm.NutrientsPerForm {
     }
 }
 
-struct SizeViewModel: Hashable {
-    let size: Size
-    
-    var volumePrefixString: String? {
-        guard let unit = size.volumePrefixUnit else {
-            return nil
-        }
-        return unit.shortDescription
-    }
-    var nameString: String {
-        size.name
-    }
-    
-    var fullNameString: String {
-        if let volumePrefixUnit = size.volumePrefixUnit {
-            return "\(volumePrefixUnit.shortDescription), \(nameString)"
-        } else {
-            return nameString
-        }
-    }
-    
-    var quantity: Double {
-        size.quantity
-    }
-    var quantityString: String {
-        size.quantity.cleanAmount
-    }
-    
-    var amountString: String {
-        "\(size.amount.cleanAmount) \(size.amountUnit.shortDescription)"
-    }
-    
-    var scaledAmount: Double {
-        guard size.quantity > 0 else {
-            return 0
-        }
-        return size.amount / size.quantity
-    }
-    
-    var scaledAmountString: String {
-        "\(scaledAmount.cleanAmount) \(size.amountUnit.shortDescription)"
-    }
-}
-
 extension FoodForm.NutrientsPerForm.SizesCell {
     struct SizeCell: View {
         var sizeViewModel: SizeViewModel
@@ -75,21 +31,10 @@ extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
 extension FoodForm.NutrientsPerForm.SizesCell {
     
     var body: some View {
-        Group {
-            if viewModel.allSizes.isEmpty {
-                emptyContent
-            } else {
-                filledContent
-            }
-        }
+        content
     }
     
-    var emptyContent: some View {
-        Text("Add a size")
-            .foregroundColor(.accentColor)
-    }
-    
-    var filledContent: some View {
+    var content: some View {
         VStack(alignment: .leading, spacing: 5) {
             ForEach(viewModel.summarySizeViewModels, id: \.self.size.hashValue) {
                 SizeCell(sizeViewModel: $0)

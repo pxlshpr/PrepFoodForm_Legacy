@@ -53,8 +53,6 @@ public struct ServingCellPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                FoodForm.NutrientsPerForm.AmountFieldSection()
-                    .environmentObject(viewModel)
                 Section("Nutrients per") {
                     NavigationLink {
                     } label: {

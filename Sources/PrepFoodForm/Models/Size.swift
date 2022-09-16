@@ -53,4 +53,20 @@ class Size: Identifiable {
             return prefixedName
         }
     }
+    
+    var isServingBased: Bool {
+        amountUnit.isServingBased
+    }
+    
+    var isMeasurementBased: Bool {
+        amountUnit.isMeasurementBased
+    }
+    
+    var isWeightBased: Bool {
+        amountUnit.isWeightBased
+    }
+    
+    var isVolumeBased: Bool {
+        amountUnit.isVolumeBased
+    }
 }

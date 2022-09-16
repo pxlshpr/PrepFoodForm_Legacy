@@ -12,20 +12,21 @@ extension FoodForm.NutrientsPerForm.Field {
     var body: some View {
         HStack {
             Spacer()
-            button(viewModel.amountDescription) {
+            button(viewModel.amountDescription, placeholder: "Required") {
+                viewModel.path.append(.amountForm)
             }
-            if viewModel.amountIsServing {
+            if viewModel.shouldShowServingInField {
                 Spacer()
                 Text("of")
                     .font(.title3)
                     .foregroundColor(Color(.tertiaryLabel))
                 Spacer()
-                button(viewModel.servingDescription) {
+                button(viewModel.servingDescription, placeholder: "serving size") {
+                    viewModel.path.append(.servingForm)
                 }
                 Spacer()
             }
         }
-        .frame(maxWidth: .infinity)
     }
     
     func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {
@@ -36,7 +37,7 @@ extension FoodForm.NutrientsPerForm.Field {
                 if string.isEmpty {
                     HStack(spacing: 5) {
                         Text(placeholder)
-                            .foregroundColor(Color(.tertiaryLabel))
+                            .foregroundColor(Color(.quaternaryLabel))
                     }
                 } else {
                     Text(string)

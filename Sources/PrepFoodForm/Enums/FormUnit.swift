@@ -19,21 +19,40 @@ extension FormUnit {
         }
     }
     
+    var isMeasurementBased: Bool {
+        switch self {
+        case .size(let size, _):
+            return size.isMeasurementBased
+        default:
+            return unitType.isMeasurement
+        }
+    }
+    
     var defaultVolumeUnit: VolumeUnit? {
         guard case .size(_, let volumeUnit) = self else {
             return nil
         }
         return volumeUnit
     }
-}
-
-extension Size {
-    var isServingBased: Bool {
-        amountUnit.isServingBased
+    
+    var isWeightBased: Bool {
+        switch self {
+        case .size(let size, _):
+            return size.isWeightBased
+        default:
+            return unitType == .weight
+        }
     }
-}
-
-extension FormUnit {
+    
+    var isVolumeBased: Bool {
+        switch self {
+        case .size(let size, _):
+            return size.isVolumeBased
+        default:
+            return unitType == .volume
+        }
+    }
+    
     var unitType: UnitType {
         switch self {
         case .weight:

@@ -45,18 +45,28 @@ extension FoodForm.NutrientsPerForm {
     
     var form: some View {
         Form {
-            AmountFieldSection()
-            if viewModel.amountUnit == .serving {
-                ServingSizeFieldSection()
+            fieldSection
+            if viewModel.shouldShowSizesSection {
+                sizesSection
             }
-            sizesSection
             if viewModel.shouldShowDensitiesSection {
-                densitiesSection
-//                    .opacity(viewModel.shouldShowDensitiesSection ? 1 : 0)
+                densitySection
             }
         }
     }
-    
+   
+    var fieldSection: some View {
+        
+        var footer: some View {
+            Text("This is how much of this food the nutritional values are for.")
+                .foregroundColor(viewModel.amountString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+        }
+        
+        return Section(footer: footer) {
+            Field()
+                .environmentObject(viewModel)
+        }
+    }
     var bottomToolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
             Spacer()
@@ -72,7 +82,7 @@ extension FoodForm.NutrientsPerForm {
         }
     }
     
-    var densitiesSection: some View {
+    var densitySection: some View {
         @ViewBuilder
         var header: some View {
             if viewModel.isWeightBased {
@@ -141,18 +151,33 @@ extension FoodForm.NutrientsPerForm {
                 .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
-        return Section(header: header, footer: footer) {
+        var addButton: some View {
+            Button {
+                showingAddSizeForm = true
+            } label: {
+                Text("Add a size")
+                    .foregroundColor(.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+        }
+        
+        return Group {
             if viewModel.allSizes.isEmpty {
-                Button {
-                    showingAddSizeForm = true
-                } label: {
-                    SizesCell()
+                Section(header: header, footer: footer) {
+                    addButton
                 }
             } else {
-                NavigationLinkButton {
-                    viewModel.path.append(.sizesList)
-                } label: {
-                    SizesCell()
+                Section(header: header) {
+                    NavigationLinkButton {
+                        viewModel.path.append(.sizesList)
+                    } label: {
+                        SizesCell()
+                    }
+                }
+                Section(footer: footer) {
+                    addButton
                 }
             }
         }

@@ -39,6 +39,12 @@ public struct FoodForm: View {
                     case .densityForm:
                         FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
                             .environmentObject(viewModel)
+                    case .amountForm:
+                        FoodForm.NutrientsPerForm.AmountForm()
+                            .environmentObject(viewModel)
+                    case .servingForm:
+                        FoodForm.NutrientsPerForm.ServingForm()
+                            .environmentObject(viewModel)
                     case .sizesList:
                         SizesList()
                             .environmentObject(viewModel)
