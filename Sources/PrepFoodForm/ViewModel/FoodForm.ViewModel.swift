@@ -58,10 +58,10 @@ extension FoodForm {
         @Published var densityVolumeString: String = ""
         @Published var densityVolumeUnit: FormUnit = .volume(.mL)
         
-        @Published var energy: NutritionFact? = nil
-        @Published var carb: NutritionFact? = nil
-        @Published var fat: NutritionFact? = nil
-        @Published var protein: NutritionFact? = nil
+        @Published var energyFact: NutritionFact? = nil
+        @Published var carbFact: NutritionFact? = nil
+        @Published var fatFact: NutritionFact? = nil
+        @Published var proteinFact: NutritionFact? = nil
         @Published var macronutrients: [NutritionFact] = []
         @Published var micronutrients: [NutritionFact] = []
 
@@ -109,6 +109,24 @@ extension FoodForm {
 
 extension FoodForm.ViewModel {
 
+    func nutritionFact(for type: NutritionFactType) -> NutritionFact? {
+        switch type {
+        case .energy:
+            return energyFact
+        case .macro(let macro):
+            switch macro {
+            case .carb:
+                return carbFact
+            case .fat:
+                return fatFact
+            case .protein:
+                return proteinFact
+            }
+        case .micro:
+            return micronutrients.first(where: { $0.type == type })
+        }
+    }
+    
     var shouldShowServingInField: Bool {
         !amountString.isEmpty && amountIsServing
     }

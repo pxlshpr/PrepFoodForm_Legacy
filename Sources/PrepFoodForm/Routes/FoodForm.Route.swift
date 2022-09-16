@@ -12,7 +12,8 @@ extension FoodForm {
         case sizesList
         case densityForm
 
-        case nutrientsList
+        case nutritionFacts
+        case nutritionFactForm(NutritionFactType)
         
         case sourceForm
         

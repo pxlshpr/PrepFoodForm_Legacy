@@ -30,9 +30,9 @@ public struct FoodForm: View {
                     case .detailsForm:
                         DetailsForm()
                             .environmentObject(viewModel)
-                    case .nutrientsList:
-                        NutritionFactsPreview()
-//                        NutritionFacts()
+                    case .nutritionFacts:
+                        NutritionFacts()
+                            .environmentObject(viewModel)
                     case .sourceForm:
                         SourceForm()
                     case .detailsFormEmoji:
@@ -49,6 +49,8 @@ public struct FoodForm: View {
                     case .sizesList:
                         SizesList()
                             .environmentObject(viewModel)
+                    case .nutritionFactForm(let type):
+                        NutritionFacts.FactForm(nutritionFactType: type, foodFormViewModel: viewModel)
                     }
                 }
         }
@@ -125,7 +127,7 @@ public struct FoodForm: View {
     var nutrientsSection: some View {
         Section("Nutrition Facts") {
             NavigationLinkButton {
-                viewModel.path.append(.nutrientsList)
+                viewModel.path.append(.nutritionFacts)
             } label: {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
