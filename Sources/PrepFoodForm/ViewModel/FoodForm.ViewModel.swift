@@ -121,6 +121,10 @@ extension FoodForm.ViewModel {
         }
     }
 
+    var amountIsServing: Bool {
+        amountUnit == .serving
+    }
+
     var isWeightBased: Bool {
         amountUnit.isWeightBased || servingUnit.isWeightBased
     }

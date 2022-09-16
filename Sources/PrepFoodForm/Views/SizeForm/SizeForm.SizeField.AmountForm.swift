@@ -3,7 +3,7 @@ import SwiftHaptics
 
 extension SizeForm.SizeField {
     struct AmountForm: View {        
-        @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodForm.ViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
         @State var showingUnitPickerForAmount = false
         @State var showingSizeForm = false
@@ -31,10 +31,10 @@ extension SizeForm.SizeField.AmountForm {
     
     var unitPickerForAmount: some View {
         UnitPicker(
-            sizes: foodFormViewModel.allSizes,
+            sizes: viewModel.allSizes,
             pickedUnit: sizeFormViewModel.amountUnit,
             includeServing: sizeFormViewModel.includeServing,
-            servingDescription: foodFormViewModel.servingDescription,
+            servingDescription: viewModel.servingDescription,
             allowAddSize: sizeFormViewModel.allowAddSize)
         {
             showingSizeForm = true
@@ -42,7 +42,7 @@ extension SizeForm.SizeField.AmountForm {
             sizeFormViewModel.amountUnit = unit
         }
         .sheet(isPresented: $showingSizeForm) {
-            SizeForm(includeServing: foodFormViewModel.hasServing, allowAddSize: false) { size in
+            SizeForm(includeServing: viewModel.hasServing, allowAddSize: false) { size in
                 withAnimation {
                     sizeFormViewModel.amountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

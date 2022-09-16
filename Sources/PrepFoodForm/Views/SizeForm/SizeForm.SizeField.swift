@@ -4,7 +4,6 @@ import NamePicker
 extension SizeForm {
     struct SizeField: View {
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
-        @EnvironmentObject var foodFormViewModel: FoodForm.ViewModel
         
         @State var showingUnitPickerForVolumePrefix = false
     }
@@ -46,28 +45,41 @@ extension SizeForm.SizeField {
     
     var content: some View {
         HStack {
-            button(sizeFormViewModel.quantityString) {
-                sizeFormViewModel.path.append(.quantity)
-            }
-            .padding(.horizontal)
-            Spacer()
-            symbol("×")
-            Spacer()
-            if sizeFormViewModel.showingVolumePrefix {
-                button(sizeFormViewModel.volumePrefixUnit.shortDescription) {
-                    showingUnitPickerForVolumePrefix = true
-//                    sizeFormViewModel.path.append(.volumePrefix)
+            Group {
+                Spacer()
+                button(sizeFormViewModel.quantityString) {
+                    sizeFormViewModel.path.append(.quantity)
                 }
-                symbol(", ")
+                Spacer()
+                symbol("×")
+                    .layoutPriority(3)
+                Spacer()
             }
-            button(sizeFormViewModel.nameFieldString, placeholder: "name") {
-                sizeFormViewModel.path.append(.name)
+            HStack(spacing: 0) {
+                if sizeFormViewModel.showingVolumePrefix {
+                    button(sizeFormViewModel.volumePrefixUnit.shortDescription) {
+                        showingUnitPickerForVolumePrefix = true
+    //                    sizeFormViewModel.path.append(.volumePrefix)
+                    }
+                    .layoutPriority(2)
+                    symbol(", ")
+                        .layoutPriority(3)
+                }
+                button(sizeFormViewModel.nameFieldString, placeholder: "name") {
+                    sizeFormViewModel.path.append(.name)
+                }
+                .layoutPriority(2)
             }
-            Spacer()
-            symbol("=")
-            Spacer()
-            button(sizeFormViewModel.amountFieldString, placeholder: "amount") {
-                sizeFormViewModel.path.append(.amount)
+            Group {
+                Spacer()
+                symbol("=")
+                    .layoutPriority(3)
+                Spacer()
+                button(sizeFormViewModel.amountFieldString, placeholder: "amount") {
+                    sizeFormViewModel.path.append(.amount)
+                }
+                .layoutPriority(1)
+                Spacer()
             }
         }
         .frame(maxWidth: .infinity)
@@ -82,13 +94,13 @@ extension SizeForm.SizeField {
         )
         .navigationTitle("Size Name")
         .navigationBarTitleDisplayMode(.inline)
-
     }
-
+    
     func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {
         Button {
             action()
         } label: {
+            Group {
                 if string.isEmpty {
                     HStack(spacing: 5) {
                         Text(placeholder)
@@ -96,18 +108,22 @@ extension SizeForm.SizeField {
                     }
                 } else {
                     Text(string)
+                }
             }
+            .foregroundColor(.accentColor)
+            .frame(maxHeight: .infinity)
+            .frame(minWidth: 44)
+            .contentShape(Rectangle())
         }
-        .contentShape(Rectangle())
-        .foregroundColor(.accentColor)
         .buttonStyle(.borderless)
     }
-    
+
     func symbol(_ string: String) -> some View {
         Text(string)
             .font(.title3)
             .foregroundColor(Color(.tertiaryLabel))
     }
+
 }
 
 public struct SizeFormFieldPreview: View {
