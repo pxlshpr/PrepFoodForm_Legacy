@@ -3,39 +3,67 @@ import SwiftUI
 extension FoodForm.NutritionFacts.FactForm {
     class ViewModel: ObservableObject {
         
+        var type: NutritionFactType
+        
         @Published var amountString: String
         @Published var unit: NutritionFactUnit
         
-        init(nutritionFact: NutritionFact? = nil) {
-            guard let nutritionFact = nutritionFact else {
-                self.amountString = ""
-                self.unit = .g
-                return
+        init(fact: NutritionFact) {
+            
+            self.type = fact.type
+            
+            self.amountString = fact.amount?.cleanAmount ?? ""
+            self.unit = fact.unit ?? .g
+        }
+    }
+}
+
+extension FoodForm.ViewModel {
+    func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double, unit: NutritionFactUnit) {
+        switch type {
+        case .energy:
+            energyFact.amount = amount
+            energyFact.unit = unit
+        case .macro(let macro):
+            switch macro {
+            case .carb:
+                carbFact.amount = amount
+                carbFact.unit = unit
+            case .protein:
+                proteinFact.amount = amount
+                proteinFact.unit = unit
+            case .fat:
+                fatFact.amount = amount
+                fatFact.unit = unit
             }
-            self.amountString = nutritionFact.amount.cleanAmount
-            self.unit = nutritionFact.unit
+        case .micro(_):
+            return
         }
     }
 }
 
 extension FoodForm.NutritionFacts.FactForm.ViewModel {
-    
+    var amount: Double {
+        Double(amountString) ?? 0
+    }
 }
 
 extension FoodForm.NutritionFacts {
     struct FactForm: View {
-
-        @ObservedObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodForm.ViewModel
         @StateObject var factViewModel: ViewModel
-        let nutritionFactType: NutritionFactType
+        let type: NutritionFactType
         
         @FocusState var isFocused: Bool
         
-        init(nutritionFactType: NutritionFactType, foodFormViewModel: FoodForm.ViewModel) {
-            self.nutritionFactType = nutritionFactType
-            _viewModel = ObservedObject(wrappedValue: foodFormViewModel)
-            let nutritionFact = foodFormViewModel.nutritionFact(for: nutritionFactType)
-            _factViewModel = StateObject(wrappedValue: ViewModel(nutritionFact: nutritionFact))
+        init(type: NutritionFactType) {
+            
+            self.type = type
+            
+            //TODO: We need to preload data
+            let fact = NutritionFact(type: type)
+            let factViewModel = ViewModel(fact: fact)
+            _factViewModel = StateObject(wrappedValue: factViewModel)
         }
     }
 }
@@ -49,9 +77,13 @@ extension FoodForm.NutritionFacts.FactForm {
             }
         }
         .scrollDismissesKeyboard(.never)
-        .navigationTitle(nutritionFactType.description)
+        .navigationTitle(type.description)
         .onAppear {
             isFocused = true
+        }
+        .onChange(of: factViewModel.amountString) { newValue in
+            print("amount is now: \(newValue)")
+            viewModel.setNutritionFactType(type, withAmount: factViewModel.amount, unit: factViewModel.unit)
         }
     }
     

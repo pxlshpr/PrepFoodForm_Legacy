@@ -50,7 +50,8 @@ public struct FoodForm: View {
                         SizesList()
                             .environmentObject(viewModel)
                     case .nutritionFactForm(let type):
-                        NutritionFacts.FactForm(nutritionFactType: type, foodFormViewModel: viewModel)
+                        NutritionFacts.FactForm(type: type)
+                            .environmentObject(viewModel)
                     }
                 }
         }

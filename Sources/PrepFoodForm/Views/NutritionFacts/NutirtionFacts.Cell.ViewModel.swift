@@ -3,20 +3,18 @@ import SwiftUI
 extension FoodForm.NutritionFacts.Cell {
     class ViewModel: ObservableObject {
         
-        @Published var nutritionFactType: NutritionFactType
-        @Published var nutritionFact: NutritionFact?
+        @Published var fact: NutritionFact
         @Environment(\.colorScheme) var colorScheme
         
-        init(nutritionFactType: NutritionFactType, nutritionFact: NutritionFact? = nil) {
-            self.nutritionFactType = nutritionFactType
-            self.nutritionFact = nutritionFact
+        init(fact: NutritionFact) {
+            self.fact = fact
         }
     }
 }
 
 extension FoodForm.NutritionFacts.Cell.ViewModel {
     var iconImageName: String {
-        switch nutritionFactType {
+        switch fact.type {
         case .energy: return "flame.fill"
 ////            case .macro: return "circle.grid.cross"
 ////            case .micro: return "circle.hexagongrid"
@@ -27,14 +25,15 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
     }
     
     var typeName: String {
-        nutritionFactType.description
+        fact.type.description
     }
     
     var isEmpty: Bool {
-        nutritionFact == nil
+        fact.isEmpty
     }
+    
     var labelColor: Color {
-        isEmpty ? Color(.secondaryLabel) :  nutritionFactType.textColor(for: colorScheme)
+        isEmpty ? Color(.secondaryLabel) :  fact.type.textColor(for: colorScheme)
     }
     
     var amountColor: Color {
@@ -42,24 +41,26 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
     }
 
     var inputTypeImageName: String? {
-        guard let nutritionFact = nutritionFact, nutritionFact.inputType != .manuallyEntered else {
+        guard let inputType = fact.inputType,
+              inputType != .manuallyEntered
+        else {
             return nil
         }
-        return nutritionFact.inputType.image
+        return inputType.image
     }
     
     var amountString: String {
-        guard let nutritionFact = nutritionFact else {
-            if case .micro(_) = nutritionFactType {
+        guard let amount = fact.amount else {
+            if case .micro(_) = fact.type {
                 return ""
             } else {
                 return "Required"
             }
         }
-        return nutritionFact.amount.cleanAmount
+        return amount.cleanAmount
     }
     
     var unitString: String {
-        nutritionFact?.unit.description ?? ""
+        fact.unit?.description ?? ""
     }
 }

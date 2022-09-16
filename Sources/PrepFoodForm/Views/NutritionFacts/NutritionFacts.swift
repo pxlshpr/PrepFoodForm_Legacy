@@ -19,25 +19,22 @@ extension FoodForm.NutritionFacts {
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                button(fact: viewModel.energyFact, type: .energy)
+                button(fact: viewModel.energyFact)
                 titleCell("Macronutrients")
-                button(fact: viewModel.carbFact, type: .macro(.carb))
-                button(fact: viewModel.fatFact, type: .macro(.fat))
-                button(fact: viewModel.proteinFact, type: .macro(.protein))
+                button(fact: viewModel.carbFact)
+                button(fact: viewModel.fatFact)
+                button(fact: viewModel.proteinFact)
             }
             .padding(.horizontal, 20)
         }
         .background(formBackgroundColor)
     }
     
-    func button(fact: NutritionFact?, type: NutritionFactType) -> some View {
+    func button(fact: NutritionFact) -> some View {
         Button {
-            viewModel.path.append(.nutritionFactForm(type))
+            viewModel.path.append(.nutritionFactForm(fact.type))
         } label: {
-            FoodForm.NutritionFacts.Cell(
-                nutritionFactType: type,
-                nutritionFact: fact
-            )
+            FoodForm.NutritionFacts.Cell(fact: fact)
         }
     }
     

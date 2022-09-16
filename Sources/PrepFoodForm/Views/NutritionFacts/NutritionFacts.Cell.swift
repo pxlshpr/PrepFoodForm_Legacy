@@ -6,8 +6,8 @@ extension FoodForm.NutritionFacts {
         @Environment(\.colorScheme) var colorScheme
         @StateObject var cellViewModel: ViewModel
         
-        init(nutritionFactType: NutritionFactType, nutritionFact: NutritionFact?) {
-            let viewModel = ViewModel(nutritionFactType: nutritionFactType, nutritionFact: nutritionFact)
+        init(fact: NutritionFact) {
+            let viewModel = ViewModel(fact: fact)
             _cellViewModel = StateObject(wrappedValue: viewModel)
         }
     }
