@@ -62,7 +62,7 @@ extension FoodForm.NutritionFacts {
 
         return Group {
             titleCell("Micronutrients")
-            ForEach(viewModel.micronutrients, id: \.self) {
+            ForEach(viewModel.micronutrients, id: \.self.id) {
                 button(fact: $0)
             }
 //            AddCell()

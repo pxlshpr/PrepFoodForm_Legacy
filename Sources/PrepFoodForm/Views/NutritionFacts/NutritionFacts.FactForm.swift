@@ -31,17 +31,11 @@ extension FoodForm.NutritionFacts.FactForm {
             isFocused = true
         }
         .onChange(of: factViewModel.amountString) { newValue in
-            dataDidChange()
+            factViewModel.dataDidChange()
         }
         .onChange(of: factViewModel.unit) { newValue in
-            dataDidChange()
+            factViewModel.dataDidChange()
         }
-    }
-    
-    func dataDidChange() {
-        factViewModel.dataDidChange()
-        guard !factViewModel.isNewMicronutrient else { return }
-        viewModel.setNutritionFactType(type, withAmount: factViewModel.amount, unit: factViewModel.unit)
     }
     
     var content: some View {
@@ -50,9 +44,11 @@ extension FoodForm.NutritionFacts.FactForm {
             Spacer()
             if factViewModel.shouldShowAddButton {
                 FormPrimaryButton(title: "Add") {
+                    factViewModel.add()
                     viewModel.showingMicronutrientsPicker = false
                 }
                 FormSecondaryButton(title: "Add and Add Another") {
+                    factViewModel.add()
                     dismiss()
                 }
             }

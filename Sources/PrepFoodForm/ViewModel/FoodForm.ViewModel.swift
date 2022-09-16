@@ -106,6 +106,13 @@ extension FoodForm {
                 self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g, inputType: .manuallyEntered)
                 self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g, inputType: .manuallyEntered)
                 self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g, inputType: .manuallyEntered)
+                
+                self.micronutrients = [
+                    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g, inputType: .manuallyEntered),
+                    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g, inputType: .manuallyEntered),
+                    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg, inputType: .manuallyEntered),
+                    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g, inputType: .manuallyEntered),
+                ]
             }
         }
     }
@@ -134,8 +141,15 @@ extension FoodForm.ViewModel {
             case .fat:
                 fatFact = newFact(from: fatFact, amount: amount, unit: unit)
             }
-        case .micro(_):
-            return
+        case .micro(let nutrientType):
+            guard let fact = micronutrients.first(where: { $0.nutrientType == nutrientType }),
+                  let index = micronutrients.firstIndex(of: fact) else {
+                micronutrients.append(NutritionFact(type: .micro(nutrientType)))
+                return
+            }
+            let newFact = newFact(from: fact, amount: amount, unit: unit)
+            micronutrients.removeAll(where: { $0.nutrientType == nutrientType })
+            micronutrients.insert(newFact, at: index)
         }
     }
 }

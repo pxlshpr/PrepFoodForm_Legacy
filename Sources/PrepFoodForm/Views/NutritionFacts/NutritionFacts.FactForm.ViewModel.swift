@@ -39,5 +39,18 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
         withAnimation {
             self.shouldShowAddButton = isNewMicronutrient && !amountString.isEmpty
         }
+        guard !isNewMicronutrient else { return }
+        FoodForm.ViewModel.shared.setNutritionFactType(
+            type,
+            withAmount: amount,
+            unit: unit)
+    }
+    
+    var fact: NutritionFact {
+        NutritionFact(type: type, amount: amount, unit: unit, inputType: .manuallyEntered)
+    }
+    
+    func add() {
+        FoodForm.ViewModel.shared.micronutrients.append(fact)
     }
 }
