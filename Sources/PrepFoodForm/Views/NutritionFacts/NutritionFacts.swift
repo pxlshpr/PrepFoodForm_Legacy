@@ -4,7 +4,6 @@ extension FoodForm {
     public struct NutritionFacts: View {
         @EnvironmentObject var viewModel: FoodForm.ViewModel
         @Environment(\.colorScheme) var colorScheme
-        @State var showingMicronutrientsPicker = false
     }
 }
 
@@ -14,7 +13,7 @@ extension FoodForm.NutritionFacts {
             .toolbar { bottomToolbarContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingMicronutrientsPicker) {
+            .sheet(isPresented: $viewModel.showingMicronutrientsPicker) {
                 MicronutrientPicker { pickedNutrient in
                     
                 }
@@ -45,7 +44,7 @@ extension FoodForm.NutritionFacts {
     var micronutrientsGroup: some View {
         var addMicronutrientButton: some View {
             Button {
-                showingMicronutrientsPicker = true
+                viewModel.showingMicronutrientsPicker = true
             } label: {
                 Text("Add a micronutrient")
                     .frame(maxWidth: .infinity, alignment: .leading)

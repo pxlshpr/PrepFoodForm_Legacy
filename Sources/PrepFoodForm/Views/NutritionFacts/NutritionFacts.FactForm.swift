@@ -50,7 +50,7 @@ extension FoodForm.NutritionFacts.FactForm {
             Spacer()
             if factViewModel.shouldShowAddButton {
                 FormPrimaryButton(title: "Add") {
-                    viewModel.path.removeLast()
+                    viewModel.showingMicronutrientsPicker = false
                 }
                 FormSecondaryButton(title: "Add and Add Another") {
                     dismiss()

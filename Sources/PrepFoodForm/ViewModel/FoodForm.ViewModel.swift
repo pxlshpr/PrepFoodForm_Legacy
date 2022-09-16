@@ -66,8 +66,8 @@ extension FoodForm {
         @Published var proteinFact = NutritionFact(type: .macro(.protein))
         @Published var micronutrients: [NutritionFact] = []
         
-        @Published var refreshBool = true
-
+        @Published var showingMicronutrientsPicker = false
+        
         func prefill(onlyServing: Bool = false) {
             if onlyServing {
                 let sizes = [
