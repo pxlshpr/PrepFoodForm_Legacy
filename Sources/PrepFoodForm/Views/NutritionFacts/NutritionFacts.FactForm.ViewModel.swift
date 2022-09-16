@@ -1,0 +1,43 @@
+import SwiftUI
+
+extension FoodForm.NutritionFacts.FactForm {
+    class ViewModel: ObservableObject {
+        
+        let type: NutritionFactType
+        let isNewMicronutrient: Bool
+        
+        @Published var amountString: String
+        @Published var unit: NutritionFactUnit
+
+        @Published var shouldShowAddButton: Bool
+
+        init(fact: NutritionFact, isNewMicronutrient: Bool = false) {
+            
+            self.type = fact.type
+            self.isNewMicronutrient = isNewMicronutrient
+            
+            let amountString: String
+            if let fact = FoodForm.ViewModel.shared.nutritionFact(for: fact.type) {
+                amountString = fact.amount?.cleanAmount ?? ""
+                self.unit = fact.unit ?? fact.type.defaultUnit
+            } else {
+                amountString = fact.amount?.cleanAmount ?? ""
+                self.unit = fact.unit ?? fact.type.defaultUnit
+            }
+            self.amountString = amountString
+            self.shouldShowAddButton = isNewMicronutrient && !amountString.isEmpty
+        }
+    }
+}
+
+extension FoodForm.NutritionFacts.FactForm.ViewModel {
+    var amount: Double {
+        Double(amountString) ?? 0
+    }
+    
+    func dataDidChange() {
+        withAnimation {
+            self.shouldShowAddButton = isNewMicronutrient && !amountString.isEmpty
+        }
+    }
+}

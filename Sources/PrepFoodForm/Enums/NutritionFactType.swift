@@ -17,6 +17,23 @@ enum NutritionFactType: Hashable {
 //                return Color(.secondaryLabel)
         }
     }
+    
+    var supportedUnits: [NutritionFactUnit] {
+        switch self {
+        case .energy:
+            return [.kcal, .kj]
+        case .macro:
+            return [.g]
+        case .micro(let nutrientType):
+            return nutrientType.units.map {
+                $0.nutritionFactUnit
+            }
+        }
+    }
+    
+    var defaultUnit: NutritionFactUnit {
+        supportedUnits.first ?? .g
+    }
 }
 
 extension NutritionFactType: CustomStringConvertible {

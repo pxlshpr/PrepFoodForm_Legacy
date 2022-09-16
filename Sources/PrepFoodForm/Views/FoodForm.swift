@@ -15,8 +15,10 @@ public struct FoodForm: View {
     @StateObject var viewModel: ViewModel
     
     public init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
-        let viewModel = ViewModel(prefilledWithMockData: prefilledWithMockData, onlyServing: onlyServing)
-        _viewModel = StateObject(wrappedValue: viewModel)
+        if prefilledWithMockData {
+            ViewModel.shared.prefill(onlyServing: onlyServing)
+        }
+        _viewModel = StateObject(wrappedValue: ViewModel.shared)
     }
 
     public var body: some View {

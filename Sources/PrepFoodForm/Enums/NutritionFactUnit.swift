@@ -1,11 +1,17 @@
 import SwiftUI
+import PrepUnits
 
 enum NutritionFactUnit {
     case kcal
     case kj
     case g
     case mg
-    case ug
+    case mcg
+    case mgAT
+    case mgNE
+    case mcgDFE
+    case mcgRAE
+    case IU
 }
 
 extension NutritionFactUnit: CustomStringConvertible {
@@ -15,13 +21,54 @@ extension NutritionFactUnit: CustomStringConvertible {
             return "kcal"
         case .kj:
             return "kJ"
-        case .g:
-            return "g"
-        case .mg:
-            return "mg"
-        case .ug:
-            return "μ"
+        default:
+            return NutrientUnit(self)?.shortDescription ?? ""
         }
     }
 }
 
+
+extension NutrientUnit {
+    init?(_ nutritionFactUnit: NutritionFactUnit) {
+        switch nutritionFactUnit {
+        case .g:
+            self = .g
+        case .mg:
+            self = .mg
+        case .mcg:
+            self = .mcg
+        case .mgAT:
+            self = .mgAT
+        case .mgNE:
+            self = .mgNE
+        case .mcgDFE:
+            self = .mcgDFE
+        case .mcgRAE:
+            self = .mcgRAE
+        case .IU:
+            self = .IU
+        default:
+            return nil
+        }
+    }
+    var nutritionFactUnit: NutritionFactUnit {
+        switch self {
+        case .g:
+            return .g
+        case .mg:
+            return .mg
+        case .mgAT:
+            return .mgAT
+        case .mgNE:
+            return .mgNE
+        case .mcg:
+            return .mcg
+        case .mcgDFE:
+            return .mcgDFE
+        case .mcgRAE:
+            return .mcgRAE
+        case .IU:
+            return .IU
+        }
+    }
+}

@@ -53,7 +53,7 @@ extension FoodForm.NutrientsPerForm.Field {
 
 public struct NutrientsPerFormFieldPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel(prefilledWithMockData: true)
+    @StateObject var viewModel = FoodForm.ViewModel.shared
     
     public init() { }
     
@@ -64,9 +64,13 @@ public struct NutrientsPerFormFieldPreview: View {
                     .environmentObject(viewModel)
             }
         }
+        .onAppear {
+            populateData()
+        }
     }
     
     func populateData() {
+        viewModel.prefill()
     }
 }
 struct NutrientsPerFormField_Previews: PreviewProvider {

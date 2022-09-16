@@ -3,8 +3,8 @@ import SwiftUI
 extension FoodForm {
     public struct NutritionFacts: View {
         @EnvironmentObject var viewModel: FoodForm.ViewModel
-        
         @Environment(\.colorScheme) var colorScheme
+        @State var showingMicronutrientsPicker = false
     }
 }
 
@@ -14,20 +14,61 @@ extension FoodForm.NutritionFacts {
             .toolbar { bottomToolbarContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingMicronutrientsPicker) {
+                MicronutrientPicker { pickedNutrient in
+                    
+                }
+            }
     }
 
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
                 button(fact: viewModel.energyFact)
-                titleCell("Macronutrients")
-                button(fact: viewModel.carbFact)
-                button(fact: viewModel.fatFact)
-                button(fact: viewModel.proteinFact)
+                macronutrientsGroup
+                micronutrientsGroup
             }
             .padding(.horizontal, 20)
         }
         .background(formBackgroundColor)
+    }
+    
+    var macronutrientsGroup: some View {
+        Group {
+            titleCell("Macronutrients")
+            button(fact: viewModel.carbFact)
+            button(fact: viewModel.fatFact)
+            button(fact: viewModel.proteinFact)
+        }
+    }
+    
+    var micronutrientsGroup: some View {
+        var addMicronutrientButton: some View {
+            Button {
+                showingMicronutrientsPicker = true
+            } label: {
+                Text("Add a micronutrient")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.accentColor)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 13)
+                    .padding(.top, 13)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(10)
+                    .padding(.bottom, 10)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+        }
+
+        return Group {
+            titleCell("Micronutrients")
+            ForEach(viewModel.micronutrients, id: \.self) {
+                button(fact: $0)
+            }
+//            AddCell()
+            addMicronutrientButton
+        }
     }
     
     func button(fact: NutritionFact) -> some View {
@@ -36,6 +77,7 @@ extension FoodForm.NutritionFacts {
         } label: {
             FoodForm.NutritionFacts.Cell(fact: fact)
         }
+        .buttonStyle(.borderless)
     }
     
     func titleCell(_ title: String) -> some View {
@@ -56,7 +98,8 @@ extension FoodForm.NutritionFacts {
     //MARK: - Legacy
 
     var formBackgroundColor: Color {
-        colorScheme == .dark ? .black: Color(.systemGroupedBackground)
+//        colorScheme == .dark ? .black: Color(.systemGroupedBackground)
+        Color(.systemGroupedBackground)
     }
     
     var bottomToolbarContent: some ToolbarContent {

@@ -6,6 +6,8 @@ extension FoodForm {
         
     class ViewModel: ObservableObject {
 
+        static var shared = ViewModel()
+        
         @Published var path: [Route] = []
 
         //MARK: Details
@@ -57,7 +59,7 @@ extension FoodForm {
         @Published var densityWeightUnit: FormUnit = .weight(.g)
         @Published var densityVolumeString: String = ""
         @Published var densityVolumeUnit: FormUnit = .volume(.mL)
-        
+
         @Published var energyFact = NutritionFact(type: .energy)
         @Published var carbFact = NutritionFact(type: .macro(.carb))
         @Published var fatFact = NutritionFact(type: .macro(.fat))
@@ -66,11 +68,7 @@ extension FoodForm {
         
         @Published var refreshBool = true
 
-        init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
-            guard prefilledWithMockData else {
-                return
-            }
-            
+        func prefill(onlyServing: Bool = false) {
             if onlyServing {
                 let sizes = [
                     Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
@@ -103,7 +101,41 @@ extension FoodForm {
                 self.volumePrefixedSizes = mockVolumePrefixedSizes
                 
                 self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
+                
+                self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj, inputType: .manuallyEntered)
+                self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g, inputType: .manuallyEntered)
+                self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g, inputType: .manuallyEntered)
+                self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g, inputType: .manuallyEntered)
             }
+        }
+    }
+}
+
+extension FoodForm.ViewModel {
+    
+    func newFact(from fact: NutritionFact, amount: Double, unit: NutritionFactUnit) -> NutritionFact {
+        /// We're doing this to trigger an update immediately
+        let fact = fact
+        fact.amount = amount
+        fact.unit = unit
+        return fact
+    }
+    
+    func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double, unit: NutritionFactUnit) {
+        switch type {
+        case .energy:
+            energyFact = newFact(from: energyFact, amount: amount, unit: unit)
+        case .macro(let macro):
+            switch macro {
+            case .carb:
+                carbFact = newFact(from: carbFact, amount: amount, unit: unit)
+            case .protein:
+                proteinFact = newFact(from: proteinFact, amount: amount, unit: unit)
+            case .fat:
+                fatFact = newFact(from: fatFact, amount: amount, unit: unit)
+            }
+        case .micro(_):
+            return
         }
     }
 }
