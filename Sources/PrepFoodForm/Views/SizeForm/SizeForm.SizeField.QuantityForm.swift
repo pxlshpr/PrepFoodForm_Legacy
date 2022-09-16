@@ -43,7 +43,9 @@ extension SizeForm.SizeField.QuantityForm {
 This is used when nutritional labels display nutrients for more than a single serving or size.
 
 For e.g. when the serving size reads '5 cookies (57g)', you would enter 5 as the quantity here. This allows us determine the nutrients for a single cookie.
-""")
+"""
+        )
+        .foregroundColor(sizeFormViewModel.quantityString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
 

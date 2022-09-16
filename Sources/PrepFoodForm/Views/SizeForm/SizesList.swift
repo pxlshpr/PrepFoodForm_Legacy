@@ -78,32 +78,41 @@ struct SizesList: View {
     var list: some View {
         List {
             if !viewModel.standardSizes.isEmpty {
-                Section {
-                    ForEach(viewModel.standardSizesViewModels, id: \.self) {
-                        Cell(sizeViewModel: $0)
-                    }
-                    .onDelete(perform: deleteStandardSizes)
-                    .onMove(perform: moveStandardSizes)
-                }
+                standardSizesSection
             }
             if !viewModel.volumePrefixedSizes.isEmpty {
-                Section(header: volumePrefixedHeader, footer: volumePrefixedFooter) {
-                    ForEach(viewModel.volumePrefixedSizesViewModels, id: \.self) {
-                        Cell(sizeViewModel: $0)
-                    }
-                    .onDelete(perform: deleteVolumePrefixedSizes)
-                    .onMove(perform: moveVolumePrefixedSizes)
-                }
+                volumePrefixedSizesSection
             }
         }
     }
     
-    var volumePrefixedHeader: some View {
-        Text("Volume prefixed")
+    var standardSizesSection: some View {
+        Section {
+            ForEach(viewModel.standardSizesViewModels, id: \.self) {
+                Cell(sizeViewModel: $0)
+            }
+            .onDelete(perform: deleteStandardSizes)
+            .onMove(perform: moveStandardSizes)
+        }
     }
     
-    var volumePrefixedFooter: some View {
-        Text("These let you log this food in volumes of different densities or thicknesses.")
+    var volumePrefixedSizesSection: some View {
+        var header: some View {
+            Text("Volume prefixed")
+        }
+        
+        var footer: some View {
+            Text("These let you log this food in volumes of different densities or thicknesses.")
+                .foregroundColor(viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+        }
+        
+        return Section(header: header, footer: footer) {
+            ForEach(viewModel.volumePrefixedSizesViewModels, id: \.self) {
+                Cell(sizeViewModel: $0)
+            }
+            .onDelete(perform: deleteVolumePrefixedSizes)
+            .onMove(perform: moveVolumePrefixedSizes)
+        }
     }
     
     var addButton: some View {

@@ -84,6 +84,7 @@ extension SizeForm.SizeField.AmountForm {
     @ViewBuilder
     var footer: some View {
         Text("\(sizeFormViewModel.amountIsValid ? "This is" : "Enter") \(description).")
+            .foregroundColor(!sizeFormViewModel.amountIsValid ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
     //MARK: - Helpers
@@ -100,7 +101,7 @@ extension SizeForm.SizeField.AmountForm {
             return "how much \(quantiativeName) weighs"
         case .serving:
             return "how many servings \(quantiativeName) equals"
-        case .size(let size, let volumePrefixUnit):
+        case .size(let size, _):
             //TODO: prefix name here with volumePrefixUnit
             return "how many \(size.prefixedName) \(quantiativeName) equals"
         }

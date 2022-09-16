@@ -81,7 +81,7 @@ extension FoodForm.NutrientsPerForm.ServingSizeFieldSection {
     @ViewBuilder
     var footer: some View {
         Text(viewModel.servingSizeFooterString)
-            .foregroundColor(viewModel.servingString.isEmpty ? .secondary : Color(.quaternaryLabel))
+            .foregroundColor(viewModel.servingString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 }
 

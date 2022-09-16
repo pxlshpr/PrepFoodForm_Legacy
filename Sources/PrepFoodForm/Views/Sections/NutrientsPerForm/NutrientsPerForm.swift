@@ -91,38 +91,42 @@ extension FoodForm.NutrientsPerForm {
                     Text("Enter this to be able to log this food using using its weight.")
                 }
             }
-            .foregroundColor(!viewModel.hasValidDensity ? .secondary : Color(.quaternaryLabel))
+            .foregroundColor(!viewModel.hasValidDensity ? FormFooterEmptyColor : FormFooterFilledColor)
+        }
+        
+        @ViewBuilder
+        var label: some View {
+            if viewModel.hasValidDensity {
+                HStack {
+                    HStack(spacing: 2) {
+                        Text(viewModel.lhsDensityAmountString)
+                            .foregroundColor(Color(.label))
+                        Text(viewModel.lhsDensityUnitString)
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                    Text("=")
+                        .foregroundColor(Color(.tertiaryLabel))
+                    HStack(spacing: 2) {
+                        Text(viewModel.rhsDensityAmountString)
+                            .foregroundColor(Color(.label))
+                        Text(viewModel.rhsDensityUnitString)
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                }
+            } else {
+                Text("Optional")
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
         }
         
         return Section(header: header, footer: footer) {
-            NavigationLink(value: FoodForm.Route.densityForm) {
-                if viewModel.hasValidDensity {
-                    HStack {
-                        HStack(spacing: 2) {
-                            Text(viewModel.lhsDensityAmountString)
-                                .foregroundColor(Color(.label))
-                            Text(viewModel.lhsDensityUnitString)
-                                .foregroundColor(Color(.secondaryLabel))
-                        }
-                        Text("=")
-                            .foregroundColor(Color(.tertiaryLabel))
-                        HStack(spacing: 2) {
-                            Text(viewModel.rhsDensityAmountString)
-                                .foregroundColor(Color(.label))
-                            Text(viewModel.rhsDensityUnitString)
-                                .foregroundColor(Color(.secondaryLabel))
-                        }
-                    }
-                } else {
-                    Text("Optional")
-                        .foregroundColor(Color(.quaternaryLabel))
-                }
+            NavigationLinkButton {
+                viewModel.path.append(.densityForm)
+            } label: {
+                label
             }
-//            NavigationLinkButton {
-//                viewModel.path.append(.densityForm)
-//            } label: {
-//                Text("Optional")
-//                    .foregroundColor(Color(.quaternaryLabel))
+//            NavigationLink(value: FoodForm.Route.densityForm) {
+//                label
 //            }
         }
     }
@@ -134,7 +138,7 @@ extension FoodForm.NutrientsPerForm {
         @ViewBuilder
         var footer: some View {
             Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, pack, etc.")
-                .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? .secondary : Color(.quaternaryLabel))
+                .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
         return Section(header: header, footer: footer) {
