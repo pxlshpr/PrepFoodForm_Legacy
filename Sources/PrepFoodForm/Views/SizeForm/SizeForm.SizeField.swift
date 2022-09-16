@@ -137,7 +137,7 @@ public struct SizeFormFieldPreview: View {
     
     var volumePrefixToggle: some View {
         var header: some View {
-            Text("Volume prefixed size")
+            Text("Volume-prefixed name")
         }
         
         var footer: some View {

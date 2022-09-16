@@ -80,7 +80,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     }
 
     var header: some View {
-        Text(viewModel.servingSizeHeaderString)
+        Text(viewModel.servingFormHeaderString)
     }
 
     @ViewBuilder

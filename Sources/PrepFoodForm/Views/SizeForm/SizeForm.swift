@@ -71,7 +71,7 @@ struct SizeForm: View {
         }
         
         return Section(footer: footer) {
-            Toggle("Use volume prefix", isOn: $showingVolumePrefixToggle)
+            Toggle("Volume-prefixed name", isOn: $showingVolumePrefixToggle)
         }
     }
     

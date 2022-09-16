@@ -356,7 +356,7 @@ extension UnitPicker {
                 }
             }
             if !volumePrefixedSizeViewModels.isEmpty {
-                Section("Volume prefixed") {
+                Section("Volume-prefixed") {
                     volumePrefixedSizeContents
                 }
             }

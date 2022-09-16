@@ -223,6 +223,32 @@ extension FoodForm.ViewModel {
         Double(servingString) ?? 0
     }
     
+    var amountFormHeaderString: String {
+        switch amountUnit {
+        case .serving:
+            return "Servings"
+        case .weight:
+            return "Weight"
+        case .volume:
+            return "Volume"
+        case .size:
+            return "Size"
+        }
+    }
+
+    var servingFormHeaderString: String {
+        switch servingUnit {
+        case .weight:
+            return "Weight"
+        case .volume:
+            return "Volume"
+        case .size:
+            return "Size"
+        default:
+            return ""
+        }
+    }
+
     var servingUnitDescription: String {
         servingUnit.description
     }
@@ -308,18 +334,6 @@ extension FoodForm.ViewModel {
         }
     }
     
-    var servingSizeHeaderString: String {
-        switch servingUnit {
-        case .weight:
-            return "Serving Weight"
-        case .volume:
-            return "Serving Volume"
-        case .size:
-            return "Serving Size"
-        case .serving:
-            return "Unsupported"
-        }
-    }
     var servingSizeFooterString: String {
         switch servingUnit {
         case .weight:

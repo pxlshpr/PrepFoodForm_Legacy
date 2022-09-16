@@ -13,7 +13,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     
     var body: some View {
         form
-        .navigationTitle("Amount")
+//        .navigationTitle("Amount")
     }
     
     var form: some View {
@@ -73,7 +73,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     }
 
     var header: some View {
-        Text("Amount")
+        Text(viewModel.amountFormHeaderString)
     }
     
     @ViewBuilder

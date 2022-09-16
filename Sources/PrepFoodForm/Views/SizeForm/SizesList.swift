@@ -98,7 +98,7 @@ struct SizesList: View {
     
     var volumePrefixedSizesSection: some View {
         var header: some View {
-            Text("Volume prefixed")
+            Text("Volume-prefixed")
         }
         
         var footer: some View {
