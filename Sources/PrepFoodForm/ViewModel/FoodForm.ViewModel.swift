@@ -9,6 +9,7 @@ extension FoodForm {
         static var shared = ViewModel()
         
         @Published var path: [Route] = []
+        @Published var showingMicronutrientsPicker = false
 
         //MARK: Details
         @Published var name: String = ""
@@ -66,7 +67,30 @@ extension FoodForm {
         @Published var proteinFact = NutritionFact(type: .macro(.protein))
         @Published var micronutrients: [NutritionFact] = []
         
-        @Published var showingMicronutrientsPicker = false
+        func clearData() {
+            name = ""
+            emoji = ""
+            detail = ""
+            brand = ""
+            barcode = ""
+            amountString = ""
+            amountUnit = .serving
+            servingString = ""
+            servingUnit = .weight(.g)
+            shouldShowDensitiesSection = false
+            standardSizes = []
+            volumePrefixedSizes = []
+            summarySizeViewModels = []
+            densityWeightString = ""
+            densityWeightUnit = .weight(.g)
+            densityVolumeString = ""
+            densityVolumeUnit = .volume(.mL)
+            energyFact = NutritionFact(type: .energy)
+            carbFact = NutritionFact(type: .macro(.carb))
+            fatFact = NutritionFact(type: .macro(.fat))
+            proteinFact = NutritionFact(type: .macro(.protein))
+            micronutrients = []
+        }
         
         func prefill(onlyServing: Bool = false) {
             if onlyServing {
@@ -120,15 +144,30 @@ extension FoodForm {
 
 extension FoodForm.ViewModel {
     
-    func newFact(from fact: NutritionFact, amount: Double, unit: NutritionFactUnit) -> NutritionFact {
-        /// We're doing this to trigger an update immediately
-        let fact = fact
-        fact.amount = amount
-        fact.unit = unit
-        return fact
+    func nutrientValue(for nutrientType: NutrientType) -> Double? {
+        guard let nutritionFact = nutritionFact(for: .micro(nutrientType)) else {
+            return nil
+        }
+        return nutritionFact.amount
+    }
+    var hasNutritionFacts: Bool {
+        !micronutrients.isEmpty
+        || !energyFact.isEmpty
+        || !carbFact.isEmpty
+        || !fatFact.isEmpty
+        || !proteinFact.isEmpty
     }
     
     func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double, unit: NutritionFactUnit) {
+        
+        func newFact(from fact: NutritionFact, amount: Double, unit: NutritionFactUnit) -> NutritionFact {
+            /// We're doing this to trigger an update immediately
+            let fact = fact
+            fact.amount = amount
+            fact.unit = unit
+            return fact
+        }
+
         switch type {
         case .energy:
             energyFact = newFact(from: energyFact, amount: amount, unit: unit)
@@ -156,6 +195,30 @@ extension FoodForm.ViewModel {
 
 extension FoodForm.ViewModel {
 
+    var carbAmount: Double {
+        carbFact.amount ?? 0
+    }
+    
+    var proteinAmount: Double {
+        proteinFact.amount ?? 0
+    }
+    
+    var fatAmount: Double {
+        fatFact.amount ?? 0
+    }
+    
+    var hasMicronutrients: Bool {
+        !micronutrients.isEmpty
+    }
+    
+    func hasNutrientFor(_ nutrientType: NutrientType) -> Bool {
+        nutritionFact(for: .micro(nutrientType)) != nil
+    }
+    
+    var energyAmount: Double {
+        energyFact.amount ?? 0
+    }
+    
     func nutritionFact(for type: NutritionFactType) -> NutritionFact? {
         switch type {
         case .energy:

@@ -65,8 +65,9 @@ extension FoodForm.NutritionFacts {
             ForEach(viewModel.micronutrients, id: \.self.id) {
                 button(fact: $0)
             }
-//            AddCell()
-            addMicronutrientButton
+            if viewModel.micronutrients.isEmpty {
+                addMicronutrientButton
+            }
         }
     }
     
@@ -111,10 +112,11 @@ extension FoodForm.NutritionFacts {
     
     var addButton: some View {
         Button {
-            
+            viewModel.showingMicronutrientsPicker = true
         } label: {
             Image(systemName: "plus")
         }
+        .buttonStyle(.borderless)
     }
     
     var scanButton: some View {

@@ -47,7 +47,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
     public var body: some View {
         NavigationStack(path: $path) {
             form
-                .navigationTitle("Choose a micronutrient")
+                .navigationTitle("Micronutrients")
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationDestination(for: Route.self) { route in
                     switch route {

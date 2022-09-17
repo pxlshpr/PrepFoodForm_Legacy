@@ -47,12 +47,14 @@ extension FoodForm.NutritionFacts.FactForm {
                     factViewModel.add()
                     viewModel.showingMicronutrientsPicker = false
                 }
+                .buttonStyle(.borderless)
                 FormSecondaryButton(title: "Add and Add Another") {
                     factViewModel.add()
                     dismiss()
                 }
             }
         }
+        .background(Color(.systemGroupedBackground))
     }
     
     var form: some View {

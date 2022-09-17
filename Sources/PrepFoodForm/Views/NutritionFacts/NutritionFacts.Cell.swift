@@ -1,27 +1,6 @@
 import SwiftUI
 import PrepUnits
 
-//MARK: - Add Cell
-extension FoodForm.NutritionFacts {
-    struct AddCell: View {
-    }
-}
-
-extension FoodForm.NutritionFacts.AddCell {
-    var body: some View {
-        Text("Add a micronutrient")
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(.accentColor)
-            .padding(.horizontal, 16)
-            .padding(.bottom, 13)
-            .padding(.top, 13)
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(10)
-            .padding(.bottom, 10)
-    }
-}
-
-//MARK: - Cell
 extension FoodForm.NutritionFacts {
     struct Cell: View {
         @Environment(\.colorScheme) var colorScheme
@@ -106,7 +85,7 @@ extension FoodForm.NutritionFacts.Cell {
     }
 }
 
-public struct NutritionFactsCellPreview: View {
+public struct NutritionFacts_CellPreview: View {
     
     @StateObject var viewModel = FoodForm.ViewModel.shared
     @Environment(\.colorScheme) var colorScheme
@@ -124,7 +103,7 @@ public struct NutritionFactsCellPreview: View {
     public init() { }
 }
 
-struct NutritionFactsCell_Previews: PreviewProvider {
+struct NutritionFacts_Cell_Previews: PreviewProvider {
     static var previews: some View {
         NutritionFactsCellPreview()
     }

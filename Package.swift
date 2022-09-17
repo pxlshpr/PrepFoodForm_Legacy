@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.168"),
         .package(url: "https://github.com/pxlshpr/CodeScanner", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.1"),
-        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.47"),
+        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.49"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
     ],
     targets: [

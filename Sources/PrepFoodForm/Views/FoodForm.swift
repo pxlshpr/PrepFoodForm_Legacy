@@ -15,6 +15,7 @@ public struct FoodForm: View {
     @StateObject var viewModel: ViewModel
     
     public init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
+        ViewModel.shared.clearData()
         if prefilledWithMockData {
             ViewModel.shared.prefill(onlyServing: onlyServing)
         }
@@ -132,8 +133,8 @@ public struct FoodForm: View {
             NavigationLinkButton {
                 viewModel.path.append(.nutritionFacts)
             } label: {
-                Text("Required")
-                    .foregroundColor(Color(.tertiaryLabel))
+                NutritionFactsCell()
+                    .environmentObject(viewModel)
             }
         }
     }
