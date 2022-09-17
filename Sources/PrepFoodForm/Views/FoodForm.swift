@@ -3,6 +3,8 @@ import CameraImagePicker
 
 public struct FoodForm: View {
     
+    @Environment(\.dismiss) var dismiss
+    
     @State public var isPresentingDetails = false
     @State public var isPresentingNutrientsPer = false
     @State public var isPresentingNutrients = false
@@ -68,6 +70,7 @@ public struct FoodForm: View {
             capturedImages.append(image)
             capturedImage = nil
         }
+        .interactiveDismissDisabled(viewModel.hasData)
     }
     
     var contents: some View {
@@ -86,13 +89,13 @@ public struct FoodForm: View {
     
     var savePublicallyButton: some View {
         FormPrimaryButton(title: "Save") {
-            
+            dismiss()
         }
     }
 
     var savePrivatelyButton: some View {
         FormSecondaryButton(title: "Save Privately") {
-            
+            dismiss()
         }
     }
 

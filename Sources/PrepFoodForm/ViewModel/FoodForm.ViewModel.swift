@@ -67,6 +67,30 @@ extension FoodForm {
         @Published var proteinFact = NutritionFact(type: .macro(.protein))
         @Published var micronutrients: [NutritionFact] = []
         
+        var hasData: Bool {
+            !name.isEmpty
+            || !emoji.isEmpty
+            || !detail.isEmpty
+            || !brand.isEmpty
+            || !barcode.isEmpty
+            || !amountString.isEmpty
+            || !servingString.isEmpty
+            || !standardSizes.isEmpty
+            || !volumePrefixedSizes.isEmpty
+            || !summarySizeViewModels.isEmpty
+            || !densityWeightString.isEmpty
+            || !densityVolumeString.isEmpty
+            || !energyFact.isEmpty
+            || !carbFact.isEmpty
+            || !fatFact.isEmpty
+            || !proteinFact.isEmpty
+            || !micronutrients.isEmpty
+//            || amountUnit != .serving
+//            || servingUnit != .weight(.g)
+//            || !densityWeightUnit.isEmpty
+//            || !densityVolumeUnit.isEmpty
+        }
+        
         func clearData() {
             name = ""
             emoji = ""
