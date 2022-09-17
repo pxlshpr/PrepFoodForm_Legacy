@@ -71,12 +71,15 @@ public struct FoodForm: View {
     }
     
     var contents: some View {
-        VStack {
-            formNavigationView
-            savePublicallyButton
-            savePrivatelyButton
+        VStack(spacing: 0) {
+            form
+            VStack {
+                savePublicallyButton
+                    .padding(.top)
+                savePrivatelyButton
+            }
+            .background(Color(.systemGroupedBackground))
         }
-        .background(Color(.systemGroupedBackground))
         .navigationBarTitle("New Food")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -93,7 +96,7 @@ public struct FoodForm: View {
         }
     }
 
-    var formNavigationView: some View {
+    var form: some View {
         Form {
             detailsSection
             servingSection

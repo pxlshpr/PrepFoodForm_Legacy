@@ -21,6 +21,19 @@ class NutritionFact: ObservableObject, Identifiable {
         && unit == nil
         && inputType == nil
     }
+    
+    var amountDescription: String? {
+        guard let amount = amount, let unit = unit else {
+            return nil
+        }
+        return "\(amount.clean) \(unit.description)"
+    }
+    
+    func makeEmpty() {
+        amount = nil
+        unit = nil
+        inputType = nil
+    }
 }
 
 extension NutritionFact: Equatable {

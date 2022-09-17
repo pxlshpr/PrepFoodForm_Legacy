@@ -158,13 +158,22 @@ extension FoodForm.ViewModel {
         || !proteinFact.isEmpty
     }
     
-    func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double, unit: NutritionFactUnit) {
+    func removeFact(of type: NutritionFactType) {
+        setNutritionFactType(type, withAmount: nil, unit: nil)
+    }
+
+    func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double?, unit: NutritionFactUnit?) {
         
-        func newFact(from fact: NutritionFact, amount: Double, unit: NutritionFactUnit) -> NutritionFact {
+        let makingEmpty = amount == nil && unit == nil
+        
+        func newFact(from fact: NutritionFact, amount: Double?, unit: NutritionFactUnit?) -> NutritionFact {
             /// We're doing this to trigger an update immediately
             let fact = fact
             fact.amount = amount
             fact.unit = unit
+            if makingEmpty {
+                fact.inputType = nil
+            }
             return fact
         }
 
@@ -181,6 +190,10 @@ extension FoodForm.ViewModel {
                 fatFact = newFact(from: fatFact, amount: amount, unit: unit)
             }
         case .micro(let nutrientType):
+            guard !makingEmpty else {
+                micronutrients.removeAll(where: { $0.nutrientType == nutrientType })
+                return
+            }
             guard let fact = micronutrients.first(where: { $0.nutrientType == nutrientType }),
                   let index = micronutrients.firstIndex(of: fact) else {
                 micronutrients.append(NutritionFact(type: .micro(nutrientType)))

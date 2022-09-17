@@ -35,15 +35,40 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
         Double(amountString) ?? 0
     }
     
-    func dataDidChange() {
+    var shouldShowDeleteButton: Bool {
+        if case .micro = type {
+            return !amountString.isEmpty
+        } else {
+            return false
+        }
+    }
+
+    func showAddButtonIfApplicable() {
         withAnimation {
             self.shouldShowAddButton = isNewMicronutrient && !amountString.isEmpty
         }
+    }
+    
+    func modifyExistingFact() {
         guard !isNewMicronutrient else { return }
         FoodForm.ViewModel.shared.setNutritionFactType(
             type,
             withAmount: amount,
             unit: unit)
+    }
+    
+    func removeExistingFact() {
+        guard !isNewMicronutrient else { return }
+        FoodForm.ViewModel.shared.removeFact(of: type)
+    }
+    
+    func dataDidChange() {
+        showAddButtonIfApplicable()
+        if amountString.isEmpty {
+            removeExistingFact()
+        } else {
+            modifyExistingFact()
+        }
     }
     
     var fact: NutritionFact {

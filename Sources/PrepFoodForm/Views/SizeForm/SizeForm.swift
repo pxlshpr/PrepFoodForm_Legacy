@@ -17,16 +17,18 @@ struct SizeForm: View {
     
     var body: some View {
         NavigationStack(path: $sizeFormViewModel.path) {
-            VStack {
+            VStack(spacing: 0) {
                 form
                 if sizeFormViewModel.isValid {
-                    addButton
-                    if didAddSize == nil {
-                        addAndAddAnotherButton
+                    VStack {
+                        addButton
+                        if didAddSize == nil {
+                            addAndAddAnotherButton
+                        }
                     }
+                    .background(Color(.systemGroupedBackground))
                 }
             }
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Add Size")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { navigationLeadingContent }

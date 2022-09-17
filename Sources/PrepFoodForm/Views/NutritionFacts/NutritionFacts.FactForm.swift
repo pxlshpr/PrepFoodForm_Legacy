@@ -26,6 +26,7 @@ extension FoodForm.NutritionFacts.FactForm {
         content
         .scrollDismissesKeyboard(.never)
         .navigationTitle(type.description)
+        .toolbar { navigationTrailingContent }
         .toolbar { keyboardToolbarContents }
         .onAppear {
             isFocused = true
@@ -38,23 +39,35 @@ extension FoodForm.NutritionFacts.FactForm {
         }
     }
     
-    var content: some View {
-        VStack {
-            form
-            Spacer()
-            if factViewModel.shouldShowAddButton {
-                FormPrimaryButton(title: "Add") {
-                    factViewModel.add()
-                    viewModel.showingMicronutrientsPicker = false
-                }
-                .buttonStyle(.borderless)
-                FormSecondaryButton(title: "Add and Add Another") {
-                    factViewModel.add()
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if factViewModel.shouldShowDeleteButton {
+                Button("Remove") {
+                    factViewModel.removeExistingFact()
                     dismiss()
                 }
             }
         }
-        .background(Color(.systemGroupedBackground))
+    }
+    var content: some View {
+        VStack(spacing: 0) {
+            form
+            if factViewModel.shouldShowAddButton {
+                VStack {
+                    FormPrimaryButton(title: "Add") {
+                        factViewModel.add()
+                        viewModel.showingMicronutrientsPicker = false
+                    }
+                    .buttonStyle(.borderless)
+                    .padding(.top)
+                    FormSecondaryButton(title: "Add and Add Another") {
+                        factViewModel.add()
+                        dismiss()
+                    }
+                }
+                .background(Color(.systemGroupedBackground))
+            }
+        }
     }
     
     var form: some View {

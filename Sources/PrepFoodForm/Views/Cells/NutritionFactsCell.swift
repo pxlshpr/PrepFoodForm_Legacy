@@ -9,6 +9,33 @@ extension FoodForm {
         @State var energyInCalories: Bool = true
     }
 }
+extension FoodForm.NutritionFactsCell {
+    struct Row: View {
+        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @Environment(\.colorScheme) var colorScheme
+        var fact: NutritionFact
+    }
+}
+
+extension FoodForm.NutritionFactsCell.Row {
+    
+    var body: some View {
+        HStack {
+            Text(fact.type.description)
+                .bold(fact.type == .energy)
+//                .foregroundColor(fact.type.textColor(for: colorScheme))
+//                .bold()
+                .foregroundColor(.primary)
+            Spacer()
+            if let amountDescription = fact.amountDescription {
+                Text(amountDescription)
+//                    .foregroundColor(fact.type.textColor(for: colorScheme))
+                    .foregroundColor(Color(.secondaryLabel))
+                    .bold(fact.type == .energy)
+            }
+        }
+    }
+}
 
 extension FoodForm.NutritionFactsCell {
     
@@ -17,7 +44,7 @@ extension FoodForm.NutritionFactsCell {
             if !viewModel.hasNutritionFacts {
                 emptyContent
             } else {
-                filledContent
+                content
             }
         }
     }
@@ -27,18 +54,68 @@ extension FoodForm.NutritionFactsCell {
             .foregroundColor(Color(.tertiaryLabel))
     }
     
+    var content: some View {
+        @ViewBuilder
+        func factRow(for fact: NutritionFact) -> some View {
+            if !fact.isEmpty {
+                Row(fact: fact)
+            }
+        }
+
+        @ViewBuilder
+        var micronutrientsCount: some View {
+            if !viewModel.micronutrients.isEmpty {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(Color(.quaternaryLabel))
+                    Text("\(viewModel.micronutrients.count) micronutrients")
+                        .foregroundColor(Color(.secondaryLabel))
+                }
+                .padding(.vertical, 5)
+                .padding(.leading, 7)
+                .padding(.trailing, 9)
+                .background(
+                    Capsule(style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+                .padding(.top, 5)
+            }
+        }
+        
+        return VStack(alignment: .leading, spacing: 5) {
+            factRow(for: viewModel.energyFact)
+            factRow(for: viewModel.carbFact)
+            factRow(for: viewModel.fatFact)
+            factRow(for: viewModel.proteinFact)
+            micronutrientsCount
+        }
+    }
+}
+    
+extension FoodForm.NutritionFactsCell {
+    var legacyContent: some View {
+        Group {
+            if !viewModel.hasNutritionFacts {
+                emptyContent
+            } else {
+                filledContent
+            }
+        }
+    }
+    
     var filledContent: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
 //            header
             calories
-            Spacer().frame(height: 3)
+            Color.clear.frame(height: 3)
             macros
             if viewModel.hasMicronutrients {
 //                macrosMicrosSeparator
                 micros
             }
         }
-        .padding(.vertical, -10)
+        /// This is simply mitigating the wierd padding error we get
+//        .padding(.vertical, -30)
 //        .padding(15)
 //        .border(borderColor, width: 5.0)
     }
@@ -47,20 +124,20 @@ extension FoodForm.NutritionFactsCell {
     var calories: some View {
         Group {
             caloriesRow
-            Spacer().frame(height: 10)
-//            rectangle(height: 8, color: Color(.label))
-//            Spacer().frame(height: 6)
+            Color.clear.frame(height: 10)
+            rectangle(height: 8, color: Color(.label))
+            Color.clear.frame(height: 6)
         }
     }
     
     var header: some View {
         Group {
             nutritionFactsRow
-            Spacer().frame(height: 6)
+            Color.clear.frame(height: 6)
 //            amountPerRow
-//            Spacer().frame(height: 10)
+//            Color.clear.frame(height: 10)
             rectangle(height: 15)
-            Spacer().frame(height: 12)
+            Color.clear.frame(height: 12)
         }
     }
     
@@ -121,9 +198,9 @@ extension FoodForm.NutritionFactsCell {
     
     var macrosMicrosSeparator: some View {
         Group {
-            Spacer().frame(height: 6)
+            Color.clear.frame(height: 6)
             rectangle(height: 15)
-//            Spacer().frame(height: 3)
+//            Color.clear.frame(height: 3)
         }
     }
 
@@ -137,6 +214,7 @@ extension FoodForm.NutritionFactsCell {
             nutrientRow(forType: .saturatedFat, indentLevel: 1)
             nutrientRow(forType: .polyunsaturatedFat, indentLevel: 1)
             nutrientRow(forType: .monounsaturatedFat, indentLevel: 1)
+            nutrientRow(forType: .transFat, indentLevel: 1)
         }
     }
     
@@ -219,7 +297,7 @@ extension FoodForm.NutritionFactsCell {
                     .font(.headline)
                     .italic()
                     .foregroundColor(.primary)
-                Spacer().frame(width: 3)
+                Color.clear.frame(width: 3)
             }
         }
         
@@ -249,11 +327,11 @@ extension FoodForm.NutritionFactsCell {
         let divider = Group {
             HStack {
                 if indentLevel > 1 {
-                    Spacer().frame(width: CGFloat(indentLevel) * 20.0)
+                    Color.clear.frame(width: CGFloat(indentLevel) * 20.0)
                 }
                 VStack {
                     rectangle(height: 0.3)
-                    Spacer().frame(height: 5)
+                    Color.clear.frame(height: 5)
                 }
             }
             .frame(height: 6.0)
@@ -270,12 +348,12 @@ extension FoodForm.NutritionFactsCell {
             if includeDivider {
                 divider
             } else {
-                Spacer().frame(height: 2)
+                Color.clear.frame(height: 2)
             }
-//            Spacer().frame(height: 2)
+//            Color.clear.frame(height: 2)
             HStack {
                 if indentLevel > 0 {
-                    Spacer().frame(width: CGFloat(indentLevel) * 20.0)
+                    Color.clear.frame(width: CGFloat(indentLevel) * 20.0)
                 }
                 VStack {
                     HStack {
@@ -296,7 +374,7 @@ extension FoodForm.NutritionFactsCell {
                     }
                 }
             }
-            Spacer().frame(height: 5)
+            Color.clear.frame(height: 5)
         }
     }
     
