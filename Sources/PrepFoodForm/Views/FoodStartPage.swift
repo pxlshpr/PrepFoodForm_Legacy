@@ -50,47 +50,47 @@ public struct FoodFormStartPage: View {
     
     var manualEntrySection: some View {
         var header: some View {
-            Text("Manual entry")
+            Text(SourceType.manualEntry.headerString)
         }
         var footer: some View {
-            Text("Manually enter in details from a nutrition fact label or elsewhere.")
+            Text(SourceType.manualEntry.footerString)
         }
         
         return Section {
             NavigationLinkButton {
                 viewModel.path.append(.foodForm)
             } label: {
-                Label("Enter details",
-                      systemImage: "character.cursor.ibeam")
+                Label(SourceType.manualEntry.actionString,
+                      systemImage: SourceType.manualEntry.systemImage)
             }
         }
     }
     
     var scanSection: some View {
         var header: some View {
-            Text("Scan images")
+            Text(SourceType.scan.headerString)
         }
         var footer: some View {
-            Text("Scan nutrition fact labels or screenshots from other apps to read in their data.")
+            Text(SourceType.scan.footerString)
         }
         
         return Section(header: header, footer: footer) {
             Button {
                 showingScan = true
             } label: {
-                Label("Scan",
-                      systemImage: "text.viewfinder")
+                Label(SourceType.scan.actionString,
+                      systemImage: SourceType.scan.systemImage)
             }
         }
     }
     
     var importSection: some View {
         var header: some View {
-            Text("Import an online source")
+            Text(SourceType.thirdPartyImport.headerString)
         }
         var footer: some View {
             VStack {
-                Text("Use data from a third-party source when you need to roughly estimate the nutrition facts for this food. This method is slow and the data can sometimes be unreliable.")
+                Text(SourceType.thirdPartyImport.footerString)
             }
         }
         
@@ -98,8 +98,8 @@ public struct FoodFormStartPage: View {
             Button {
                 showingImport = true
             } label: {
-                Label("Import",
-                      systemImage: "link")
+                Label(SourceType.thirdPartyImport.actionString,
+                      systemImage: SourceType.thirdPartyImport.systemImage)
             }
         }
     }

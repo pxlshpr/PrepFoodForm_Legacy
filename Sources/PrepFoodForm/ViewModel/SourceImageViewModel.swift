@@ -10,9 +10,21 @@ class SourceImageViewModel: ObservableObject {
     }
     
     func process(completion: (() -> ())? = nil) {
-        status = .processing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            self.status = .processed
+        Task {
+            
+            await MainActor.run {
+                status = .processing
+            }
+            
+            try await Task.sleep(
+                until: .now + .seconds(2),
+                tolerance: .seconds(2),
+                clock: .suspending
+            )
+
+            await MainActor.run {
+                self.status = .processed
+            }
             completion?()
         }
     }

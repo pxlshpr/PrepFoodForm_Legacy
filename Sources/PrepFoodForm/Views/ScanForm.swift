@@ -46,27 +46,61 @@ extension FoodFormViewModel {
     
     func simulateScan() {
         
-        isScanning = true
+        /// Cancel the previous scan task
+        scanTask?.cancel()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        
+        /// Now reassign it
+        scanTask = Task {
+            
+            await MainActor.run {
+                isScanning = true
+            }
+            
+            try await Task.sleep(
+                until: .now + .seconds(5),
+                tolerance: .seconds(5),
+                clock: .suspending
+            )
+            
+            try Task.checkCancellation()
+            
             self.sourceImageViewModels[0].process {
+                
                 Haptics.transientHaptic()
+                
                 self.sourceImageViewModels[1].process {
+
                     Haptics.transientHaptic()
+                    
                     self.sourceImageViewModels[2].process {
+                        
                         Haptics.transientHaptic()
+                        
                         self.sourceImageViewModels[3].process {
+                            
                             Haptics.transientHaptic()
+                            
                             self.sourceImageViewModels[4].process {
+                                
                                 Haptics.feedback(style: .rigid)
-                                self.isScanning = false
-                                self.numberOfScannedImages = 5
-                                self.numberOfScannedDataPoints = 17
+                                
+                                Task {
+                                    await MainActor.run {
+                                        self.isScanning = false
+                                        self.numberOfScannedImages = 5
+                                        self.numberOfScannedDataPoints = 17
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        Task {
+            guard let scanTask = scanTask else { return }
+            let _ = try await scanTask.value
         }
     }
 }

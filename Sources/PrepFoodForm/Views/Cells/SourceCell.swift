@@ -30,6 +30,8 @@ extension FoodForm.SourceCell {
             Text("Image")
         case .link:
             Text("Link")
+        case .manualEntry:
+            Text("Manual Entry")
         }
     }
     

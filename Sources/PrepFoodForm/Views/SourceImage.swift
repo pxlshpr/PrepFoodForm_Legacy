@@ -61,9 +61,15 @@ struct SourceImage: View {
                     Spacer()
                     HStack {
                         Spacer()
-                        Image(systemName: "checkmark.circle.fill")
+                        Image(systemName: "text.viewfinder")
                             .renderingMode(.original)
                             .imageScale(.large)
+                            .padding(2)
+                            .background(
+                                RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                    .foregroundColor(.accentColor)
+                                    .opacity(0.7)
+                            )
                             .padding(5)
                     }
                 }

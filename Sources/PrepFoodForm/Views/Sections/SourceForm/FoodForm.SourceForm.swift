@@ -1,9 +1,35 @@
 import SwiftUI
 import SwiftHaptics
 
+struct SourceTypePicker: View {
+    @Environment(\.dismiss) var dismiss
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(SourceType.nonManualSources, id: \.self) { sourceType in
+                    Section(header: Text(sourceType.headerString), footer: Text(sourceType.footerString)) {
+                        Button {
+                            withAnimation {
+                                FoodFormViewModel.shared.sourceType = sourceType
+                            }
+                            dismiss()
+                        } label: {
+                            Label(sourceType.actionString, systemImage: sourceType.systemImage)
+                        }
+                        .buttonStyle(.borderless)
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Pick a Source")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+}
 extension FoodForm {
     struct SourceForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
+        @State var showingSourceTypePicker = false
     }
 }
 
@@ -12,6 +38,16 @@ extension FoodForm.SourceForm {
         form
         .navigationTitle("Source")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingSourceTypePicker) {
+            SourceTypePicker()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
+        }
+        .onAppear {
+            if viewModel.sourceType == nil {
+                showingSourceTypePicker = true
+            }
+        }
     }
     
     var form: some View {
@@ -19,7 +55,9 @@ extension FoodForm.SourceForm {
 //            if !viewModel.isProcessingSource {
                 typeSection
 //            }
-            imagesSection
+            if viewModel.sourceIncludesImages {
+                imagesSection
+            }
             if viewModel.isProcessingSource {
                 activitySection
             }
@@ -32,9 +70,14 @@ extension FoodForm.SourceForm {
     var typeSection: some View {
         Section("Source") {
             NavigationLinkButton {
-                
+                showingSourceTypePicker = true
             } label: {
-                Text("Images")
+                if let sourceType = viewModel.sourceType {
+                    Text(sourceType.cellString)
+                } else {
+                    Text("Optional")
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
             }
             .disabled(viewModel.isScanning)
         }
@@ -66,11 +109,21 @@ extension FoodForm.SourceForm {
     @ViewBuilder
     var resultsSection: some View {
         if let count = viewModel.numberOfScannedDataPoints {
-            Section("Scanned Data") {
+            Section("Extracted Data") {
                 NavigationLinkButton {
                     
                 } label: {
-                    Text("\(count) nutrition facts extracted")
+                    Text("'Amount per' details")
+                }
+                NavigationLinkButton {
+                    
+                } label: {
+                    Text("2 sizes")
+                }
+                NavigationLinkButton {
+                    
+                } label: {
+                    Text("\(count) nutrition facts")
                 }
             }
         }

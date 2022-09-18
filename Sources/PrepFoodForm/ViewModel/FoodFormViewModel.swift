@@ -2,13 +2,6 @@ import SwiftUI
 import PrepUnits
 import SwiftUISugar
 
-enum SourceType {
-    case scan
-    case thirdPartyImport
-    case image
-    case link
-}
-
 public class FoodFormViewModel: ObservableObject {
 
     public init() { }
@@ -82,13 +75,17 @@ public class FoodFormViewModel: ObservableObject {
     @Published var sourceImageViewModels: [SourceImageViewModel] = []
     
     //MARK: Scan
+    var scanTask: Task<(), any Error>? = nil
+    
     @Published var isScanning = false {
         didSet {
             if isScanning {
                 sourceType = .scan
             }
             withAnimation {
-                isProcessingSource = isScanning || isImporting
+                DispatchQueue.main.async {
+                    self.isProcessingSource = self.isScanning || self.isImporting
+                }
             }
         }
     }
@@ -111,6 +108,7 @@ public class FoodFormViewModel: ObservableObject {
 
 extension FoodFormViewModel {
     func cancelScan() {
+        scanTask?.cancel()
         isScanning = false
     }
     
@@ -136,6 +134,10 @@ extension FoodFormViewModel {
 //            || servingUnit != .weight(.g)
 //            || !densityWeightUnit.isEmpty
 //            || !densityVolumeUnit.isEmpty
+    }
+    
+    var sourceIncludesImages: Bool {
+        sourceType?.includesImages ?? false
     }
     
     public func prefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
