@@ -39,7 +39,9 @@ let package = Package(
                 .product(name: "PrepUnits", package: "prepunits"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
-            ]),
+            ],
+            resources: [.process("SampleImages")]
+        ),
         .testTarget(
             name: "PrepFoodFormTests",
             dependencies: ["PrepFoodForm"]),

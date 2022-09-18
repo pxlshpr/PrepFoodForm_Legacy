@@ -2,6 +2,13 @@ import SwiftUI
 import PrepUnits
 import SwiftUISugar
 
+enum SourceType {
+    case scan
+    case thirdPartyImport
+    case image
+    case link
+}
+
 public class FoodFormViewModel: ObservableObject {
 
     public init() { }
@@ -71,6 +78,8 @@ public class FoodFormViewModel: ObservableObject {
     
     //MARK: - Source
     @Published var sourceType: SourceType? = nil
+    @Published var isProcessingSource = false
+    @Published var sourceImageViewModels: [SourceImageViewModel] = []
     
     //MARK: Scan
     @Published var isScanning = false {
@@ -78,10 +87,14 @@ public class FoodFormViewModel: ObservableObject {
             if isScanning {
                 sourceType = .scan
             }
+            withAnimation {
+                isProcessingSource = isScanning || isImporting
+            }
         }
     }
-    @Published var scanningImages: [UIImage] = []
     @Published var numberOfScannedImages: Int = 0
+    
+    @Published var numberOfScannedDataPoints: Int? = nil
     
     //MARK: - Import
     @Published var isImporting = false {
@@ -89,21 +102,16 @@ public class FoodFormViewModel: ObservableObject {
             if isImporting {
                 sourceType = .thirdPartyImport
             }
+            withAnimation {
+                isProcessingSource = isScanning || isImporting
+            }
         }
     }
 }
 
-enum SourceType {
-    case scan
-    case thirdPartyImport
-    case image
-    case link
-}
-
 extension FoodFormViewModel {
-    
-    var isScanningOrImporting: Bool {
-        isScanning || isImporting
+    func cancelScan() {
+        isScanning = false
     }
     
     var hasData: Bool {

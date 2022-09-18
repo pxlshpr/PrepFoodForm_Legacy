@@ -121,6 +121,7 @@ public struct FoodFormStartPage: View {
                 .environmentObject(viewModel)
         case .sourceForm:
             FoodForm.SourceForm()
+                .environmentObject(viewModel)
         case .detailsFormEmoji:
             FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
         case .densityForm:
