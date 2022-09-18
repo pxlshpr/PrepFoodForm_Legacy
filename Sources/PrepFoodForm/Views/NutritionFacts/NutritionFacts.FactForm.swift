@@ -3,7 +3,7 @@ import SwiftUI
 extension FoodForm.NutritionFacts {
     struct FactForm: View {
         @Environment(\.dismiss) var dismiss
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @StateObject var factViewModel: ViewModel
         
         let type: NutritionFactType

@@ -4,7 +4,7 @@ import CodeScanner
 
 extension FoodForm {
     struct DetailsForm: View {
-        @EnvironmentObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         
         @State var showingEmojiPicker = false
         @State var showingCodeScanner = false

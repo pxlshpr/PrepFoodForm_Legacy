@@ -3,7 +3,7 @@ import NamePicker
 
 struct SizeForm: View {
     
-    @EnvironmentObject var viewModel: FoodForm.ViewModel
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @StateObject var sizeFormViewModel: ViewModel
     @State var showingVolumePrefixToggle: Bool = false
@@ -48,11 +48,11 @@ struct SizeForm: View {
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button("Fill") {
-                sizeFormViewModel.amountString = "5"
-                sizeFormViewModel.amountUnit = .weight(.g)
-                sizeFormViewModel.name = "cookie"
-            }
+//            Button("Fill") {
+//                sizeFormViewModel.amountString = "5"
+//                sizeFormViewModel.amountUnit = .weight(.g)
+//                sizeFormViewModel.name = "cookie"
+//            }
         }
     }
     

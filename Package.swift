@@ -23,6 +23,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.1"),
         .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.49"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
+        .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -36,7 +37,8 @@ let package = Package(
                 .product(name: "CodeScanner", package: "codescanner"),
                 .product(name: "CameraImagePicker", package: "cameraimagepicker"),
                 .product(name: "PrepUnits", package: "prepunits"),
-                .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift")
+                .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
+                .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
             ]),
         .testTarget(
             name: "PrepFoodFormTests",

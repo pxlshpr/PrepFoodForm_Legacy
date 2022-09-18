@@ -3,7 +3,7 @@ import SwiftUI
 extension FoodForm {
     struct NutrientsPerForm: View {
 
-        @EnvironmentObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         
         @State var showingSizesList = false
         @State var showingVolumesList = false
@@ -22,7 +22,7 @@ extension FoodForm.NutrientsPerForm {
             viewModel.updateSummary()
         }
         .toolbar { bottomToolbarContent }
-        .navigationTitle("Serving")
+        .navigationTitle("Amount Per")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSizesList) {
             SizesList()

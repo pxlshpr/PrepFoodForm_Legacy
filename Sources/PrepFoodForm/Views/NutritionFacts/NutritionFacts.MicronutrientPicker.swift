@@ -19,7 +19,7 @@ extension FoodForm.NutritionFacts {
     }
 }
 
-extension FoodForm.ViewModel {
+extension FoodFormViewModel {
     
     func hasNutrientsLeftToAdd(in group: NutrientTypeGroup) -> Bool {
         group.nutrients.contains { nutrientType in
@@ -64,7 +64,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
     var form: some View {
         Form {
             ForEach(NutrientTypeGroup.allCases, id: \.self) { group in
-                if FoodForm.ViewModel.shared.hasNutrientsLeftToAdd(in: group) {
+                if FoodFormViewModel.shared.hasNutrientsLeftToAdd(in: group) {
                     groupSection(for: group)
                 }
             }
@@ -74,7 +74,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
     func groupSection(for group: NutrientTypeGroup) -> some View {
         Section(group.description) {
             ForEach(group.nutrients, id: \.self) { nutrient in
-                if !FoodForm.ViewModel.shared.hasAddedNutrient(nutrient) {
+                if !FoodFormViewModel.shared.hasAddedNutrient(nutrient) {
                     nutrientButton(for: nutrient)
                 }
             }

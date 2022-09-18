@@ -2,172 +2,176 @@ import SwiftUI
 import PrepUnits
 import SwiftUISugar
 
-extension FoodForm {
-        
-    class ViewModel: ObservableObject {
+public class FoodFormViewModel: ObservableObject {
 
-        static var shared = ViewModel()
-        
-        @Published var path: [Route] = []
-        @Published var showingMicronutrientsPicker = false
+    public init() { }
 
-        //MARK: Details
-        @Published var name: String = ""
-        @Published var emoji = ""
-        @Published var detail = ""
-        @Published var brand = ""
-        @Published var barcode = ""
+    static public var shared = FoodFormViewModel()
+    
+    @Published var path: [FoodFormRoute] = []
+    @Published var showingMicronutrientsPicker = false
+    @Published var shouldShowDensitiesSection: Bool = false
+    
+    //MARK: - Food Details
+    @Published var name: String = ""
+    @Published var emoji = ""
+    @Published var detail = ""
+    @Published var brand = ""
+    @Published var barcode = ""
 
-        //MARK: Nutrients Per
-        @Published var amountString: String = "" {
-            didSet {
-                updateShouldShowDensitiesSection()
+    //MARK: Amount Per
+    @Published var amountString: String = "" {
+        didSet {
+            updateShouldShowDensitiesSection()
+        }
+    }
+    
+    @Published var amountUnit: FormUnit = .serving {
+        didSet {
+            updateShouldShowDensitiesSection()
+            if amountUnit != .serving {
+                servingString = ""
+                servingUnit = .weight(.g)
             }
         }
-        
-        @Published var amountUnit: FormUnit = .serving {
-            didSet {
-                updateShouldShowDensitiesSection()
-                if amountUnit != .serving {
-                    servingString = ""
-                    servingUnit = .weight(.g)
-                }
-            }
-        }
-        @Published var servingString: String = "" {
-            didSet {
-                /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
-                modifyServingUnitIfServingBased()
-                updateShouldShowDensitiesSection()
+    }
+    @Published var servingString: String = "" {
+        didSet {
+            /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
+            modifyServingUnitIfServingBased()
+            updateShouldShowDensitiesSection()
 //                if !servingString.isEmpty && amountString.isEmpty {
 //                    amountString = "1"
 //                }
+        }
+    }
+    @Published var servingUnit: FormUnit = .weight(.g) {
+        didSet {
+            updateShouldShowDensitiesSection()
+        }
+    }
+    
+    //MARK: Sizes
+    @Published var standardSizes: [Size] = []
+    @Published var volumePrefixedSizes: [Size] = []
+    @Published var summarySizeViewModels: [SizeViewModel] = []
+    
+    //MARK: Density
+    @Published var densityWeightString: String = ""
+    @Published var densityWeightUnit: FormUnit = .weight(.g)
+    @Published var densityVolumeString: String = ""
+    @Published var densityVolumeUnit: FormUnit = .volume(.mL)
+
+    //MARK: Nutrition Facts
+    @Published var energyFact = NutritionFact(type: .energy)
+    @Published var carbFact = NutritionFact(type: .macro(.carb))
+    @Published var fatFact = NutritionFact(type: .macro(.fat))
+    @Published var proteinFact = NutritionFact(type: .macro(.protein))
+    @Published var micronutrients: [NutritionFact] = []
+    
+    //MARK: - Source
+    @Published var sourceType: SourceType? = nil
+    
+    //MARK: Scan
+    @Published var isScanning = false {
+        didSet {
+            if isScanning {
+                sourceType = .scan
             }
         }
-        @Published var servingUnit: FormUnit = .weight(.g) {
-            didSet {
-                updateShouldShowDensitiesSection()
-            }
-        }
-        
-        @Published var shouldShowDensitiesSection: Bool = false
-        
-        @Published var standardSizes: [Size] = []
-        @Published var volumePrefixedSizes: [Size] = []
-        @Published var summarySizeViewModels: [SizeViewModel] = []
-        
-        @Published var densityWeightString: String = ""
-        @Published var densityWeightUnit: FormUnit = .weight(.g)
-        @Published var densityVolumeString: String = ""
-        @Published var densityVolumeUnit: FormUnit = .volume(.mL)
-
-        @Published var energyFact = NutritionFact(type: .energy)
-        @Published var carbFact = NutritionFact(type: .macro(.carb))
-        @Published var fatFact = NutritionFact(type: .macro(.fat))
-        @Published var proteinFact = NutritionFact(type: .macro(.protein))
-        @Published var micronutrients: [NutritionFact] = []
-        
-        var hasData: Bool {
-            !name.isEmpty
-            || !emoji.isEmpty
-            || !detail.isEmpty
-            || !brand.isEmpty
-            || !barcode.isEmpty
-            || !amountString.isEmpty
-            || !servingString.isEmpty
-            || !standardSizes.isEmpty
-            || !volumePrefixedSizes.isEmpty
-            || !summarySizeViewModels.isEmpty
-            || !densityWeightString.isEmpty
-            || !densityVolumeString.isEmpty
-            || !energyFact.isEmpty
-            || !carbFact.isEmpty
-            || !fatFact.isEmpty
-            || !proteinFact.isEmpty
-            || !micronutrients.isEmpty
-//            || amountUnit != .serving
-//            || servingUnit != .weight(.g)
-//            || !densityWeightUnit.isEmpty
-//            || !densityVolumeUnit.isEmpty
-        }
-        
-        func clearData() {
-            name = ""
-            emoji = ""
-            detail = ""
-            brand = ""
-            barcode = ""
-            amountString = ""
-            amountUnit = .serving
-            servingString = ""
-            servingUnit = .weight(.g)
-            shouldShowDensitiesSection = false
-            standardSizes = []
-            volumePrefixedSizes = []
-            summarySizeViewModels = []
-            densityWeightString = ""
-            densityWeightUnit = .weight(.g)
-            densityVolumeString = ""
-            densityVolumeUnit = .volume(.mL)
-            energyFact = NutritionFact(type: .energy)
-            carbFact = NutritionFact(type: .macro(.carb))
-            fatFact = NutritionFact(type: .macro(.fat))
-            proteinFact = NutritionFact(type: .macro(.protein))
-            micronutrients = []
-        }
-        
-        func prefill(onlyServing: Bool = false) {
-            if onlyServing {
-                let sizes = [
-                    Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
-                ]
-                
-                self.standardSizes = sizes
-                self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
-
-                self.amountString = "1"
-                self.servingString = "0.2"
-                self.servingUnit = .size(standardSizes.first!, nil)
-            } else {
-                self.name = "Carrot"
-                self.emoji = "🥕"
-                self.detail = "Baby"
-                self.brand = "Woolworths"
-                self.barcode = "5012345678900"
-                
-                self.amountString = "1"
-                self.amountUnit = .serving
-                self.servingString = "50"
-                self.servingUnit = .weight(.g)
-                
-                self.densityWeightString = "20"
-                self.densityWeightUnit = .weight(.g)
-                self.densityVolumeString = "25"
-                self.densityVolumeUnit = .volume(.mL)
-                
-                self.standardSizes = mockStandardSizes
-                self.volumePrefixedSizes = mockVolumePrefixedSizes
-                
-                self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
-                
-                self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj, inputType: .manuallyEntered)
-                self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g, inputType: .manuallyEntered)
-                self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g, inputType: .manuallyEntered)
-                self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g, inputType: .manuallyEntered)
-                
-                self.micronutrients = [
-                    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g, inputType: .manuallyEntered),
-                    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g, inputType: .manuallyEntered),
-                    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg, inputType: .manuallyEntered),
-                    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g, inputType: .manuallyEntered),
-                ]
+    }
+    @Published var scanningImages: [UIImage] = []
+    @Published var numberOfScannedImages: Int = 0
+    
+    //MARK: - Import
+    @Published var isImporting = false {
+        didSet {
+            if isImporting {
+                sourceType = .thirdPartyImport
             }
         }
     }
 }
 
-extension FoodForm.ViewModel {
+enum SourceType {
+    case scan
+    case thirdPartyImport
+    case image
+    case link
+}
+
+extension FoodFormViewModel {
     
+    var isScanningOrImporting: Bool {
+        isScanning || isImporting
+    }
+    
+    var hasData: Bool {
+        !name.isEmpty
+        || !emoji.isEmpty
+        || !detail.isEmpty
+        || !brand.isEmpty
+        || !barcode.isEmpty
+        || !amountString.isEmpty
+        || !servingString.isEmpty
+        || !standardSizes.isEmpty
+        || !volumePrefixedSizes.isEmpty
+        || !summarySizeViewModels.isEmpty
+        || !densityWeightString.isEmpty
+        || !densityVolumeString.isEmpty
+        || !energyFact.isEmpty
+        || !carbFact.isEmpty
+        || !fatFact.isEmpty
+        || !proteinFact.isEmpty
+        || !micronutrients.isEmpty
+//            || amountUnit != .serving
+//            || servingUnit != .weight(.g)
+//            || !densityWeightUnit.isEmpty
+//            || !densityVolumeUnit.isEmpty
+    }
+    
+    public func prefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
+        if onlyServing {
+            let sizes = [
+                Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
+            ]
+            
+            self.standardSizes = sizes
+            self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
+
+            self.amountString = "1"
+            self.servingString = "0.2"
+            self.servingUnit = .size(standardSizes.first!, nil)
+        } else {
+            self.name = "Carrot"
+            self.emoji = "🥕"
+            self.detail = "Baby"
+            self.brand = "Woolworths"
+            self.barcode = "5012345678900"
+            
+            self.amountString = "1"
+            self.amountUnit = .serving
+            self.servingString = "50"
+            self.servingUnit = .weight(.g)
+            
+            self.densityWeightString = "20"
+            self.densityWeightUnit = .weight(.g)
+            self.densityVolumeString = "25"
+            self.densityVolumeUnit = .volume(.mL)
+            
+            self.standardSizes = mockStandardSizes
+            self.volumePrefixedSizes = mockVolumePrefixedSizes
+            
+            self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
+            
+            self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj, inputType: .manuallyEntered)
+            self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g, inputType: .manuallyEntered)
+            self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g, inputType: .manuallyEntered)
+            self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g, inputType: .manuallyEntered)
+            
+            self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
+        }
+    }
     func nutrientValue(for nutrientType: NutrientType) -> Double? {
         guard let nutritionFact = nutritionFact(for: .micro(nutrientType)) else {
             return nil
@@ -230,7 +234,7 @@ extension FoodForm.ViewModel {
     }
 }
 
-extension FoodForm.ViewModel {
+extension FoodFormViewModel {
 
     var carbAmount: Double {
         carbFact.amount ?? 0
@@ -517,5 +521,18 @@ extension FoodForm.ViewModel {
         case .serving:
             return "Unsupported"
         }
+    }
+}
+
+let mockMicronutrients = [
+    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g, inputType: .manuallyEntered),
+    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g, inputType: .manuallyEntered),
+    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg, inputType: .manuallyEntered),
+    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g, inputType: .manuallyEntered),
+]
+
+var mockAllMicronutrients: [NutritionFact] {
+    NutrientType.allCases.map {
+        NutritionFact(type: .micro($0), amount: Double.random(in: 1...300), unit: $0.units.first!.nutritionFactUnit, inputType: .manuallyEntered)
     }
 }

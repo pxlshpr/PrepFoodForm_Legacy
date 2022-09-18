@@ -3,7 +3,7 @@ import PrepUnits
 
 extension FoodForm {
     struct NutrientsPerCell: View {
-        @EnvironmentObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
     }
 }
 
@@ -44,7 +44,7 @@ extension FoodForm.NutrientsPerCell {
 
 public struct ServingCellPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     public init() {
         

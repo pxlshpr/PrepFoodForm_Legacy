@@ -87,7 +87,7 @@ extension FoodForm.NutritionFacts.Cell {
 
 public struct NutritionFacts_CellPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel.shared
+    @StateObject var viewModel = FoodFormViewModel.shared
     @Environment(\.colorScheme) var colorScheme
     
     public var body: some View {

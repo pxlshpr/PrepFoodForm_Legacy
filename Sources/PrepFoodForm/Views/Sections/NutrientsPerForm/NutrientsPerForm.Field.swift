@@ -3,7 +3,7 @@ import SwiftUI
 extension FoodForm.NutrientsPerForm {
     struct Field: View {
 
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         
     }
 }
@@ -53,7 +53,7 @@ extension FoodForm.NutrientsPerForm.Field {
 
 public struct NutrientsPerFormFieldPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel.shared
+    @StateObject var viewModel = FoodFormViewModel.shared
     
     public init() { }
     

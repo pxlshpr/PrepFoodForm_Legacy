@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FoodForm {
     public struct NutritionFacts: View {
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
     }
 }
@@ -132,7 +132,7 @@ extension FoodForm.NutritionFacts {
 
 struct NutritionFactsPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
         NavigationView {

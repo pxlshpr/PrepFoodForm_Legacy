@@ -1,21 +1,20 @@
 import SwiftUI
 
-extension FoodForm {
-    enum Route: Hashable {
-        
-        case detailsForm
-        case detailsFormEmoji
+enum FoodFormRoute: Hashable {
+    
+    case foodForm
+    
+    case detailsForm
+    case detailsFormEmoji
 
-        case nutrientsPerForm
-        case amountForm
-        case servingForm
-        case sizesList
-        case densityForm
+    case nutrientsPerForm
+    case amountForm
+    case servingForm
+    case sizesList
+    case densityForm
 
-        case nutritionFacts
-        case nutritionFactForm(NutritionFactType)
-        
-        case sourceForm
-        
-    }
+    case nutritionFacts
+    case nutritionFactForm(NutritionFactType)
+    
+    case sourceForm
 }

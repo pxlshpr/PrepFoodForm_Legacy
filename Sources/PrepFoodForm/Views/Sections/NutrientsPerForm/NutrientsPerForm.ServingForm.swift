@@ -3,9 +3,10 @@ import SwiftHaptics
 
 extension FoodForm.NutrientsPerForm {
     struct ServingForm: View {
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
+        @FocusState var isFocused
     }
 }
 
@@ -13,7 +14,19 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     
     var body: some View {
         form
-        .navigationTitle("Serving Size")
+            .navigationTitle("Serving Size")
+            .onAppear {
+                isFocused = true
+            }
+            .toolbar { keyboardToolbarContents }
+    }
+    
+    var keyboardToolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button("Units") {
+                showingUnitPicker = true
+            }
+        }
     }
     
     var form: some View {
@@ -64,6 +77,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
             .placeholder(when: viewModel.servingString.isEmpty) {
                 Text("Optional").foregroundColor(Color(.quaternaryLabel))
             }
+            .focused($isFocused)
     }
     
     var unitButton: some View {

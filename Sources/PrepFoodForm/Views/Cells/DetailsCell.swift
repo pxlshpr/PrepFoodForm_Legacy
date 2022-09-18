@@ -4,7 +4,7 @@ import AVFoundation
 
 extension FoodForm {
     struct DetailsCell: View {
-        @EnvironmentObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
     }
 }
 
@@ -100,7 +100,7 @@ extension FoodForm.DetailsCell {
     }
 }
 
-extension FoodForm.ViewModel {
+extension FoodFormViewModel {
     var hasDetails: Bool {
         !name.isEmpty
         || !emoji.isEmpty
@@ -113,7 +113,7 @@ extension FoodForm.ViewModel {
 
 struct DetailsCellPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
         NavigationView {

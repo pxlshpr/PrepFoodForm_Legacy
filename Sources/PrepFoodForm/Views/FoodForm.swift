@@ -2,7 +2,8 @@ import SwiftUI
 import CameraImagePicker
 
 public struct FoodForm: View {
-    
+   
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     
     @State public var isPresentingDetails = false
@@ -14,52 +15,14 @@ public struct FoodForm: View {
     @State public var capturedImage: UIImage? = nil
     @State public var capturedImages: [UIImage] = []
 
-    @StateObject var viewModel: ViewModel
-    
-    public init(prefilledWithMockData: Bool = false, onlyServing: Bool = false) {
-        ViewModel.shared.clearData()
-        if prefilledWithMockData {
-            ViewModel.shared.prefill(onlyServing: onlyServing)
-        }
-        _viewModel = StateObject(wrappedValue: ViewModel.shared)
+    public init() {
+        
     }
-
+    
     public var body: some View {
-        NavigationStack(path: $viewModel.path) {
-            contents
-                .navigationDestination(for: Route.self) { route in
-                    switch route {
-                    case .nutrientsPerForm:
-                        NutrientsPerForm()
-                            .environmentObject(viewModel)
-                    case .detailsForm:
-                        DetailsForm()
-                            .environmentObject(viewModel)
-                    case .nutritionFacts:
-                        NutritionFacts()
-                            .environmentObject(viewModel)
-                    case .sourceForm:
-                        SourceForm()
-                    case .detailsFormEmoji:
-                        FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
-                    case .densityForm:
-                        FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
-                            .environmentObject(viewModel)
-                    case .amountForm:
-                        FoodForm.NutrientsPerForm.AmountForm()
-                            .environmentObject(viewModel)
-                    case .servingForm:
-                        FoodForm.NutrientsPerForm.ServingForm()
-                            .environmentObject(viewModel)
-                    case .sizesList:
-                        SizesList()
-                            .environmentObject(viewModel)
-                    case .nutritionFactForm(let type):
-                        NutritionFacts.FactForm(type: type)
-                            .environmentObject(viewModel)
-                    }
-                }
-        }
+        contents
+        .navigationBarTitle("Food Details")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $isPresentingFoodLabelScanner) {
             CameraImagePicker(capturedImage: $capturedImage)
         }
@@ -70,7 +33,6 @@ public struct FoodForm: View {
             capturedImages.append(image)
             capturedImage = nil
         }
-        .interactiveDismissDisabled(viewModel.hasData)
     }
     
     var contents: some View {
@@ -83,8 +45,6 @@ public struct FoodForm: View {
             }
             .background(Color(.systemGroupedBackground))
         }
-        .navigationBarTitle("New Food")
-        .navigationBarTitleDisplayMode(.inline)
     }
     
     var savePublicallyButton: some View {
@@ -123,9 +83,13 @@ public struct FoodForm: View {
     }
     
     var servingSection: some View {
-        Section("Serving") {
+        Section("Amount Per") {
             NavigationLinkButton {
                 viewModel.path.append(.nutrientsPerForm)
+                if !viewModel.hasNutrientsPerContent {
+                    /// If it's empty, prefill it before going to the screen
+                    viewModel.amountString = "1"
+                }
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
@@ -135,7 +99,14 @@ public struct FoodForm: View {
     }
     
     var nutrientsSection: some View {
-        Section("Nutrition Facts") {
+        @ViewBuilder
+        var header: some View {
+            if !viewModel.hasNutritionFacts {
+                Text("Nutrition Facts")
+            }
+        }
+        
+        return Section(header: header) {
             NavigationLinkButton {
                 viewModel.path.append(.nutritionFacts)
             } label: {
@@ -150,8 +121,8 @@ public struct FoodForm: View {
             NavigationLinkButton {
                 viewModel.path.append(.sourceForm)
             } label: {
-                Text("Optional")
-                    .foregroundColor(Color(.quaternaryLabel))
+                SourceCell()
+                    .environmentObject(viewModel)
             }
         }
     }

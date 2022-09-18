@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FoodForm.NutrientsPerForm {
     struct SizesCell: View {
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
     }
 }
 
@@ -59,7 +59,7 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     }
 }
 
-extension FoodForm.ViewModel {
+extension FoodFormViewModel {
     var maxNumberOfSummarySizeViewModels: Int {
         4
     }
@@ -88,7 +88,7 @@ extension FoodForm.ViewModel {
 
 struct SizesCellPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
         NavigationView {

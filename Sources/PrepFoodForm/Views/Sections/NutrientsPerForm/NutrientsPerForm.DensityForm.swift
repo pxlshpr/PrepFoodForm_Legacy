@@ -3,10 +3,16 @@ import SwiftUI
 extension FoodForm.NutrientsPerForm {
     struct DensityForm: View {
         
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        enum FocusedField {
+            case weight, volume
+        }
+        
+        @EnvironmentObject var viewModel: FoodFormViewModel
         
         @State var showingWeightUnitPicker = false
         @State var showingVolumeUnitPicker = false
+        
+        @FocusState var focusedField: FocusedField?
         
         let orderWeightFirst: Bool
         
@@ -21,8 +27,56 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     var body: some View {
         form
         .navigationTitle(navigationTitle)
+        .toolbar { keyboardToolbarContents }
+        .onAppear {
+            focusedField = orderWeightFirst ? .weight : .volume
+        }
     }
     
+    var keyboardToolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button("Units") {
+                guard let focusedField = focusedField else {
+                    return
+                }
+                if focusedField == .weight {
+                    showingWeightUnitPicker = true
+                } else {
+                    showingVolumeUnitPicker = true
+                }
+            }
+            Spacer()
+            Button {
+                focusedField = orderWeightFirst ? .weight : .volume
+            } label: {
+                Image(systemName: "chevron.up")
+            }
+            .disabled(topFieldIsFocused)
+            Button {
+                focusedField = orderWeightFirst ? .volume : .weight
+            } label: {
+                Image(systemName: "chevron.down")
+            }
+            .disabled(bottomFieldIsFocused)
+        }
+    }
+    
+    var topFieldIsFocused: Bool {
+        if orderWeightFirst {
+            return focusedField == .weight
+        } else {
+            return focusedField == .volume
+        }
+    }
+
+    var bottomFieldIsFocused: Bool {
+        if orderWeightFirst {
+            return focusedField == .volume
+        } else {
+            return focusedField == .weight
+        }
+    }
+
     var navigationTitle: String {
         if orderWeightFirst {
             return "Weight-to-Volume Ratio"
@@ -65,6 +119,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
                 TextField("Required", text: $viewModel.densityWeightString)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .weight)
                 Button {
                     showingWeightUnitPicker = true
                 } label: {
@@ -85,6 +140,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
                 TextField("Required", text: $viewModel.densityVolumeString)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .volume)
                 Button {
                     showingVolumeUnitPicker = true
                 } label: {

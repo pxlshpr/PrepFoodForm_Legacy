@@ -3,9 +3,11 @@ import SwiftHaptics
 
 extension FoodForm.NutrientsPerForm {
     struct AmountForm: View {
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @Environment(\.dismiss) var dismiss
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
+        @FocusState var isFocused
     }
 }
 
@@ -13,7 +15,19 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     
     var body: some View {
         form
-//        .navigationTitle("Amount")
+        .navigationTitle("Amount Per")
+        .onAppear {
+            isFocused = true
+        }
+        .toolbar { keyboardToolbarContents }
+    }
+    
+    var keyboardToolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button("Units") {
+                showingUnitPicker = true
+            }
+        }
     }
     
     var form: some View {
@@ -57,6 +71,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
         TextField("Required", text: $viewModel.amountString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
+            .focused($isFocused)
     }
     
     var unitButton: some View {

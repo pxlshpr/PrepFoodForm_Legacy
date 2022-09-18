@@ -17,7 +17,7 @@ extension FoodForm.NutritionFacts.FactForm {
             self.isNewMicronutrient = isNewMicronutrient
             
             let amountString: String
-            if let fact = FoodForm.ViewModel.shared.nutritionFact(for: fact.type) {
+            if let fact = FoodFormViewModel.shared.nutritionFact(for: fact.type) {
                 amountString = fact.amount?.cleanAmount ?? ""
                 self.unit = fact.unit ?? fact.type.defaultUnit
             } else {
@@ -51,7 +51,7 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
     
     func modifyExistingFact() {
         guard !isNewMicronutrient else { return }
-        FoodForm.ViewModel.shared.setNutritionFactType(
+        FoodFormViewModel.shared.setNutritionFactType(
             type,
             withAmount: amount,
             unit: unit)
@@ -59,7 +59,7 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
     
     func removeExistingFact() {
         guard !isNewMicronutrient else { return }
-        FoodForm.ViewModel.shared.removeFact(of: type)
+        FoodFormViewModel.shared.removeFact(of: type)
     }
     
     func dataDidChange() {
@@ -76,6 +76,6 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
     }
     
     func add() {
-        FoodForm.ViewModel.shared.micronutrients.append(fact)
+        FoodFormViewModel.shared.micronutrients.append(fact)
     }
 }

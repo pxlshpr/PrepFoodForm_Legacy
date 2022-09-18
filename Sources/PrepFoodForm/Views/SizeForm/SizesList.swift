@@ -43,7 +43,7 @@ class SizeSet: Identifiable {
 
 struct SizesList: View {
     
-    @EnvironmentObject var viewModel: FoodForm.ViewModel
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingSizeForm = false
     
     var body: some View {
@@ -150,7 +150,7 @@ struct SizesList: View {
 
 public struct SizesListPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     public init() { }
     

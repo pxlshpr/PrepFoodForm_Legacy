@@ -4,7 +4,7 @@
 //
 //extension FoodForm.NutrientsPerForm {
 //    struct AmountFieldSection: View {
-//        @EnvironmentObject var viewModel: FoodForm.ViewModel
+//        @EnvironmentObject var viewModel: FoodFormViewModel
 //        @State var showingAmountUnits = false
 //        @State var showingSizeForm = false
 //    }

@@ -3,10 +3,11 @@ import SwiftHaptics
 
 extension SizeForm.SizeField {
     struct AmountForm: View {        
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
-        @State var showingUnitPickerForAmount = false
+        @State var showingUnitPicker = false
         @State var showingSizeForm = false
+        @FocusState var isFocused: Bool
     }
 }
 
@@ -21,14 +22,26 @@ extension SizeForm.SizeField.AmountForm {
             }
         }
         .navigationTitle("Amount")
-        .sheet(isPresented: $showingUnitPickerForAmount) {
+        .sheet(isPresented: $showingUnitPicker) {
             unitPickerForAmount
         }
         .scrollDismissesKeyboard(.interactively)
+        .onAppear {
+            isFocused = true
+        }
+        .toolbar { keyboardToolbarContents }
     }
     
     //MARK: - Components
     
+    var keyboardToolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Button("Units") {
+                showingUnitPicker = true
+            }
+        }
+    }
+
     var unitPickerForAmount: some View {
         UnitPicker(
             sizes: viewModel.allSizes,
@@ -47,7 +60,7 @@ extension SizeForm.SizeField.AmountForm {
                     sizeFormViewModel.amountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         Haptics.feedback(style: .rigid)
-                        showingUnitPickerForAmount = false
+                        showingUnitPicker = false
                     }
                 }
             }
@@ -61,12 +74,13 @@ extension SizeForm.SizeField.AmountForm {
         TextField("Required", text: $sizeFormViewModel.amountString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
+            .focused($isFocused)
     }
     
     var unitButton: some View {
         Button {
 //            sizeFormViewModel.path.append(.amountUnit)
-            showingUnitPickerForAmount = true
+            showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
                 Text(sizeFormViewModel.amountUnit.shortDescription)

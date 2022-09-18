@@ -3,7 +3,7 @@ import PrepUnits
 
 extension FoodForm {
     struct NutritionFactsCell: View {
-        @EnvironmentObject var viewModel: ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
         
         @State var energyInCalories: Bool = true
@@ -11,7 +11,7 @@ extension FoodForm {
 }
 extension FoodForm.NutritionFactsCell {
     struct Row: View {
-        @EnvironmentObject var viewModel: FoodForm.ViewModel
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
         var fact: NutritionFact
     }
@@ -44,7 +44,7 @@ extension FoodForm.NutritionFactsCell {
             if !viewModel.hasNutritionFacts {
                 emptyContent
             } else {
-                content
+                legacyContent
             }
         }
     }
@@ -93,19 +93,10 @@ extension FoodForm.NutritionFactsCell {
 }
     
 extension FoodForm.NutritionFactsCell {
-    var legacyContent: some View {
-        Group {
-            if !viewModel.hasNutritionFacts {
-                emptyContent
-            } else {
-                filledContent
-            }
-        }
-    }
     
-    var filledContent: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-//            header
+    var legacyContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            header
             calories
             Color.clear.frame(height: 3)
             macros
@@ -114,10 +105,9 @@ extension FoodForm.NutritionFactsCell {
                 micros
             }
         }
-        /// This is simply mitigating the wierd padding error we get
-//        .padding(.vertical, -30)
-//        .padding(15)
-//        .border(borderColor, width: 5.0)
+        .padding(15)
+        .border(borderColor, width: 5.0)
+        .padding(.vertical)
     }
    
     //MARK: - Components
@@ -126,7 +116,7 @@ extension FoodForm.NutritionFactsCell {
             caloriesRow
             Color.clear.frame(height: 10)
             rectangle(height: 8, color: Color(.label))
-            Color.clear.frame(height: 6)
+//            Color.clear.frame(height: 6)
         }
     }
     
@@ -145,6 +135,7 @@ extension FoodForm.NutritionFactsCell {
         Text("Nutrition Facts")
             .fontWeight(.black)
             .font(.largeTitle)
+            .foregroundColor(.primary)
     }
 
     var caloriesRow: some View {
@@ -289,7 +280,7 @@ extension FoodForm.NutritionFactsCell {
         }
     }
 
-    func row(title: String, prefix: String? = nil, suffix: String? = nil, value: Double, rdaValue: Double? = nil, unit: String = "g", indentLevel: Int = 0, bold: Bool = false, includeDivider: Bool = false, prefixedWithIncludes: Bool = false) -> some View {
+    func row(title: String, prefix: String? = nil, suffix: String? = nil, value: Double, rdaValue: Double? = nil, unit: String = "g", indentLevel: Int = 0, bold: Bool = false, includeDivider: Bool = true, prefixedWithIncludes: Bool = false) -> some View {
         let prefixView = Group {
             if let prefix = prefix {
                 Text(prefix)
@@ -408,7 +399,7 @@ extension FoodForm.NutritionFactsCell {
 
 public struct NutritionFactsCellPreview: View {
     
-    @StateObject var viewModel = FoodForm.ViewModel()
+    @StateObject var viewModel = FoodFormViewModel()
     
     public init() {
         
@@ -417,7 +408,7 @@ public struct NutritionFactsCellPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                Section("Nutrition Facts") {
+                Section {
                     NavigationLink {
                     } label: {
                         FoodForm.NutritionFactsCell()
