@@ -19,23 +19,26 @@ extension FoodForm.SourceForm {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSourceTypePicker) {
             SourceTypePicker()
+                .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
                 .onDisappear {
                     if viewModel.sourceType == .images {
                         Haptics.feedback(style: .rigid)
-                        showingCamera = true
+//                        showingCamera = true
                     }
                 }
         }
         .sheet(isPresented: $showingCamera) {
             CameraImagePicker(capturedImage: $capturedImage)
         }
-        .onChange(of: capturedImage) { newValue in
+        .onChange(of: viewModel.capturedImage) { newValue in
             guard let image = newValue else {
                 return
             }
             viewModel.sourceImageViewModels.append(SourceImageViewModel(image: image))
+            viewModel.sourceType = .images
+            showingSourceTypePicker = false
             capturedImage = nil
         }
         .onAppear {

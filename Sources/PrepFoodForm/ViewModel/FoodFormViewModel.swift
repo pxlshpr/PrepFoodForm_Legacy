@@ -73,6 +73,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var sourceType: SourceType? = nil
     @Published var isProcessingSource = false
     @Published var sourceImageViewModels: [SourceImageViewModel] = []
+
+    @Published var capturedImage: UIImage? = nil
     
     //MARK: Scan
     var scanTask: Task<(), any Error>? = nil
