@@ -17,4 +17,5 @@ enum FoodFormRoute: Hashable {
     case nutritionFactForm(NutritionFactType)
     
     case sourceForm
+    case sourceImage(SourceImageViewModel)
 }

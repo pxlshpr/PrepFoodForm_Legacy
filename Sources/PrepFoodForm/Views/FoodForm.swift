@@ -1,5 +1,4 @@
 import SwiftUI
-import CameraImagePicker
 
 public struct FoodForm: View {
    
@@ -10,10 +9,6 @@ public struct FoodForm: View {
     @State public var isPresentingNutrientsPer = false
     @State public var isPresentingNutrients = false
     @State public var isPresentingSource = false
-    @State public var isPresentingFoodLabelScanner = false
-    
-    @State public var capturedImage: UIImage? = nil
-    @State public var capturedImages: [UIImage] = []
 
     public init() {
         
@@ -23,16 +18,6 @@ public struct FoodForm: View {
         contents
         .navigationBarTitle("Food Details")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $isPresentingFoodLabelScanner) {
-            CameraImagePicker(capturedImage: $capturedImage)
-        }
-        .onChange(of: capturedImage) { newValue in
-            guard let image = newValue else {
-                return
-            }
-            capturedImages.append(image)
-            capturedImage = nil
-        }
     }
     
     var contents: some View {
@@ -65,7 +50,6 @@ public struct FoodForm: View {
             servingSection
             nutrientsSection
             sourceSection
-            imagesSection
         }
     }
     
@@ -127,38 +111,6 @@ public struct FoodForm: View {
         }
     }
     
-    @ViewBuilder
-    var imagesSection: some View {
-        if !capturedImages.isEmpty {
-            Section {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
-                        ForEach(capturedImages, id: \.self) { image in
-                            Menu {
-                                Button("View") {
-                                    
-                                }
-                                Button(role: .destructive) {
-                                    
-                                } label: {
-                                    Text("Delete")
-                                }
-                            } label: {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 100, height: 100)
-                                    .cornerRadius(10)
-                                    .shadow(radius: 1.0)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    
     var servingCell: some View {
         Text("Set serving")
     }
@@ -178,14 +130,5 @@ public struct FoodForm: View {
     
     var sourceCell: some View {
         Text("Add source")
-    }
-    
-    func addDummyImageForSimulator() {
-        guard capturedImages.isEmpty,
-              let image = UIImage(named: "Test Image 1")
-        else {
-            return
-        }
-        capturedImages = [image]
     }
 }

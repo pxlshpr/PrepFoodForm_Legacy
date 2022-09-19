@@ -80,7 +80,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var isScanning = false {
         didSet {
             if isScanning {
-                sourceType = .scan
+                sourceType = .images
             }
             withAnimation {
                 DispatchQueue.main.async {
@@ -89,6 +89,7 @@ public class FoodFormViewModel: ObservableObject {
             }
         }
     }
+    
     @Published var numberOfScannedImages: Int = 0
     
     @Published var numberOfScannedDataPoints: Int? = nil
@@ -97,7 +98,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var isImporting = false {
         didSet {
             if isImporting {
-                sourceType = .thirdPartyImport
+                sourceType = .onlineSource
             }
             withAnimation {
                 isProcessingSource = isScanning || isImporting

@@ -22,11 +22,11 @@ extension FoodForm.SourceCell {
     @ViewBuilder
     func content(for source: SourceType) -> some View {
         switch source {
-        case .scan:
-            scanContent
-        case .thirdPartyImport:
+//        case .scan:
+//            scanContent
+        case .onlineSource:
             importContent
-        case .image:
+        case .images:
             Text("Image")
         case .link:
             Text("Link")

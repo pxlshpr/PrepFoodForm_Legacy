@@ -42,7 +42,7 @@ public struct FoodFormStartPage: View {
     
     var contents: some View {
         Form {
-            scanSection
+            imageSection
             importSection
             manualEntrySection
         }
@@ -66,31 +66,31 @@ public struct FoodFormStartPage: View {
         }
     }
     
-    var scanSection: some View {
+    var imageSection: some View {
         var header: some View {
-            Text(SourceType.scan.headerString)
+            Text(SourceType.images.headerString)
         }
         var footer: some View {
-            Text(SourceType.scan.footerString)
+            Text(SourceType.images.footerString)
         }
         
         return Section(header: header, footer: footer) {
             Button {
                 showingScan = true
             } label: {
-                Label(SourceType.scan.actionString,
-                      systemImage: SourceType.scan.systemImage)
+                Label(SourceType.images.actionString,
+                      systemImage: SourceType.images.systemImage)
             }
         }
     }
     
     var importSection: some View {
         var header: some View {
-            Text(SourceType.thirdPartyImport.headerString)
+            Text(SourceType.onlineSource.headerString)
         }
         var footer: some View {
             VStack {
-                Text(SourceType.thirdPartyImport.footerString)
+                Text(SourceType.onlineSource.footerString)
             }
         }
         
@@ -98,8 +98,8 @@ public struct FoodFormStartPage: View {
             Button {
                 showingImport = true
             } label: {
-                Label(SourceType.thirdPartyImport.actionString,
-                      systemImage: SourceType.thirdPartyImport.systemImage)
+                Label(SourceType.onlineSource.actionString,
+                      systemImage: SourceType.onlineSource.systemImage)
             }
         }
     }
@@ -138,6 +138,9 @@ public struct FoodFormStartPage: View {
                 .environmentObject(viewModel)
         case .nutritionFactForm(let type):
             FoodForm.NutritionFacts.FactForm(type: type)
+                .environmentObject(viewModel)
+        case .sourceImage(let sourceImageViewModel):
+            SourceImageView(sourceImageViewModel: sourceImageViewModel)
                 .environmentObject(viewModel)
         }
     }

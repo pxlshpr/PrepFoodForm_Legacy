@@ -1,35 +1,14 @@
 import SwiftUI
 import SwiftHaptics
+import CameraImagePicker
 
-struct SourceTypePicker: View {
-    @Environment(\.dismiss) var dismiss
-    var body: some View {
-        NavigationStack {
-            List {
-                ForEach(SourceType.nonManualSources, id: \.self) { sourceType in
-                    Section(header: Text(sourceType.headerString), footer: Text(sourceType.footerString)) {
-                        Button {
-                            withAnimation {
-                                FoodFormViewModel.shared.sourceType = sourceType
-                            }
-                            dismiss()
-                        } label: {
-                            Label(sourceType.actionString, systemImage: sourceType.systemImage)
-                        }
-                        .buttonStyle(.borderless)
-                    }
-                }
-            }
-            .listStyle(.insetGrouped)
-            .navigationTitle("Pick a Source")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-    }
-}
 extension FoodForm {
     struct SourceForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
+        
         @State var showingSourceTypePicker = false
+        @State var showingCamera = false
+        @State var capturedImage: UIImage? = nil
     }
 }
 
@@ -42,6 +21,22 @@ extension FoodForm.SourceForm {
             SourceTypePicker()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
+                .onDisappear {
+                    if viewModel.sourceType == .images {
+                        Haptics.feedback(style: .rigid)
+                        showingCamera = true
+                    }
+                }
+        }
+        .sheet(isPresented: $showingCamera) {
+            CameraImagePicker(capturedImage: $capturedImage)
+        }
+        .onChange(of: capturedImage) { newValue in
+            guard let image = newValue else {
+                return
+            }
+            viewModel.sourceImageViewModels.append(SourceImageViewModel(image: image))
+            capturedImage = nil
         }
         .onAppear {
             if viewModel.sourceType == nil {
@@ -133,9 +128,12 @@ extension FoodForm.SourceForm {
         
         return Group {
             Section("Images") {
-                SourceImagesCarousel()
-                    .environmentObject(viewModel)
+                SourceImagesCarousel { index in
+                    viewModel.path.append(.sourceImage(viewModel.sourceImageViewModels[index]))
+                } didTapDeleteOnImage: { index in
+                }
+                .environmentObject(viewModel)
             }
         }
-    }
+    }    
 }

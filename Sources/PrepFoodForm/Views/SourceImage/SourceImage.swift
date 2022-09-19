@@ -84,30 +84,6 @@ struct SourceImage: View {
     }
 }
 
-struct SourceImagesCarousel: View {
-    
-    @EnvironmentObject var viewModel: FoodFormViewModel
-    
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 0) {
-                ForEach(viewModel.sourceImageViewModels.indices, id: \.self) { index in
-                    sourceImage(at: index)
-                        .padding(.leading, index == 0 ? 10 : 0)
-                        .padding(.trailing, index ==  viewModel.sourceImageViewModels.count - 1 ? 10 : 0)
-                }
-            }
-        }
-        .listRowInsets(.init(top: 2, leading: 0, bottom: 2, trailing: 0))
-    }
-    
-    func sourceImage(at index: Int) -> some View {
-        SourceImage(sourceImageViewModel: viewModel.sourceImageViewModels[index])
-            .padding(.horizontal, 10)
-            .padding(.vertical, 20)
-    }
-}
-
 public struct SourceImagePreview: View {
         
     @StateObject var viewModel: FoodFormViewModel
