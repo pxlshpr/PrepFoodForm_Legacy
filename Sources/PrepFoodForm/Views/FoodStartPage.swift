@@ -8,7 +8,7 @@ public struct FoodFormStartPage: View {
     @State var showingImport = false
     
     public init() {
-        FoodFormViewModel.shared = FoodFormViewModel()
+//        FoodFormViewModel.shared = FoodFormViewModel()
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
     

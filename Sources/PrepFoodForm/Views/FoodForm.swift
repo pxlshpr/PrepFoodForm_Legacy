@@ -101,14 +101,8 @@ public struct FoodForm: View {
     }
     
     var sourceSection: some View {
-        Section("Source") {
-            NavigationLinkButton {
-                viewModel.path.append(.sourceForm)
-            } label: {
-                SourceCell()
-                    .environmentObject(viewModel)
-            }
-        }
+        SourceSection()
+            .environmentObject(viewModel)
     }
     
     var servingCell: some View {
