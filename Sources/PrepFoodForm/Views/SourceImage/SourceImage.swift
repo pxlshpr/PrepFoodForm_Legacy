@@ -9,17 +9,38 @@ struct SourceImage: View {
         _sourceImageViewModel = ObservedObject(wrappedValue: sourceImageViewModel)
     }
     
+    @ViewBuilder
     var body: some View {
-        Image(uiImage: sourceImageViewModel.image)
+        Group {
+            if let image = sourceImageViewModel.image {
+                imageView(with: image)
+            } else {
+                placeholder
+            }
+        }
+        .frame(width: 120, height: 120)
+        .clipShape(
+            RoundedRectangle(cornerRadius: 10,
+                             style: .continuous))
+        .shadow(radius: sourceImageViewModel.status == .processing ? 0 : 3, x: 0, y: 3)
+        .animation(.default, value: sourceImageViewModel.status)
+    }
+    
+    var placeholder: some View {
+        ZStack {
+            Color(.systemFill)
+//            ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots(count: 8))
+            ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots())
+                .frame(width: 60, height: 60)
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+    }
+    
+    func imageView(with image: UIImage) -> some View {
+        Image(uiImage: image)
             .resizable()
-            .aspectRatio(contentMode: .fit)
+            .aspectRatio(contentMode: .fill)
             .overlay(overlay)
-            .clipShape(
-                RoundedRectangle(cornerRadius: 10,
-                                 style: .continuous))
-            .frame(maxWidth: 120, maxHeight: 120)
-            .shadow(radius: sourceImageViewModel.status == .processing ? 0 : 3, x: 0, y: 3)
-            .animation(.default, value: sourceImageViewModel.status)
     }
     
     var overlay: some View {
@@ -91,7 +112,8 @@ public struct SourceImagePreview: View {
     public init() {
         
         let viewModel = FoodFormViewModel()
-        viewModel.setSampleImages()        
+        viewModel.sourceImageViewModels = Array(repeating: SourceImageViewModel(), count: 5)
+//        viewModel.setSampleImages()
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     

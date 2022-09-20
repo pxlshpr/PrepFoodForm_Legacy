@@ -143,8 +143,7 @@ public struct FoodFormStartPage: View {
         case .sourceImage(let sourceImageViewModel):
             SourceImageView(sourceImageViewModel: sourceImageViewModel)
                 .environmentObject(viewModel)
-        case .sourceCamera:
-            CameraImagePicker(capturedImage: $viewModel.capturedImage)
         }
     }
 }
+

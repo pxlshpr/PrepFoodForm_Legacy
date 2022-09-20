@@ -18,5 +18,4 @@ enum FoodFormRoute: Hashable {
     
     case sourceForm
     case sourceImage(SourceImageViewModel)
-    case sourceCamera
 }

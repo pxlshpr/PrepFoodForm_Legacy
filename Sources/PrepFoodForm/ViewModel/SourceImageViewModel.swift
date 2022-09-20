@@ -2,11 +2,16 @@ import SwiftUI
 
 class SourceImageViewModel: ObservableObject {
     
-    let image: UIImage
-    @Published var status: SourceImageStatus = .notProcessed
+    @Published var image: UIImage? = nil
+    @Published var status: SourceImageStatus
     
-    init(image: UIImage) {
+    init(image: UIImage? = nil) {
         self.image = image
+        if image == nil {
+            self.status = .loading
+        } else {
+            self.status = .notProcessed
+        }
     }
     
     func process(completion: (() -> ())? = nil) {

@@ -7,8 +7,6 @@ extension FoodForm {
         @EnvironmentObject var viewModel: FoodFormViewModel
         
         @State var showingSourceTypePicker = false
-        @State var showingCamera = false
-        @State var capturedImage: UIImage? = nil
     }
 }
 
@@ -22,25 +20,16 @@ extension FoodForm.SourceForm {
                 .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
-                .onDisappear {
-                    if viewModel.sourceType == .images {
-                        Haptics.feedback(style: .rigid)
-//                        showingCamera = true
-                    }
-                }
         }
-        .sheet(isPresented: $showingCamera) {
-            CameraImagePicker(capturedImage: $capturedImage)
-        }
-        .onChange(of: viewModel.capturedImage) { newValue in
-            guard let image = newValue else {
-                return
-            }
-            viewModel.sourceImageViewModels.append(SourceImageViewModel(image: image))
-            viewModel.sourceType = .images
-            showingSourceTypePicker = false
-            capturedImage = nil
-        }
+//        .onChange(of: viewModel.capturedImage) { newValue in
+//            guard let image = newValue else {
+//                return
+//            }
+//            viewModel.sourceImageViewModels.append(SourceImageViewModel(image: image))
+//            viewModel.sourceType = .images
+//            showingSourceTypePicker = false
+//            capturedImage = nil
+//        }
         .onAppear {
             if viewModel.sourceType == nil {
                 showingSourceTypePicker = true
@@ -50,9 +39,7 @@ extension FoodForm.SourceForm {
     
     var form: some View {
         Form {
-//            if !viewModel.isProcessingSource {
-                typeSection
-//            }
+            typeSection
             if viewModel.sourceIncludesImages {
                 imagesSection
             }
@@ -66,6 +53,41 @@ extension FoodForm.SourceForm {
     }
     
     var typeSection: some View {
+        var title: String {
+            if viewModel.sourceType == .manualEntry {
+                return "Choose"
+            } else {
+                return viewModel.sourceType.description
+            }
+        }
+        
+        return Section {
+            HStack {
+                Text("Source")
+                    .foregroundColor(.primary)
+                Spacer()
+                Menu {
+                    Button("Images") {
+                        viewModel.sourceType = .images
+                    }
+                    Button("Link") {
+                        viewModel.sourceType = .link
+                    }
+                    if viewModel.sourceType != .manualEntry {
+                        Divider()
+                        Button("Remove", role: .destructive) {
+                            viewModel.sourceType = .manualEntry
+                        }
+                    }
+                } label: {
+                    Text(title)
+                        .foregroundColor(.accentColor)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+        }
+    }
+    var typeSection_legacy: some View {
         Section("Source") {
             NavigationLinkButton {
                 showingSourceTypePicker = true

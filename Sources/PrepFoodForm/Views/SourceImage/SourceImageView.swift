@@ -35,7 +35,9 @@ struct SourceImageView: View {
     var zoomableScrollView: some View {
         GeometryReader { proxy in
             ZoomableScrollView {
-                imageView(with: sourceImageViewModel.image)
+                if let image = sourceImageViewModel.image {
+                    imageView(with: image)
+                }
             }
 //            .onAppear {
 //                classifierController.contentSize = proxy.size

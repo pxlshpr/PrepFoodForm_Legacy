@@ -13,6 +13,21 @@ extension SourceType {
     }
 }
 
+extension SourceType: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .images:
+            return "Images"
+        case .onlineSource:
+            return "Online Source"
+        case .link:
+            return "Link"
+        case .manualEntry:
+            return "Manual Entry"
+        }
+    }
+}
+
 extension SourceType {
     var headerString: String {
         switch self {

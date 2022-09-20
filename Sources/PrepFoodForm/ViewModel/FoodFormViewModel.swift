@@ -70,12 +70,10 @@ public class FoodFormViewModel: ObservableObject {
     @Published var micronutrients: [NutritionFact] = []
     
     //MARK: - Source
-    @Published var sourceType: SourceType? = nil
+    @Published var sourceType: SourceType = .manualEntry
     @Published var isProcessingSource = false
     @Published var sourceImageViewModels: [SourceImageViewModel] = []
 
-    @Published var capturedImage: UIImage? = nil
-    
     //MARK: Scan
     var scanTask: Task<(), any Error>? = nil
     
@@ -140,7 +138,7 @@ extension FoodFormViewModel {
     }
     
     var sourceIncludesImages: Bool {
-        sourceType?.includesImages ?? false
+        sourceType.includesImages
     }
     
     public func prefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {

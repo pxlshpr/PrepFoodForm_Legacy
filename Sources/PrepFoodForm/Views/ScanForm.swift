@@ -49,7 +49,6 @@ extension FoodFormViewModel {
         /// Cancel the previous scan task
         scanTask?.cancel()
         
-        
         /// Now reassign it
         scanTask = Task {
             

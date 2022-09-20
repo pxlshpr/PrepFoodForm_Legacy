@@ -11,8 +11,8 @@ extension FoodForm.SourceCell {
     
     @ViewBuilder
     var body: some View {
-        if let source = viewModel.sourceType {
-            content(for: source)
+        if viewModel.sourceType != .manualEntry {
+            content(for: viewModel.sourceType)
         } else {
             Text("Optional")
                 .foregroundColor(Color(.quaternaryLabel))
