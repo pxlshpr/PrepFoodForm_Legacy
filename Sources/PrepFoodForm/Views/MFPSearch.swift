@@ -10,7 +10,8 @@ struct MFPSearch: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.isSearching) var isSearching
-    @State var searchText = ""
+    @StateObject var viewModel: ViewModel = ViewModel()
+    
     @FocusState var isFocused: Bool
     @State var showingSearchLayer: Bool = false
     @State var showingSearchActivityIndicator = false
@@ -40,11 +41,7 @@ struct MFPSearch: View {
         withAnimation {
             showingSearchActivityIndicator = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
-            withAnimation {
-                showingSearchActivityIndicator = false
-            }
-        }
+        viewModel.startSearching()
     }
     
     var navigationStack: some View {
@@ -118,7 +115,7 @@ struct MFPSearch: View {
             }
             
             var textField: some View {
-                TextField("Search or enter website link", text: $searchText)
+                TextField("Search or enter website link", text: $viewModel.searchText)
                     .focused($isFocused)
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled()
@@ -145,12 +142,12 @@ struct MFPSearch: View {
             
             var clearButton: some View {
                 Button {
-                    searchText = ""
+                    viewModel.searchText = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(Color(.secondaryLabel))
                 }
-                .opacity(searchText.isEmpty ? 0 : 1)
+                .opacity(viewModel.searchText.isEmpty ? 0 : 1)
             }
             
             return ZStack {
