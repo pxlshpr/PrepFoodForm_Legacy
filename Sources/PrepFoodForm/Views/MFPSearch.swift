@@ -11,7 +11,7 @@ struct MFPSearch: View {
     @State var searchText = ""
     @FocusState var isFocused: Bool
     @State var showingSearchLayer: Bool = false
-    @State var showingSearchActivityIndicator = true
+    @State var showingSearchActivityIndicator = false
 
     var body: some View {
         ZStack {
@@ -24,8 +24,9 @@ struct MFPSearch: View {
             }
         }
         .onAppear {
-//            focusOnSearchTextField()
+            focusOnSearchTextField()
         }
+        .interactiveDismissDisabled(isFocused)
     }
     
     func focusOnSearchTextField() {
@@ -34,7 +35,14 @@ struct MFPSearch: View {
     }
     
     func startSearching() {
-        showingSearchActivityIndicator = true
+        withAnimation {
+            showingSearchActivityIndicator = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+            withAnimation {
+                showingSearchActivityIndicator = false
+            }
+        }
     }
     
     var navigationStack: some View {
@@ -56,7 +64,9 @@ struct MFPSearch: View {
     }
     
     var searchActivityIndicator: some View {
-        Color.red
+        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+            .foregroundColor(Color(.secondaryLabel))
+            .frame(width: 100, height: 100)
     }
     
     var navigationTrailingContent: some ToolbarContent {
@@ -104,6 +114,7 @@ struct MFPSearch: View {
                             showingSearchLayer = false
                             isFocused = false
                         }
+                        startSearching()
                     }
             }
             
