@@ -6,9 +6,10 @@ public struct FoodFormStartPage: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingImport = false
+    @State var showingThirdPartyInfo = false
+    @State var showingThirdPartySearch = false
     
     public init() {
-//        FoodFormViewModel.shared = FoodFormViewModel()
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
     
@@ -38,70 +39,83 @@ public struct FoodFormStartPage: View {
                             }
                         }
                 }
+                .sheet(isPresented: $showingThirdPartyInfo) {
+                    MFPInfoSheet()
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.hidden)
+                }
+                .sheet(isPresented: $showingThirdPartySearch) {
+                    MFPSearch()
+                }
         }
     }
     
     var contents: some View {
         Form {
+            manualEntrySection
             imageSection
             importSection
-            manualEntrySection
         }
     }
     
     var manualEntrySection: some View {
-        var header: some View {
-            Text(SourceType.manualEntry.headerString)
-        }
-        var footer: some View {
-            Text(SourceType.manualEntry.footerString)
-        }
-        
-        return Section {
+        Section("Start with an empty food") {
             NavigationLinkButton {
                 viewModel.path.append(.foodForm)
             } label: {
-                Label(SourceType.manualEntry.actionString,
-                      systemImage: SourceType.manualEntry.systemImage)
+                Label("New Food", systemImage: "square.and.pencil")
             }
         }
     }
     
     var imageSection: some View {
         var header: some View {
-            Text(SourceType.images.headerString)
+            Text("Scan food labels")
         }
         var footer: some View {
-            Text(SourceType.images.footerString)
+            Text("Provide images of nutrition fact labels or screenshots of other apps. These will be processed to extract any data from them. They will also be used to verify this food.")
         }
         
-        return Section(header: header, footer: footer) {
+        return Section(header: header) {
             Button {
                 showingScan = true
             } label: {
-                Label(SourceType.images.actionString,
-                      systemImage: SourceType.images.systemImage)
+                Label("Choose Images", systemImage: SourceType.images.systemImage)
+            }
+            Button {
+                showingScan = true
+            } label: {
+                Label("Take Photos", systemImage: "camera")
             }
         }
     }
     
     var importSection: some View {
         var header: some View {
-            Text(SourceType.onlineSource.headerString)
+            Text("Start with a MyFitnessPal Food")
         }
         var footer: some View {
-            VStack {
-                Text(SourceType.onlineSource.footerString)
+            Button {
+                showingThirdPartyInfo = true
+            } label: {
+                Label("Learn more", systemImage: "info.circle")
+                    .font(.footnote)
             }
         }
         
         return Section(header: header, footer: footer) {
             Button {
-                showingImport = true
+                showingThirdPartySearch = true
+//                viewModel.path.append(.mfpSearch)
             } label: {
-                Label(SourceType.onlineSource.actionString,
-                      systemImage: SourceType.onlineSource.systemImage)
+                Label("Search", systemImage: "magnifyingglass")
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .imageScale(.small)
+                    .fontWeight(.semibold)
             }
+            .buttonStyle(.borderless)
         }
     }
     
@@ -143,6 +157,8 @@ public struct FoodFormStartPage: View {
         case .sourceImage(let sourceImageViewModel):
             SourceImageView(sourceImageViewModel: sourceImageViewModel)
                 .environmentObject(viewModel)
+        case .mfpSearch:
+            MFPSearch()
         }
     }
 }

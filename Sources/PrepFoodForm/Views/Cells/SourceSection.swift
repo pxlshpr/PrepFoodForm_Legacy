@@ -55,15 +55,16 @@ extension FoodForm.SourceSection {
         } label: {
             HStack(alignment: .top) {
                 Text(viewModel.sourceType.description)
+                    .foregroundColor(.primary)
                 Spacer()
                 Group {
                     if viewModel.sourceType == .images {
-                        Text("17 nutrition facts")
+                        Text("17 nutrition facts extracted")
                             .multilineTextAlignment(.trailing)
                     } else if viewModel.sourceType == .link {
                         Text(verbatim: "https://www.myfitnesspal.com/food/calories/banan-1511734581")
                             .lineLimit(1)
-                            .frame(maxWidth: 200, alignment: .trailing)
+//                            .frame(maxWidth: 200, alignment: .trailing)
                     }
                 }
                 .foregroundColor(.secondary)
