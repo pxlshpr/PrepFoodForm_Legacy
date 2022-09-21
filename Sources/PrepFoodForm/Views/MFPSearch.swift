@@ -3,6 +3,8 @@ import ActivityIndicatorView
 
 let colorHexKeyboardLight = "CDD0D6"
 let colorHexKeyboardDark = "303030"
+let colorHexSearchTextFieldDark = "535355"
+let colorHexSearchTextFieldLight = "FFFFFF"
 
 struct MFPSearch: View {
     
@@ -38,7 +40,7 @@ struct MFPSearch: View {
         withAnimation {
             showingSearchActivityIndicator = true
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
             withAnimation {
                 showingSearchActivityIndicator = false
             }
@@ -46,9 +48,16 @@ struct MFPSearch: View {
     }
     
     var navigationStack: some View {
-        NavigationStack {
+        var title: String {
+            if showingSearchActivityIndicator {
+                return "Searching …"
+            } else {
+                return "Search MyFitnessPal"
+            }
+        }
+        return NavigationStack {
             content
-                .navigationTitle("Search MyFitnessPal")
+                .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationTrailingContent }
         }
@@ -64,9 +73,9 @@ struct MFPSearch: View {
     }
     
     var searchActivityIndicator: some View {
-        ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+        ActivityIndicatorView(isVisible: .constant(true), type: .growingCircle)
             .foregroundColor(Color(.secondaryLabel))
-            .frame(width: 100, height: 100)
+            .frame(width: 200, height: 200)
     }
     
     var navigationTrailingContent: some ToolbarContent {
@@ -86,7 +95,11 @@ struct MFPSearch: View {
         var keyboardColor: Color {
             colorScheme == .light ? Color(hex: colorHexKeyboardLight) : Color(hex: colorHexKeyboardDark)
         }
-        
+
+        var textFieldColor: Color {
+            colorScheme == .light ? Color(hex: colorHexSearchTextFieldLight) : Color(hex: colorHexSearchTextFieldDark)
+        }
+
         var blurLayer: some View {
             Color.black.opacity(0.5)
                 .onTapGesture {
@@ -120,7 +133,7 @@ struct MFPSearch: View {
             
             var textFieldBackground: some View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .foregroundColor(Color(.secondarySystemGroupedBackground))
+                    .foregroundColor(textFieldColor)
                     .frame(height: 44)
             }
             
@@ -182,3 +195,4 @@ struct MFPSearch_Previews: PreviewProvider {
         MFPSearchPreview()
     }
 }
+
