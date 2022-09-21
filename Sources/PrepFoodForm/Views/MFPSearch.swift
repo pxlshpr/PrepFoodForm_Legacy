@@ -29,6 +29,9 @@ struct MFPSearch: View {
         .onAppear {
             focusOnSearchTextField()
         }
+        .onDisappear {
+            viewModel.cancelSearching()
+        }
         .interactiveDismissDisabled(isFocused)
     }
     
@@ -181,10 +184,13 @@ struct MFPSearch: View {
     }
 }
 
-struct MFPSearchPreview: View {
-    var body: some View {
+public struct MFPSearchPreview: View {
+    
+    public var body: some View {
         MFPSearch()
     }
+    
+    public init() { }
 }
 
 struct MFPSearch_Previews: PreviewProvider {

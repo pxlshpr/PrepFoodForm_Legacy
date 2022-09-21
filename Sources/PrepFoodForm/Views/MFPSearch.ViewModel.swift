@@ -10,7 +10,7 @@ extension MFPSearch {
         private var currentPage = 1
         private var canLoadMorePages = true
         
-        var task: Task<(), Error>? = nil
+        var searchTask: Task<(), Error>? = nil
         
         init(searchText: String = "Banana") {
             self.searchText = searchText
@@ -23,6 +23,10 @@ extension MFPSearch.ViewModel {
         currentPage = 1
         items = []
         startLoadContentTask()
+    }
+    
+    func cancelSearching() {
+        searchTask?.cancel()
     }
     
     var loadContentTask: Task<(), Error> {
@@ -39,17 +43,26 @@ extension MFPSearch.ViewModel {
             }
         }
     }
+    
     private func startLoadContentTask() {
+        
+        /// Cancel previous `searchTask`
+//        searchTask?.cancel()
+        
         guard !isLoadingPage && canLoadMorePages else {
             return
         }
         
         isLoadingPage = true
         
-        task = loadContentTask
+        searchTask = loadContentTask
         
         Task {
-            let _ = try await task!.value
+            do {
+                let _ = try await searchTask!.value
+            } catch {
+                print("Error: \(error)")
+            }
         }
     }
 
