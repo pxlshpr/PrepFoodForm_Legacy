@@ -47,7 +47,7 @@ extension MFPSearch.ViewModel {
     private func startLoadContentTask() {
         
         /// Cancel previous `searchTask`
-//        searchTask?.cancel()
+        searchTask?.cancel()
         
         guard !isLoadingPage && canLoadMorePages else {
             return
