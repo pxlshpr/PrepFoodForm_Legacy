@@ -11,14 +11,36 @@ extension MFPSearch.ResultCell {
         
         init(result: MFPSearchResultFood) {
             self.result = result
-            Task {
-                let food = try await MFPScraper().getFood(with: result.url)
-                await MainActor.run {
-                    withAnimation {
-                        self.processedFood = food
-                    }
-                }
-            }
+            
+            let nutrients: [MFPProcessedFood.Nutrient] = [
+                MFPProcessedFood.Nutrient
+            ]
+            let sizes: [MFPProcessedFood.Size] = [
+            ]
+            let mockFood = MFPProcessedFood(
+                name: "Banana",
+                brand: "Woolworths",
+                detail: "Cavendish",
+                amount: 100,
+                amountUnit: .weight,
+                amountWeightUnit: .g,
+                servingValue: 0,
+                servingUnit: .weight,
+                energy: 0,
+                carbohydrate: 0,
+                fat: 0,
+                protein: 0,
+                nutrients: nutrients,
+                sizes: sizes)
+            self.processedFood = mockFood
+//            Task {
+//                let food = try await MFPScraper().getFood(with: result.url)
+//                await MainActor.run {
+//                    withAnimation {
+//                        self.processedFood = food
+//                    }
+//                }
+//            }
         }
     }
 }
