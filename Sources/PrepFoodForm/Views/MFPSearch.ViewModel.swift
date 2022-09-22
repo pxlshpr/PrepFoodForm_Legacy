@@ -5,7 +5,7 @@ extension MFPSearch {
     class ViewModel: ObservableObject {
 
         @Published var searchText = ""
-        @Published var items = [MFPSearchResultFood]()
+        @Published var results = [MFPSearchResultFood]()
         @Published var isLoadingPage = false
         private var currentPage = 1
         private var canLoadMorePages = true
@@ -21,7 +21,7 @@ extension MFPSearch {
 extension MFPSearch.ViewModel {
     func startSearching() {
         currentPage = 1
-        items = []
+        results = []
         startLoadContentTask()
     }
     
@@ -31,13 +31,13 @@ extension MFPSearch.ViewModel {
     
     var loadContentTask: Task<(), Error> {
         Task(priority: .userInitiated) {
-            let foods = try await MFPScraper().getFoods(for: searchText, page: currentPage)
+            let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
             try Task.checkCancellation()
             
-            print("Got back: \(foods.count) foods")
+            print("Got back: \(results.count) foods")
             
             await MainActor.run {
-                self.items = self.items + foods
+                self.results = self.results + results
                 self.isLoadingPage = false
                 self.currentPage += 1
             }
@@ -72,8 +72,8 @@ extension MFPSearch.ViewModel {
             return
         }
         
-        let thresholdIndex = items.index(items.endIndex, offsetBy: -5)
-        if items.firstIndex(where: { $0.hashValue == item.hashValue }) == thresholdIndex {
+        let thresholdIndex = results.index(results.endIndex, offsetBy: -5)
+        if results.firstIndex(where: { $0.hashValue == item.hashValue }) == thresholdIndex {
             startLoadContentTask()
         }
     }

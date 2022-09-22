@@ -37,17 +37,18 @@ struct MFPSearch: View {
         .onAppear {
             stopTimer()
         }
-        .onChange(of: viewModel.items) { newValue in
+        .onChange(of: viewModel.results) { newValue in
             guard !newValue.isEmpty else {
                 return
             }
+            stopTimer()
             Haptics.feedback(style: .medium)
             withAnimation {
                 progressValue = 10
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation {
-                    self.showingSearchLayer = false
+                    self.showingSearchActivityIndicator = false
                 }
             }
         }
@@ -108,11 +109,14 @@ struct MFPSearch: View {
             }
             .frame(width: 250)
             .onReceive(timer) { _ in
-//                if self.isTimerRunning {
-                    withAnimation {
-                        progressValue += 0.02
-                    }
-//                }
+                let newValue = progressValue + 0.02
+                guard newValue < 10 else {
+                    stopTimer()
+                    return
+                }
+                withAnimation {
+                    progressValue = newValue
+                }
             }
         }
 //        ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
@@ -231,13 +235,8 @@ struct MFPSearch: View {
     
     var list: some View {
         List {
-            ForEach(viewModel.items, id: \.self) { result in
-                HStack {
-                    Text(result.name)
-                    Spacer()
-                    Text("\(Int(result.calories)) kcal")
-                        .foregroundColor(.secondary)
-                }
+            ForEach(viewModel.results, id: \.self) { result in
+                ResultCell(result: result)
             }
         }
     }
