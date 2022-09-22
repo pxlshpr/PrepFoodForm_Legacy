@@ -1,5 +1,6 @@
 import SwiftUI
 import ActivityIndicatorView
+import SwiftHaptics
 
 let colorHexKeyboardLight = "CDD0D6"
 let colorHexKeyboardDark = "303030"
@@ -33,6 +34,23 @@ struct MFPSearch: View {
             viewModel.cancelSearching()
         }
         .interactiveDismissDisabled(isFocused)
+        .onAppear {
+            stopTimer()
+        }
+        .onChange(of: viewModel.items) { newValue in
+            guard !newValue.isEmpty else {
+                return
+            }
+            Haptics.feedback(style: .medium)
+            withAnimation {
+                progressValue = 10
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation {
+                    self.showingSearchLayer = false
+                }
+            }
+        }
     }
     
     func focusOnSearchTextField() {
@@ -50,7 +68,8 @@ struct MFPSearch: View {
     var navigationStack: some View {
         var title: String {
             if showingSearchActivityIndicator {
-                return "Searching …"
+//                return "Searching …"
+                return "Search MyFitnessPal"
             } else {
                 return "Search MyFitnessPal"
             }
@@ -72,10 +91,41 @@ struct MFPSearch: View {
         }
     }
     
+    @State var timer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect()
+    @State var progressValue: Double = 0
+    
     var searchActivityIndicator: some View {
-        ActivityIndicatorView(isVisible: .constant(true), type: .growingCircle)
-            .foregroundColor(Color(.secondaryLabel))
-            .frame(width: 200, height: 200)
+        VStack {
+//            Text("Loading")
+//                .foregroundColor(.secondary)
+            ProgressView(value: progressValue, total: 10) {
+                HStack {
+                    Spacer()
+                    Text("Searching '\(viewModel.searchText)'…")
+                        .foregroundColor(.secondary)
+                    Spacer()
+                }
+            }
+            .frame(width: 250)
+            .onReceive(timer) { _ in
+//                if self.isTimerRunning {
+                    withAnimation {
+                        progressValue += 0.02
+                    }
+//                }
+            }
+        }
+//        ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+//            .foregroundColor(Color(.secondaryLabel))
+//            .frame(width: 200, height: 200)
+    }
+    
+    func stopTimer() {
+        self.timer.upstream.connect().cancel()
+    }
+    
+    func startTimer() {
+        self.timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     }
     
     var navigationTrailingContent: some ToolbarContent {
@@ -103,6 +153,7 @@ struct MFPSearch: View {
         var blurLayer: some View {
             Color.black.opacity(0.5)
                 .onTapGesture {
+                    
                     withAnimation {
                         showingSearchLayer = false
                     }
@@ -180,6 +231,14 @@ struct MFPSearch: View {
     
     var list: some View {
         List {
+            ForEach(viewModel.items, id: \.self) { result in
+                HStack {
+                    Text(result.name)
+                    Spacer()
+                    Text("\(Int(result.calories)) kcal")
+                        .foregroundColor(.secondary)
+                }
+            }
         }
     }
 }
