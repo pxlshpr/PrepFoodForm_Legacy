@@ -28,9 +28,9 @@ extension MFPSearch.ResultCell {
                 MFPProcessedFood.Size(quantity: 1, name: "small", amount: 90, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
             ]
             let mockFood = MFPProcessedFood(
-                name: "Banana",
-                brand: "Woolworths",
-                detail: "Cavendish",
+                name: "Double Quarter Pounder Hamburger",
+                brand: "McDonalds",
+                detail: "Large",
                 amount: 100,
                 amountUnit: .weight,
                 amountWeightUnit: .g,
@@ -43,6 +43,7 @@ extension MFPSearch.ResultCell {
                 nutrients: nutrients,
                 sizes: sizes)
             self.processedFood = mockFood
+            
 //            Task {
 //                let food = try await MFPScraper().getFood(with: result.url)
 //                await MainActor.run {
@@ -81,13 +82,30 @@ extension MFPSearch.ResultCell.ViewModel {
     }
     
     var sizesString: String? {
-        guard let sizes = processedFood?.sizes else { return nil }
+        guard let sizes = processedFood?.sizes, !sizes.isEmpty else {
+            return nil
+        }
         return sizes.map { $0.name }.joined(separator: ", ")
     }
     
     var nutrientsString: String? {
-        guard let nutrients = processedFood?.nutrients else { return nil }
+        guard let nutrients = processedFood?.nutrients, !nutrients.isEmpty else {
+            return nil
+        }
         return nutrients.map { $0.type.description.lowercased() }.joined(separator: ", ")
+    }
+    
+    var detailString: String? {
+        if let brand = processedFood?.brand {
+            if let detail = processedFood?.detail {
+                return "\(brand) • \(detail)"
+            } else {
+                return brand
+            }
+        } else if let detail = processedFood?.detail {
+            return detail
+        }
+        return nil
     }
 }
 
@@ -104,34 +122,54 @@ extension MFPSearch {
 
 extension MFPSearch.ResultCell {
     var body: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 5) {
-                Text(viewModel.name)
-                    .bold()
-//                summary
+        VStack {
+            name
+            HStack(alignment: .bottom) {
                 details
+                Spacer()
+                NutritionSummary(dataProvider: viewModel)
             }
-            Spacer()
-            NutritionSummary(dataProvider: viewModel)
         }
     }
     
-    @ViewBuilder
+    var name: some View {
+        VStack(alignment: .leading) {
+            Text(viewModel.name)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if let detailString = viewModel.detailString {
+                Text(detailString)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
     var details: some View {
-        sizes
-        nutrients
+        VStack(alignment: .leading) {
+            sizes
+            nutrients
+        }
     }
     
     @ViewBuilder
     var sizes: some View {
         if let sizesString = viewModel.sizesString {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Sizes")
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.secondary)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .foregroundColor(Color(.secondarySystemFill))
+                    )
+
                 Text(sizesString)
                     .font(.caption2)
                     .foregroundColor(Color(.tertiaryLabel))
+                    .padding(.leading, 4)
             }
         }
     }
@@ -140,13 +178,20 @@ extension MFPSearch.ResultCell {
     @ViewBuilder
     var nutrients: some View {
         if let nutrientsString = viewModel.nutrientsString {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text("Nutrients")
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundColor(.secondary)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4, style: .continuous)
+                            .foregroundColor(Color(.secondarySystemFill))
+                    )
                 Text(nutrientsString)
                     .font(.caption2)
                     .foregroundColor(Color(.tertiaryLabel))
+                    .padding(.leading, 4)
             }
         }
     }
@@ -236,7 +281,7 @@ struct MFPSearchResultCell_Previews: PreviewProvider {
 
 struct MockResult {
     static let Banana = MFPSearchResultFood(
-        name: "Banana",
+        name: "Double Quarter Pounder Hamburger",
         detail: "1 medium",
         servingSize: "",
         isVerified: false,
