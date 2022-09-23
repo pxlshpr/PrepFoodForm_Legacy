@@ -71,10 +71,37 @@ struct MFPFoodView: View {
     }
     
     var body: some View {
-        List {
+        ZStack {
+            scrollView
+            buttonLayer
+        }
+        .navigationTitle("MyFitnessPal Food")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    var buttonLayer: some View {
+        VStack(spacing: 0) {
+            Spacer()
+            Divider()
+            FormPrimaryButton(title: "Start with this") {
+                
+            }
+            .padding(.top)
+            .background(
+                .thinMaterial
+//                Color(.systemGroupedBackground)
+//                    .shadow(color: Color(.lightGray).opacity(0.5), radius: 10, x: 0, y: -2)
+//                    .edgesIgnoringSafeArea(.bottom)
+            )
+        }
+    }
+    
+    var scrollView: some View {
+        ScrollView {
             Section {
                 VStack(alignment: .leading) {
                     Text(viewModel.name)
+                        .font(.title)
                         .bold()
                     if viewModel.shouldDetailString {
                         Text(viewModel.detail)
@@ -89,8 +116,9 @@ struct MFPFoodView: View {
             foodLabelSection
             sizesSection
         }
-        .navigationTitle("MyFitnessPal Food")
-        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
+            Spacer().frame(height: 68)
+        }
     }
     
     @ViewBuilder
@@ -101,12 +129,25 @@ struct MFPFoodView: View {
             }
         }
     }
-    @ViewBuilder
+    
     var sizesSection: some View {
-        if let sizeViewModels = viewModel.sizeViewModels {
-            Section("Sizes") {
-                ForEach(sizeViewModels, id: \.self) {
-                    SizeCell(sizeViewModel: $0)
+        var header: some View {
+            Text("Sizes")
+                .font(.title2)
+        }
+        
+        return Group {
+            if let sizeViewModels = viewModel.sizeViewModels {
+                Section(header: header) {
+                    Divider()
+                    VStack {
+                        ForEach(sizeViewModels, id: \.self) {
+                            SizeCell(sizeViewModel: $0)
+                                .padding(.vertical, 5)
+                            Divider()
+                        }
+                    }
+                    .padding(.horizontal, 30)
                 }
             }
         }
@@ -118,6 +159,7 @@ struct MFPFoodView: View {
             Section {
                 FoodLabel(dataSource: viewModel)
             }
+            .padding()
         }
     }
 }
@@ -163,7 +205,7 @@ extension MFPFoodView.ViewModel: FoodLabelDataSource {
     }
     
     var showRDAValues: Bool {
-        false
+        true
     }
     
     var haveMicros: Bool {
@@ -265,7 +307,7 @@ extension MFPFoodView {
 struct MFPFoodViewPreview: View {
     var body: some View {
         NavigationStack {
-            MFPFoodView(result: MockResult.Banana)
+            MFPFoodView(result: MockResult.Banana, processedFood: MockProcessedFood.Banana)
         }
     }
 }
@@ -274,4 +316,112 @@ struct MFPFoodView_Previews: PreviewProvider {
     static var previews: some View {
         MFPFoodViewPreview()
     }
+}
+
+struct MockProcessedFood {
+    static let Banana = MFPProcessedFood(
+        name: "Banana",
+        brand: nil,
+        detail: "1 medium",
+        amount: 1,
+        amountUnit: .size,
+        amountWeightUnit: nil,
+        amountVolumeUnit: nil,
+        amountSizeUnit:
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Medium",
+                nameVolumeUnit: nil,
+                amount: 118,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+        servingValue: 1,
+        servingUnit: .weight,
+        servingWeightUnit: .g,
+        servingVolumeUnit: nil,
+        servingSizeUnit: nil,
+        energy: 105,
+        carbohydrate: 26,
+        fat: 0.4,
+        protein: 1,
+        nutrients: [
+            MFPProcessedFood.Nutrient(type: .saturatedFat, amount: 0.1, unit: .g),
+            MFPProcessedFood.Nutrient(type: .polyunsaturatedFat, amount: 0.05, unit: .g),
+            MFPProcessedFood.Nutrient(type: .monounsaturatedFat, amount: 0.05, unit: .g),
+            MFPProcessedFood.Nutrient(type: .sodium, amount: 1, unit: .mg),
+            MFPProcessedFood.Nutrient(type: .dietaryFiber, amount: 3, unit: .g),
+            MFPProcessedFood.Nutrient(type: .sugars, amount: 14, unit: .g),
+            MFPProcessedFood.Nutrient(type: .vitaminA, amount: 45, unit: .mcgRAE),
+            MFPProcessedFood.Nutrient(type: .vitaminC, amount: 15, unit: .mg),
+            MFPProcessedFood.Nutrient(type: .calcium, amount: 7, unit: .mg),
+            MFPProcessedFood.Nutrient(type: .iron, amount: 0.3, unit: .mg),
+            MFPProcessedFood.Nutrient(type: .potassium, amount: 422, unit: .mg),
+        ],
+        sizes: [
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Medium",
+                nameVolumeUnit: nil,
+                amount: 118,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Large",
+                nameVolumeUnit: nil,
+                amount: 136,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Sliced",
+                nameVolumeUnit: .cup,
+                amount: 150,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Mashed",
+                nameVolumeUnit: .cup,
+                amount: 225,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Extra small",
+                nameVolumeUnit: nil,
+                amount: 81,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+            MFPProcessedFood.Size(
+                quantity: 1,
+                name: "Extra large",
+                nameVolumeUnit: nil,
+                amount: 152,
+                amountUnit: .weight,
+                amountVolumeUnit: nil,
+                amountWeightUnit: .g,
+                amountSizeUnit: nil
+            ),
+
+        ],
+        sourceUrl: "https://myfitnesspal.com/food/calories/banana-1774572771")
 }
