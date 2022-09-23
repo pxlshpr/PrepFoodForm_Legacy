@@ -92,7 +92,7 @@ public struct FoodFormStartPage: View {
     
     var importSection: some View {
         var header: some View {
-            Text("Start with a MyFitnessPal Food")
+            Text("Start with a third-party food")
         }
         var footer: some View {
             Button {

@@ -3,6 +3,7 @@ import SwiftUI
 struct FormPrimaryButton: View {
     
     var title: String
+    var color: Color = .accentColor
     var action: () -> ()
     
     var body: some View {
@@ -16,7 +17,7 @@ struct FormPrimaryButton: View {
                 .frame(maxWidth: .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(color)
                 )
                 .padding(.horizontal)
                 .padding(.horizontal)

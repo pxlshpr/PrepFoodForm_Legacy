@@ -75,8 +75,9 @@ struct MFPFoodView: View {
             scrollView
             buttonLayer
         }
-        .navigationTitle("MyFitnessPal Food")
+        .navigationTitle("Third-Party Food")
         .navigationBarTitleDisplayMode(.inline)
+        .interactiveDismissDisabled()
     }
     
     var buttonLayer: some View {
@@ -89,9 +90,6 @@ struct MFPFoodView: View {
             .padding(.top)
             .background(
                 .thinMaterial
-//                Color(.systemGroupedBackground)
-//                    .shadow(color: Color(.lightGray).opacity(0.5), radius: 10, x: 0, y: -2)
-//                    .edgesIgnoringSafeArea(.bottom)
             )
         }
     }
@@ -99,25 +97,51 @@ struct MFPFoodView: View {
     var scrollView: some View {
         ScrollView {
             Section {
-                VStack(alignment: .leading) {
+                VStack(alignment: .center) {
                     Text(viewModel.name)
+                        .multilineTextAlignment(.center)
                         .font(.title)
                         .bold()
-                    if viewModel.shouldDetailString {
-                        Text(viewModel.detail)
-                    }
-                    if let brand = viewModel.brand {
-                        Text(brand)
+                    if let detailString = viewModel.detailString {
+                        Text(detailString)
                             .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
                     }
                 }
+                .padding(.top)
             }
             loadingIndicator
             foodLabelSection
             sizesSection
+            linkSection
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 68)
+        }
+    }
+    
+    @ViewBuilder
+    var linkSection: some View {
+        Button {
+            
+        } label: {
+            HStack {
+                HStack {
+                    Image(systemName: "link")
+                    Text("Source")
+                }
+                .foregroundColor(.secondary)
+                Spacer()
+                Text("MyFitnessPal")
+                    .foregroundColor(.accentColor)
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .foregroundColor(Color(.secondarySystemBackground))
+            )
+            .padding()
+            .padding()
         }
     }
     
@@ -149,6 +173,7 @@ struct MFPFoodView: View {
                     }
                     .padding(.horizontal, 30)
                 }
+                .transition(.opacity)
             }
         }
     }
@@ -160,6 +185,7 @@ struct MFPFoodView: View {
                 FoodLabel(dataSource: viewModel)
             }
             .padding()
+            .transition(.opacity)
         }
     }
 }
@@ -267,7 +293,11 @@ extension MFPFoodView.ViewModel {
         return "\(firstSize.quantity.cleanAmount) \(firstSize.name)"
     }
     
-    var shouldDetailString: Bool {
+    var detailString: String? {
+        processedFood?.detail ?? processedFood?.brand
+    }
+    
+    var shouldShowDetailString: Bool {
         if let firstSizeDescription,
            firstSizeDescription.lowercased() == detail.lowercased() {
             return false
@@ -320,9 +350,9 @@ struct MFPFoodView_Previews: PreviewProvider {
 
 struct MockProcessedFood {
     static let Banana = MFPProcessedFood(
-        name: "Banana",
-        brand: nil,
-        detail: "1 medium",
+        name: "Double Quarter Pounder",
+        brand: "Woolworths",
+        detail: "Cavendish",
         amount: 1,
         amountUnit: .size,
         amountWeightUnit: nil,

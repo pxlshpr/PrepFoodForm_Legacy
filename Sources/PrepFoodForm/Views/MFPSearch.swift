@@ -14,8 +14,8 @@ struct MFPSearch: View {
         case mfpFood(MFPSearchResultFood, MFPProcessedFood?)
     }
     
+    @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.isSearching) var isSearching
     @StateObject var viewModel: ViewModel = ViewModel()
     
     @FocusState var isFocused: Bool
@@ -40,7 +40,7 @@ struct MFPSearch: View {
         .onDisappear {
             viewModel.cancelSearching()
         }
-        .interactiveDismissDisabled(isFocused)
+        .interactiveDismissDisabled(shouldDisableInteractiveDismissal)
         .onAppear {
             stopTimer()
         }
@@ -61,6 +61,11 @@ struct MFPSearch: View {
         }
     }
     
+    var shouldDisableInteractiveDismissal: Bool {
+//        isFocused || !viewModel.results.isEmpty
+        !viewModel.results.isEmpty
+    }
+    
     func focusOnSearchTextField() {
         showingSearchLayer = true
         isFocused = true
@@ -77,9 +82,9 @@ struct MFPSearch: View {
         var title: String {
             if showingSearchActivityIndicator {
 //                return "Searching …"
-                return "Search MyFitnessPal"
+                return "Search Third-Party Foods"
             } else {
-                return "Search MyFitnessPal"
+                return "Search Third-Party Foods"
             }
         }
         return NavigationStack(path: $path) {
@@ -87,6 +92,7 @@ struct MFPSearch: View {
                 .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationTrailingContent }
+                .toolbar { navigationLeadingContent }
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .mfpFood(let result, let processedFood):
@@ -145,16 +151,35 @@ struct MFPSearch: View {
         self.timer = Timer.publish(every: 0.01, on: .main, in: .common).autoconnect()
     }
     
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            searchButton
+        }
+    }
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            Button {
-                withAnimation {
-                    showingSearchLayer = true
-                }
-                isFocused = true
-            } label: {
-                Image(systemName: "magnifyingglass")
+            if shouldDisableInteractiveDismissal {
+                doneButton
             }
+        }
+    }
+    
+    var doneButton: some View {
+        Button {
+            dismiss()
+        } label: {
+            Text("Done")
+        }
+    }
+    
+    var searchButton: some View {
+        Button {
+            withAnimation {
+                showingSearchLayer = true
+            }
+            isFocused = true
+        } label: {
+            Image(systemName: "magnifyingglass")
         }
     }
     
@@ -238,7 +263,18 @@ struct MFPSearch: View {
         }
         
         return ZStack {
-            blurLayer
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    Haptics.feedback(style: .soft)
+                    withAnimation {
+                        showingSearchLayer = false
+                    }
+                    isFocused = false
+                }
+                .background (
+                    .ultraThinMaterial
+                )
             VStack {
                 Spacer()
                 searchBar

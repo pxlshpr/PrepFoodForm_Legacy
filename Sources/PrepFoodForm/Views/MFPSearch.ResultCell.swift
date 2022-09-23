@@ -132,6 +132,7 @@ extension MFPSearch.ResultCell {
         HStack {
             Text(viewModel.name)
                 .foregroundColor(.primary)
+                .multilineTextAlignment(.leading)
             Spacer()
             Text(viewModel.energy)
                 .foregroundColor(.secondary)
@@ -373,7 +374,7 @@ struct MFPSearchResultCell_Previews: PreviewProvider {
 
 struct MockResult {
     static let Banana = MFPSearchResultFood(
-        name: "Banana",
+        name: "Double Quarter Pounder",
         detail: "1 medium",
         servingSize: "",
         isVerified: false,
