@@ -96,7 +96,9 @@ struct MFPFoodView: View {
     @ViewBuilder
     var loadingIndicator: some View {
         if viewModel.isLoadingFoodDetails {
-            ProgressView()
+            Section {
+                ProgressView()
+            }
         }
     }
     @ViewBuilder
@@ -113,14 +115,22 @@ struct MFPFoodView: View {
     @ViewBuilder
     var foodLabelSection: some View {
         if viewModel.shouldShowFoodLabel {
-            FoodLabel(dataSource: viewModel)
+            Section {
+                FoodLabel(dataSource: viewModel)
+            }
         }
     }
 }
 
 extension MFPFoodView.ViewModel: FoodLabelDataSource {
     var amountString: String {
-        firstSizeDescription ?? ""
+        guard let firstSizeDescription else {
+            guard !detail.isEmpty else {
+                return name
+            }
+            return detail
+        }
+        return firstSizeDescription
     }
 
     var energyAmount: Double {

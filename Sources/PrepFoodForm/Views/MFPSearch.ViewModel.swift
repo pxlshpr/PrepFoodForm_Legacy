@@ -42,12 +42,15 @@ extension MFPSearch.ViewModel {
 
                 self.currentPage += 1
                 
-                fetchFoodsTask = try await fetchFoods(results)
-
                 await MainActor.run {
                     self.results = self.results + results
                     self.isLoadingPage = false
                 }
+                
+                //TODO: NEXT - Including this task blocks the next page's load until all tasks have been downloaded.
+                // - Find out why
+                // - Possibly spawn this task elsewhere and keep queuing up new tasks as new pages are loaded
+                fetchFoodsTask = try await fetchFoods(results)
             } catch {
                 fetchFoodsTask?.cancel()
             }
