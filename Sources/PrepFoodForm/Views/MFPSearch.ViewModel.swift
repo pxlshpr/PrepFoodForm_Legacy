@@ -8,13 +8,15 @@ extension MFPSearch {
         @Published var results: [MFPSearchResultFood] = []
         @Published var foods: [String: MFPProcessedFood] = [:]
 
+        @Published var path: [Route] = []
+        
         @Published var isLoadingPage = false
         private var currentPage = 1
         private var canLoadMorePages = true
         
         var searchTask: Task<(), Error>? = nil
         
-        init(searchText: String = "Banana") {
+        init(searchText: String = "Kelloggs Chocos") {
             self.searchText = searchText
         }
     }

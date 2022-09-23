@@ -13,37 +13,37 @@ extension MFPSearch.ResultCell {
         init(result: MFPSearchResultFood) {
             self.result = result
             
-            let nutrients: [MFPProcessedFood.Nutrient] = [
-                MFPProcessedFood.Nutrient(type: .saturatedFat, amount: 20, unit: .g),
-                MFPProcessedFood.Nutrient(type: .cholesterol, amount: 140, unit: .mg),
-                MFPProcessedFood.Nutrient(type: .addedSugars, amount: 7, unit: .g),
-                MFPProcessedFood.Nutrient(type: .biotin, amount: 64, unit: .mg),
-                MFPProcessedFood.Nutrient(type: .calcium, amount: 54, unit: .mcg),
-                MFPProcessedFood.Nutrient(type: .cobalamin, amount: 2, unit: .mg),
-                MFPProcessedFood.Nutrient(type: .folate, amount: 120, unit: .g),
-//                MFPProcessedFood.Nutrient
-            ]
-            let sizes: [MFPProcessedFood.Size] = [
-                MFPProcessedFood.Size(quantity: 1, name: "large", amount: 150, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
-                MFPProcessedFood.Size(quantity: 1, name: "medium", amount: 120, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
-                MFPProcessedFood.Size(quantity: 1, name: "small", amount: 90, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
-            ]
-            let mockFood = MFPProcessedFood(
-                name: "Double Quarter Pounder Hamburger",
-                brand: "McDonalds",
-                detail: "Large",
-                amount: 100,
-                amountUnit: .weight,
-                amountWeightUnit: .g,
-                servingValue: 0,
-                servingUnit: .weight,
-                energy: 0,
-                carbohydrate: 0,
-                fat: 0,
-                protein: 0,
-                nutrients: nutrients,
-                sizes: sizes)
-            self.processedFood = mockFood
+//            let nutrients: [MFPProcessedFood.Nutrient] = [
+//                MFPProcessedFood.Nutrient(type: .saturatedFat, amount: 20, unit: .g),
+//                MFPProcessedFood.Nutrient(type: .cholesterol, amount: 140, unit: .mg),
+//                MFPProcessedFood.Nutrient(type: .addedSugars, amount: 7, unit: .g),
+//                MFPProcessedFood.Nutrient(type: .biotin, amount: 64, unit: .mg),
+//                MFPProcessedFood.Nutrient(type: .calcium, amount: 54, unit: .mcg),
+//                MFPProcessedFood.Nutrient(type: .cobalamin, amount: 2, unit: .mg),
+//                MFPProcessedFood.Nutrient(type: .folate, amount: 120, unit: .g),
+////                MFPProcessedFood.Nutrient
+//            ]
+//            let sizes: [MFPProcessedFood.Size] = [
+//                MFPProcessedFood.Size(quantity: 1, name: "large", amount: 150, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
+//                MFPProcessedFood.Size(quantity: 1, name: "medium", amount: 120, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
+//                MFPProcessedFood.Size(quantity: 1, name: "small", amount: 90, amountUnit: .weight, amountVolumeUnit: nil, amountWeightUnit: .g, amountSizeUnit: nil),
+//            ]
+//            let mockFood = MFPProcessedFood(
+//                name: "Double Quarter Pounder Hamburger",
+//                brand: "McDonalds",
+//                detail: "Large",
+//                amount: 100,
+//                amountUnit: .weight,
+//                amountWeightUnit: .g,
+//                servingValue: 0,
+//                servingUnit: .weight,
+//                energy: 0,
+//                carbohydrate: 0,
+//                fat: 0,
+//                protein: 0,
+//                nutrients: nutrients,
+//                sizes: sizes)
+//            self.processedFood = mockFood
             
 //            Task {
 //                let food = try await MFPScraper().getFood(with: result.url)
@@ -107,6 +107,8 @@ extension MFPSearch.ResultCell.ViewModel {
             }
         } else if let detail = processedFood?.detail {
             return detail
+        } else if !result.detail.isEmpty {
+            return result.detail
         }
         return nil
     }
@@ -130,9 +132,20 @@ extension MFPSearch {
 extension MFPSearch.ResultCell {
     var body: some View {
         HStack {
-            Text(viewModel.name)
-                .foregroundColor(.primary)
-                .multilineTextAlignment(.leading)
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(viewModel.name)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
+                    if let detail = viewModel.detailString {
+                        Text(detail)
+                            .font(.subheadline)
+                            .foregroundColor(Color(.secondaryLabel))
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+            }
             Spacer()
             Text(viewModel.energy)
                 .foregroundColor(.secondary)

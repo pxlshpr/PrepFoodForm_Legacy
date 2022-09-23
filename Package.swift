@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.168"),
         .package(url: "https://github.com/pxlshpr/CodeScanner", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.12"),
-        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.22"),
+        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.31"),
         .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.49"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.44"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.3"),

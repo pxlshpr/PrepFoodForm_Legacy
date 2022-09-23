@@ -2,6 +2,10 @@ import SwiftUI
 import MFPScraper
 import FoodLabel
 import PrepUnits
+import WebKit
+import ActivityIndicatorView
+
+//MARK: - MFPSizeViewModel
 
 struct MFPSizeViewModel: Hashable {
     let size: MFPProcessedFood.Size
@@ -43,6 +47,7 @@ struct MFPSizeViewModel: Hashable {
     }
 }
 
+//MARK: - SizeCell
 extension MFPFoodView {
     struct SizeCell: View {
         var sizeViewModel: MFPSizeViewModel
@@ -62,9 +67,12 @@ extension MFPFoodView.SizeCell {
         }
     }
 }
+
+//MARK: - FoodView
 struct MFPFoodView: View {
-    
+    @EnvironmentObject var searchViewModel: MFPSearch.ViewModel
     @StateObject var viewModel: ViewModel
+    @State var showingWebsite: Bool = false
     
     init(result: MFPSearchResultFood, processedFood: MFPProcessedFood? = nil) {
         _viewModel = StateObject(wrappedValue: ViewModel(result: result, processedFood: processedFood))
@@ -78,6 +86,15 @@ struct MFPFoodView: View {
         .navigationTitle("Third-Party Food")
         .navigationBarTitleDisplayMode(.inline)
         .interactiveDismissDisabled()
+    }
+    
+    @ViewBuilder
+    var websiteView: some View {
+        if let url = viewModel.url {
+//            SFSafariViewWrapper(url: url)
+//                .edgesIgnoringSafeArea(.all)
+            SourceWebView(urlString: url.absoluteString)
+        }
     }
     
     var buttonLayer: some View {
@@ -118,12 +135,22 @@ struct MFPFoodView: View {
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 68)
         }
+        .sheet(isPresented: $showingWebsite) {
+            websiteView
+        }
     }
     
     @ViewBuilder
     var linkSection: some View {
+        if let url = viewModel.url {
+            linkButton(for: url)
+        }
+    }
+    
+    func linkButton(for url: URL) -> some View {
         Button {
-            
+            searchViewModel.path.append(.website(url))
+//            showingWebsite = true
         } label: {
             HStack {
                 HStack {
@@ -190,17 +217,17 @@ struct MFPFoodView: View {
     }
 }
 
+//MARK: - ViewModel: FoodLabelDataSource
+
 extension MFPFoodView.ViewModel: FoodLabelDataSource {
     var amountString: String {
-        guard let firstSizeDescription else {
-            guard !detail.isEmpty else {
-                return name
-            }
-            return detail
-        }
-        return firstSizeDescription
+        return servingString
+//        guard let firstSizeDescription else {
+//            return servingString
+//        }
+//        return firstSizeDescription.lowercased()
     }
-
+    
     var energyAmount: Double {
         processedFood?.energy ?? 0
     }
@@ -246,7 +273,22 @@ extension MFPFoodView.ViewModel: FoodLabelDataSource {
         nil
     }
 }
+
+//MARK: - ViewModel
 extension MFPFoodView.ViewModel {
+    
+    var servingString: String {
+        guard let processedFood else {
+            return "1 serving"
+        }
+        let amountDescription = processedFood.amountDescription.lowercased()
+        
+        if processedFood.amountUnit == .serving, let servingDescription = processedFood.servingDescription {
+            return "\(amountDescription) (\(servingDescription.lowercased()))"
+        } else {
+            return amountDescription
+        }
+    }
     
     var name: String {
         result.name
@@ -282,6 +324,10 @@ extension MFPFoodView.ViewModel {
         processedFood != nil
     }
     
+    var url: URL? {
+        URL(string: "https://myfitnesspal.com\(result.url)")
+    }
+            
     var firstSize: MFPProcessedFood.Size? {
         sizes?.first
     }
@@ -334,6 +380,7 @@ extension MFPFoodView {
     }
 }
 
+//MARK: - Preview
 struct MFPFoodViewPreview: View {
     var body: some View {
         NavigationStack {
@@ -348,6 +395,7 @@ struct MFPFoodView_Previews: PreviewProvider {
     }
 }
 
+//MARK: - Mock Data
 struct MockProcessedFood {
     static let Banana = MFPProcessedFood(
         name: "Double Quarter Pounder",
@@ -454,4 +502,118 @@ struct MockProcessedFood {
 
         ],
         sourceUrl: "https://myfitnesspal.com/food/calories/banana-1774572771")
+}
+
+//MARK: - SFSafariViewWrapper
+import SwiftUI
+import SafariServices
+
+struct SFSafariViewWrapper: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<Self>) -> SFSafariViewController {
+        return SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: UIViewControllerRepresentableContext<SFSafariViewWrapper>) {
+        return
+    }
+}
+
+import SwiftUI
+import WebKit
+ 
+struct WebView: UIViewRepresentable {
+ 
+    var url: URL
+    var delegate: WKNavigationDelegate?
+        var scrollViewDelegate: UIScrollViewDelegate?
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = WKWebView()
+        webView.navigationDelegate = delegate
+        webView.scrollView.delegate = scrollViewDelegate
+        return webView
+    }
+ 
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        let request = URLRequest(url: url)
+        webView.load(request)
+    }
+}
+
+struct SourceWebView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    @State var urlString: String
+    @State var hasAppeared: Bool = false
+
+    @StateObject var vm = ViewModel()
+    
+    @ViewBuilder
+    var body: some View {
+//        NavigationView {
+//            if hasAppeared {
+                WebView(url: URL(string: urlString)!, delegate: vm)
+                    .navigationBarTitle("Website")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { navigationTrailingContent }
+                    .toolbar { navigationLeadingContent }
+                    .transition(.opacity)
+                    .edgesIgnoringSafeArea(.bottom)
+//            }
+//        }
+//        .onAppear {
+//            appeared()
+//        }
+    }
+    
+    func appeared() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation {
+                hasAppeared = true
+            }
+        }
+    }
+
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            if vm.isLoading {
+                ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                    .foregroundColor(.secondary)
+                    .frame(width: 20, height: 20)
+//                ProgressView()
+//                    .transition(.opacity)
+            }
+        }
+    }
+    
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            
+            Link(destination: URL(string: urlString)!) {
+                Image(systemName: "safari")
+            }
+            ShareLink(item: URL(string: urlString)!) {
+                Image(systemName: "square.and.arrow.up")
+//                Label("Learn Swift here", systemImage: "swift")
+            }
+//            Menu {
+//                Button("Copy URL") {
+//                    UIPasteboard.general.string = urlString
+//                }
+//            } label: {
+//                Image(systemName: "square.and.arrow.up")
+//            }
+        }
+    }
+    
+    class ViewModel: NSObject, ObservableObject, WKNavigationDelegate {
+        
+        @Published var isLoading = true
+        
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            isLoading = false
+        }
+    }
 }

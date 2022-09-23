@@ -8,10 +8,12 @@ let colorHexKeyboardDark = "303030"
 let colorHexSearchTextFieldDark = "535355"
 let colorHexSearchTextFieldLight = "FFFFFF"
 
+//MARK: - MFPSearch
 struct MFPSearch: View {
     
     enum Route: Hashable {
         case mfpFood(MFPSearchResultFood, MFPProcessedFood?)
+        case website(URL)
     }
     
     @Environment(\.dismiss) var dismiss
@@ -22,8 +24,6 @@ struct MFPSearch: View {
     @State var showingSearchLayer: Bool = false
     @State var showingSearchActivityIndicator = false
     
-    @State var path: [Route] = []
-
     var body: some View {
         ZStack {
             navigationStack
@@ -87,7 +87,7 @@ struct MFPSearch: View {
                 return "Search Third-Party Foods"
             }
         }
-        return NavigationStack(path: $path) {
+        return NavigationStack(path: $viewModel.path) {
             content
                 .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
@@ -97,6 +97,11 @@ struct MFPSearch: View {
                     switch route {
                     case .mfpFood(let result, let processedFood):
                         MFPFoodView(result: result, processedFood: processedFood)
+                            .environmentObject(viewModel)
+                    case .website(let url):
+                        SourceWebView(urlString: url.absoluteString)
+//                        SFSafariViewWrapper(url: url)
+//                            .edgesIgnoringSafeArea(.all)
                     }
                 }
         }
@@ -153,14 +158,14 @@ struct MFPSearch: View {
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            searchButton
+            if shouldDisableInteractiveDismissal {
+                doneButton
+            }
         }
     }
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if shouldDisableInteractiveDismissal {
-                doneButton
-            }
+            searchButton
         }
     }
     
@@ -300,7 +305,7 @@ struct MFPSearch: View {
         List {
             ForEach(viewModel.results, id: \.self) { result in
                 NavigationLinkButton {
-                    path.append(.mfpFood(result, viewModel.food(for: result)))
+                    viewModel.path.append(.mfpFood(result, viewModel.food(for: result)))
                 } label: {
                     ResultCell(result: result)
                         .onAppear {
