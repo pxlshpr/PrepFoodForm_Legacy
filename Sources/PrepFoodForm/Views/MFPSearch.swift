@@ -62,8 +62,8 @@ struct MFPSearch: View {
     }
     
     var shouldDisableInteractiveDismissal: Bool {
-//        isFocused || !viewModel.results.isEmpty
-        !viewModel.results.isEmpty
+        isFocused || !viewModel.results.isEmpty
+//        !viewModel.results.isEmpty
     }
     
     func focusOnSearchTextField() {
@@ -216,6 +216,10 @@ struct MFPSearch: View {
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled()
                     .onSubmit {
+                        guard !viewModel.searchText.isEmpty else {
+                            dismiss()
+                            return
+                        }
                         withAnimation {
                             showingSearchLayer = false
                             isFocused = false
@@ -265,16 +269,26 @@ struct MFPSearch: View {
         return ZStack {
             Color.clear
                 .contentShape(Rectangle())
-                .onTapGesture {
-                    Haptics.feedback(style: .soft)
-                    withAnimation {
-                        showingSearchLayer = false
-                    }
-                    isFocused = false
-                }
+//                .onTapGesture {
+//                    Haptics.feedback(style: .soft)
+//                    withAnimation {
+//                        showingSearchLayer = false
+//                    }
+//                    isFocused = false
+//                }
                 .background (
                     .ultraThinMaterial
                 )
+            VStack {
+                HStack {
+                    Spacer()
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .padding()
+                }
+                Spacer()
+            }
             VStack {
                 Spacer()
                 searchBar

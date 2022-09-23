@@ -128,7 +128,7 @@ struct MFPFoodView: View {
             HStack {
                 HStack {
                     Image(systemName: "link")
-                    Text("Source")
+                    Text("Website")
                 }
                 .foregroundColor(.secondary)
                 Spacer()
@@ -137,7 +137,7 @@ struct MFPFoodView: View {
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
                     .foregroundColor(Color(.secondarySystemBackground))
             )
             .padding()
