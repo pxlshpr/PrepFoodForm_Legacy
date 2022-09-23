@@ -48,7 +48,7 @@ public struct FoodForm: View {
         Form {
             detailsSection
             servingSection
-            nutrientsSection
+            foodLabelSection
             sourceSection
         }
     }
@@ -82,7 +82,7 @@ public struct FoodForm: View {
 
     }
     
-    var nutrientsSection: some View {
+    var foodLabelSection: some View {
         @ViewBuilder
         var header: some View {
             if !viewModel.hasNutritionFacts {

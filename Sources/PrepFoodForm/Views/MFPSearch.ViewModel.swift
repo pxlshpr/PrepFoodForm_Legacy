@@ -35,11 +35,12 @@ extension MFPSearch.ViewModel {
             try Task.checkCancellation()
             
             print("Got back: \(results.count) foods")
-            
+
+            self.currentPage += 1
+
             await MainActor.run {
                 self.results = self.results + results
                 self.isLoadingPage = false
-                self.currentPage += 1
             }
         }
     }
@@ -66,14 +67,14 @@ extension MFPSearch.ViewModel {
         }
     }
 
-    func loadMoreContentIfNeeded(currentItem item: MFPSearchResultFood?) {
-        guard let item = item else {
+    func loadMoreContentIfNeeded(currentResult result: MFPSearchResultFood?) {
+        guard let result = result else {
             startLoadContentTask()
             return
         }
         
         let thresholdIndex = results.index(results.endIndex, offsetBy: -5)
-        if results.firstIndex(where: { $0.hashValue == item.hashValue }) == thresholdIndex {
+        if results.firstIndex(where: { $0.hashValue == result.hashValue }) == thresholdIndex {
             startLoadContentTask()
         }
     }

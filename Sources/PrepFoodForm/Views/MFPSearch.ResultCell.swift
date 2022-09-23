@@ -1,5 +1,6 @@
 import SwiftUI
 import MFPScraper
+import ActivityIndicatorView
 
 //MARK: - ViewModel
 extension MFPSearch.ResultCell {
@@ -85,14 +86,16 @@ extension MFPSearch.ResultCell.ViewModel {
         guard let sizes = processedFood?.sizes, !sizes.isEmpty else {
             return nil
         }
-        return sizes.map { $0.name }.joined(separator: ", ")
+        let string = sizes.map { $0.name }.joined(separator: ", ")
+        return string.isEmpty ? nil : string
     }
     
     var nutrientsString: String? {
         guard let nutrients = processedFood?.nutrients, !nutrients.isEmpty else {
             return nil
         }
-        return nutrients.map { $0.type.description.lowercased() }.joined(separator: ", ")
+        let string = nutrients.map { $0.type.description.lowercased() }.joined(separator: ", ")
+        return string.isEmpty ? nil : string
     }
     
     var detailString: String? {
@@ -106,6 +109,10 @@ extension MFPSearch.ResultCell.ViewModel {
             return detail
         }
         return nil
+    }
+    
+    var hasProcessedFood: Bool {
+        processedFood != nil
     }
 }
 
@@ -122,77 +129,153 @@ extension MFPSearch {
 
 extension MFPSearch.ResultCell {
     var body: some View {
-        VStack {
-            name
-            HStack(alignment: .bottom) {
-                details
+        HStack {
+            Text(viewModel.name)
+                .foregroundColor(.primary)
+            Spacer()
+            Text(viewModel.energy)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    var content: some View {
+        VStack(spacing: 5) {
+            title
+            HStack(alignment: .top) {
+                VStack(alignment: .leading) {
+                    subtitle
+//                    details
+                }
                 Spacer()
                 NutritionSummary(dataProvider: viewModel)
             }
         }
     }
     
-    var name: some View {
-        VStack(alignment: .leading) {
-            Text(viewModel.name)
-                .bold()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if let detailString = viewModel.detailString {
-                Text(detailString)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+    var title: some View {
+        Text(viewModel.name)
+            .bold()
+            .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    @ViewBuilder
+    var subtitle: some View {
+        if let detailString = viewModel.detailString {
+            Text(detailString)
+                .font(.footnote)
+                .foregroundColor(.secondary)
         }
     }
     
+    @ViewBuilder
     var details: some View {
-        VStack(alignment: .leading) {
+        if viewModel.hasProcessedFood {
+//            sizesAndNutrients_legacy
+            HStack(spacing: 15) {
+                sizesButton
+                nutrientsButton
+            }
+        } else {
+            ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                .frame(width: 20, height: 20)
+                .foregroundColor(Color(.tertiaryLabel))
+        }
+    }
+    
+    @ViewBuilder
+    var sizesButton: some View {
+        if let sizes = viewModel.sizes {
+            Button {
+                
+            } label: {
+                HStack(spacing: 2) {
+                    Image(systemName: "rectangle.3.group")
+                        .imageScale(.small)
+                    Text("3")
+                        .font(.footnote)
+                }
+                .foregroundColor(.secondary)
+                .padding(5)
+                .background(
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
+    @ViewBuilder
+    var nutrientsButton: some View {
+        if let nutrients = viewModel.nutrients {
+            Button {
+                
+            } label: {
+                HStack(spacing: 2) {
+                    Image(systemName: "chart.bar.doc.horizontal")
+                        .imageScale(.small)
+                    Text("7")
+                        .font(.footnote)
+                }
+                .foregroundColor(.secondary)
+                .padding(5)
+                .background(
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
+    var sizesAndNutrients_legacy: some View {
+        @ViewBuilder
+        var sizes: some View {
+            if let sizesString = viewModel.sizesString {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Sizes")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .foregroundColor(Color(.secondarySystemFill))
+                        )
+
+                    Text(sizesString)
+                        .font(.caption2)
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .padding(.leading, 4)
+                }
+            }
+        }
+        
+        
+        @ViewBuilder
+        var nutrients: some View {
+            if let nutrientsString = viewModel.nutrientsString {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Nutrients")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 4, style: .continuous)
+                                .foregroundColor(Color(.secondarySystemFill))
+                        )
+                    Text(nutrientsString)
+                        .font(.caption2)
+                        .foregroundColor(Color(.tertiaryLabel))
+                        .padding(.leading, 4)
+                }
+            }
+        }
+        
+        return VStack(alignment: .leading) {
             sizes
             nutrients
-        }
-    }
-    
-    @ViewBuilder
-    var sizes: some View {
-        if let sizesString = viewModel.sizesString {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Sizes")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .foregroundColor(Color(.secondarySystemFill))
-                    )
-
-                Text(sizesString)
-                    .font(.caption2)
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .padding(.leading, 4)
-            }
-        }
-    }
-    
-    
-    @ViewBuilder
-    var nutrients: some View {
-        if let nutrientsString = viewModel.nutrientsString {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Nutrients")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4, style: .continuous)
-                            .foregroundColor(Color(.secondarySystemFill))
-                    )
-                Text(nutrientsString)
-                    .font(.caption2)
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .padding(.leading, 4)
-            }
         }
     }
 
@@ -262,15 +345,24 @@ extension MFPSearch.ResultCell.ViewModel: NutritionSummaryProvider {
     }
 }
 
-struct MFPSearchResultCellPreview: View {
+public struct MFPSearchResultCellPreview: View {
     
-    var body: some View {
-        List {
-            MFPSearch.ResultCell(result: MockResult.Banana)
-            MFPSearch.ResultCell(result: MockResult.Banana)
-            MFPSearch.ResultCell(result: MockResult.Banana)
+    public var body: some View {
+        NavigationStack {
+            List {
+                MFPSearch.ResultCell(result: MockResult.Banana)
+                MFPSearch.ResultCell(result: MockResult.Banana)
+                MFPSearch.ResultCell(result: MockResult.Banana)
+                MFPSearch.ResultCell(result: MockResult.Banana)
+                MFPSearch.ResultCell(result: MockResult.Banana)
+            }
+//            .listStyle(.plain)
+            .navigationTitle("Search Results")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
+    
+    public init() { }
 }
 
 struct MFPSearchResultCell_Previews: PreviewProvider {
@@ -281,7 +373,7 @@ struct MFPSearchResultCell_Previews: PreviewProvider {
 
 struct MockResult {
     static let Banana = MFPSearchResultFood(
-        name: "Double Quarter Pounder Hamburger",
+        name: "Banana",
         detail: "1 medium",
         servingSize: "",
         isVerified: false,

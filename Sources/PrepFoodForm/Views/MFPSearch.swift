@@ -1,6 +1,7 @@
 import SwiftUI
 import ActivityIndicatorView
 import SwiftHaptics
+import MFPScraper
 
 let colorHexKeyboardLight = "CDD0D6"
 let colorHexKeyboardDark = "303030"
@@ -9,6 +10,10 @@ let colorHexSearchTextFieldLight = "FFFFFF"
 
 struct MFPSearch: View {
     
+    enum Route: Hashable {
+        case mfpFood(MFPSearchResultFood, MFPProcessedFood?)
+    }
+    
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.isSearching) var isSearching
     @StateObject var viewModel: ViewModel = ViewModel()
@@ -16,6 +21,8 @@ struct MFPSearch: View {
     @FocusState var isFocused: Bool
     @State var showingSearchLayer: Bool = false
     @State var showingSearchActivityIndicator = false
+    
+    @State var path: [Route] = []
 
     var body: some View {
         ZStack {
@@ -75,11 +82,17 @@ struct MFPSearch: View {
                 return "Search MyFitnessPal"
             }
         }
-        return NavigationStack {
+        return NavigationStack(path: $path) {
             content
                 .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationTrailingContent }
+                .navigationDestination(for: Route.self) { route in
+                    switch route {
+                    case .mfpFood(let result, let processedFood):
+                        MFPFoodView(result: result, processedFood: processedFood)
+                    }
+                }
         }
     }
     
@@ -236,7 +249,20 @@ struct MFPSearch: View {
     var list: some View {
         List {
             ForEach(viewModel.results, id: \.self) { result in
-                ResultCell(result: result)
+                NavigationLinkButton {
+                    path.append(.mfpFood(result, nil))
+                } label: {
+                    ResultCell(result: result)
+                        .onAppear {
+                            viewModel.loadMoreContentIfNeeded(currentResult: result)
+                        }
+                        .contentShape(Rectangle())
+                }
+            }
+            if viewModel.isLoadingPage {
+                ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                    .foregroundColor(.secondary)
+                    .frame(width: 20, height: 20)
             }
         }
     }
