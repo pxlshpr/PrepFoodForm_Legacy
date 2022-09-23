@@ -5,7 +5,9 @@ extension MFPSearch {
     class ViewModel: ObservableObject {
 
         @Published var searchText = ""
-        @Published var results = [MFPSearchResultFood]()
+        @Published var results: [MFPSearchResultFood] = []
+        @Published var foods: [String: MFPProcessedFood] = [:]
+
         @Published var isLoadingPage = false
         private var currentPage = 1
         private var canLoadMorePages = true
@@ -31,18 +33,48 @@ extension MFPSearch.ViewModel {
     
     var loadContentTask: Task<(), Error> {
         Task(priority: .userInitiated) {
-            let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
-            try Task.checkCancellation()
-            
-            print("Got back: \(results.count) foods")
+            var fetchFoodsTask: Task<Void, Error>? = nil
+            do {
+                let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
+                try Task.checkCancellation()
+                
+                print("Got back: \(results.count) foods")
 
-            self.currentPage += 1
+                self.currentPage += 1
+                
+                fetchFoodsTask = try await fetchFoods(results)
 
-            await MainActor.run {
-                self.results = self.results + results
-                self.isLoadingPage = false
+                await MainActor.run {
+                    self.results = self.results + results
+                    self.isLoadingPage = false
+                }
+            } catch {
+                fetchFoodsTask?.cancel()
             }
         }
+    }
+    
+    func fetchFoods(_ results: [MFPSearchResultFood]) async throws -> Task<Void, Error> {
+        Task(priority: .userInitiated) {
+            try Task.checkCancellation()
+            await withThrowingTaskGroup(of: Void.self) { group in
+                for result in results {
+                    let _ = group.addTaskUnlessCancelled {
+                        try Task.checkCancellation()
+                        let food = try await MFPScraper().getFood(with: result.url)
+                        try Task.checkCancellation()
+                        await MainActor.run {
+                            print("Got food: \(food.name)")
+                            self.foods[result.url] = food
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func food(for result: MFPSearchResultFood) -> MFPProcessedFood? {
+        foods[result.url]
     }
     
     private func startLoadContentTask() {

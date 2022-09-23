@@ -250,7 +250,7 @@ struct MFPSearch: View {
         List {
             ForEach(viewModel.results, id: \.self) { result in
                 NavigationLinkButton {
-                    path.append(.mfpFood(result, nil))
+                    path.append(.mfpFood(result, viewModel.food(for: result)))
                 } label: {
                     ResultCell(result: result)
                         .onAppear {

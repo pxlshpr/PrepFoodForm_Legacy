@@ -71,7 +71,7 @@ struct MFPFoodView: View {
     }
     
     var body: some View {
-        Form {
+        List {
             Section {
                 VStack(alignment: .leading) {
                     Text(viewModel.name)
