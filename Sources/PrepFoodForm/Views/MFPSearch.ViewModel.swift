@@ -66,7 +66,7 @@ extension MFPSearch.ViewModel {
                 for result in results {
                     let _ = group.addTaskUnlessCancelled {
                         try Task.checkCancellation()
-                        let food = try await MFPScraper().getFood(with: result.url)
+                        let food = try await MFPScraper().getFood(for: FoodIdentifier(result.url))
                         try Task.checkCancellation()
                         await MainActor.run {
                             print("Got food: \(food.name)")
