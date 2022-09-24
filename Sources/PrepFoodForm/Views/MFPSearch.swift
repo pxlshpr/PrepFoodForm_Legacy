@@ -286,11 +286,11 @@ struct MFPSearch: View {
                 )
             VStack {
                 HStack {
-                    Spacer()
                     Button("Cancel") {
                         dismiss()
                     }
                     .padding()
+                    Spacer()
                 }
                 Spacer()
             }
