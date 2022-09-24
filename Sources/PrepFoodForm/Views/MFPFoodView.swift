@@ -217,15 +217,36 @@ struct MFPFoodView: View {
     }
 }
 
+extension ServingUnit {
+    var isNotSize: Bool {
+        switch self {
+        case .size:
+            return false
+        default:
+            return true
+        }
+    }
+}
 //MARK: - ViewModel: FoodLabelDataSource
 
 extension MFPFoodView.ViewModel: FoodLabelDataSource {
     var amountString: String {
-        return servingString
-//        guard let firstSizeDescription else {
-//            return servingString
-//        }
-//        return firstSizeDescription.lowercased()
+        guard let processedFood else {
+            return "1 serving"
+        }
+        let amountDescription = processedFood.amountDescription.lowercased()
+        
+        if processedFood.amountUnit == .serving, let servingDescription = processedFood.servingDescription {
+            if case .size = processedFood.servingUnit {
+                return servingDescription.lowercased()
+            } else {
+                return "\(amountDescription) (\(servingDescription.lowercased()))"
+            }
+//            let servingUnit = processedFood.servingUnit,
+//            servingUnit.isNotSize,
+        } else {
+            return amountDescription
+        }
     }
     
     var energyAmount: Double {

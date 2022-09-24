@@ -6,6 +6,13 @@ extension MFPSearch {
 
         @Published var searchText = ""
         @Published var results: [MFPSearchResultFood] = []
+        @Published var latestResults: [MFPSearchResultFood] = [] {
+            didSet {
+                Task(priority: .low) {
+                    fetchFoodsTask = try await fetchFoods(results)
+                }
+            }
+        }
         @Published var foods: [String: MFPProcessedFood] = [:]
 
         @Published var path: [Route] = []
@@ -15,7 +22,8 @@ extension MFPSearch {
         private var canLoadMorePages = true
         
         var searchTask: Task<(), Error>? = nil
-        
+        var fetchFoodsTask: Task<Void, Error>? = nil
+
         init(searchText: String = "Kelloggs Chocos") {
             self.searchText = searchText
         }
@@ -34,17 +42,18 @@ extension MFPSearch.ViewModel {
     }
     
     var loadContentTask: Task<(), Error> {
-        Task(priority: .userInitiated) {
-            var fetchFoodsTask: Task<Void, Error>? = nil
+        Task(priority: .high) {
             do {
+                print("⬆️ Sending request for page \(currentPage) of \(searchText)")
                 let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
                 try Task.checkCancellation()
                 
-                print("Got back: \(results.count) foods")
+                print("⬇️ Got back: \(results.count) foods")
 
                 self.currentPage += 1
                 
                 await MainActor.run {
+                    self.latestResults = results
                     self.results = self.results + results
                     self.isLoadingPage = false
                 }
@@ -52,7 +61,7 @@ extension MFPSearch.ViewModel {
                 //TODO: NEXT - Including this task blocks the next page's load until all tasks have been downloaded.
                 // - Find out why
                 // - Possibly spawn this task elsewhere and keep queuing up new tasks as new pages are loaded
-                fetchFoodsTask = try await fetchFoods(results)
+                
             } catch {
                 fetchFoodsTask?.cancel()
             }
@@ -60,7 +69,7 @@ extension MFPSearch.ViewModel {
     }
     
     func fetchFoods(_ results: [MFPSearchResultFood]) async throws -> Task<Void, Error> {
-        Task(priority: .userInitiated) {
+        Task(priority: .low) {
             try Task.checkCancellation()
             await withThrowingTaskGroup(of: Void.self) { group in
                 for result in results {
@@ -95,7 +104,7 @@ extension MFPSearch.ViewModel {
         
         searchTask = loadContentTask
         
-        Task {
+        Task(priority: .high) {
             do {
                 let _ = try await searchTask!.value
             } catch {
