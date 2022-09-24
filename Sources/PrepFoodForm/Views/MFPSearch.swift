@@ -165,6 +165,7 @@ struct MFPSearch: View {
     }
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
+            cancelButton
             searchButton
         }
     }
@@ -174,6 +175,14 @@ struct MFPSearch: View {
             dismiss()
         } label: {
             Text("Done")
+        }
+    }
+    
+    var cancelButton: some View {
+        Button {
+            viewModel.cancelSearching()
+        } label: {
+            Image(systemName: "xmark.circle.fill")
         }
     }
     
@@ -188,6 +197,13 @@ struct MFPSearch: View {
         }
     }
     
+    func resignFocusOfSearchTextField() {
+        withAnimation {
+            showingSearchLayer = false
+        }
+        isFocused = false
+    }
+
     var searchLayer: some View {
         var keyboardColor: Color {
             colorScheme == .light ? Color(hex: colorHexKeyboardLight) : Color(hex: colorHexKeyboardDark)
@@ -200,11 +216,7 @@ struct MFPSearch: View {
         var blurLayer: some View {
             Color.black.opacity(0.5)
                 .onTapGesture {
-                    
-                    withAnimation {
-                        showingSearchLayer = false
-                    }
-                    isFocused = false
+                    resignFocusOfSearchTextField()
                 }
                 .edgesIgnoringSafeArea(.all)
         }
@@ -225,10 +237,7 @@ struct MFPSearch: View {
                             dismiss()
                             return
                         }
-                        withAnimation {
-                            showingSearchLayer = false
-                            isFocused = false
-                        }
+                        resignFocusOfSearchTextField()
                         startSearching()
                     }
             }
@@ -274,20 +283,13 @@ struct MFPSearch: View {
         return ZStack {
             Color.clear
                 .contentShape(Rectangle())
-//                .onTapGesture {
-//                    Haptics.feedback(style: .soft)
-//                    withAnimation {
-//                        showingSearchLayer = false
-//                    }
-//                    isFocused = false
-//                }
                 .background (
                     .ultraThinMaterial
                 )
             VStack {
                 HStack {
                     Button("Cancel") {
-                        dismiss()
+                        tappedCancelOnSearchLayer()
                     }
                     .padding()
                     Spacer()
@@ -301,6 +303,13 @@ struct MFPSearch: View {
         }
     }
     
+    func tappedCancelOnSearchLayer() {
+        guard viewModel.results.isEmpty else {
+            resignFocusOfSearchTextField()
+            return
+        }
+        dismiss()
+    }
     var list: some View {
         List {
             ForEach(viewModel.results, id: \.self) { result in

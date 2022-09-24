@@ -387,7 +387,7 @@ extension MFPFoodView {
             
             if processedFood == nil {
                 isLoadingFoodDetails = true
-                Task {
+                Task(priority: .high) {
                     let food = try await MFPScraper().getFood(for: FoodIdentifier(result.url))
                     await MainActor.run {
                         withAnimation {

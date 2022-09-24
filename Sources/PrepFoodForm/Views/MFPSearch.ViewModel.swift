@@ -39,6 +39,8 @@ extension MFPSearch.ViewModel {
     
     func cancelSearching() {
         searchTask?.cancel()
+        fetchFoodsTask?.cancel()
+        self.isLoadingPage = false
     }
     
     var loadContentTask: Task<(), Error> {
@@ -63,26 +65,30 @@ extension MFPSearch.ViewModel {
                 // - Possibly spawn this task elsewhere and keep queuing up new tasks as new pages are loaded
                 
             } catch {
-                fetchFoodsTask?.cancel()
+                print("🛑 Page Fetch Task was cancelled!")
             }
         }
     }
     
     func fetchFoods(_ results: [MFPSearchResultFood]) async throws -> Task<Void, Error> {
         Task(priority: .low) {
-            try Task.checkCancellation()
-            await withThrowingTaskGroup(of: Void.self) { group in
-                for result in results {
-                    let _ = group.addTaskUnlessCancelled {
-                        try Task.checkCancellation()
-                        let food = try await MFPScraper().getFood(for: FoodIdentifier(result.url))
-                        try Task.checkCancellation()
-                        await MainActor.run {
-                            print("Got food: \(food.name)")
-                            self.foods[result.url] = food
+            do {
+                try Task.checkCancellation()
+                await withThrowingTaskGroup(of: Void.self) { group in
+                    for result in results {
+                        let _ = group.addTaskUnlessCancelled {
+                            try Task.checkCancellation()
+                            let food = try await MFPScraper().getFood(for: FoodIdentifier(result.url))
+                            try Task.checkCancellation()
+                            await MainActor.run {
+                                print("Got food: \(food.name)")
+                                self.foods[result.url] = food
+                            }
                         }
                     }
                 }
+            } catch {
+                print("🛑 Foods Fetch Task was cancelled!")
             }
         }
     }
