@@ -327,6 +327,14 @@ struct MFPSearch: View {
                 ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                     .foregroundColor(.secondary)
                     .frame(width: 20, height: 20)
+            } else {
+                Button {
+                    viewModel.loadNextPage()
+                } label: {
+                    Text("Load more")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.vertical, 3)
+                }
             }
         }
     }

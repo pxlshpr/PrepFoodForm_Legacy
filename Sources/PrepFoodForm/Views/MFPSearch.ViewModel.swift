@@ -4,6 +4,8 @@ import MFPScraper
 extension MFPSearch {
     class ViewModel: ObservableObject {
 
+        let maximumNumberOfAutoloadingPages = 2
+
         @Published var searchText = ""
         @Published var results: [MFPSearchResultFood] = []
         @Published var latestResults: [MFPSearchResultFood] = [] {
@@ -38,8 +40,8 @@ extension MFPSearch.ViewModel {
     }
     
     func cancelSearching() {
-        searchTask?.cancel()
         fetchFoodsTask?.cancel()
+        searchTask?.cancel()
         self.isLoadingPage = false
     }
     
@@ -118,8 +120,16 @@ extension MFPSearch.ViewModel {
             }
         }
     }
+    
+    func loadNextPage() {
+        startLoadContentTask()
+    }
 
     func loadMoreContentIfNeeded(currentResult result: MFPSearchResultFood?) {
+        guard currentPage <= maximumNumberOfAutoloadingPages else {
+            return
+        }
+        
         guard let result = result else {
             startLoadContentTask()
             return

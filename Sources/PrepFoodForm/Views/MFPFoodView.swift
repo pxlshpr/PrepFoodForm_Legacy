@@ -101,7 +101,7 @@ struct MFPFoodView: View {
         VStack(spacing: 0) {
             Spacer()
             Divider()
-            FormPrimaryButton(title: "Use this food") {
+            FormPrimaryButton(title: "Copy this food") {
                 
             }
             .padding(.top)
