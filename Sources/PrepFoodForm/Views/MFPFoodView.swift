@@ -15,8 +15,8 @@ struct MFPSizeViewModel: Hashable {
     }
     
     var fullNameString: String {
-        if let volumePrefixUnit = size.nameVolumeUnit {
-            return "\(volumePrefixUnit.shortDescription), \(nameString)"
+        if let prefixVolumeUnit = size.prefixVolumeUnit {
+            return "\(prefixVolumeUnit.shortDescription), \(nameString)"
         } else {
             return nameString
         }
@@ -28,12 +28,12 @@ struct MFPSizeViewModel: Hashable {
     
     var amountUnitDescription: String {
         switch size.amountUnit {
-        case .weight:
-            return size.amountWeightUnit?.description ?? ""
-        case .volume:
-            return size.amountVolumeUnit?.description ?? ""
-        case .size:
-            return size.amountSizeUnit?.nameDescription ?? ""
+        case .weight(let weightUnit):
+            return weightUnit.description
+        case .volume(let volumeUnit):
+            return volumeUnit.description
+        case .size(let size):
+            return size.nameDescription
         case .serving:
             return "serving"
         }
@@ -402,25 +402,15 @@ struct MockProcessedFood {
         brand: "Woolworths",
         detail: "Cavendish",
         amount: 1,
-        amountUnit: .size,
-        amountWeightUnit: nil,
-        amountVolumeUnit: nil,
-        amountSizeUnit:
-            MFPProcessedFood.Size(
+        amountUnit: .size(MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Medium",
-                nameVolumeUnit: nil,
+                prefixVolumeUnit: nil,
                 amount: 118,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
-            ),
-        servingValue: 1,
-        servingUnit: .weight,
-        servingWeightUnit: .g,
-        servingVolumeUnit: nil,
-        servingSizeUnit: nil,
+                amountUnit: .weight(.g)
+        )),
+        servingAmount: 1,
+        servingUnit: .weight(.g),
         energy: 105,
         carbohydrate: 26,
         fat: 0.4,
@@ -442,62 +432,44 @@ struct MockProcessedFood {
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Medium",
-                nameVolumeUnit: nil,
+                prefixVolumeUnit: nil,
                 amount: 118,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Large",
-                nameVolumeUnit: nil,
+                prefixVolumeUnit: nil,
                 amount: 136,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Sliced",
-                nameVolumeUnit: .cup,
+                prefixVolumeUnit: .cup,
                 amount: 150,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Mashed",
-                nameVolumeUnit: .cup,
+                prefixVolumeUnit: .cup,
                 amount: 225,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Extra small",
-                nameVolumeUnit: nil,
+                prefixVolumeUnit: nil,
                 amount: 81,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
             MFPProcessedFood.Size(
                 quantity: 1,
                 name: "Extra large",
-                nameVolumeUnit: nil,
+                prefixVolumeUnit: nil,
                 amount: 152,
-                amountUnit: .weight,
-                amountVolumeUnit: nil,
-                amountWeightUnit: .g,
-                amountSizeUnit: nil
+                amountUnit: .weight(.g)
             ),
 
         ],
