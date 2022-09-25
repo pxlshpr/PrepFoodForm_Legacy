@@ -41,32 +41,47 @@ extension FoodForm.NutritionFacts.FactForm {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if factViewModel.shouldShowDeleteButton {
-                Button("Remove") {
-                    factViewModel.removeExistingFact()
-                    dismiss()
-                }
+//            removeButton
+        }
+    }
+
+    var content: some View {
+        form
+    }
+
+    var content_legacy: some View {
+        VStack(spacing: 0) {
+            form
+            addButtons
+        }
+    }
+
+    @ViewBuilder
+    var removeButton: some View {
+        if factViewModel.shouldShowDeleteButton {
+            Button("Remove") {
+                factViewModel.removeExistingFact()
+                dismiss()
             }
         }
     }
-    var content: some View {
-        VStack(spacing: 0) {
-            form
-            if factViewModel.shouldShowAddButton {
-                VStack {
-                    FormPrimaryButton(title: "Add") {
-                        factViewModel.add()
-                        viewModel.showingMicronutrientsPicker = false
-                    }
-                    .buttonStyle(.borderless)
-                    .padding(.top)
-                    FormSecondaryButton(title: "Add and Add Another") {
-                        factViewModel.add()
-                        dismiss()
-                    }
+    
+    @ViewBuilder
+    var addButtons: some View {
+        if factViewModel.shouldShowAddButton {
+            VStack {
+                FormPrimaryButton(title: "Add") {
+                    factViewModel.add()
+                    viewModel.showingMicronutrientsPicker = false
                 }
-                .background(Color(.systemGroupedBackground))
+                .buttonStyle(.borderless)
+                .padding(.top)
+                FormSecondaryButton(title: "Add and Add Another") {
+                    factViewModel.add()
+                    dismiss()
+                }
             }
+            .background(Color(.systemGroupedBackground))
         }
     }
     
@@ -105,6 +120,11 @@ extension FoodForm.NutritionFacts.FactForm {
                     }
                 }
                 .pickerStyle(.segmented)
+            }
+            Spacer()
+            Button("Add") {
+                factViewModel.add()
+                dismiss()
             }
         }
     }

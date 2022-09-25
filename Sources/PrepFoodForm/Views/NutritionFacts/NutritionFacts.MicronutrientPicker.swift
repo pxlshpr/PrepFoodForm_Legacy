@@ -90,7 +90,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
         }
-        .buttonStyle(.borderless)
+//        .buttonStyle(.borderless)
     }
     
     func didTap(_ nutrient: NutrientType) {

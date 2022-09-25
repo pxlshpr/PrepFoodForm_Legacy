@@ -4,26 +4,52 @@ import SwiftHaptics
 
 public struct FoodForm: View {
     
+    @Environment(\.dismiss) var dismiss
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
     @State var showingThirdPartySearch = false
-    @State var showingWizard = true
+    @State var showingWizard: Bool
     
     public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
+        _showingWizard = State(wrappedValue: !FoodFormViewModel.shared.hasData)
     }
     
     public var body: some View {
         NavigationView {
-            contents
+            content
                 .navigationTitle("New Food")
                 .interactiveDismissDisabled(viewModel.hasData)
         }
     }
     
+    var content: some View {
+        VStack(spacing: 0) {
+            form
+            VStack {
+                savePublicallyButton
+                    .padding(.top)
+                savePrivatelyButton
+            }
+            .background(Color(.systemGroupedBackground))
+        }
+    }
+
+    var savePublicallyButton: some View {
+        FormPrimaryButton(title: "Save") {
+            dismiss()
+        }
+    }
+
+    var savePrivatelyButton: some View {
+        FormSecondaryButton(title: "Save Privately") {
+            dismiss()
+        }
+    }
+
     @ViewBuilder
-    var contents: some View {
+    var form: some View {
         Form {
             if showingWizard {
                 manualEntrySection
