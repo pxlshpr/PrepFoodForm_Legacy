@@ -29,7 +29,7 @@ public struct FoodForm: View {
             form
                 .safeAreaInset(edge: .bottom) {
                     //TODO: Programmatically get this inset (67516AA6)
-                    Spacer().frame(height: 128)
+                    Spacer().frame(height: 132)
                 }
             VStack {
                 Spacer()
@@ -188,7 +188,6 @@ public struct FoodForm: View {
                     .environmentObject(viewModel)
             }
         }
-
     }
     
     var foodLabelSection: some View {
@@ -204,9 +203,13 @@ public struct FoodForm: View {
                 NutritionFacts()
                     .environmentObject(viewModel)
             } label: {
-                NutritionFactsCell()
-                    .environmentObject(viewModel)
+                VStack{
+                    NutritionFactsCell()
+                        .environmentObject(viewModel)
+                        .buttonStyle(.borderless)
+                }
             }
+            .buttonStyle(.borderless)
         }
     }
     
