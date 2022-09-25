@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
          // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.47"),
+        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.50"),
         .package(url: "https://github.com/pxlshpr/ISEmojiView", from: "0.3.3"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.10"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.168"),

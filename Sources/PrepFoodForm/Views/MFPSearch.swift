@@ -55,8 +55,20 @@ extension MFPSearch {
 #else
             self.searchText = searchText
 #endif
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(didChangeLoadingStatus), name: .didChangeLoadingStatus, object: nil)
         }
         
+        @objc func didChangeLoadingStatus(notification: Notification) {
+            guard let userInfo = notification.userInfo,
+                  let loadingStatus = userInfo[Notification.MFScraperKeys.loadingStatus] as? LoadingStatus
+            else {
+                return
+            }
+            DispatchQueue.main.async {
+                self.loadingStatus = loadingStatus
+            }
+        }
     }
 }
 
@@ -175,11 +187,9 @@ struct MFPSearch: View {
         VStack {
             // Fills the top
             HStack {
-//                if !viewModel.loadingFailed {
-                    Text(viewModel.searchText)
-                        .font(.title)
-                        .foregroundColor(.secondary)
-//                }
+                Text(viewModel.searchText)
+                    .font(.title)
+                    .foregroundColor(.secondary)
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
             
@@ -192,7 +202,7 @@ struct MFPSearch: View {
                         .font(.system(size: 60))
                         .imageScale(.large)
                 }
-            } else {
+            } else if viewModel.isLoadingPage {
                 ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
                     .foregroundColor(Color(.tertiaryLabel))
                     .frame(width: 70, height: 70)
@@ -322,12 +332,13 @@ struct MFPSearch: View {
         var searchBar: some View {
             var background: some View {
                 keyboardColor
-                    .frame(height: 60)
+                    .frame(height: 65)
             }
             
             var textField: some View {
                 TextField("Search or enter website link", text: $viewModel.searchText)
                     .focused($isFocused)
+                    .font(.system(size: 20))
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled()
                     .onSubmit {
@@ -341,15 +352,16 @@ struct MFPSearch: View {
             }
             
             var textFieldBackground: some View {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                RoundedRectangle(cornerRadius: 15, style: .circular)
                     .foregroundColor(textFieldColor)
-                    .frame(height: 44)
+                    .frame(height: 48)
             }
             
             var searchIcon: some View {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(Color(.quaternaryLabel))
-                    .imageScale(.medium)
+                    .foregroundColor(Color(.secondaryLabel))
+                    .font(.system(size: 20))
+                    .fontWeight(.semibold)
             }
             
             var clearButton: some View {

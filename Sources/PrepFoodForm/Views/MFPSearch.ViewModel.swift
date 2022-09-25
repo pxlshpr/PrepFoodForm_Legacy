@@ -55,7 +55,7 @@ extension MFPSearch.ViewModel {
         Task(priority: .high) {
             do {
                 print("⬆️ Sending request for page \(currentPage) of \(searchText)")
-                let results = try await MFPScraper().getFoods(for: searchText, page: currentPage, loadingStatus: &loadingStatus)
+                let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
                 try Task.checkCancellation()
                 
                 print("⬇️ Got back: \(results.count) foods")
