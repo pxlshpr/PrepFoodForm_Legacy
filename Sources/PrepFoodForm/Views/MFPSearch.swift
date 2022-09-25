@@ -320,7 +320,7 @@ struct MFPSearch: View {
             var textField: some View {
                 TextField("Search or enter website link", text: $viewModel.searchText)
                     .focused($isFocused)
-                    .font(.system(size: 20))
+                    .font(.system(size: 18))
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled()
                     .onSubmit {
@@ -342,7 +342,7 @@ struct MFPSearch: View {
             var searchIcon: some View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(Color(.secondaryLabel))
-                    .font(.system(size: 20))
+                    .font(.system(size: 18))
                     .fontWeight(.semibold)
             }
             
