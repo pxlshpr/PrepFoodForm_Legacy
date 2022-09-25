@@ -404,7 +404,7 @@ extension MFPFoodView {
 //MARK: - Preview
 struct MFPFoodViewPreview: View {
     var body: some View {
-        NavigationStack {
+        NavigationView {
             MFPFoodView(result: MockResult.Banana, processedFood: MockProcessedFood.Banana)
         }
     }

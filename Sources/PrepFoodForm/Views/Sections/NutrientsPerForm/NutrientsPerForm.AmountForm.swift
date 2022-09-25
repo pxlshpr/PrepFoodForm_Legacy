@@ -27,6 +27,10 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             Button("Units") {
                 showingUnitPicker = true
             }
+            Spacer()
+            Button("Done") {
+                dismiss()
+            }
         }
     }
     

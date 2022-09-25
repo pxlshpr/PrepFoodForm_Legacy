@@ -118,7 +118,7 @@ public struct SourceImagePreview: View {
     }
     
     public var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 Section {
                     SourceImagesCarousel()

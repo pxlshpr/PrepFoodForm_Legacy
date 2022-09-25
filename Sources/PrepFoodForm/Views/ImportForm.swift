@@ -6,7 +6,7 @@ struct ImportForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Button("Simulate Import") {
                 simulateImport()
             }

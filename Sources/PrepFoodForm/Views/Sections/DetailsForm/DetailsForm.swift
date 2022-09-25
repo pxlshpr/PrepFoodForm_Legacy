@@ -35,8 +35,8 @@ extension FoodForm.DetailsForm {
                 TextField("Required", text: $viewModel.name)
             }
             Section("Emoji") {
-                NavigationLinkButton {
-                    viewModel.path.append(.detailsFormEmoji)
+                NavigationLink {
+                    FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
                 } label: {
                     emojiCell
                 }

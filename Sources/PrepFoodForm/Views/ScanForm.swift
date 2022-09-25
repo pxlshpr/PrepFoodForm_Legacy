@@ -7,7 +7,7 @@ struct ScanForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Button("Simulate Scan") {
                 simulateScan()
             }
@@ -17,9 +17,11 @@ struct ScanForm: View {
     }
     
     func simulateScan() {
-        viewModel.setSampleImages()
-        viewModel.simulateScan()
-        dismiss()
+//        viewModel.setSampleImages()
+//        viewModel.simulateScan()
+        withAnimation {
+            dismiss()
+        }
     }
 }
 

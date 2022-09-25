@@ -5,49 +5,73 @@ extension FoodForm.NutrientsPerForm {
 
         @EnvironmentObject var viewModel: FoodFormViewModel
         
+        @State var showingAmountForm = false
+        @State var showingServingForm = false
     }
 }
 
 extension FoodForm.NutrientsPerForm.Field {
+    
     var body: some View {
         HStack {
             Spacer()
-            button(viewModel.amountDescription, placeholder: "Required") {
-                viewModel.path.append(.amountForm)
-            }
+            amountButton
             if viewModel.shouldShowServingInField {
                 Spacer()
                 Text("of")
                     .font(.title3)
                     .foregroundColor(Color(.tertiaryLabel))
                 Spacer()
-                button(viewModel.servingDescription, placeholder: "serving size") {
-                    viewModel.path.append(.servingForm)
-                }
+                servingButton
                 Spacer()
             }
         }
     }
     
-    func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {
+    var amountButton: some View {
         Button {
-            action()
+            showingAmountForm = true
         } label: {
-            Group {
-                if string.isEmpty {
-                    HStack(spacing: 5) {
-                        Text(placeholder)
-                            .foregroundColor(Color(.quaternaryLabel))
-                    }
-                } else {
-                    Text(string)
-                }
-            }
-            .foregroundColor(.accentColor)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
+            label(viewModel.amountDescription, placeholder: "Required")
         }
         .buttonStyle(.borderless)
+        .sheet(isPresented: $showingAmountForm) {
+            NavigationView {
+                FoodForm.NutrientsPerForm.AmountForm()
+                    .environmentObject(viewModel)
+            }
+        }
+    }
+    
+    var servingButton: some View {
+        Button {
+            showingServingForm = true
+        } label: {
+            label(viewModel.servingDescription, placeholder: "serving size")
+        }
+        .buttonStyle(.borderless)
+        .sheet(isPresented: $showingServingForm) {
+            NavigationView {
+                FoodForm.NutrientsPerForm.ServingForm()
+                    .environmentObject(viewModel)
+            }
+        }
+    }
+    
+    func label(_ string: String, placeholder: String) -> some View {
+        Group {
+            if string.isEmpty {
+                HStack(spacing: 5) {
+                    Text(placeholder)
+                        .foregroundColor(Color(.quaternaryLabel))
+                }
+            } else {
+                Text(string)
+            }
+        }
+        .foregroundColor(.accentColor)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .contentShape(Rectangle())
     }
 }
 

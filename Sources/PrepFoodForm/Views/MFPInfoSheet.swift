@@ -3,7 +3,7 @@ import SwiftUI
 struct MFPInfoSheet: View {
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             form
                 .navigationTitle("Third Party Foods")
                 .navigationBarTitleDisplayMode(.inline)

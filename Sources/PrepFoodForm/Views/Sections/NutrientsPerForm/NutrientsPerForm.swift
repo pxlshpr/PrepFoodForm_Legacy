@@ -130,14 +130,12 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Section(header: header, footer: footer) {
-            NavigationLinkButton {
-                viewModel.path.append(.densityForm)
+            NavigationLink {
+                FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
+                    .environmentObject(viewModel)
             } label: {
                 label
             }
-//            NavigationLink(value: FoodForm.Route.densityForm) {
-//                label
-//            }
         }
     }
     var sizesSection: some View {

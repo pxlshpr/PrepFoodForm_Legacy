@@ -3,6 +3,7 @@ import SwiftHaptics
 
 extension FoodForm.NutrientsPerForm {
     struct ServingForm: View {
+        @Environment(\.dismiss) var dismiss
         @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
@@ -25,6 +26,10 @@ extension FoodForm.NutrientsPerForm.ServingForm {
         ToolbarItemGroup(placement: .keyboard) {
             Button("Units") {
                 showingUnitPicker = true
+            }
+            Spacer()
+            Button("Done") {
+                dismiss()
             }
         }
     }

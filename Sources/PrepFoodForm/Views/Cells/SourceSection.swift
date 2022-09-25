@@ -28,30 +28,31 @@ extension FoodForm.SourceSection {
             }
         }
         
-        return HStack {
+        return Menu {
+            Button("Images") {
+                viewModel.sourceType = .images
+                //TODO: We need to pass this back to the form
+//                viewModel.path.append(.sourceForm)
+            }
+            Button("Link") {
+                viewModel.sourceType = .link
+                //TODO: We need to pass this back to the form
+//                viewModel.path.append(.sourceForm)
+            }
+        } label: {
             Text("Optional")
                 .foregroundColor(Color(.tertiaryLabel))
             Spacer()
-            Menu {
-                Button("Images") {
-                    viewModel.sourceType = .images
-                    viewModel.path.append(.sourceForm)
-                }
-                Button("Link") {
-                    viewModel.sourceType = .link
-                    viewModel.path.append(.sourceForm)
-                }
-            } label: {
-                Text(title)
-                    .foregroundColor(.accentColor)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-            }
+            Text(title)
+                .foregroundColor(.accentColor)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
     
     var chosenContent: some View {
-        Button {
-            viewModel.path.append(.sourceForm)
+        NavigationLink {
+            FoodForm.SourceForm()
+                .environmentObject(viewModel)
         } label: {
             HStack(alignment: .top) {
                 Text(viewModel.sourceType.description)
@@ -68,13 +69,8 @@ extension FoodForm.SourceSection {
                     }
                 }
                 .foregroundColor(.secondary)
-                Image(systemName: "chevron.right")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .imageScale(.small)
-                    .fontWeight(.semibold)
             }
         }
-        .buttonStyle(.borderless)
     }
     
     var header: some View {
@@ -149,7 +145,7 @@ struct SourceCellPreview: View {
     }
     
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Form {
                 FoodForm.SourceSection()
                     .environmentObject(viewModel)

@@ -362,7 +362,7 @@ extension MFPSearch.ResultCell.ViewModel: NutritionSummaryProvider {
 public struct MFPSearchResultCellPreview: View {
     
     public var body: some View {
-        NavigationStack {
+        NavigationView {
             List {
                 MFPSearch.ResultCell(result: MockResult.Banana)
                 MFPSearch.ResultCell(result: MockResult.Banana)
