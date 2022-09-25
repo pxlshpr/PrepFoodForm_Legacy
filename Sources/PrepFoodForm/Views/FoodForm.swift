@@ -29,7 +29,7 @@ public struct FoodForm: View {
             form
                 .safeAreaInset(edge: .bottom) {
                     //TODO: Programmatically get this inset (67516AA6)
-                    Spacer().frame(height: 132)
+                    Spacer().frame(height: 135)
                 }
             VStack {
                 Spacer()
