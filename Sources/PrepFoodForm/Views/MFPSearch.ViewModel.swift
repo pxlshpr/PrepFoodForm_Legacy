@@ -1,42 +1,48 @@
 import SwiftUI
 import MFPScraper
+import SwiftHaptics
 
-extension MFPSearch {
-    class ViewModel: ObservableObject {
-
-        let maximumNumberOfAutoloadingPages = 2
-
-        @Published var searchText = ""
-        @Published var results: [MFPSearchResultFood] = []
-        @Published var latestResults: [MFPSearchResultFood] = [] {
-            didSet {
-                Task(priority: .low) {
-                    fetchFoodsTask = try await fetchFoods(results)
-                }
-            }
-        }
-        @Published var foods: [String: MFPProcessedFood] = [:]
-
-        @Published var path: [Route] = []
-        
-        @Published var isLoadingPage = false
-        private var currentPage = 1
-        private var canLoadMorePages = true
-        
-        var searchTask: Task<(), Error>? = nil
-        var fetchFoodsTask: Task<Void, Error>? = nil
-
-        init(searchText: String = "Kelloggs Chocos") {
-            self.searchText = searchText
-        }
-    }
+func sleepTask(_ seconds: Int, tolerance: Int = 1) async throws {
+    try await Task.sleep(
+        until: .now + .seconds(seconds),
+        tolerance: .seconds(tolerance),
+        clock: .suspending
+    )
 }
 
 extension MFPSearch.ViewModel {
+    
+    func updateLoadingStatus() {
+        if case .failed = loadingStatus {
+            Haptics.errorFeedback()
+            loadingFailed = true
+        } else {
+            Haptics.warningFeedback()
+            loadingFailed = false
+        }
+        if case .firstAttempt = loadingStatus {
+            isFirstAttempt = true
+        } else {
+            isFirstAttempt = false
+        }
+        
+        errorMessage = loadingStatus.errorMessage
+        retryMessage = loadingStatus.retryMessage
+    }
+    
     func startSearching() {
+        
+        isFirstAttempt = true
+        loadingFailed = false
+        loadingStatus = .firstAttempt
+        retryMessage = nil
+        errorMessage = nil
+        
         currentPage = 1
         results = []
+        
         startLoadContentTask()
+//        simulateLoadingTask()
     }
     
     func cancelSearching() {
@@ -49,7 +55,7 @@ extension MFPSearch.ViewModel {
         Task(priority: .high) {
             do {
                 print("⬆️ Sending request for page \(currentPage) of \(searchText)")
-                let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
+                let results = try await MFPScraper().getFoods(for: searchText, page: currentPage, loadingStatus: &loadingStatus)
                 try Task.checkCancellation()
                 
                 print("⬇️ Got back: \(results.count) foods")
@@ -97,6 +103,28 @@ extension MFPSearch.ViewModel {
     
     func food(for result: MFPSearchResultFood) -> MFPProcessedFood? {
         foods[result.url]
+    }
+    
+    func simulateLoadingTask() {
+        isLoadingPage = true
+        Task {
+            try await sleepTask(2)
+            await MainActor.run {
+                loadingStatus = .retry(attemptNumber: 1, maxAttempts: 3, reason: .timeout)
+            }
+            try await sleepTask(2)
+            await MainActor.run {
+                loadingStatus = .retry(attemptNumber: 2, maxAttempts: 3, reason: .timeout)
+            }
+            try await sleepTask(2)
+            await MainActor.run {
+                loadingStatus = .retry(attemptNumber: 3, maxAttempts: 3, reason: .timeout)
+            }
+            try await sleepTask(2)
+            await MainActor.run {
+                loadingStatus = .failed(reason: .timeout)
+            }
+        }
     }
     
     private func startLoadContentTask() {

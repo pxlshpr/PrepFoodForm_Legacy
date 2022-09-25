@@ -8,6 +8,58 @@ let colorHexKeyboardDark = "303030"
 let colorHexSearchTextFieldDark = "535355"
 let colorHexSearchTextFieldLight = "FFFFFF"
 
+let testLoadingStatus = LoadingStatus.retry(attemptNumber: 3, maxAttempts: 3, reason: .timeout)
+
+extension MFPSearch {
+    class ViewModel: ObservableObject {
+
+        let maximumNumberOfAutoloadingPages = 2
+
+        @Published var searchText = ""
+        @Published var results: [MFPSearchResultFood] = []
+        @Published var latestResults: [MFPSearchResultFood] = [] {
+            didSet {
+                Task(priority: .low) {
+                    fetchFoodsTask = try await fetchFoods(results)
+                }
+            }
+        }
+        @Published var foods: [String: MFPProcessedFood] = [:]
+
+        @Published var path: [Route] = []
+        
+        @Published var isLoadingPage = false
+        @Published var loadingStatus: LoadingStatus = .firstAttempt {
+            didSet {
+                DispatchQueue.main.async {
+                    withAnimation {
+                        self.updateLoadingStatus()
+                    }
+                }
+            }
+        }
+        @Published var isFirstAttempt: Bool = true
+        @Published var loadingFailed: Bool = false
+        @Published var errorMessage: String? = nil
+        @Published var retryMessage: String? = nil
+        
+        var currentPage = 1
+        var canLoadMorePages = true
+        
+        var searchTask: Task<(), Error>? = nil
+        var fetchFoodsTask: Task<Void, Error>? = nil
+
+        init(searchText: String = "") {
+#if targetEnvironment(simulator)
+            self.searchText = "Kelloggs Chocos"
+#else
+            self.searchText = searchText
+#endif
+        }
+        
+    }
+}
+
 //MARK: - MFPSearch
 struct MFPSearch: View {
     
@@ -22,7 +74,7 @@ struct MFPSearch: View {
     
     @FocusState var isFocused: Bool
     @State var showingSearchLayer: Bool = false
-    @State var showingSearchActivityIndicator = false
+    @State var showingSearchActivityIndicator = true
     
     var body: some View {
         ZStack {
@@ -36,6 +88,7 @@ struct MFPSearch: View {
         }
         .onAppear {
             focusOnSearchTextField()
+//            viewModel.loadingStatus = testLoadingStatus
         }
         .onDisappear {
             viewModel.cancelSearching()
@@ -49,7 +102,7 @@ struct MFPSearch: View {
                 return
             }
             stopTimer()
-            Haptics.feedback(style: .medium)
+            Haptics.successFeedback()
             withAnimation {
                 progressValue = 10
             }
@@ -74,15 +127,15 @@ struct MFPSearch: View {
     func startSearching() {
         withAnimation {
             showingSearchActivityIndicator = true
+            viewModel.startSearching()
         }
-        viewModel.startSearching()
     }
     
     var navigationStack: some View {
         var title: String {
             if showingSearchActivityIndicator {
-//                return "Searching …"
-                return "Search Third-Party Foods"
+                return "Searching …"
+//                return "Search Third-Party Foods"
             } else {
                 return "Search Third-Party Foods"
             }
@@ -110,42 +163,87 @@ struct MFPSearch: View {
     @ViewBuilder
     var content: some View {
         if showingSearchActivityIndicator {
-            searchActivityIndicator
+            searchStatus
         } else {
             list
+        }
+    }
+    
+    //MARK: Search
+    
+    var searchStatus: some View {
+        VStack {
+            // Fills the top
+            HStack {
+//                if !viewModel.loadingFailed {
+                    Text(viewModel.searchText)
+                        .font(.title)
+                        .foregroundColor(.secondary)
+//                }
+            }
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            
+            // Centered
+            if viewModel.loadingFailed {
+                Button {
+                    startSearching()
+                } label: {
+                    Image(systemName: "arrow.clockwise.circle.fill")
+                        .font(.system(size: 60))
+                        .imageScale(.large)
+                }
+            } else {
+                ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .frame(width: 70, height: 70)
+            }
+            
+            // Fills the bottom
+            HStack {
+                if !viewModel.isFirstAttempt {
+                    VStack(spacing: 10) {
+                        if let retryStatusMessage = viewModel.errorMessage {
+                            Text(retryStatusMessage)
+                            .foregroundColor(Color(.tertiaryLabel))
+                        }
+                        if let retryCountMessage = viewModel.retryMessage {
+                            Text(retryCountMessage)
+                                .foregroundColor(Color(.quaternaryLabel))
+                        }
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundColor(Color(.quaternarySystemFill))
+                    )
+                }
+            }.frame(maxHeight: .infinity, alignment: .top)
         }
     }
     
     @State var timer = Timer.publish(every: 0.02, on: .main, in: .common).autoconnect()
     @State var progressValue: Double = 0
     
-    var searchActivityIndicator: some View {
-        VStack {
-//            Text("Loading")
-//                .foregroundColor(.secondary)
-            ProgressView(value: progressValue, total: 10) {
-                HStack {
-                    Spacer()
-                    Text("Searching '\(viewModel.searchText)'…")
-                        .foregroundColor(.secondary)
-                    Spacer()
-                }
-            }
-            .frame(width: 250)
-            .onReceive(timer) { _ in
-                let newValue = progressValue + 0.02
-                guard newValue < 10 else {
-                    stopTimer()
-                    return
-                }
-                withAnimation {
-                    progressValue = newValue
-                }
+    var progressView: some View {
+        ProgressView(value: progressValue, total: 10) {
+            HStack {
+                Spacer()
+                Text("Searching '\(viewModel.searchText)'…")
+                    .foregroundColor(.secondary)
+                Spacer()
             }
         }
-//        ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
-//            .foregroundColor(Color(.secondaryLabel))
-//            .frame(width: 200, height: 200)
+        .frame(width: 250)
+        .onReceive(timer) { _ in
+            let newValue = progressValue + 0.02
+            guard newValue < 10 else {
+                stopTimer()
+                return
+            }
+            withAnimation {
+                progressValue = newValue
+            }
+        }
     }
     
     func stopTimer() {
@@ -165,7 +263,7 @@ struct MFPSearch: View {
     }
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            cancelButton
+//            cancelButton
             searchButton
         }
     }
@@ -324,16 +422,19 @@ struct MFPSearch: View {
                 }
             }
             if viewModel.isLoadingPage {
-                ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
-                    .foregroundColor(.secondary)
-                    .frame(width: 20, height: 20)
+                HStack {
+                    ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
+                        .foregroundColor(.secondary)
+                        .frame(width: 20, height: 20)
+                }
+                .frame(maxWidth: .infinity)
             } else {
                 Button {
                     viewModel.loadNextPage()
                 } label: {
-                    Text("Load more")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 3)
+                    Text("Load more…")
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 10)
                 }
             }
         }
