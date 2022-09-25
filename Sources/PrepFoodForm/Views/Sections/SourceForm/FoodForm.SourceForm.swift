@@ -154,7 +154,8 @@ extension FoodForm.SourceForm {
         return Group {
             Section("Images") {
                 SourceImagesCarousel { index in
-                    viewModel.path.append(.sourceImage(viewModel.sourceImageViewModels[index]))
+                    //TODO: Change this to new navigation layout
+//                    viewModel.path.append(.sourceImage(viewModel.sourceImageViewModels[index]))
                 } didTapDeleteOnImage: { index in
                 }
                 .environmentObject(viewModel)

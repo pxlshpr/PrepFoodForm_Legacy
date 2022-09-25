@@ -26,6 +26,12 @@ extension FoodForm.NutrientsPerForm.Field {
                 Spacer()
             }
         }
+        .onAppear {
+            /// If it's present the amount form as the empty form is redundant to display
+            if !viewModel.hasNutrientsPerContent {
+                showingAmountForm = true
+            }
+        }
     }
     
     var amountButton: some View {

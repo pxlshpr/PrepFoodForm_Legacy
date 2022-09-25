@@ -79,9 +79,11 @@ extension FoodForm.NutrientsPerForm.DensityForm {
 
     var navigationTitle: String {
         if orderWeightFirst {
-            return "Weight-to-Volume Ratio"
+            return "Weight:Volume"
+//            return "Weight-to-Volume Ratio"
         } else {
-            return "Volume-to-Weight Ratio"
+            return "Volume:Weight"
+//            return "Volume-to-Weight Ratio"
         }
     }
     

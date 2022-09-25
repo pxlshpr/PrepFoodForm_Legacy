@@ -8,7 +8,6 @@ public class FoodFormViewModel: ObservableObject {
 
     static public var shared = FoodFormViewModel()
     
-    @Published var path: [FoodFormRoute] = []
     @Published var showingMicronutrientsPicker = false
     @Published var shouldShowDensitiesSection: Bool = false
     

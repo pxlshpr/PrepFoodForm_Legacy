@@ -5,10 +5,8 @@ extension FoodForm {
 
         @EnvironmentObject var viewModel: FoodFormViewModel
         
-        @State var showingSizesList = false
-        @State var showingVolumesList = false
         @State var showingAddSizeForm = false
-        @State var showingAddVolumeForm = false
+        @State var showingDensityForm = false
     }
 }
 
@@ -24,21 +22,6 @@ extension FoodForm.NutrientsPerForm {
         .toolbar { bottomToolbarContent }
         .navigationTitle("Amount Per")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingSizesList) {
-            SizesList()
-        }
-        .sheet(isPresented: $showingVolumesList) {
-            SizesList()
-        }
-        .sheet(isPresented: $showingAddSizeForm) {
-            SizeForm()
-                .environmentObject(viewModel)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
-        }
-        .sheet(isPresented: $showingAddVolumeForm) {
-            SizesList()
-        }
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled()
     }
@@ -130,14 +113,24 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Section(header: header, footer: footer) {
-            NavigationLink {
-                FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
-                    .environmentObject(viewModel)
+            Button {
+                showingDensityForm = true
             } label: {
                 label
             }
+            .sheet(isPresented: $showingDensityForm) {
+                densityForm
+            }
         }
     }
+    
+    var densityForm: some View {
+        NavigationView {
+            FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
+                .environmentObject(viewModel)
+        }
+    }
+    
     var sizesSection: some View {
         var header: some View {
             Text("Sizes")
@@ -159,6 +152,12 @@ extension FoodForm.NutrientsPerForm {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
+            .sheet(isPresented: $showingAddSizeForm) {
+                SizeForm()
+                    .environmentObject(viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
         }
         
         return Group {
@@ -168,8 +167,9 @@ extension FoodForm.NutrientsPerForm {
                 }
             } else {
                 Section(header: header) {
-                    NavigationLinkButton {
-                        viewModel.path.append(.sizesList)
+                    NavigationLink {
+                        SizesList()
+                            .environmentObject(viewModel)
                     } label: {
                         SizesCell()
                     }

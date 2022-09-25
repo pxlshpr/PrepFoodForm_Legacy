@@ -78,7 +78,8 @@ public struct FoodForm: View {
                 .environmentObject(viewModel)
                 .onDisappear {
                     if viewModel.isScanning {
-                        viewModel.path.append(.foodForm)
+                        //TODO: Change this to new navigation layout
+//                        viewModel.path.append(.foodForm)
                     }
                 }
         }
@@ -105,16 +106,9 @@ public struct FoodForm: View {
         return Section(header: header, footer: footer) {
             Button {
                 showingThirdPartySearch = true
-//                viewModel.path.append(.mfpSearch)
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
-                Spacer()
-//                Image(systemName: "chevron.right")
-//                    .foregroundColor(Color(.tertiaryLabel))
-//                    .imageScale(.small)
-//                    .fontWeight(.semibold)
             }
-            .buttonStyle(.borderless)
         }
         .sheet(isPresented: $showingThirdPartySearch) {
             MFPSearch()
@@ -140,11 +134,6 @@ public struct FoodForm: View {
             NavigationLink {
                 NutrientsPerForm()
                     .environmentObject(viewModel)
-                //TODO: Run this before going to the next screen
-//                if !viewModel.hasNutrientsPerContent {
-//                    /// If it's empty, prefill it before going to the screen
-//                    viewModel.amountString = "1"
-//                }
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
@@ -199,53 +188,3 @@ public struct FoodForm: View {
     }
 }
 
-
-//MARK: - Legacy (To Remove)
-extension FoodForm {
-    @ViewBuilder
-    func navigationDestination(for route: FoodFormRoute) -> some View {
-        switch route {
-        case .foodForm:
-            FoodForm()
-                .environmentObject(viewModel)
-        case .nutrientsPerForm:
-            FoodForm.NutrientsPerForm()
-                .environmentObject(viewModel)
-        case .detailsForm:
-            FoodForm.DetailsForm()
-                .environmentObject(viewModel)
-        case .nutritionFacts:
-            FoodForm.NutritionFacts()
-                .environmentObject(viewModel)
-        case .sourceForm:
-            FoodForm.SourceForm()
-                .environmentObject(viewModel)
-        case .detailsFormEmoji:
-            FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
-        case .densityForm:
-            FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
-                .environmentObject(viewModel)
-        
-        case .amountForm:
-            FoodForm.NutrientsPerForm.AmountForm()
-                .environmentObject(viewModel)
-        case .servingForm:
-            FoodForm.NutrientsPerForm.ServingForm()
-                .environmentObject(viewModel)
-            
-            
-            
-        case .sizesList:
-            SizesList()
-                .environmentObject(viewModel)
-        case .nutritionFactForm(let type):
-            FoodForm.NutritionFacts.FactForm(type: type)
-                .environmentObject(viewModel)
-        case .sourceImage(let sourceImageViewModel):
-            SourceImageView(sourceImageViewModel: sourceImageViewModel)
-                .environmentObject(viewModel)
-        case .mfpSearch:
-            MFPSearch()
-        }
-    }
-}

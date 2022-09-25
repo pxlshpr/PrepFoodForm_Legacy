@@ -72,12 +72,14 @@ extension FoodForm.NutritionFacts {
     }
     
     func button(fact: NutritionFact) -> some View {
-        Button {
-            viewModel.path.append(.nutritionFactForm(fact.type))
+        NavigationLink {
+//            viewModel.path.append(.nutritionFactForm(fact.type))
+            FoodForm.NutritionFacts.FactForm(type: fact.type)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fact: fact)
         }
-        .buttonStyle(.borderless)
+//        .buttonStyle(.borderless)
     }
     
     func titleCell(_ title: String) -> some View {
