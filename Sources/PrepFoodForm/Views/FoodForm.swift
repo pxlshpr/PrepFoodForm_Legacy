@@ -25,9 +25,16 @@ public struct FoodForm: View {
     }
     
     var content: some View {
-        VStack(spacing: 0) {
+        ZStack {
             form
-            saveButtons
+                .safeAreaInset(edge: .bottom) {
+                    //TODO: Programmatically get this inset (67516AA6)
+                    Spacer().frame(height: 128)
+                }
+            VStack {
+                Spacer()
+                saveButtons
+            }
         }
     }
     
@@ -61,6 +68,12 @@ public struct FoodForm: View {
     @ViewBuilder
     var form: some View {
         Form {
+            formContents
+        }
+    }
+    
+    var formContents: some View {
+        Group {
             if showingWizard {
                 manualEntrySection
                 imageSection

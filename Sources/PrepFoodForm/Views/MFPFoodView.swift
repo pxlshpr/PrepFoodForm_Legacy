@@ -133,6 +133,7 @@ struct MFPFoodView: View {
             linkSection
         }
         .safeAreaInset(edge: .bottom) {
+            //TODO: Programmatically get this inset (67516AA6)
             Spacer().frame(height: 68)
         }
         .sheet(isPresented: $showingWebsite) {
