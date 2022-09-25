@@ -69,7 +69,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                         Button {
                             
                         } label: {
-                            Label("Auto-fill from third-party food", systemImage: "link")
+                            Label("Auto-fill", systemImage: "link")
                         }
                     }
                 }
