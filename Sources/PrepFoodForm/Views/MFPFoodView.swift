@@ -149,9 +149,8 @@ struct MFPFoodView: View {
     }
     
     func linkButton(for url: URL) -> some View {
-        Button {
-            searchViewModel.path.append(.website(url))
-//            showingWebsite = true
+        NavigationLink {
+            SourceWebView(urlString: url.absoluteString)
         } label: {
             HStack {
                 HStack {

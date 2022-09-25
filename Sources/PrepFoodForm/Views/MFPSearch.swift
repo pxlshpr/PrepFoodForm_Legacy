@@ -26,8 +26,6 @@ extension MFPSearch {
         }
         @Published var foods: [String: MFPProcessedFood] = [:]
 
-        @Published var path: [Route] = []
-        
         @Published var isLoadingPage = false
         @Published var loadingStatus: LoadingStatus = .firstAttempt {
             didSet {
@@ -75,11 +73,6 @@ extension MFPSearch {
 //MARK: - MFPSearch
 struct MFPSearch: View {
     
-    enum Route: Hashable {
-        case mfpFood(MFPSearchResultFood, MFPProcessedFood?)
-        case website(URL)
-    }
-    
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: ViewModel = ViewModel()
@@ -90,7 +83,7 @@ struct MFPSearch: View {
     
     var body: some View {
         ZStack {
-            navigationStack
+            navigationView
                 .blur(radius: showingSearchLayer ? 10 : 0)
             if showingSearchLayer {
                 ZStack {
@@ -143,7 +136,7 @@ struct MFPSearch: View {
         }
     }
     
-    var navigationStack: some View {
+    var navigationView: some View {
         var title: String {
             if showingSearchActivityIndicator {
                 return "Searching …"
@@ -152,23 +145,12 @@ struct MFPSearch: View {
                 return "Search Third-Party Foods"
             }
         }
-        return NavigationStack(path: $viewModel.path) {
+        return NavigationView {
             content
                 .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationTrailingContent }
                 .toolbar { navigationLeadingContent }
-                .navigationDestination(for: Route.self) { route in
-                    switch route {
-                    case .mfpFood(let result, let processedFood):
-                        MFPFoodView(result: result, processedFood: processedFood)
-                            .environmentObject(viewModel)
-                    case .website(let url):
-                        SourceWebView(urlString: url.absoluteString)
-//                        SFSafariViewWrapper(url: url)
-//                            .edgesIgnoringSafeArea(.all)
-                    }
-                }
         }
     }
     
@@ -429,8 +411,9 @@ struct MFPSearch: View {
     var list: some View {
         List {
             ForEach(viewModel.results, id: \.self) { result in
-                NavigationLinkButton {
-                    viewModel.path.append(.mfpFood(result, viewModel.food(for: result)))
+                NavigationLink {
+                    MFPFoodView(result: result, processedFood: viewModel.food(for: result))
+                        .environmentObject(viewModel)
                 } label: {
                     ResultCell(result: result)
                         .onAppear {
