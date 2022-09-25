@@ -27,24 +27,33 @@ public struct FoodForm: View {
     var content: some View {
         VStack(spacing: 0) {
             form
-            VStack {
-                savePublicallyButton
-                    .padding(.top)
-                savePrivatelyButton
+            saveButtons
+        }
+    }
+    
+    @ViewBuilder
+    var saveButtons: some View {
+        if viewModel.hasData {
+            VStack(spacing: 0) {
+                Divider()
+                VStack {
+                    if viewModel.shouldShowSavePublicButton {
+                        FormPrimaryButton(title: "Add to Public Database") {
+                            dismiss()
+                        }
+                        .padding(.top)
+                        FormSecondaryButton(title: "Add to Private Database") {
+                            dismiss()
+                        }
+                    } else {
+                        FormPrimaryButton(title: "Add to Private Database") {
+                            dismiss()
+                        }
+                        .padding(.top)
+                    }
+                }
             }
             .background(Color(.systemGroupedBackground))
-        }
-    }
-
-    var savePublicallyButton: some View {
-        FormPrimaryButton(title: "Save") {
-            dismiss()
-        }
-    }
-
-    var savePrivatelyButton: some View {
-        FormSecondaryButton(title: "Save Privately") {
-            dismiss()
         }
     }
 
