@@ -53,7 +53,8 @@ public struct FoodForm: View {
                     }
                 }
             }
-            .background(Color(.systemGroupedBackground))
+//            .background(Color(.systemGroupedBackground))
+            .background(.thinMaterial)
         }
     }
 
