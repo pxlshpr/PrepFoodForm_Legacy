@@ -396,6 +396,12 @@ struct MFPSearch: View {
                 .background (
                     .ultraThinMaterial
                 )
+                .onTapGesture {
+                    guard !viewModel.results.isEmpty else {
+                        return
+                    }
+                    resignFocusOfSearchTextField()
+                }
             VStack {
                 HStack {
                     Button("Cancel") {

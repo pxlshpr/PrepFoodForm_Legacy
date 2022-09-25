@@ -41,6 +41,10 @@ extension MFPSearch.ViewModel {
         currentPage = 1
         results = []
         
+        /// Cancel previous `searchTask`
+        searchTask?.cancel()
+        isLoadingPage = false
+        
         startLoadContentTask()
 //        simulateLoadingTask()
     }
@@ -52,7 +56,7 @@ extension MFPSearch.ViewModel {
     }
     
     var loadContentTask: Task<(), Error> {
-        Task(priority: .high) {
+        Task(priority: .medium) {
             do {
                 print("⬆️ Sending request for page \(currentPage) of \(searchText)")
                 let results = try await MFPScraper().getFoods(for: searchText, page: currentPage)
@@ -129,9 +133,6 @@ extension MFPSearch.ViewModel {
     
     private func startLoadContentTask() {
         
-        /// Cancel previous `searchTask`
-        searchTask?.cancel()
-        
         guard !isLoadingPage && canLoadMorePages else {
             return
         }
@@ -140,7 +141,7 @@ extension MFPSearch.ViewModel {
         
         searchTask = loadContentTask
         
-        Task(priority: .high) {
+        Task(priority: .medium) {
             do {
                 let _ = try await searchTask!.value
             } catch {

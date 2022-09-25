@@ -68,16 +68,22 @@ public struct FoodForm: View {
     
     var servingSection: some View {
         Section("Amount Per") {
-            NavigationLinkButton {
-                viewModel.path.append(.nutrientsPerForm)
-                if !viewModel.hasNutrientsPerContent {
-                    /// If it's empty, prefill it before going to the screen
-                    viewModel.amountString = "1"
-                }
+            NavigationLink {
+                Color.red
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
             }
+//            NavigationLinkButton {
+//                viewModel.path.append(.nutrientsPerForm)
+//                if !viewModel.hasNutrientsPerContent {
+//                    /// If it's empty, prefill it before going to the screen
+//                    viewModel.amountString = "1"
+//                }
+//            } label: {
+//                NutrientsPerCell()
+//                    .environmentObject(viewModel)
+//            }
         }
 
     }
