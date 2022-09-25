@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 import CodeScanner
+import SwiftHaptics
 
 extension FoodForm {
     struct DetailsForm: View {
@@ -8,6 +9,7 @@ extension FoodForm {
         
         @State var showingEmojiPicker = false
         @State var showingCodeScanner = false
+        @State var showingSheet = false
     }
 }
 
@@ -22,6 +24,35 @@ extension FoodForm.DetailsForm {
         .sheet(isPresented: $showingEmojiPicker) {
             FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
         }
+        .sheet(isPresented: $showingSheet) {
+            NavigationView {
+                Form {
+                    Section {
+                        Text("This value was pre-filled from the following third-party food.")
+                    }
+                    Section {
+                        Button {
+                            
+                        } label: {
+                            HStack {
+                                HStack {
+                                    Image(systemName: "link")
+                                    Text("Website")
+                                }
+                                .foregroundColor(.secondary)
+                                Spacer()
+                                Text("MyFitnessPal")
+                                    .foregroundColor(.accentColor)
+                            }
+                        }
+                    }
+                }
+                .navigationTitle("Pre-filled")
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.height(300), .medium])
+            .presentationDragIndicator(.hidden)
+        }
         .sheet(isPresented: $showingCodeScanner) {
             CodeScanner(handleScan: self.handleScan)
         }
@@ -32,7 +63,19 @@ extension FoodForm.DetailsForm {
     var form: some View {
         Form {
             Section("Name") {
-                TextField("Required", text: $viewModel.name)
+                HStack {
+                    TextField("Required", text: $viewModel.name)
+                    Button {
+                        Haptics.feedback(style: .soft)
+                        showingSheet = true
+                    } label: {
+                        Image(systemName: "link.circle.fill")
+//                        Image(systemName: "photo.circle.fill")
+//                        Image(systemName: "viewfinder.circle.fill")
+                            .imageScale(.large)
+                    }
+                    .buttonStyle(.borderless)
+                }
             }
             Section("Emoji") {
                 NavigationLink {
@@ -42,10 +85,22 @@ extension FoodForm.DetailsForm {
                 }
             }
             Section("Detail") {
-                TextField("", text: $viewModel.detail)
-                    .placeholder(when: viewModel.detail.isEmpty) {
-                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                HStack {
+                    TextField("", text: $viewModel.detail)
+                        .placeholder(when: viewModel.detail.isEmpty) {
+                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                        }
+                    Button {
+                        Haptics.feedback(style: .soft)
+                        showingSheet = true
+                    } label: {
+//                        Image(systemName: "link.circle.fill")
+//                        Image(systemName: "photo.circle.fill")
+                        Image(systemName: "viewfinder.circle.fill")
+                            .imageScale(.large)
                     }
+                    .buttonStyle(.borderless)
+                }
             }
             Section("Brand") {
                 TextField("", text: $viewModel.brand)
@@ -107,5 +162,22 @@ extension FoodForm.DetailsForm {
         case .failure(let error):
             print("Scanning failed: \(error)")
         }
+    }
+}
+
+struct DetailsFormPreview: View {
+    
+    @StateObject var viewModel = FoodFormViewModel()
+    
+    var body: some View {
+        FoodForm.DetailsForm()
+            .environmentObject(viewModel)
+    }
+}
+
+struct DetailsForm_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        DetailsFormPreview()
     }
 }

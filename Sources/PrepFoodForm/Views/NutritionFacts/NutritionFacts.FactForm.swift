@@ -122,9 +122,11 @@ extension FoodForm.NutritionFacts.FactForm {
                 .pickerStyle(.segmented)
             }
             Spacer()
-            Button("Add") {
-                factViewModel.add()
-                dismiss()
+            if factViewModel.shouldShowAddButton {
+                Button("Add") {
+                    factViewModel.add()
+                    dismiss()
+                }
             }
         }
     }

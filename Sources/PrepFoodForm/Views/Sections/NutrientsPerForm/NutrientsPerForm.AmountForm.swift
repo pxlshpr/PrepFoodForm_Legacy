@@ -8,6 +8,9 @@ extension FoodForm.NutrientsPerForm {
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
         @FocusState var isFocused
+        
+        @State var showingSheet = false
+        @State var fieldSourceType = "viewfinder.circle.fill"
     }
 }
 
@@ -33,15 +36,63 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             }
         }
     }
+    var fieldSourceTypeButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            showingSheet = true
+        } label: {
+//            Image(systemName: "link.circle.fill")
+//            Image(systemName: "photo.circle.fill")
+            Image(systemName: fieldSourceType)
+                .imageScale(.large)
+        }
+        .buttonStyle(.borderless)
+        .sheet(isPresented: $showingSheet) {
+            NavigationView {
+                Form {
+                    Section {
+                        Text("This value was manually filled in by you.")
+                    }
+                    Section("Fill-in from source images") {
+                        Button {
+                            
+                        } label: {
+                            Label("Auto-fill", systemImage: "text.viewfinder")
+                        }
+                        Button {
+                            
+                        } label: {
+                            Label("Pick a text", systemImage: "photo")
+                        }
+                    }
+                    Section("Fill-in from third-party food") {
+                        Button {
+                            
+                        } label: {
+                            Label("Auto-fill from third-party food", systemImage: "link")
+                        }
+                    }
+                }
+                .navigationTitle("Manually filled")
+                .navigationBarTitleDisplayMode(.inline)
+            }
+            .presentationDetents([.height(300), .medium])
+            .presentationDragIndicator(.hidden)
+        }
+    }
     
     var form: some View {
         Form {
             Section(header: header, footer: footer) {
-                HStack(spacing: 0) {
+                HStack {
                     textField
                     unitButton
+                    fieldSourceTypeButton
                 }
             }
+        }
+        .onChange(of: viewModel.amountString) { newValue in
+            fieldSourceType = "pencil.circle.fill"
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
@@ -79,13 +130,15 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     }
     
     var unitButton: some View {
+//        Text(viewModel.amountUnitShortString)
+//            .foregroundColor(.secondary)
         Button {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.amountUnitShortString)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
+//                Image(systemName: "chevron.up.chevron.down")
+//                    .imageScale(.small)
             }
         }
         .buttonStyle(.borderless)
@@ -99,5 +152,22 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     var footer: some View {
         Text("This is how much of this food the nutrition facts are for. You'll be able to log this food using the unit you choose.")
             .foregroundColor(viewModel.amountString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+    }
+}
+
+struct AmountFormPreview: View {
+    
+    @StateObject var viewModel = FoodFormViewModel()
+    
+    var body: some View {
+        FoodForm.NutrientsPerForm.AmountForm()
+            .environmentObject(viewModel)
+    }
+}
+
+struct AmountForm_Previews: PreviewProvider {
+    
+    static var previews: some View {
+        AmountFormPreview()
     }
 }
