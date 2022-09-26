@@ -134,8 +134,8 @@ struct DetailsCellPreview: View {
     
     func populateData() {
         viewModel.emoji = "🧈"
-        viewModel.name = FoodFormViewModel.FieldValue(identifier: .name, string: "Butter")
-        viewModel.detail = FoodFormViewModel.FieldValue(identifier: .detail, string: "Salted")
+        viewModel.name = FieldValue(identifier: .name, string: "Butter")
+        viewModel.detail = FieldValue(identifier: .detail, string: "Salted")
         viewModel.brand = "Emborg"
         viewModel.barcode = "10123456789019"
 //        viewModel.barcode = "2166529V"

@@ -4,20 +4,80 @@ import SwiftHaptics
 
 extension FoodForm.NutritionFacts {
     public struct MicronutrientPicker: View {
-        
-        enum Route: Hashable {
-            case form(NutrientType)
-        }
-        
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.dismiss) var dismiss
-        var didTapNutrient: ((NutrientType) -> ())?
-        @State var path: [Route] = []
-        
-        init(didTapNutrient: ((NutrientType) -> Void)? = nil) {
-            self.didTapNutrient = didTapNutrient
+        @State var transientString: String = ""
+    }
+}
+
+extension FoodFormViewModel {
+    func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
+        micronutrients[index].fieldValues.contains(where: { $0.isEmpty })
+    }
+    
+    func hasNonEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
+        micronutrients[index].fieldValues.contains(where: { !$0.isEmpty })
+    }
+}
+extension FoodForm.NutritionFacts.MicronutrientPicker {
+    public var body: some View {
+        NavigationView {
+            form
+                .navigationTitle("Micronutrients")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar { navigationLeadingContent }
+        }
+    }
+    
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button("Done") {
+                dismiss()
+            }
+        }
+    }
+    var form: some View {
+        Form {
+            ForEach(viewModel.micronutrients.indices, id: \.self) { g in
+                if viewModel.hasEmptyFieldValuesInMicronutrientsGroup(at: g) {
+                    Section(viewModel.micronutrients[g].group.description) {
+                        ForEach(viewModel.micronutrients[g].fieldValues.indices, id: \.self) { f in
+                            if viewModel.micronutrients[g].fieldValues[f].isEmpty {
+                                nutrientButton(for: $viewModel.micronutrients[g].fieldValues[f])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    func nutrientButton(for fieldValue: Binding<FieldValue>) -> some View {
+        NavigationLink {
+            OptionalNutrientForm(fieldValue: fieldValue, transientString: $transientString)
+                .onDisappear {
+                    /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
+                    withAnimation {
+                        fieldValue.wrappedValue.string = transientString
+                        transientString = ""
+                    }
+                }
+        } label: {
+            Text(fieldValue.wrappedValue.identifier.description)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
         }
     }
 }
+
+extension NutrientTypeGroup {
+    var nutrients: [NutrientType] {
+        NutrientType.allCases.filter({ $0.group == self })
+    }
+}
+
+
 
 extension FoodFormViewModel {
     
@@ -28,7 +88,9 @@ extension FoodFormViewModel {
     }
     
     func hasAddedNutrient(_ type: NutrientType) -> Bool {
-        micronutrients.contains(where: { $0.nutrientType == type })
+        //TODO: Micronutrients
+        false
+//        micronutrients.contains(where: { $0.identifier.nutrientType == type })
     }
 }
 
@@ -40,69 +102,6 @@ extension NutritionFact {
         default:
             return nil
         }
-    }
-}
-
-extension FoodForm.NutritionFacts.MicronutrientPicker {
-    public var body: some View {
-        NavigationStack(path: $path) {
-            form
-                .navigationTitle("Micronutrients")
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationDestination(for: Route.self) { route in
-                    switch route {
-                    case .form(let nutrientType):
-                        FoodForm.NutritionFacts.FactForm(
-                            type: .micro(nutrientType),
-                            isNewMicronutrient: true
-                        )
-                    }
-                }
-        }
-    }
-    
-    var form: some View {
-        Form {
-            ForEach(NutrientTypeGroup.allCases, id: \.self) { group in
-                if FoodFormViewModel.shared.hasNutrientsLeftToAdd(in: group) {
-                    groupSection(for: group)
-                }
-            }
-        }
-    }
-    
-    func groupSection(for group: NutrientTypeGroup) -> some View {
-        Section(group.description) {
-            ForEach(group.nutrients, id: \.self) { nutrient in
-                if !FoodFormViewModel.shared.hasAddedNutrient(nutrient) {
-                    nutrientButton(for: nutrient)
-                }
-            }
-        }
-    }
-    
-    func nutrientButton(for nutrientType: NutrientType) -> some View {
-        Button {
-            path.append(.form(nutrientType))
-        } label: {
-            Text(nutrientType.description)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-        }
-//        .buttonStyle(.borderless)
-    }
-    
-    func didTap(_ nutrient: NutrientType) {
-        didTapNutrient?(nutrient)
-        Haptics.feedback(style: .rigid)
-        dismiss()
-    }
-}
-
-extension NutrientTypeGroup {
-    var nutrients: [NutrientType] {
-        NutrientType.allCases.filter({ $0.group == self })
     }
 }
 

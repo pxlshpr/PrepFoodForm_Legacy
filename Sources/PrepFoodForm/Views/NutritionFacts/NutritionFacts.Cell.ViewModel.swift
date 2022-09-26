@@ -3,37 +3,40 @@ import SwiftUI
 extension FoodForm.NutritionFacts.Cell {
     class ViewModel: ObservableObject {
         
-        @Published var fact: NutritionFact
+        @Published var fieldValue: FieldValue
         @Environment(\.colorScheme) var colorScheme
         
-        init(fact: NutritionFact) {
-            self.fact = fact
+        init(fieldValue: FieldValue) {
+            self.fieldValue = fieldValue
         }
     }
 }
 
 extension FoodForm.NutritionFacts.Cell.ViewModel {
     var iconImageName: String {
-        switch fact.type {
+        switch fieldValue.identifier {
         case .energy: return "flame.fill"
 ////            case .macro: return "circle.grid.cross"
 ////            case .micro: return "circle.hexagongrid"
 //            case .energy: return "flame.circle.fill"
         case .macro: return "circle.circle.fill"
         case .micro: return "circle.circle"
+        default:
+            return ""
         }
     }
     
     var typeName: String {
-        fact.type.description
+        fieldValue.identifier.description
     }
     
     var isEmpty: Bool {
-        fact.isEmpty
+        fieldValue.isEmpty
     }
     
     var labelColor: Color {
-        isEmpty ? Color(.secondaryLabel) :  fact.type.textColor(for: colorScheme)
+        Color.red
+//        isEmpty ? Color(.secondaryLabel) :  fact.type.textColor(for: colorScheme)
     }
     
     var amountColor: Color {
@@ -41,15 +44,15 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
     }
 
     var fillTypeIconImage: String? {
-        guard fact.fillType != .userInput else {
+        guard fieldValue.fillType != .userInput else {
             return nil
         }
-        return fact.fillType.iconSystemImage
+        return fieldValue.fillType.iconSystemImage
     }
     
     var amountString: String {
-        guard let amount = fact.amount else {
-            if case .micro(_) = fact.type {
+        guard let amount = fieldValue.double else {
+            if case .micro(_) = fieldValue.identifier {
                 return ""
             } else {
                 return "Required"
@@ -59,6 +62,7 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
     }
     
     var unitString: String {
-        fact.unit?.description ?? ""
+        "unit goes here"
+//        fact.unit?.description ?? ""
     }
 }

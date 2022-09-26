@@ -20,15 +20,26 @@ extension FoodFormViewModel {
         || !summarySizeViewModels.isEmpty
         || !densityWeightString.isEmpty
         || !densityVolumeString.isEmpty
-        || !energyFact.isEmpty
-        || !carbFact.isEmpty
-        || !fatFact.isEmpty
-        || !proteinFact.isEmpty
-        || !micronutrients.isEmpty
+        || !energy.isEmpty
+        || !carb.isEmpty
+        || !fat.isEmpty
+        || !protein.isEmpty
+        || !micronutrientsIsEmpty
 //            || amountUnit != .serving
 //            || servingUnit != .weight(.g)
 //            || !densityWeightUnit.isEmpty
 //            || !densityVolumeUnit.isEmpty
+    }
+    
+    var micronutrientsIsEmpty: Bool {
+        for (_, fieldValues) in micronutrients {
+            for fieldValue in fieldValues {
+                if !fieldValue.isEmpty {
+                    return false
+                }
+            }
+        }
+        return true
     }
     
     var sourceIncludesImages: Bool {
@@ -70,92 +81,52 @@ extension FoodFormViewModel {
             
             self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             
-            self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj)
-            self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g)
-            self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g)
-            self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g)
+            self.energy = FieldValue(identifier: .energy, double: 125, nutritionFactUnit: .kj)
+            self.carb = FieldValue(identifier: .macro(.carb), double: 23, nutritionFactUnit: .g)
+            self.fat = FieldValue(identifier: .macro(.fat), double: 8, nutritionFactUnit: .g)
+            self.protein = FieldValue(identifier: .macro(.protein), double: 3, nutritionFactUnit: .g)
             
-            self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
+            //TODO: Micronutrients
+//            self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
         }
     }
+    
     func nutrientValue(for nutrientType: NutrientType) -> Double? {
         guard let nutritionFact = nutritionFact(for: .micro(nutrientType)) else {
             return nil
         }
         return nutritionFact.amount
     }
+    
     var hasNutritionFacts: Bool {
-        !micronutrients.isEmpty
-        || !energyFact.isEmpty
-        || !carbFact.isEmpty
-        || !fatFact.isEmpty
-        || !proteinFact.isEmpty
+        !micronutrientsIsEmpty
+        || !energy.isEmpty
+        || !carb.isEmpty
+        || !fat.isEmpty
+        || !protein.isEmpty
     }
     
     func removeFact(of type: NutritionFactType) {
-        setNutritionFactType(type, withAmount: nil, unit: nil)
-    }
-
-    func setNutritionFactType(_ type: NutritionFactType, withAmount amount: Double?, unit: NutritionFactUnit?) {
-        
-        let makingEmpty = amount == nil && unit == nil
-        
-        func newFact(from fact: NutritionFact, amount: Double?, unit: NutritionFactUnit?) -> NutritionFact {
-            /// We're doing this to trigger an update immediately
-            let fact = fact
-            fact.amount = amount
-            fact.unit = unit
-            if makingEmpty {
-                fact.fillType = .userInput
-            }
-            return fact
-        }
-
-        switch type {
-        case .energy:
-            energyFact = newFact(from: energyFact, amount: amount, unit: unit)
-        case .macro(let macro):
-            switch macro {
-            case .carb:
-                carbFact = newFact(from: carbFact, amount: amount, unit: unit)
-            case .protein:
-                proteinFact = newFact(from: proteinFact, amount: amount, unit: unit)
-            case .fat:
-                fatFact = newFact(from: fatFact, amount: amount, unit: unit)
-            }
-        case .micro(let nutrientType):
-            guard !makingEmpty else {
-                micronutrients.removeAll(where: { $0.nutrientType == nutrientType })
-                return
-            }
-            guard let fact = micronutrients.first(where: { $0.nutrientType == nutrientType }),
-                  let index = micronutrients.firstIndex(of: fact) else {
-                micronutrients.append(NutritionFact(type: .micro(nutrientType)))
-                return
-            }
-            let newFact = newFact(from: fact, amount: amount, unit: unit)
-            micronutrients.removeAll(where: { $0.nutrientType == nutrientType })
-            micronutrients.insert(newFact, at: index)
-        }
+//        setNutritionFactType(type, withAmount: nil, unit: nil)
     }
 }
 
 extension FoodFormViewModel {
 
     var carbAmount: Double {
-        carbFact.amount ?? 0
+        carb.double ?? 0
     }
     
     var proteinAmount: Double {
-        proteinFact.amount ?? 0
+        protein.double ?? 0
     }
     
     var fatAmount: Double {
-        fatFact.amount ?? 0
+        fat.double ?? 0
     }
     
     var hasMicronutrients: Bool {
-        !micronutrients.isEmpty
+        !micronutrientsIsEmpty
     }
     
     func hasNutrientFor(_ nutrientType: NutrientType) -> Bool {
@@ -163,24 +134,26 @@ extension FoodFormViewModel {
     }
     
     var energyAmount: Double {
-        energyFact.amount ?? 0
+        energy.double ?? 0
     }
     
     func nutritionFact(for type: NutritionFactType) -> NutritionFact? {
         switch type {
         case .energy:
-            return energyFact
+            return nil
+//            return energyFact
         case .macro(let macro):
             switch macro {
             case .carb:
-                return carbFact
+                return nil
             case .fat:
-                return fatFact
+                return nil
             case .protein:
-                return proteinFact
+                return nil
             }
         case .micro:
-            return micronutrients.first(where: { $0.type == type })
+            return nil
+//            return micronutrients.first(where: { $0.type == type })
         }
     }
     

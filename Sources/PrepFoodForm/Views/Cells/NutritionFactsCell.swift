@@ -64,7 +64,7 @@ extension FoodForm.NutritionFactsCell {
 
         @ViewBuilder
         var micronutrientsCount: some View {
-            if !viewModel.micronutrients.isEmpty {
+            if !viewModel.micronutrientsIsEmpty {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(Color(.quaternaryLabel))
@@ -83,10 +83,10 @@ extension FoodForm.NutritionFactsCell {
         }
         
         return VStack(alignment: .leading, spacing: 5) {
-            factRow(for: viewModel.energyFact)
-            factRow(for: viewModel.carbFact)
-            factRow(for: viewModel.fatFact)
-            factRow(for: viewModel.proteinFact)
+//            factRow(for: viewModel.energyFact)
+//            factRow(for: viewModel.carbFact)
+//            factRow(for: viewModel.fatFact)
+//            factRow(for: viewModel.proteinFact)
             micronutrientsCount
         }
     }

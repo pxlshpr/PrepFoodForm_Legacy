@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepUnits
 
-enum NutritionFactUnit {
+enum NutritionFactUnit: Hashable {
     case kcal
     case kj
     case g

@@ -14,16 +14,23 @@ extension FoodForm.NutritionFacts {
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $viewModel.showingMicronutrientsPicker) {
-                MicronutrientPicker { pickedNutrient in
-                    
-                }
+                MicronutrientPicker()
+                    .environmentObject(viewModel)
             }
     }
 
+    func cellLink(for fieldValue: Binding<FieldValue>) -> some View {
+        NavigationLink {
+            RequiredNutrientForm(fieldValue: fieldValue)
+                .environmentObject(viewModel)
+        } label: {
+            FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+        }
+    }
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                button(fact: viewModel.energyFact)
+                cellLink(for: $viewModel.energy)
                 macronutrientsGroup
                 micronutrientsGroup
             }
@@ -35,9 +42,9 @@ extension FoodForm.NutritionFacts {
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
-            button(fact: viewModel.carbFact)
-            button(fact: viewModel.fatFact)
-            button(fact: viewModel.proteinFact)
+            cellLink(for: $viewModel.carb)
+            cellLink(for: $viewModel.fat)
+            cellLink(for: $viewModel.protein)
         }
     }
     
@@ -62,24 +69,30 @@ extension FoodForm.NutritionFacts {
 
         return Group {
             titleCell("Micronutrients")
-            ForEach(viewModel.micronutrients, id: \.self.id) {
-                button(fact: $0)
+            ForEach(viewModel.micronutrients.indices, id: \.self) { g in
+                if viewModel.hasNonEmptyFieldValuesInMicronutrientsGroup(at: g) {
+                    subtitleCell(viewModel.micronutrients[g].group.description)
+                    ForEach(viewModel.micronutrients[g].fieldValues.indices, id: \.self) { f in
+                        if !viewModel.micronutrients[g].fieldValues[f].isEmpty {
+                            cellLink(for: $viewModel.micronutrients[g].fieldValues[f])
+                        }
+                    }
+                }
             }
-            if viewModel.micronutrients.isEmpty {
+            if viewModel.micronutrientsIsEmpty {
                 addMicronutrientButton
             }
         }
     }
     
     func button(fact: NutritionFact) -> some View {
-        NavigationLink {
-//            viewModel.path.append(.nutritionFactForm(fact.type))
-            FoodForm.NutritionFacts.FactForm(type: fact.type)
-                .environmentObject(viewModel)
-        } label: {
-            FoodForm.NutritionFacts.Cell(fact: fact)
-        }
-//        .buttonStyle(.borderless)
+        Color.red
+//        NavigationLink {
+//            FoodForm.NutritionFacts.FactForm(fact: fact, type: fact.type)
+//                .environmentObject(viewModel)
+//        } label: {
+//            FoodForm.NutritionFacts.Cell(fact: fact)
+//        }
     }
     
     func titleCell(_ title: String) -> some View {
@@ -91,6 +104,21 @@ extension FoodForm.NutritionFacts {
                     .font(.title2)
                     .bold()
                     .foregroundColor(.primary)
+                Spacer()
+            }
+            Spacer().frame(height: 7)
+        }
+    }
+    
+    func subtitleCell(_ title: String) -> some View {
+        Group {
+            Spacer().frame(height: 5)
+            HStack {
+                Spacer().frame(width: 3)
+                Text(title)
+                    .font(.headline)
+//                    .bold()
+                    .foregroundColor(.secondary)
                 Spacer()
             }
             Spacer().frame(height: 7)

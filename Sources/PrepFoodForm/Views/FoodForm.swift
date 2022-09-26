@@ -2,17 +2,20 @@ import SwiftUI
 import CameraImagePicker
 import SwiftHaptics
 
+let wizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
+
 public struct FoodForm: View {
     
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
     
+    @State var showingWizard = false
+    
     public init() {
-        let viewModel = FoodFormViewModel.shared
-        viewModel.showingWizard = !viewModel.hasData
-        _viewModel = StateObject(wrappedValue: viewModel)
+        _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
     
     public var body: some View {
@@ -20,6 +23,16 @@ public struct FoodForm: View {
             content
                 .navigationTitle("New Food")
                 .interactiveDismissDisabled(viewModel.hasData)
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        withAnimation(wizardAnimation) {
+                            if viewModel.shouldShowWizard {
+                                showingWizard = true
+                                viewModel.shouldShowWizard = false
+                            }
+                        }
+                    }
+                }
         }
     }
     
@@ -30,10 +43,41 @@ public struct FoodForm: View {
                     //TODO: Programmatically get this inset (67516AA6)
                     Spacer().frame(height: 135)
                 }
+                .overlay(
+                    Color(.systemFill)
+                        .opacity(showingWizard ? 1.0 : 0)
+                )
+                .blur(radius: showingWizard ? 2 : 0)
+                .disabled(showingWizard)
+            wizard
             VStack {
                 Spacer()
                 saveButtons
             }
+        }
+    }
+    
+    @ViewBuilder
+    var wizard: some View {
+        if showingWizard {
+            VStack {
+                Spacer()
+                Form {
+                    manualEntrySection
+                    imageSection
+                    thirdPartyFoodSection
+                }
+//                .scrollContentBackground(.hidden)
+//                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(20)
+                .frame(width: 350, height: 400)
+                .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
+                .opacity(showingWizard ? 1 : 0)
+    //            .padding(.bottom)
+                Spacer()
+            }
+            .zIndex(1)
+            .transition(.move(edge: .bottom))
         }
     }
     
@@ -67,27 +111,19 @@ public struct FoodForm: View {
     @ViewBuilder
     var form: some View {
         Form {
-            formContents
+            detailsSection
+            servingSection
+            foodLabelSection
+            sourceSection
+            prefillSection
         }
         .sheet(isPresented: $viewModel.showingThirdPartySearch) {
+//            NavigationView {
+//                MFPFoodView(result: MockResult.Banana, processedFood: MockProcessedFood.Banana)
+//                    .environmentObject(viewModel)
+//            }
             MFPSearch()
                 .environmentObject(viewModel)
-        }
-    }
-    
-    var formContents: some View {
-        Group {
-            if viewModel.showingWizard {
-                manualEntrySection
-                imageSection
-                thirdPartyFoodSection
-            } else {
-                detailsSection
-                servingSection
-                foodLabelSection
-                sourceSection
-                prefillSection
-            }
         }
     }
     
@@ -96,13 +132,15 @@ public struct FoodForm: View {
         Section("Start with an empty food") {
             Button {
                 Haptics.successFeedback()
-                withAnimation {
-                    viewModel.showingWizard = false
+                withAnimation(wizardAnimation) {
+                    showingWizard = false
                 }
             } label: {
                 Label("Empty Food", systemImage: "square.and.pencil")
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(.borderless)
         }
     }
     
@@ -119,12 +157,18 @@ public struct FoodForm: View {
                 showingScan = true
             } label: {
                 Label("Choose Images", systemImage: SourceType.images.systemImage)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(.borderless)
             Button {
                 showingScan = true
             } label: {
                 Label("Take Photos", systemImage: "camera")
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .buttonStyle(.borderless)
         }
         .sheet(isPresented: $showingScan) {
             ScanForm()
@@ -161,6 +205,7 @@ public struct FoodForm: View {
                 viewModel.showingThirdPartySearch = true
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
+                    .foregroundColor(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             .buttonStyle(.borderless)
@@ -206,11 +251,9 @@ public struct FoodForm: View {
                 NutritionFacts()
                     .environmentObject(viewModel)
             } label: {
-                VStack{
-                    NutritionFactsCell()
-                        .environmentObject(viewModel)
-                        .buttonStyle(.borderless)
-                }
+                NutritionFactsCell()
+                    .environmentObject(viewModel)
+                    .buttonStyle(.borderless)
             }
             .buttonStyle(.borderless)
         }
@@ -265,7 +308,7 @@ struct FoodFormPreview: View {
         FoodForm()
             .environmentObject(viewModel)
             .onAppear {
-                viewModel.prefill(MockProcessedFood.Banana)
+//                viewModel.prefill(MockProcessedFood.Banana)
             }
     }
 }
@@ -291,9 +334,15 @@ extension FoodFormViewModel {
         if let detail = food.detail, !detail.isEmpty {
             self.detail = FieldValue(identifier: .detail, string: detail, fillType: .thirdPartyFoodPrefill)
         }
-
+        
+        self.energy = FieldValue(identifier: .energy,
+                                 double: food.energy,
+                                 nutritionFactUnit: .kcal,
+                                 fillType: .thirdPartyFoodPrefill
+        )
+        
         prefilledFood = food
-        showingWizard = false
+        shouldShowWizard = false
         
     }
 }
