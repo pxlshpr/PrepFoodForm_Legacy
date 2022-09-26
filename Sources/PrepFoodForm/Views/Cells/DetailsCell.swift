@@ -38,7 +38,7 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var name: some View {
             if !viewModel.name.isEmpty {
-                Text(viewModel.name)
+                Text(viewModel.name.string)
                     .bold()
             } else {
                 Text("[Name Required]")
@@ -49,7 +49,7 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var detail: some View {
             if !viewModel.detail.isEmpty {
-                Text(viewModel.detail)
+                Text(viewModel.detail.string)
             }
         }
 
@@ -134,8 +134,8 @@ struct DetailsCellPreview: View {
     
     func populateData() {
         viewModel.emoji = "🧈"
-        viewModel.name = "Butter"
-        viewModel.detail = "Salted"
+        viewModel.name = FoodFormViewModel.FieldValue(identifier: .name, string: "Butter")
+        viewModel.detail = FoodFormViewModel.FieldValue(identifier: .detail, string: "Salted")
         viewModel.brand = "Emborg"
         viewModel.barcode = "10123456789019"
 //        viewModel.barcode = "2166529V"

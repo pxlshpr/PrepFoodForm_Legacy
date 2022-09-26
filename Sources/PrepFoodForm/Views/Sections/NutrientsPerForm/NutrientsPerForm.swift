@@ -1,17 +1,19 @@
 import SwiftUI
 
 extension FoodForm {
-    struct NutrientsPerForm: View {
+    public struct NutrientsPerForm: View {
 
         @EnvironmentObject var viewModel: FoodFormViewModel
         
         @State var showingAddSizeForm = false
         @State var showingDensityForm = false
+        
+        public init() { }
     }
 }
 
 extension FoodForm.NutrientsPerForm {
-    var body: some View {
+    public var body: some View {
         form
         .onChange(of: viewModel.standardSizes) { newValue in
             viewModel.updateSummary()
@@ -24,6 +26,22 @@ extension FoodForm.NutrientsPerForm {
         .navigationBarTitleDisplayMode(.inline)
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled()
+        .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
+            FoodForm.NutrientsPerForm.AmountForm()
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $viewModel.showingNutrientsPerServingForm) {
+            NavigationView {
+                FoodForm.NutrientsPerForm.ServingForm()
+                    .environmentObject(viewModel)
+            }
+        }
+        .onAppear {
+            /// If it's present the amount form as the empty form is redundant to display
+            if !viewModel.hasNutrientsPerContent {
+                viewModel.showingNutrientsPerAmountForm = true
+            }
+        }
     }
     
     var form: some View {

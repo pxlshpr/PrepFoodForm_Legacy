@@ -6,20 +6,19 @@ class NutritionFact: ObservableObject, Identifiable {
     var type: NutritionFactType
     @Published var amount: Double?
     @Published var unit: NutritionFactUnit?
-    @Published var inputType: NutritionFactInputType?
+    @Published var fillType: FieldFillType
     
-    init(id: UUID = UUID(), type: NutritionFactType, amount: Double? = nil, unit: NutritionFactUnit? = nil, inputType: NutritionFactInputType? = nil) {
+    init(id: UUID = UUID(), type: NutritionFactType, amount: Double? = nil, unit: NutritionFactUnit? = nil, fillType: FieldFillType = .userInput) {
         self.id = id
         self.type = type
         self.amount = amount
         self.unit = unit
-        self.inputType = inputType
+        self.fillType = fillType
     }
     
     var isEmpty: Bool {
         amount == nil
         && unit == nil
-        && inputType == nil
     }
     
     var amountDescription: String? {
@@ -32,7 +31,6 @@ class NutritionFact: ObservableObject, Identifiable {
     func makeEmpty() {
         amount = nil
         unit = nil
-        inputType = nil
     }
 }
 
@@ -48,6 +46,6 @@ extension NutritionFact: Hashable {
         hasher.combine(type)
         hasher.combine(amount)
         hasher.combine(unit)
-        hasher.combine(inputType)
+        hasher.combine(fillType)
     }
 }

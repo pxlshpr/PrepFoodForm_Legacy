@@ -22,5 +22,6 @@ struct FormPrimaryButton: View {
                 .padding(.horizontal)
                 .padding(.horizontal)
         }
+        .buttonStyle(.borderless)
     }
 }

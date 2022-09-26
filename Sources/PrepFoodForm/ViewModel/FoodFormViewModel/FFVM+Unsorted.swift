@@ -1,110 +1,5 @@
 import SwiftUI
 import PrepUnits
-import SwiftUISugar
-
-public class FoodFormViewModel: ObservableObject {
-
-    public init() { }
-
-    static public var shared = FoodFormViewModel()
-    
-    @Published var showingMicronutrientsPicker = false
-    @Published var shouldShowDensitiesSection: Bool = false
-    
-    //MARK: - Food Details
-    @Published var name: String = ""
-    @Published var emoji = ""
-    @Published var detail = ""
-    @Published var brand = ""
-    @Published var barcode = ""
-
-    //MARK: Amount Per
-    @Published var amountString: String = "" {
-        didSet {
-            updateShouldShowDensitiesSection()
-        }
-    }
-    
-    @Published var amountUnit: FormUnit = .serving {
-        didSet {
-            updateShouldShowDensitiesSection()
-            if amountUnit != .serving {
-                servingString = ""
-                servingUnit = .weight(.g)
-            }
-        }
-    }
-    @Published var servingString: String = "" {
-        didSet {
-            /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
-            modifyServingUnitIfServingBased()
-            updateShouldShowDensitiesSection()
-//                if !servingString.isEmpty && amountString.isEmpty {
-//                    amountString = "1"
-//                }
-        }
-    }
-    @Published var servingUnit: FormUnit = .weight(.g) {
-        didSet {
-            updateShouldShowDensitiesSection()
-        }
-    }
-    
-    //MARK: Sizes
-    @Published var standardSizes: [Size] = []
-    @Published var volumePrefixedSizes: [Size] = []
-    @Published var summarySizeViewModels: [SizeViewModel] = []
-    
-    //MARK: Density
-    @Published var densityWeightString: String = ""
-    @Published var densityWeightUnit: FormUnit = .weight(.g)
-    @Published var densityVolumeString: String = ""
-    @Published var densityVolumeUnit: FormUnit = .volume(.mL)
-
-    //MARK: Nutrition Facts
-    @Published var energyFact = NutritionFact(type: .energy)
-    @Published var carbFact = NutritionFact(type: .macro(.carb))
-    @Published var fatFact = NutritionFact(type: .macro(.fat))
-    @Published var proteinFact = NutritionFact(type: .macro(.protein))
-    @Published var micronutrients: [NutritionFact] = []
-    
-    //MARK: - Source
-    @Published var sourceType: SourceType = .manualEntry
-    @Published var isProcessingSource = false
-    @Published var sourceImageViewModels: [SourceImageViewModel] = []
-
-    //MARK: Scan
-    var scanTask: Task<(), any Error>? = nil
-    
-    @Published var isScanning = false {
-        didSet {
-            if isScanning {
-                sourceType = .images
-            }
-            withAnimation {
-                DispatchQueue.main.async {
-                    self.isProcessingSource = self.isScanning || self.isImporting
-                }
-            }
-        }
-    }
-    
-    @Published var numberOfScannedImages: Int = 0
-    
-    @Published var numberOfScannedDataPoints: Int? = nil
-    
-    //MARK: - Import
-    @Published var isImporting = false {
-        didSet {
-            if isImporting {
-                sourceType = .onlineSource
-            }
-            withAnimation {
-                isProcessingSource = isScanning || isImporting
-            }
-        }
-    }
-}
 
 extension FoodFormViewModel {
     func cancelScan() {
@@ -140,7 +35,8 @@ extension FoodFormViewModel {
         sourceType.includesImages
     }
     
-    public func prefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
+    /// Prefill used for Previews
+    public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         if onlyServing {
             let sizes = [
                 Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
@@ -153,9 +49,9 @@ extension FoodFormViewModel {
             self.servingString = "0.2"
             self.servingUnit = .size(standardSizes.first!, nil)
         } else {
-            self.name = "Carrot"
+            self.name =  FieldValue(identifier: .name, string: "Carrot")
             self.emoji = "🥕"
-            self.detail = "Baby"
+            self.detail = FieldValue(identifier: .detail, string: "Baby")
             self.brand = "Woolworths"
             self.barcode = "5012345678900"
             
@@ -174,10 +70,10 @@ extension FoodFormViewModel {
             
             self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             
-            self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj, inputType: .manuallyEntered)
-            self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g, inputType: .manuallyEntered)
-            self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g, inputType: .manuallyEntered)
-            self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g, inputType: .manuallyEntered)
+            self.energyFact = NutritionFact(type: .energy, amount: 125, unit: .kj)
+            self.carbFact = NutritionFact(type: .macro(.carb), amount: 23, unit: .g)
+            self.fatFact = NutritionFact(type: .macro(.fat), amount: 8, unit: .g)
+            self.proteinFact = NutritionFact(type: .macro(.protein), amount: 3, unit: .g)
             
             self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
         }
@@ -210,7 +106,7 @@ extension FoodFormViewModel {
             fact.amount = amount
             fact.unit = unit
             if makingEmpty {
-                fact.inputType = nil
+                fact.fillType = .userInput
             }
             return fact
         }
@@ -540,14 +436,14 @@ extension FoodFormViewModel {
 }
 
 let mockMicronutrients = [
-    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g, inputType: .manuallyEntered),
-    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g, inputType: .manuallyEntered),
-    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg, inputType: .manuallyEntered),
-    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g, inputType: .manuallyEntered),
+    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g),
+    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g),
+    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg),
+    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g),
 ]
 
 var mockAllMicronutrients: [NutritionFact] {
     NutrientType.allCases.map {
-        NutritionFact(type: .micro($0), amount: Double.random(in: 1...300), unit: $0.units.first!.nutritionFactUnit, inputType: .manuallyEntered)
+        NutritionFact(type: .micro($0), amount: Double.random(in: 1...300), unit: $0.units.first!.nutritionFactUnit)
     }
 }

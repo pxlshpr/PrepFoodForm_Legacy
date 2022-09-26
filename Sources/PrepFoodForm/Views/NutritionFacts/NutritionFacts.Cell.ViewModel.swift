@@ -40,13 +40,11 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
         isEmpty ? Color(.quaternaryLabel) : Color(.label)
     }
 
-    var inputTypeImageName: String? {
-        guard let inputType = fact.inputType,
-              inputType != .manuallyEntered
-        else {
+    var fillTypeIconImage: String? {
+        guard fact.fillType != .userInput else {
             return nil
         }
-        return inputType.image
+        return fact.fillType.iconSystemImage
     }
     
     var amountString: String {

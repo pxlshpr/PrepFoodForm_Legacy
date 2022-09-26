@@ -6,18 +6,19 @@ import WebKit
 import ActivityIndicatorView
 
 struct MFPFoodView: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @EnvironmentObject var searchViewModel: MFPSearch.ViewModel
-    @StateObject var viewModel: ViewModel
+    @StateObject var mfpFoodViewModel: ViewModel
     @State var showingWebsite: Bool = false
     
     init(result: MFPSearchResultFood, processedFood: MFPProcessedFood? = nil) {
-        _viewModel = StateObject(wrappedValue: ViewModel(result: result, processedFood: processedFood))
+        _mfpFoodViewModel = StateObject(wrappedValue: ViewModel(result: result, processedFood: processedFood))
     }
     
     var body: some View {
         ZStack {
             scrollView
-            if !viewModel.isLoadingFoodDetails {
+            if !mfpFoodViewModel.isLoadingFoodDetails {
                 buttonLayer
                     .transition(.move(edge: .bottom))
             }
@@ -29,7 +30,7 @@ struct MFPFoodView: View {
     
     @ViewBuilder
     var websiteView: some View {
-        if let url = viewModel.url {
+        if let url = mfpFoodViewModel.url {
 //            SFSafariViewWrapper(url: url)
 //                .edgesIgnoringSafeArea(.all)
             SourceWebView(urlString: url.absoluteString)
@@ -41,7 +42,12 @@ struct MFPFoodView: View {
             Spacer()
             Divider()
             FormPrimaryButton(title: "Copy this food") {
-                
+                if let processedFood = mfpFoodViewModel.processedFood {
+                    viewModel.prefill(processedFood)
+                }
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                    viewModel.showingThirdPartySearch = false
+//                }
             }
             .padding(.top)
             .background(
@@ -56,13 +62,13 @@ struct MFPFoodView: View {
                 VStack {
                     Section {
                         VStack(alignment: .center) {
-                            Text(viewModel.name)
+                            Text(mfpFoodViewModel.name)
                                 .multilineTextAlignment(.center)
                                 .font(.title)
                                 .bold()
 //                                .minimumScaleFactor(0.3)
 //                                .lineLimit(1)
-                            if let detailString = viewModel.detailString {
+                            if let detailString = mfpFoodViewModel.detailString {
                                 Text(detailString)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
@@ -76,7 +82,7 @@ struct MFPFoodView: View {
                         .padding(.top)
                         .padding(.horizontal)
                     }
-                    if viewModel.isLoadingFoodDetails {
+                    if mfpFoodViewModel.isLoadingFoodDetails {
                         loadingIndicator
                             .frame(maxHeight: .infinity)
                     } else {
@@ -100,7 +106,7 @@ struct MFPFoodView: View {
     
     @ViewBuilder
     var linkSection: some View {
-        if let url = viewModel.url {
+        if let url = mfpFoodViewModel.url {
             linkButton(for: url)
         }
     }
@@ -148,7 +154,7 @@ struct MFPFoodView: View {
         }
         
         return Group {
-            if let sizeViewModels = viewModel.sizeViewModels {
+            if let sizeViewModels = mfpFoodViewModel.sizeViewModels {
                 Section(header: header) {
                     Divider()
                     VStack {
@@ -167,9 +173,9 @@ struct MFPFoodView: View {
     
     @ViewBuilder
     var foodLabelSection: some View {
-        if viewModel.shouldShowFoodLabel {
+        if mfpFoodViewModel.shouldShowFoodLabel {
             Section {
-                FoodLabel(dataSource: viewModel)
+                FoodLabel(dataSource: mfpFoodViewModel)
             }
             .padding()
             .transition(.opacity)
@@ -183,6 +189,7 @@ struct MFPFoodViewPreview: View {
         NavigationView {
 //            MFPFoodView(result: MockResult.Banana, processedFood: MockProcessedFood.Banana)
             MFPFoodView(result: MockResult.Banana, processedFood: nil)
+                .environmentObject(FoodFormViewModel.shared)
         }
     }
 }

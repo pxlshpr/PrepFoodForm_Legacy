@@ -64,7 +64,7 @@ extension FoodForm.DetailsForm {
         Form {
             Section("Name") {
                 HStack {
-                    TextField("Required", text: $viewModel.name)
+                    TextField("Required", text: $viewModel.name.string)
                     Button {
                         Haptics.feedback(style: .soft)
                         showingSheet = true
@@ -86,7 +86,7 @@ extension FoodForm.DetailsForm {
             }
             Section("Detail") {
                 HStack {
-                    TextField("", text: $viewModel.detail)
+                    TextField("", text: $viewModel.detail.string)
                         .placeholder(when: viewModel.detail.isEmpty) {
                             Text("Optional").foregroundColor(Color(.quaternaryLabel))
                         }

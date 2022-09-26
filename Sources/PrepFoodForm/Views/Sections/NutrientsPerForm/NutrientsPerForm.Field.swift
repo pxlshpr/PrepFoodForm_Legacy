@@ -5,8 +5,8 @@ extension FoodForm.NutrientsPerForm {
 
         @EnvironmentObject var viewModel: FoodFormViewModel
         
-        @State var showingAmountForm = false
-        @State var showingServingForm = false
+//        @State var showingAmountForm = false
+//        @State var showingServingForm = false
     }
 }
 
@@ -26,42 +26,24 @@ extension FoodForm.NutrientsPerForm.Field {
                 Spacer()
             }
         }
-        .onAppear {
-            /// If it's present the amount form as the empty form is redundant to display
-            if !viewModel.hasNutrientsPerContent {
-                showingAmountForm = true
-            }
-        }
     }
     
     var amountButton: some View {
         Button {
-            showingAmountForm = true
+            viewModel.showingNutrientsPerAmountForm = true
         } label: {
             label(viewModel.amountDescription, placeholder: "Required")
         }
         .buttonStyle(.borderless)
-        .sheet(isPresented: $showingAmountForm) {
-            NavigationView {
-                FoodForm.NutrientsPerForm.AmountForm()
-                    .environmentObject(viewModel)
-            }
-        }
     }
     
     var servingButton: some View {
         Button {
-            showingServingForm = true
+            viewModel.showingNutrientsPerServingForm = true
         } label: {
             label(viewModel.servingDescription, placeholder: "serving size")
         }
         .buttonStyle(.borderless)
-        .sheet(isPresented: $showingServingForm) {
-            NavigationView {
-                FoodForm.NutrientsPerForm.ServingForm()
-                    .environmentObject(viewModel)
-            }
-        }
     }
     
     func label(_ string: String, placeholder: String) -> some View {
@@ -100,7 +82,7 @@ public struct NutrientsPerFormFieldPreview: View {
     }
     
     func populateData() {
-        viewModel.prefill()
+        viewModel.previewPrefill()
     }
 }
 struct NutrientsPerFormField_Previews: PreviewProvider {

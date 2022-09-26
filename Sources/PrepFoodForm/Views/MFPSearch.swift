@@ -73,9 +73,10 @@ extension MFPSearch {
 //MARK: - MFPSearch
 struct MFPSearch: View {
     
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-    @StateObject var viewModel: ViewModel = ViewModel()
+    @StateObject var searchViewModel: ViewModel = ViewModel()
     
     @FocusState var isFocused: Bool
     @State var showingSearchLayer: Bool = false
@@ -96,13 +97,13 @@ struct MFPSearch: View {
 //            viewModel.loadingStatus = testLoadingStatus
         }
         .onDisappear {
-            viewModel.cancelSearching()
+            searchViewModel.cancelSearching()
         }
         .interactiveDismissDisabled(shouldDisableInteractiveDismissal)
         .onAppear {
             stopTimer()
         }
-        .onChange(of: viewModel.results) { newValue in
+        .onChange(of: searchViewModel.results) { newValue in
             guard !newValue.isEmpty else {
                 return
             }
@@ -120,7 +121,7 @@ struct MFPSearch: View {
     }
     
     var shouldDisableInteractiveDismissal: Bool {
-        isFocused || !viewModel.results.isEmpty
+        isFocused || !searchViewModel.results.isEmpty
 //        !viewModel.results.isEmpty
     }
     
@@ -132,7 +133,7 @@ struct MFPSearch: View {
     func startSearching() {
         withAnimation {
             showingSearchActivityIndicator = true
-            viewModel.startSearching()
+            searchViewModel.startSearching()
         }
     }
     
@@ -169,14 +170,14 @@ struct MFPSearch: View {
         VStack {
             // Fills the top
             HStack {
-                Text(viewModel.searchText)
+                Text(searchViewModel.searchText)
                     .font(.title)
                     .foregroundColor(.secondary)
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
             
             // Centered
-            if viewModel.loadingFailed {
+            if searchViewModel.loadingFailed {
                 Button {
                     startSearching()
                 } label: {
@@ -184,7 +185,7 @@ struct MFPSearch: View {
                         .font(.system(size: 60))
                         .imageScale(.large)
                 }
-            } else if viewModel.isLoadingPage {
+            } else if searchViewModel.isLoadingPage {
                 ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
                     .foregroundColor(Color(.tertiaryLabel))
                     .frame(width: 70, height: 70)
@@ -192,13 +193,13 @@ struct MFPSearch: View {
             
             // Fills the bottom
             HStack {
-                if !viewModel.isFirstAttempt {
+                if !searchViewModel.isFirstAttempt {
                     VStack(spacing: 10) {
-                        if let retryStatusMessage = viewModel.errorMessage {
+                        if let retryStatusMessage = searchViewModel.errorMessage {
                             Text(retryStatusMessage)
                             .foregroundColor(Color(.tertiaryLabel))
                         }
-                        if let retryCountMessage = viewModel.retryMessage {
+                        if let retryCountMessage = searchViewModel.retryMessage {
                             Text(retryCountMessage)
                                 .foregroundColor(Color(.quaternaryLabel))
                         }
@@ -220,7 +221,7 @@ struct MFPSearch: View {
         ProgressView(value: progressValue, total: 10) {
             HStack {
                 Spacer()
-                Text("Searching '\(viewModel.searchText)'…")
+                Text("Searching '\(searchViewModel.searchText)'…")
                     .foregroundColor(.secondary)
                 Spacer()
             }
@@ -270,7 +271,7 @@ struct MFPSearch: View {
     
     var cancelButton: some View {
         Button {
-            viewModel.cancelSearching()
+            searchViewModel.cancelSearching()
         } label: {
             Image(systemName: "xmark.circle.fill")
         }
@@ -318,13 +319,13 @@ struct MFPSearch: View {
             }
             
             var textField: some View {
-                TextField("Search or enter website link", text: $viewModel.searchText)
+                TextField("Search or enter website link", text: $searchViewModel.searchText)
                     .focused($isFocused)
                     .font(.system(size: 18))
                     .keyboardType(.alphabet)
                     .autocorrectionDisabled()
                     .onSubmit {
-                        guard !viewModel.searchText.isEmpty else {
+                        guard !searchViewModel.searchText.isEmpty else {
                             dismiss()
                             return
                         }
@@ -348,12 +349,12 @@ struct MFPSearch: View {
             
             var clearButton: some View {
                 Button {
-                    viewModel.searchText = ""
+                    searchViewModel.searchText = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundColor(Color(.secondaryLabel))
                 }
-                .opacity(viewModel.searchText.isEmpty ? 0 : 1)
+                .opacity(searchViewModel.searchText.isEmpty ? 0 : 1)
             }
             
             return ZStack {
@@ -379,7 +380,7 @@ struct MFPSearch: View {
                     .ultraThinMaterial
                 )
                 .onTapGesture {
-                    guard !viewModel.results.isEmpty else {
+                    guard !searchViewModel.results.isEmpty else {
                         return
                     }
                     resignFocusOfSearchTextField()
@@ -402,7 +403,7 @@ struct MFPSearch: View {
     }
     
     func tappedCancelOnSearchLayer() {
-        guard viewModel.results.isEmpty else {
+        guard searchViewModel.results.isEmpty else {
             resignFocusOfSearchTextField()
             return
         }
@@ -410,19 +411,20 @@ struct MFPSearch: View {
     }
     var list: some View {
         List {
-            ForEach(viewModel.results, id: \.self) { result in
+            ForEach(searchViewModel.results, id: \.self) { result in
                 NavigationLink {
-                    MFPFoodView(result: result, processedFood: viewModel.food(for: result))
+                    MFPFoodView(result: result, processedFood: searchViewModel.food(for: result))
                         .environmentObject(viewModel)
+                        .environmentObject(searchViewModel)
                 } label: {
                     ResultCell(result: result)
                         .onAppear {
-                            viewModel.loadMoreContentIfNeeded(currentResult: result)
+                            searchViewModel.loadMoreContentIfNeeded(currentResult: result)
                         }
                         .contentShape(Rectangle())
                 }
             }
-            if viewModel.isLoadingPage {
+            if searchViewModel.isLoadingPage {
                 HStack {
                     ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                         .foregroundColor(.secondary)
@@ -431,7 +433,7 @@ struct MFPSearch: View {
                 .frame(maxWidth: .infinity)
             } else {
                 Button {
-                    viewModel.loadNextPage()
+                    searchViewModel.loadNextPage()
                 } label: {
                     Text("Load more…")
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -446,6 +448,7 @@ public struct MFPSearchPreview: View {
     
     public var body: some View {
         MFPSearch()
+            .environmentObject(FoodFormViewModel.shared)
     }
     
     public init() { }

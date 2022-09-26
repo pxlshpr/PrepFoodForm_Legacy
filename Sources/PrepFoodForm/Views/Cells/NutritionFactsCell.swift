@@ -423,7 +423,7 @@ public struct NutritionFactsCellPreview: View {
     }
     
     func populateData() {
-        viewModel.prefill()
+        viewModel.previewPrefill()
     }
 }
 struct NutritionFactsCell_Previews: PreviewProvider {

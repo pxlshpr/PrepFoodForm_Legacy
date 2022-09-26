@@ -66,7 +66,7 @@ extension FoodForm.NutritionFacts.Cell {
     
     @ViewBuilder
     var inputIcon: some View {
-        if let imageName = cellViewModel.inputTypeImageName {
+        if let imageName = cellViewModel.fillTypeIconImage {
             Image(systemName: imageName)
                 .foregroundColor(Color(.secondaryLabel))
         }
@@ -96,7 +96,7 @@ public struct NutritionFacts_CellPreview: View {
                 .environmentObject(viewModel)
         }
         .onAppear {
-            viewModel.prefill()
+            viewModel.previewPrefill()
         }
     }
     
@@ -112,49 +112,35 @@ struct NutritionFacts_Cell_Previews: PreviewProvider {
 let mockEnergyFact = NutritionFact(
     type: .energy,
     amount: 250,
-    unit: .kj,
-    inputType: .manuallyEntered
-)
+    unit: .kj)
 
 let mockCarbFact = NutritionFact(
     type: .macro(.carb),
     amount: 45,
-    unit: .g,
-    inputType: .manuallyEntered
-)
+    unit: .g)
 
 let mockFatFact = NutritionFact(
     type: .macro(.fat),
     amount: 12,
-    unit: .g,
-    inputType: .manuallyEntered
-)
+    unit: .g)
 
 let mockProteinFact = NutritionFact(
     type: .macro(.protein),
     amount: 23,
-    unit: .g,
-    inputType: .manuallyEntered
-)
+    unit: .g)
 
 let mockSaturatedFat = NutritionFact(
     type: .micro(.saturatedFat),
     amount: 6,
-    unit: .g,
-    inputType: .manuallyEntered
-)
+    unit: .g)
 
 let mockSodium = NutritionFact(
     type: .micro(.sodium),
     amount: 1060,
-    unit: .mg,
-    inputType: .manuallyEntered
-)
+    unit: .mg)
 
 let mockFolate = NutritionFact(
     type: .micro(.folate),
     amount: 45,
-    unit: .g,
-    inputType: .manuallyEntered
-)
+    unit: .g)
 

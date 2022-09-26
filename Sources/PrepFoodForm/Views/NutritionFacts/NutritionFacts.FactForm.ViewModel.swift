@@ -72,7 +72,7 @@ extension FoodForm.NutritionFacts.FactForm.ViewModel {
     }
     
     var fact: NutritionFact {
-        NutritionFact(type: type, amount: amount, unit: unit, inputType: .manuallyEntered)
+        NutritionFact(type: type, amount: amount, unit: unit)
     }
     
     func add() {

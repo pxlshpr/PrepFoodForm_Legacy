@@ -8,12 +8,11 @@ public struct FoodForm: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
-    @State var showingThirdPartySearch = false
-    @State var showingWizard: Bool
     
     public init() {
-        _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
-        _showingWizard = State(wrappedValue: !FoodFormViewModel.shared.hasData)
+        let viewModel = FoodFormViewModel.shared
+        viewModel.showingWizard = !viewModel.hasData
+        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
@@ -70,11 +69,15 @@ public struct FoodForm: View {
         Form {
             formContents
         }
+        .sheet(isPresented: $viewModel.showingThirdPartySearch) {
+            MFPSearch()
+                .environmentObject(viewModel)
+        }
     }
     
     var formContents: some View {
         Group {
-            if showingWizard {
+            if viewModel.showingWizard {
                 manualEntrySection
                 imageSection
                 thirdPartyFoodSection
@@ -83,6 +86,7 @@ public struct FoodForm: View {
                 servingSection
                 foodLabelSection
                 sourceSection
+                prefillSection
             }
         }
     }
@@ -93,7 +97,7 @@ public struct FoodForm: View {
             Button {
                 Haptics.successFeedback()
                 withAnimation {
-                    showingWizard = false
+                    viewModel.showingWizard = false
                 }
             } label: {
                 Label("Empty Food", systemImage: "square.and.pencil")
@@ -154,13 +158,12 @@ public struct FoodForm: View {
         
         return Section(header: header, footer: footer) {
             Button {
-                showingThirdPartySearch = true
+                viewModel.showingThirdPartySearch = true
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-        }
-        .sheet(isPresented: $showingThirdPartySearch) {
-            MFPSearch()
+            .buttonStyle(.borderless)
         }
     }
     
@@ -218,6 +221,20 @@ public struct FoodForm: View {
             .environmentObject(viewModel)
     }
     
+    @ViewBuilder
+    var prefillSection: some View {
+        if let url = viewModel.prefilledFood?.sourceUrl {
+            Section("Prefilled Food") {
+                NavigationLink {
+                    SourceWebView(urlString: url)
+                } label: {
+                    Label("MyFitnessPal", systemImage: "link")
+                        .foregroundColor(.accentColor)
+                }
+            }
+        }
+    }
+    
     var servingCell: some View {
         Text("Set serving")
     }
@@ -240,3 +257,43 @@ public struct FoodForm: View {
     }
 }
 
+struct FoodFormPreview: View {
+    
+    @StateObject var viewModel = FoodFormViewModel.shared
+    
+    var body: some View {
+        FoodForm()
+            .environmentObject(viewModel)
+            .onAppear {
+                viewModel.prefill(MockProcessedFood.Banana)
+            }
+    }
+}
+
+struct FoodForm_Previews: PreviewProvider {
+    static var previews: some View {
+        FoodFormPreview()
+    }
+}
+
+import Foundation
+import MFPScraper
+
+extension FoodFormViewModel {
+    
+    func prefill(_ food: MFPProcessedFood) {
+
+        self.showingThirdPartySearch = false
+
+        if !food.name.isEmpty {
+            name = FieldValue(identifier: .name, string: food.name, fillType: .thirdPartyFoodPrefill)
+        }
+        if let detail = food.detail, !detail.isEmpty {
+            self.detail = FieldValue(identifier: .detail, string: detail, fillType: .thirdPartyFoodPrefill)
+        }
+
+        prefilledFood = food
+        showingWizard = false
+        
+    }
+}
