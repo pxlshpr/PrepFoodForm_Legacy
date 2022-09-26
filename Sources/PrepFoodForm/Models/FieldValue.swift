@@ -4,19 +4,15 @@ import PrepUnits
 struct FieldValue: Hashable, Equatable {
     var identifier: FieldValueIdentifier
     var fillType: FieldFillType
-    var fillIdentifier: UUID?
 
-    //TODO: Associate fillIdentifier with fillType
-    init(identifier: FieldValueIdentifier, fillType: FieldFillType = .userInput, fillIdentifier: UUID? = nil) {
+    init(identifier: FieldValueIdentifier, fillType: FieldFillType = .userInput) {
         self.identifier = identifier
         self.fillType = fillType
-        self.fillIdentifier = fillIdentifier
     }
     
-    init(micronutrient: NutrientType, fillType: FieldFillType = .userInput, fillIdentifier: UUID? = nil) {
+    init(micronutrient: NutrientType, fillType: FieldFillType = .userInput) {
         self.identifier = .micro(micronutrient, nil, "", micronutrient.units.first ?? .g)
         self.fillType = fillType
-        self.fillIdentifier = fillIdentifier
     }
 }
 

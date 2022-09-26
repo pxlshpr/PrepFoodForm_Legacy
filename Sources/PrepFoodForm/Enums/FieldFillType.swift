@@ -2,8 +2,8 @@ import Foundation
 
 enum FieldFillType: Hashable {
     case userInput
-    case imageSelection
-    case imageAutofill
+    case imageSelection(UUID)
+    case imageAutofill(UUID)
     case thirdPartyFoodPrefill
     
     var iconSystemImage: String {
