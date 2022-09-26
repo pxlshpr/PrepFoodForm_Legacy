@@ -42,7 +42,7 @@ public struct FoodForm: View {
                     Spacer().frame(height: 135)
                 }
                 .overlay(
-                    Color(.systemFill)
+                    Color(.quaternarySystemFill)
                         .opacity(viewModel.showingWizard ? 1.0 : 0)
 //                        .onTapGesture {
 //                            Haptics.successFeedback()
