@@ -178,6 +178,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingThirdPartySearch = false
     
     @Published var shouldShowWizard = true
-    
+    @Published var showingWizard = false
+
     @Published var shouldShowDensitiesSection = false
 }

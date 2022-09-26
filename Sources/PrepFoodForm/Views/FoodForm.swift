@@ -12,8 +12,6 @@ public struct FoodForm: View {
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
     
-    @State var showingWizard = false
-    
     public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
@@ -27,7 +25,7 @@ public struct FoodForm: View {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                         withAnimation(wizardAnimation) {
                             if viewModel.shouldShowWizard {
-                                showingWizard = true
+                                viewModel.showingWizard = true
                                 viewModel.shouldShowWizard = false
                             }
                         }
@@ -45,7 +43,7 @@ public struct FoodForm: View {
                 }
                 .overlay(
                     Color(.systemFill)
-                        .opacity(showingWizard ? 1.0 : 0)
+                        .opacity(viewModel.showingWizard ? 1.0 : 0)
 //                        .onTapGesture {
 //                            Haptics.successFeedback()
 //                            withAnimation(wizardAnimation) {
@@ -53,8 +51,8 @@ public struct FoodForm: View {
 //                            }
 //                        }
                 )
-                .blur(radius: showingWizard ? 2 : 0)
-                .disabled(showingWizard)
+                .blur(radius: viewModel.showingWizard ? 2 : 0)
+                .disabled(viewModel.showingWizard)
 //            dismissTapGesture
             wizard
             VStack {
@@ -62,11 +60,15 @@ public struct FoodForm: View {
                 saveButtons
             }
         }
+        .sheet(isPresented: $viewModel.showingThirdPartySearch) {
+            MFPSearch()
+                .environmentObject(viewModel)
+        }
     }
     
     @ViewBuilder
     var wizard: some View {
-        if showingWizard {
+        if viewModel.showingWizard {
             VStack {
                 Color.clear
                     .contentShape(Rectangle())
@@ -83,7 +85,7 @@ public struct FoodForm: View {
                 .cornerRadius(20)
                 .frame(width: 350, height: 400)
                 .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
-                .opacity(showingWizard ? 1 : 0)
+                .opacity(viewModel.showingWizard ? 1 : 0)
     //            .padding(.bottom)
                 Color.clear
                     .contentShape(Rectangle())
@@ -132,20 +134,12 @@ public struct FoodForm: View {
             sourceSection
             prefillSection
         }
-        .sheet(isPresented: $viewModel.showingThirdPartySearch) {
-//            NavigationView {
-//                MFPFoodView(result: MockResult.Banana, processedFood: MockProcessedFood.Banana)
-//                    .environmentObject(viewModel)
-//            }
-            MFPSearch()
-                .environmentObject(viewModel)
-        }
     }
     
     func startWithEmptyFood() {
         Haptics.successFeedback()
         withAnimation(wizardAnimation) {
-            showingWizard = false
+            viewModel.showingWizard = false
         }
     }
     
@@ -361,7 +355,9 @@ extension FoodFormViewModel {
         )
         
         prefilledFood = food
-        shouldShowWizard = false
         
+        withAnimation {
+            showingWizard = false
+        }
     }
 }
