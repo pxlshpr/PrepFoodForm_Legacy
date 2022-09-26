@@ -60,9 +60,9 @@ extension FoodFormViewModel {
             self.servingString = "0.2"
             self.servingUnit = .size(standardSizes.first!, nil)
         } else {
-            self.name =  FieldValue(identifier: .name, string: "Carrot")
+            self.name =  FieldValue(identifier: .name("Carrot"))
             self.emoji = "🥕"
-            self.detail = FieldValue(identifier: .detail, string: "Baby")
+            self.detail = FieldValue(identifier: .detail("Baby"))
             self.brand = "Woolworths"
             self.barcode = "5012345678900"
             
@@ -81,10 +81,10 @@ extension FoodFormViewModel {
             
             self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             
-            self.energy = FieldValue(identifier: .energy, double: 125, nutritionFactUnit: .kj)
-            self.carb = FieldValue(identifier: .macro(.carb), double: 23, nutritionFactUnit: .g)
-            self.fat = FieldValue(identifier: .macro(.fat), double: 8, nutritionFactUnit: .g)
-            self.protein = FieldValue(identifier: .macro(.protein), double: 3, nutritionFactUnit: .g)
+            self.energy = FieldValue(identifier: .energy(125, "125", .kJ))
+            self.carb = FieldValue(identifier: .macro(.carb, 23))
+            self.fat = FieldValue(identifier: .macro(.fat, 8))
+            self.protein = FieldValue(identifier: .macro(.protein, 3))
             
             //TODO: Micronutrients
 //            self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
@@ -114,15 +114,15 @@ extension FoodFormViewModel {
 extension FoodFormViewModel {
 
     var carbAmount: Double {
-        carb.double ?? 0
+        carb.identifier.double ?? 0
     }
     
     var proteinAmount: Double {
-        protein.double ?? 0
+        protein.identifier.double ?? 0
     }
     
     var fatAmount: Double {
-        fat.double ?? 0
+        fat.identifier.double ?? 0
     }
     
     var hasMicronutrients: Bool {
@@ -134,7 +134,7 @@ extension FoodFormViewModel {
     }
     
     var energyAmount: Double {
-        energy.double ?? 0
+        energy.identifier.double ?? 0
     }
     
     func nutritionFact(for type: NutritionFactType) -> NutritionFact? {

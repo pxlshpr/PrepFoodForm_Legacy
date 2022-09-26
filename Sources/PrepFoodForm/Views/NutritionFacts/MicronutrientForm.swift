@@ -1,14 +1,25 @@
 import SwiftUI
+import PrepUnits
 
-struct RequiredNutrientForm: View {
+struct MicronutrientForm: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var viewModel: FoodFormViewModel
     @FocusState var isFocused: Bool
     
     @Binding var fieldValue: FieldValue
+    @State var isBeingEdited: Bool
+    var didSubmit: ((String, NutrientUnit) -> ())
+    
+    @State var string: String = ""
+    @State var nutrientUnit: NutrientUnit = .g
+    
+    init(fieldValue: Binding<FieldValue>, isBeingEdited: Bool = false, didSubmit: @escaping ((String, NutrientUnit) -> ())) {
+        _fieldValue = fieldValue
+        _isBeingEdited = State(initialValue: isBeingEdited)
+        self.didSubmit = didSubmit
+    }
 }
 
-extension RequiredNutrientForm {
+extension MicronutrientForm {
     var body: some View {
         form
         .scrollDismissesKeyboard(.never)
@@ -16,6 +27,8 @@ extension RequiredNutrientForm {
         .toolbar { keyboardToolbarContents }
         .onAppear {
             isFocused = true
+            string = fieldValue.identifier.string
+            nutrientUnit = fieldValue.identifier.nutrientUnit
         }
     }
     
@@ -29,31 +42,35 @@ extension RequiredNutrientForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $fieldValue.string)
+        TextField("Optional", text: $string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .interactiveDismissDisabled()
     }
     
     var unitLabel: some View {
-        Text(fieldValue.unitString)
+        Text(nutrientUnit.shortDescription)
             .foregroundColor(.secondary)
     }
     
-    var units: [NutritionFactUnit] {
+    var units: [NutrientUnit] {
         fieldValue.identifier.supportedUnits
     }
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             if units.count > 1 {
-                Picker("", selection: $fieldValue.nutritionFactUnit) {
+                Picker("", selection: $nutrientUnit) {
                     ForEach(units, id: \.self) { unit in
-                        Text(unit.description).tag(unit)
+                        Text(unit.shortDescription).tag(unit)
                     }
                 }
                 .pickerStyle(.segmented)
+            }
+            Spacer()
+            Button(isBeingEdited ? "Save" : "Add") {
+                didSubmit(string, nutrientUnit)
+                dismiss()
             }
         }
     }

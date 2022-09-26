@@ -6,7 +6,6 @@ extension FoodForm.NutritionFacts {
     public struct MicronutrientPicker: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.dismiss) var dismiss
-        @State var transientString: String = ""
     }
 }
 
@@ -54,14 +53,13 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
     
     func nutrientButton(for fieldValue: Binding<FieldValue>) -> some View {
         NavigationLink {
-            OptionalNutrientForm(fieldValue: fieldValue, transientString: $transientString)
-                .onDisappear {
-                    /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
-                    withAnimation {
-                        fieldValue.wrappedValue.string = transientString
-                        transientString = ""
-                    }
+            MicronutrientForm(fieldValue: fieldValue) { string, nutrientUnit in
+                /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
+                withAnimation {
+                    fieldValue.wrappedValue.identifier.string = string
+                    fieldValue.wrappedValue.identifier.nutrientUnit = nutrientUnit
                 }
+            }
         } label: {
             Text(fieldValue.wrappedValue.identifier.description)
                 .foregroundColor(.primary)

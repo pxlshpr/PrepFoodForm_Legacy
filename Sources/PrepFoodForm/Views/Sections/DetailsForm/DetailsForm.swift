@@ -10,6 +10,8 @@ extension FoodForm {
         @State var showingEmojiPicker = false
         @State var showingCodeScanner = false
         @State var showingSheet = false
+        
+        @State var nameString: String = ""
     }
 }
 
@@ -64,7 +66,7 @@ extension FoodForm.DetailsForm {
         Form {
             Section("Name") {
                 HStack {
-                    TextField("Required", text: $viewModel.name.string)
+                    TextField("Required", text: $viewModel.name.identifier.string)
                     Button {
                         Haptics.feedback(style: .soft)
                         showingSheet = true
@@ -86,7 +88,7 @@ extension FoodForm.DetailsForm {
             }
             Section("Detail") {
                 HStack {
-                    TextField("", text: $viewModel.detail.string)
+                    TextField("", text: $viewModel.detail.identifier.string)
                         .placeholder(when: viewModel.detail.isEmpty) {
                             Text("Optional").foregroundColor(Color(.quaternaryLabel))
                         }

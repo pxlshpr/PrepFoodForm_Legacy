@@ -2,53 +2,27 @@ import SwiftUI
 import PrepUnits
 
 struct FieldValue: Hashable, Equatable {
-    let identifier: FieldValueIdentifier
-    
-    var string: String {
-        didSet {
-            if identifier.usesDouble {
-                double = Double(string)
-            }
-        }
-    }
-    var double: Double?
-    var nutritionFactUnit: NutritionFactUnit
-
+    var identifier: FieldValueIdentifier
     var fillType: FieldFillType
     var fillIdentifier: UUID?
 
-    init(
-        identifier: FieldValueIdentifier,
-        string: String = "",
-        double: Double? = nil,
-        nutritionFactUnit: NutritionFactUnit? = nil,
-        fillType: FieldFillType = .userInput,
-        fillIdentifier: UUID? = nil
-    ) {
+    //TODO: Associate fillIdentifier with fillType
+    init(identifier: FieldValueIdentifier, fillType: FieldFillType = .userInput, fillIdentifier: UUID? = nil) {
         self.identifier = identifier
-        self.string = string
-        self.double = double
         self.fillType = fillType
         self.fillIdentifier = fillIdentifier
-        
-        if let unit = nutritionFactUnit {
-            self.nutritionFactUnit = unit
-        } else {
-            self.nutritionFactUnit = identifier.defaultUnit
-        }
+    }
+    
+    init(micronutrient: NutrientType, fillType: FieldFillType = .userInput, fillIdentifier: UUID? = nil) {
+        self.identifier = .micro(micronutrient, nil, "", micronutrient.units.first ?? .g)
+        self.fillType = fillType
+        self.fillIdentifier = fillIdentifier
     }
 }
 
 extension FieldValue {
     var isEmpty: Bool {
-        switch identifier.valueType {
-        case .string:
-            return string.isEmpty
-        case .double:
-            return double == nil
-        case .nutrient:
-            return double == nil
-        }
+        identifier.isEmpty
     }
 }
 
@@ -77,18 +51,10 @@ extension FieldValue: CustomStringConvertible {
     }
     
     var amountString: String {
-        guard let amount = double else {
-            if case .micro(_) = identifier {
-                return ""
-            } else {
-                return "Required"
-            }
-        }
-        return amount.cleanAmount
+        identifier.amountString
     }
     
     var unitString: String {
-        nutritionFactUnit.description
-//        nutritionFactUnit?.description ?? ""
+        identifier.unitString
     }
 }

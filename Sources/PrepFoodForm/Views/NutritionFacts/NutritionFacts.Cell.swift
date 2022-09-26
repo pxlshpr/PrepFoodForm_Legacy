@@ -51,7 +51,7 @@ extension FoodForm.NutritionFacts.Cell {
             Text(fieldValue.amountString)
                 .foregroundColor(fieldValue.amountColor)
                 .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-            if fieldValue.double != nil {
+            if fieldValue.identifier.double != nil {
                 Text(fieldValue.unitString)
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                     .bold()

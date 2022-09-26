@@ -2,11 +2,11 @@ import SwiftUI
 import PrepUnits
 
 enum FieldValueIdentifier: Hashable {
-    case name
-    case detail
-    case energy
-    case macro(Macro)
-    case micro(NutrientType)
+    case name(String = "")
+    case detail(String = "")
+    case energy(Double? = nil, String = "", EnergyUnit = .kcal)
+    case macro(Macro, Double? = nil, String = "")
+    case micro(NutrientType, Double? = nil, String = "", NutrientUnit = .g)
     
     var valueType: FieldValueType {
         switch self {
@@ -26,6 +26,32 @@ enum FieldValueIdentifier: Hashable {
     var usesDouble: Bool {
         valueType == .double || valueType == .nutrient
     }
+    
+    var amountString: String {
+        switch self {
+        case .energy(let double, _, _):
+            return double?.cleanAmount ?? "Required"
+        case .macro(_, let double, _):
+            return double?.cleanAmount ?? "Required"
+        case .micro(_, let double, _, _):
+            return double?.cleanAmount ?? ""
+        default:
+            return ""
+        }
+    }
+    
+    var unitString: String {
+        switch self {
+        case .energy(_, _, let energyUnit):
+            return energyUnit.shortDescription
+        case .macro:
+            return NutrientUnit.g.shortDescription
+        case .micro(_, _, _, let nutrientUnit):
+            return nutrientUnit.shortDescription
+        default:
+            return ""
+        }
+    }
 }
 
 extension FieldValueIdentifier: CustomStringConvertible {
@@ -37,10 +63,10 @@ extension FieldValueIdentifier: CustomStringConvertible {
             return "Detail"
         case .energy:
             return "Energy"
-        case .macro(let macro):
+        case .macro(let macro, _, _):
             return macro.description
-        case .micro(let micro):
-            return micro.description
+        case .micro(let nutrientType, _, _, _):
+            return nutrientType.description
         }
     }
     
@@ -58,7 +84,7 @@ extension FieldValueIdentifier: CustomStringConvertible {
         switch self {
         case .energy:
             return .accentColor
-        case .macro(let macro):
+        case .macro(let macro, _, _):
             return macro.textColor(for: colorScheme)
         case .micro:
             return .gray
@@ -67,31 +93,158 @@ extension FieldValueIdentifier: CustomStringConvertible {
         }
     }
     
-    var supportedUnits: [NutritionFactUnit] {
+    var supportedUnits: [NutrientUnit] {
         switch self {
         case .energy:
-            return [.kcal, .kj]
+//            return [.kcal, .kj]
+            return [.g]
         case .macro:
             return [.g]
-        case .micro(let nutrientType):
+        case .micro(let nutrientType, _, _, _):
             return nutrientType.units.map {
-                $0.nutritionFactUnit
+                $0
             }
         default:
             return []
         }
     }
     
-    var defaultUnit: NutritionFactUnit {
+    var defaultUnit: NutrientUnit {
         supportedUnits.first ?? .g
     }
     
     var nutrientType: NutrientType? {
         switch self {
-        case .micro(let type):
-            return type
+        case .micro(let nutrientType, _, _, _):
+            return nutrientType
         default:
             return nil
+        }
+    }
+    
+    var isEmpty: Bool {
+        switch self {
+        case .name(let string):
+            return string.isEmpty
+        case .detail(let string):
+            return string.isEmpty
+        case .energy(let double, _, _):
+            return double == nil
+        case .macro(_, let amount, _):
+            return amount == nil
+        case .micro(_, let amount, _, _):
+            return amount == nil
+        }
+    }
+}
+
+
+extension FieldValueIdentifier {
+    
+    var double: Double? {
+        get {
+            switch self {
+            case .energy(let double, _, _):
+                return double
+            case .macro(_, let double, _):
+                return double
+            case .micro(_, let double, _, _):
+                return double
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .energy(_, _, let energyUnit):
+                self = .energy(newValue, newValue?.cleanAmount ?? "", energyUnit)
+            case .macro(let macro, _, _):
+                self = .macro(macro, newValue, newValue?.cleanAmount ?? "")
+            case .micro(let nutrientType, _, _, let nutrientUnit):
+                self = .micro(nutrientType, newValue, newValue?.cleanAmount ?? "", nutrientUnit)
+            default:
+                break
+            }
+        }
+    }
+    
+    var string: String {
+        get {
+            switch self {
+            case .name(let string):
+                return string
+            case .detail(let string):
+                return string
+            case .energy(_, let string, _):
+                return string
+            case .macro(_, _, let string):
+                return string
+            case .micro(_, _, let string, _):
+                return string
+            }
+        }
+        set {
+            switch self {
+            case .name:
+                self = .name(newValue)
+            case .detail:
+                self = .detail(newValue)
+            case .energy(_, _, let energyUnit):
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self = .energy(double, newValue, energyUnit)
+            case .macro(let macro, _, _):
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self = .macro(macro, double, newValue)
+            case .micro(let nutrientType, _, _, let nutrientUnit):
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self = .micro(nutrientType, double, newValue, nutrientUnit)
+            }
+        }
+    }
+    
+    var nutrientUnit: NutrientUnit {
+        get {
+            switch self {
+            case .macro:
+                return .g
+            case .micro(_, _, _, let nutrientUnit):
+                return nutrientUnit
+            default:
+                return .g
+            }
+        }
+        set {
+            switch self {
+            case .micro(let nutrientType, let double, let string, _):
+                self = .micro(nutrientType, double, string, newValue)
+            default:
+                break
+            }
+        }
+    }
+    
+    var energyUnit: EnergyUnit {
+        get {
+            switch self {
+            case .energy(_, _, let energyUnit):
+                return energyUnit
+            default:
+                return .kcal
+            }
+        }
+        set {
+            switch self {
+            case .energy(let double, let string, _):
+                self = .energy(double, string, newValue)
+            default:
+                break
+            }
         }
     }
 }

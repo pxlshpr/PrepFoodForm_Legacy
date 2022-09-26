@@ -347,17 +347,13 @@ extension FoodFormViewModel {
         self.showingThirdPartySearch = false
 
         if !food.name.isEmpty {
-            name = FieldValue(identifier: .name, string: food.name, fillType: .thirdPartyFoodPrefill)
+            name = FieldValue(identifier: .name(food.name), fillType: .thirdPartyFoodPrefill)
         }
         if let detail = food.detail, !detail.isEmpty {
-            self.detail = FieldValue(identifier: .detail, string: detail, fillType: .thirdPartyFoodPrefill)
+            self.detail = FieldValue(identifier: .detail(detail), fillType: .thirdPartyFoodPrefill)
         }
         
-        self.energy = FieldValue(identifier: .energy,
-                                 double: food.energy,
-                                 nutritionFactUnit: .kcal,
-                                 fillType: .thirdPartyFoodPrefill
-        )
+        self.energy = FieldValue(identifier: .energy(food.energy, food.energy.cleanAmount, .kcal), fillType: .thirdPartyFoodPrefill)
         
         prefilledFood = food
         

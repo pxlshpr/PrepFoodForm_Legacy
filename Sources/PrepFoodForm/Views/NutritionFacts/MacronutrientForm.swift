@@ -1,16 +1,14 @@
 import SwiftUI
+import PrepUnits
 
-struct OptionalNutrientForm: View {
+struct MacronutrientForm: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var viewModel: FoodFormViewModel
     @FocusState var isFocused: Bool
     
     @Binding var fieldValue: FieldValue
-    @Binding var transientString: String
-    
 }
 
-extension OptionalNutrientForm {
+extension MacronutrientForm {
     var body: some View {
         form
         .scrollDismissesKeyboard(.never)
@@ -31,10 +29,11 @@ extension OptionalNutrientForm {
     }
     
     var textField: some View {
-        TextField("Optional", text: $transientString)
+        TextField("Required", text: $fieldValue.identifier.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
+            .interactiveDismissDisabled()
     }
     
     var unitLabel: some View {
@@ -42,24 +41,11 @@ extension OptionalNutrientForm {
             .foregroundColor(.secondary)
     }
     
-    var units: [NutritionFactUnit] {
-        fieldValue.identifier.supportedUnits
-    }
-    
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            if units.count > 1 {
-                Picker("", selection: $fieldValue.nutritionFactUnit) {
-                    ForEach(units, id: \.self) { unit in
-                        Text(unit.description).tag(unit)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
             Spacer()
-            Button("Add") {
+            Button("Done") {
                 dismiss()
-//                fieldValue.string = transientString
             }
         }
     }

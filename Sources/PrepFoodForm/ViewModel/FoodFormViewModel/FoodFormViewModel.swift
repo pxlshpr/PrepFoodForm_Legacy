@@ -10,9 +10,9 @@ public class FoodFormViewModel: ObservableObject {
     public init() { }
     
     //MARK: - Food Details
-    @Published var name = FieldValue(identifier: .name)
+    @Published var name = FieldValue(identifier: .name())
     @Published var emoji = ""
-    @Published var detail = FieldValue(identifier: .detail)
+    @Published var detail = FieldValue(identifier: .detail())
     @Published var brand = ""
     @Published var barcode = ""
     
@@ -60,75 +60,75 @@ public class FoodFormViewModel: ObservableObject {
     @Published var densityVolumeUnit: FormUnit = .volume(.mL)
     
     //MARK: Nutrition Facts
-    @Published var energy = FieldValue(identifier: .energy)
+    @Published var energy = FieldValue(identifier: .energy())
     @Published var carb = FieldValue(identifier: .macro(.carb))
     @Published var fat = FieldValue(identifier: .macro(.fat))
     @Published var protein = FieldValue(identifier: .macro(.protein))
     
     @Published var micronutrients: [(group: NutrientTypeGroup, fieldValues: [FieldValue])] = [
         (NutrientTypeGroup.fats, [
-            FieldValue(identifier: .micro(.saturatedFat)),
-            FieldValue(identifier: .micro(.monounsaturatedFat)),
-            FieldValue(identifier: .micro(.polyunsaturatedFat)),
-            FieldValue(identifier: .micro(.transFat)),
-            FieldValue(identifier: .micro(.cholesterol)),
+            FieldValue(micronutrient: .saturatedFat),
+            FieldValue(micronutrient: .monounsaturatedFat),
+            FieldValue(micronutrient: .polyunsaturatedFat),
+            FieldValue(micronutrient: .transFat),
+            FieldValue(micronutrient: .cholesterol),
         ]),
         (NutrientTypeGroup.fibers, [
-            FieldValue(identifier: .micro(.dietaryFiber)),
-            FieldValue(identifier: .micro(.solubleFiber)),
-            FieldValue(identifier: .micro(.insolubleFiber)),
+            FieldValue(micronutrient: .dietaryFiber),
+            FieldValue(micronutrient: .solubleFiber),
+            FieldValue(micronutrient: .insolubleFiber),
         ]),
         (NutrientTypeGroup.sugars, [
-            FieldValue(identifier: .micro(.sugars)),
-            FieldValue(identifier: .micro(.addedSugars)),
-            FieldValue(identifier: .micro(.sugarAlcohols)),
+            FieldValue(micronutrient: .sugars),
+            FieldValue(micronutrient: .addedSugars),
+            FieldValue(micronutrient: .sugarAlcohols),
         ]),
         (NutrientTypeGroup.minerals, [
-            FieldValue(identifier: .micro(.calcium)),
-            FieldValue(identifier: .micro(.chloride)),
-            FieldValue(identifier: .micro(.chromium)),
-            FieldValue(identifier: .micro(.copper)),
-            FieldValue(identifier: .micro(.iodine)),
-            FieldValue(identifier: .micro(.iron)),
-            FieldValue(identifier: .micro(.magnesium)),
-            FieldValue(identifier: .micro(.manganese)),
-            FieldValue(identifier: .micro(.molybdenum)),
-            FieldValue(identifier: .micro(.phosphorus)),
-            FieldValue(identifier: .micro(.potassium)),
-            FieldValue(identifier: .micro(.selenium)),
-            FieldValue(identifier: .micro(.sodium)),
-            FieldValue(identifier: .micro(.zinc)),
+            FieldValue(micronutrient: .calcium),
+            FieldValue(micronutrient: .chloride),
+            FieldValue(micronutrient: .chromium),
+            FieldValue(micronutrient: .copper),
+            FieldValue(micronutrient: .iodine),
+            FieldValue(micronutrient: .iron),
+            FieldValue(micronutrient: .magnesium),
+            FieldValue(micronutrient: .manganese),
+            FieldValue(micronutrient: .molybdenum),
+            FieldValue(micronutrient: .phosphorus),
+            FieldValue(micronutrient: .potassium),
+            FieldValue(micronutrient: .selenium),
+            FieldValue(micronutrient: .sodium),
+            FieldValue(micronutrient: .zinc),
         ]),
         (NutrientTypeGroup.vitamins, [
-            FieldValue(identifier: .micro(.vitaminA)),
-            FieldValue(identifier: .micro(.vitaminB6)),
-            FieldValue(identifier: .micro(.vitaminB12)),
-            FieldValue(identifier: .micro(.vitaminC)),
-            FieldValue(identifier: .micro(.vitaminD)),
-            FieldValue(identifier: .micro(.vitaminE)),
-            FieldValue(identifier: .micro(.vitaminK)),
-            FieldValue(identifier: .micro(.biotin)),
-            FieldValue(identifier: .micro(.choline)),
-            FieldValue(identifier: .micro(.folate)),
-            FieldValue(identifier: .micro(.niacin)),
-            FieldValue(identifier: .micro(.pantothenicAcid)),
-            FieldValue(identifier: .micro(.riboflavin)),
-            FieldValue(identifier: .micro(.thiamin)),
-            FieldValue(identifier: .micro(.vitaminB2)),
-            FieldValue(identifier: .micro(.cobalamin)),
-            FieldValue(identifier: .micro(.folicAcid)),
-            FieldValue(identifier: .micro(.vitaminB1)),
-            FieldValue(identifier: .micro(.vitaminB3)),
-            FieldValue(identifier: .micro(.vitaminK2)),
+            FieldValue(micronutrient: .vitaminA),
+            FieldValue(micronutrient: .vitaminB6),
+            FieldValue(micronutrient: .vitaminB12),
+            FieldValue(micronutrient: .vitaminC),
+            FieldValue(micronutrient: .vitaminD),
+            FieldValue(micronutrient: .vitaminE),
+            FieldValue(micronutrient: .vitaminK),
+            FieldValue(micronutrient: .biotin),
+            FieldValue(micronutrient: .choline),
+            FieldValue(micronutrient: .folate),
+            FieldValue(micronutrient: .niacin),
+            FieldValue(micronutrient: .pantothenicAcid),
+            FieldValue(micronutrient: .riboflavin),
+            FieldValue(micronutrient: .thiamin),
+            FieldValue(micronutrient: .vitaminB2),
+            FieldValue(micronutrient: .cobalamin),
+            FieldValue(micronutrient: .folicAcid),
+            FieldValue(micronutrient: .vitaminB1),
+            FieldValue(micronutrient: .vitaminB3),
+            FieldValue(micronutrient: .vitaminK2),
         ]),
         (NutrientTypeGroup.misc, [
-            FieldValue(identifier: .micro(.caffeine)),
-            FieldValue(identifier: .micro(.ethanol)),
-            FieldValue(identifier: .micro(.taurine)),
-            FieldValue(identifier: .micro(.polyols)),
-            FieldValue(identifier: .micro(.gluten)),
-            FieldValue(identifier: .micro(.starch)),
-            FieldValue(identifier: .micro(.salt)),
+            FieldValue(micronutrient: .caffeine),
+            FieldValue(micronutrient: .ethanol),
+            FieldValue(micronutrient: .taurine),
+            FieldValue(micronutrient: .polyols),
+            FieldValue(micronutrient: .gluten),
+            FieldValue(micronutrient: .starch),
+            FieldValue(micronutrient: .salt),
         ]),
     ]
     

@@ -51,8 +51,8 @@ extension FoodForm.NutritionFacts.Cell.ViewModel {
     }
     
     var amountString: String {
-        guard let amount = fieldValue.double else {
-            if case .micro(_) = fieldValue.identifier {
+        guard let amount = fieldValue.identifier.double else {
+            if case .micro = fieldValue.identifier {
                 return ""
             } else {
                 return "Required"

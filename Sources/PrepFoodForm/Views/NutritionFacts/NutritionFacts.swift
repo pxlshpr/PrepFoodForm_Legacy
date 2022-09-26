@@ -1,4 +1,5 @@
 import SwiftUI
+import PrepUnits
 
 extension FoodForm {
     public struct NutritionFacts: View {
@@ -19,18 +20,39 @@ extension FoodForm.NutritionFacts {
             }
     }
 
-    func cellLink(for fieldValue: Binding<FieldValue>) -> some View {
+    func macronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
         NavigationLink {
-            RequiredNutrientForm(fieldValue: fieldValue)
-                .environmentObject(viewModel)
+            MacronutrientForm(fieldValue: fieldValue)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
         }
     }
+
+    func micronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
+        NavigationLink {
+            MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { string, nutrientUnit in
+                withAnimation {
+                    fieldValue.wrappedValue.identifier.string = string
+                    fieldValue.wrappedValue.identifier.nutrientUnit = nutrientUnit
+                }
+            }
+        } label: {
+            FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+        }
+    }
+
+    var energyForm: some View {
+        NavigationLink {
+            EnergyForm(fieldValue: $viewModel.energy)
+        } label: {
+            FoodForm.NutritionFacts.Cell(fieldValue: $viewModel.energy)
+        }
+    }
+
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-                cellLink(for: $viewModel.energy)
+                energyForm
                 macronutrientsGroup
                 micronutrientsGroup
             }
@@ -42,9 +64,9 @@ extension FoodForm.NutritionFacts {
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
-            cellLink(for: $viewModel.carb)
-            cellLink(for: $viewModel.fat)
-            cellLink(for: $viewModel.protein)
+            macronutrientForm(for: $viewModel.carb)
+            macronutrientForm(for: $viewModel.fat)
+            macronutrientForm(for: $viewModel.protein)
         }
     }
     
@@ -74,7 +96,7 @@ extension FoodForm.NutritionFacts {
                     subtitleCell(viewModel.micronutrients[g].group.description)
                     ForEach(viewModel.micronutrients[g].fieldValues.indices, id: \.self) { f in
                         if !viewModel.micronutrients[g].fieldValues[f].isEmpty {
-                            cellLink(for: $viewModel.micronutrients[g].fieldValues[f])
+                            micronutrientForm(for: $viewModel.micronutrients[g].fieldValues[f])
                         }
                     }
                 }
