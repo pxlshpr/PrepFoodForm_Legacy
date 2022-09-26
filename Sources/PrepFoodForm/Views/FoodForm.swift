@@ -46,9 +46,16 @@ public struct FoodForm: View {
                 .overlay(
                     Color(.systemFill)
                         .opacity(showingWizard ? 1.0 : 0)
+//                        .onTapGesture {
+//                            Haptics.successFeedback()
+//                            withAnimation(wizardAnimation) {
+//                                showingWizard = false
+//                            }
+//                        }
                 )
                 .blur(radius: showingWizard ? 2 : 0)
                 .disabled(showingWizard)
+//            dismissTapGesture
             wizard
             VStack {
                 Spacer()
@@ -61,7 +68,11 @@ public struct FoodForm: View {
     var wizard: some View {
         if showingWizard {
             VStack {
-                Spacer()
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        startWithEmptyFood()
+                    }
                 Form {
                     manualEntrySection
                     imageSection
@@ -74,7 +85,11 @@ public struct FoodForm: View {
                 .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
                 .opacity(showingWizard ? 1 : 0)
     //            .padding(.bottom)
-                Spacer()
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        startWithEmptyFood()
+                    }
             }
             .zIndex(1)
             .transition(.move(edge: .bottom))
@@ -127,14 +142,18 @@ public struct FoodForm: View {
         }
     }
     
+    func startWithEmptyFood() {
+        Haptics.successFeedback()
+        withAnimation(wizardAnimation) {
+            showingWizard = false
+        }
+    }
+    
     //MARK: - Wizard Contents
     var manualEntrySection: some View {
         Section("Start with an empty food") {
             Button {
-                Haptics.successFeedback()
-                withAnimation(wizardAnimation) {
-                    showingWizard = false
-                }
+                startWithEmptyFood()
             } label: {
                 Label("Empty Food", systemImage: "square.and.pencil")
                     .foregroundColor(.primary)
