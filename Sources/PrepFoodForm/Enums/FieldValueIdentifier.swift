@@ -190,16 +190,28 @@ extension FieldValueIdentifier {
             case .detail:
                 self = .detail(newValue)
             case .energy(_, _, let energyUnit):
+                guard !newValue.isEmpty else {
+                    self = .energy(nil, newValue, energyUnit)
+                    return
+                }
                 guard let double = Double(newValue) else {
                     return
                 }
                 self = .energy(double, newValue, energyUnit)
             case .macro(let macro, _, _):
+                guard !newValue.isEmpty else {
+                    self = .macro(macro, nil, newValue)
+                    return
+                }
                 guard let double = Double(newValue) else {
                     return
                 }
                 self = .macro(macro, double, newValue)
             case .micro(let nutrientType, _, _, let nutrientUnit):
+                guard !newValue.isEmpty else {
+                    self = .micro(nutrientType, nil, newValue, nutrientUnit)
+                    return
+                }
                 guard let double = Double(newValue) else {
                     return
                 }
