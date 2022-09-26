@@ -3,6 +3,7 @@ import PrepUnits
 
 struct FieldValue: Hashable, Equatable {
     let identifier: FieldValueIdentifier
+    
     var string: String {
         didSet {
             if identifier.usesDouble {
@@ -16,7 +17,14 @@ struct FieldValue: Hashable, Equatable {
     var fillType: FieldFillType
     var fillIdentifier: UUID?
 
-    init(identifier: FieldValueIdentifier, string: String = "", double: Double? = nil, nutritionFactUnit: NutritionFactUnit? = nil, fillType: FieldFillType = .userInput, fillIdentifier: UUID? = nil) {
+    init(
+        identifier: FieldValueIdentifier,
+        string: String = "",
+        double: Double? = nil,
+        nutritionFactUnit: NutritionFactUnit? = nil,
+        fillType: FieldFillType = .userInput,
+        fillIdentifier: UUID? = nil
+    ) {
         self.identifier = identifier
         self.string = string
         self.double = double

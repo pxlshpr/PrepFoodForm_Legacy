@@ -22,6 +22,9 @@ public struct FoodForm: View {
                 .navigationTitle("New Food")
                 .interactiveDismissDisabled(viewModel.hasData)
                 .onAppear {
+                    DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
+                        Haptics.transientHaptic()
+                    }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                         withAnimation(wizardAnimation) {
                             if viewModel.shouldShowWizard {
@@ -43,7 +46,7 @@ public struct FoodForm: View {
                 }
                 .overlay(
                     Color(.quaternarySystemFill)
-                        .opacity(viewModel.showingWizard ? 1.0 : 0)
+                        .opacity(viewModel.showingWizard ? 0.3 : 0)
 //                        .onTapGesture {
 //                            Haptics.successFeedback()
 //                            withAnimation(wizardAnimation) {
@@ -51,7 +54,7 @@ public struct FoodForm: View {
 //                            }
 //                        }
                 )
-                .blur(radius: viewModel.showingWizard ? 2 : 0)
+                .blur(radius: viewModel.showingWizard ? 5 : 0)
                 .disabled(viewModel.showingWizard)
 //            dismissTapGesture
             wizard
@@ -83,7 +86,9 @@ public struct FoodForm: View {
 //                .scrollContentBackground(.hidden)
 //                .background(Color(.secondarySystemGroupedBackground))
                 .cornerRadius(20)
-                .frame(width: 350, height: 400)
+                .frame(height: 400)
+                .frame(maxWidth: 350)
+                .padding(.horizontal, 30)
                 .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
                 .opacity(viewModel.showingWizard ? 1 : 0)
     //            .padding(.bottom)
@@ -137,7 +142,7 @@ public struct FoodForm: View {
     }
     
     func startWithEmptyFood() {
-        Haptics.successFeedback()
+        Haptics.transientHaptic()
         withAnimation(wizardAnimation) {
             viewModel.showingWizard = false
         }
