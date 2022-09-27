@@ -30,7 +30,7 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var emoji: some View {
             if !viewModel.emoji.isEmpty {
-                Text(viewModel.emoji)
+                Text(viewModel.emoji.string)
                     .font(.system(size: 50))
             }
         }
@@ -56,14 +56,14 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var brand: some View {
             if !viewModel.brand.isEmpty {
-                Text(viewModel.brand)
+                Text(viewModel.brand.string)
             }
         }
         
         @ViewBuilder
         var barcode: some View {
             if !viewModel.barcode.isEmpty {
-                barcodeView(for: viewModel.barcode)
+                barcodeView(for: viewModel.barcode.string)
             }
         }
 
@@ -133,11 +133,11 @@ struct DetailsCellPreview: View {
     }
     
     func populateData() {
-        viewModel.emoji = "🧈"
+        viewModel.emoji = FieldValue.emoji(string: "🧈")
         viewModel.name = FieldValue.name(string: "Butter")
         viewModel.detail = FieldValue.detail(string: "Salted")
-        viewModel.brand = "Emborg"
-        viewModel.barcode = "10123456789019"
+        viewModel.brand = FieldValue.brand(string: "Emborg")
+        viewModel.barcode = FieldValue.barcode(string: "10123456789019")
 //        viewModel.barcode = "2166529V"
     }
 }

@@ -98,24 +98,24 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                 }
             }
         }
-        .onChange(of: viewModel.amountString) { newValue in
+        .onChange(of: viewModel.amount) { newValue in
             fieldSourceType = "pencil.circle.fill"
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
                 sizes: viewModel.allSizes,
-                pickedUnit: viewModel.amountUnit
+                pickedUnit: viewModel.amount.formUnit
             ) {
                 showingSizeForm = true
             } didPickUnit: { unit in
                 withAnimation {
-                    viewModel.amountUnit = unit
+                    viewModel.amount.formUnit = unit
                 }
             }
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: false, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.amountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.amount.formUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -130,7 +130,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $viewModel.amountString)
+        TextField("Required", text: $viewModel.amount.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -158,7 +158,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     @ViewBuilder
     var footer: some View {
         Text("This is how much of this food the nutrition facts are for. You'll be able to log this food using the unit you choose.")
-            .foregroundColor(viewModel.amountString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+            .foregroundColor(viewModel.amount.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 }
 

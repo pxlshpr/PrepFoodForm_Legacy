@@ -60,7 +60,7 @@ extension FoodForm.NutrientsPerForm {
         
         var footer: some View {
             Text("How much of this food the nutrition facts are for.")
-                .foregroundColor(viewModel.amountString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+                .foregroundColor(viewModel.amount.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
         return Section(footer: footer) {

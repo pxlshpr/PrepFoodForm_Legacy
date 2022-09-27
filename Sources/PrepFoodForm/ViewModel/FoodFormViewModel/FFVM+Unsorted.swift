@@ -13,7 +13,7 @@ extension FoodFormViewModel {
         || !detail.isEmpty
         || !brand.isEmpty
         || !barcode.isEmpty
-        || !amountString.isEmpty
+        || !amount.isEmpty
         || !servingString.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty
@@ -57,18 +57,18 @@ extension FoodFormViewModel {
             self.standardSizes = sizes
             self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
 
-            self.amountString = "1"
+            self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
             self.servingString = "0.2"
             self.servingUnit = .size(standardSizes.first!, nil)
         } else {
             self.name =  FieldValue.name(string: "Carrot")
-            self.emoji = "🥕"
+            self.emoji = FieldValue.emoji(string: "🥕")
             self.detail = FieldValue.detail(string: "Baby")
-            self.brand = "Woolworths"
-            self.barcode = "5012345678900"
+            self.brand = FieldValue.brand(string: "Woolworths")
+            self.barcode = FieldValue.barcode(string: "5012345678900")
             
-            self.amountString = "1"
-            self.amountUnit = .serving
+            self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
+
             self.servingString = "50"
             self.servingUnit = .weight(.g)
             
@@ -131,32 +131,32 @@ extension FoodFormViewModel {
     }
     
     var shouldShowServingInField: Bool {
-        !amountString.isEmpty && amountIsServing
+        !amount.isEmpty && amountIsServing
     }
     
     func updateShouldShowDensitiesSection() {
         withAnimation {
             shouldShowDensitiesSection =
-            (amountUnit.isMeasurementBased && amount > 0)
+            (amount.formUnit.isMeasurementBased && (amount.double ?? 0) > 0)
             ||
-            (servingUnit.isMeasurementBased && servingAmount > 0)
+            (amount.formUnit.isMeasurementBased && servingAmount > 0)
         }
     }
 
     var amountIsServing: Bool {
-        amountUnit == .serving
+        amount.formUnit == .serving
     }
 
     var isWeightBased: Bool {
-        amountUnit.isWeightBased || servingUnit.isWeightBased
+        amount.formUnit.isWeightBased || servingUnit.isWeightBased
     }
 
     var isVolumeBased: Bool {
-        amountUnit.isVolumeBased || servingUnit.isVolumeBased
+        amount.formUnit.isVolumeBased || servingUnit.isVolumeBased
     }
     
     var shouldShowSizesSection: Bool {
-        !amountString.isEmpty
+        !amount.isEmpty
     }
 
     func modifyServingAmount(for newUnit: FormUnit) {
@@ -201,7 +201,7 @@ extension FoodFormViewModel {
     }
     
     var isMeasurementBased: Bool {
-        amountUnit.isMeasurementBased || servingUnit.isMeasurementBased
+        amount.formUnit.isMeasurementBased || servingUnit.isMeasurementBased
     }
     
     var allSizes: [Size] {
@@ -225,7 +225,7 @@ extension FoodFormViewModel {
     }
 
     var hasNutrientsPerContent: Bool {
-        !amountString.isEmpty
+        !amount.isEmpty
     }
     
     var hasNutrientsPerServingContent: Bool {
@@ -233,18 +233,14 @@ extension FoodFormViewModel {
     }
     
     var hasServing: Bool {
-        amountUnit == .serving
-    }
-    
-    var amount: Double {
-        Double(amountString) ?? 0
+        amount.formUnit == .serving
     }
     
     var amountDescription: String {
-        guard !amountString.isEmpty else {
+        guard !amount.isEmpty else {
             return ""
         }
-        return "\(amountString) \(amountUnitShortString)"
+        return "\(amount.string) \(amount.formUnit.shortDescription)"
     }
     
     var servingAmount: Double {
@@ -252,7 +248,7 @@ extension FoodFormViewModel {
     }
     
     var amountFormHeaderString: String {
-        switch amountUnit {
+        switch amount.formUnit {
         case .serving:
             return "Servings"
         case .weight:
@@ -293,11 +289,11 @@ extension FoodFormViewModel {
     }
     
     var amountUnitString: String {
-        amountUnit.description
+        amount.formUnit.description
     }
     
     var amountUnitShortString: String {
-        amountUnit.shortDescription
+        amount.formUnit.shortDescription
     }
 
     var densityWeightAmount: Double {

@@ -57,7 +57,7 @@ extension FoodFormViewModel: FoodLabelDataSource {
     }
     
     public var amountPerString: String {
-        return "1 serving"
+        amountDescription
     }
     
     public var carbAmount: Double {

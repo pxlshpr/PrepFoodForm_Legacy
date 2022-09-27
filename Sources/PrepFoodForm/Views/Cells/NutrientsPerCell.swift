@@ -68,7 +68,7 @@ public struct ServingCellPreview: View {
     }
     
     func populateData() {
-        viewModel.amountString = "1"
+        viewModel.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
         viewModel.servingString = "25"
     }
 }

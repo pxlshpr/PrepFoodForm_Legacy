@@ -24,7 +24,7 @@ extension FoodForm.DetailsForm {
             .navigationBarTitleDisplayMode(.inline)
 //        }
         .sheet(isPresented: $showingEmojiPicker) {
-            FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
+            FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji.string)
         }
         .sheet(isPresented: $showingSheet) {
             NavigationView {
@@ -81,7 +81,7 @@ extension FoodForm.DetailsForm {
             }
             Section("Emoji") {
                 NavigationLink {
-                    FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji)
+                    FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji.string)
                 } label: {
                     emojiCell
                 }
@@ -105,7 +105,7 @@ extension FoodForm.DetailsForm {
                 }
             }
             Section("Brand") {
-                TextField("", text: $viewModel.brand)
+                TextField("", text: $viewModel.brand.string)
                     .placeholder(when: viewModel.brand.isEmpty) {
                         Text("Optional").foregroundColor(Color(.quaternaryLabel))
                     }
@@ -114,7 +114,7 @@ extension FoodForm.DetailsForm {
                 Button {
                     showingCodeScanner = true
                 } label: {
-                    Text(viewModel.barcode.isEmpty ? "Scan a barcode" : viewModel.barcode)
+                    Text(viewModel.barcode.isEmpty ? "Scan a barcode" : viewModel.barcode.string)
                 }
 //                TextField("", text: $brand)
 //                    .keyboardType(.alphabet)
@@ -130,7 +130,7 @@ extension FoodForm.DetailsForm {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             } else {
-                Text(viewModel.emoji)
+                Text(viewModel.emoji.string)
                     .font(Font.system(size: 50.0))
             }
         }
@@ -160,7 +160,7 @@ extension FoodForm.DetailsForm {
         
         switch result {
         case .success(let code):
-            viewModel.barcode = code
+            viewModel.barcode.string = code
         case .failure(let error):
             print("Scanning failed: \(error)")
         }

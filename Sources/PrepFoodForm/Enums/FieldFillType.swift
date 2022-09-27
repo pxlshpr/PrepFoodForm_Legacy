@@ -5,7 +5,8 @@ enum FieldFillType: Hashable {
     case imageSelection(UUID)
     case imageAutofill(UUID)
     case thirdPartyFoodPrefill
-    
+    case barcodeScan
+
     var iconSystemImage: String {
         switch self {
         case .userInput:
@@ -16,6 +17,8 @@ enum FieldFillType: Hashable {
             return "text.viewfinder"
         case .thirdPartyFoodPrefill:
             return "link"
+        case .barcodeScan:
+            return "barcode.viewfinder"
         }
     }
     var buttonSystemImage: String {
@@ -28,6 +31,8 @@ enum FieldFillType: Hashable {
             return "viewfinder.circle.fill"
         case .thirdPartyFoodPrefill:
             return "link.circle.fill"
+        case .barcodeScan:
+            return "viewfinder.circle.fill"
         }
     }
 }

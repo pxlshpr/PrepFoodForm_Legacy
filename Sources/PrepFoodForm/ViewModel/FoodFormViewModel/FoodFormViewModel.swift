@@ -11,27 +11,30 @@ public class FoodFormViewModel: ObservableObject {
     
     //MARK: - Food Details
     @Published var name: FieldValue = .name()
-    @Published var emoji = ""
+    @Published var emoji: FieldValue = .emoji()
     @Published var detail: FieldValue = .detail()
-    @Published var brand = ""
-    @Published var barcode = ""
+    @Published var brand: FieldValue = .brand()
+    @Published var barcode: FieldValue = .barcode()
     
     //MARK: Amount Per
-    @Published public var amountString: String = "" {
-        didSet {
-            updateShouldShowDensitiesSection()
-        }
-    }
+    @Published var amount: FieldValue = .amount()
     
-    @Published var amountUnit: FormUnit = .serving {
-        didSet {
-            updateShouldShowDensitiesSection()
-            if amountUnit != .serving {
-                servingString = ""
-                servingUnit = .weight(.g)
-            }
-        }
-    }
+//    @Published var amountString: String = "" {
+//        didSet {
+//            updateShouldShowDensitiesSection()
+//        }
+//    }
+//
+//    @Published var amountUnit: FormUnit = .serving {
+//        didSet {
+//            updateShouldShowDensitiesSection()
+//            if amountUnit != .serving {
+//                servingString = ""
+//                servingUnit = .weight(.g)
+//            }
+//        }
+//    }
+    
     @Published var servingString: String = "" {
         didSet {
             /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
