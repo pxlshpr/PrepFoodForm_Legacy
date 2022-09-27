@@ -78,14 +78,13 @@ struct SizeForm: View {
     }
     
     var addButton: some View {
-        let title = didAddSize == nil ? "Add" : "Add and Choose"
+        let title = didAddSize == nil ? "Add" : "Add and Select"
         return FormPrimaryButton(title: title) {
             guard let size = sizeFormViewModel.size else {
                 return
             }
             if let didAddSize = didAddSize {
-                //TODO-Size revisit this
-//                didAddSize(size)
+                didAddSize(size)
             }
             viewModel.add(size: size)
             dismiss()

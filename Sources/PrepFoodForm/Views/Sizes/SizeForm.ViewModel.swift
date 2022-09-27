@@ -49,20 +49,32 @@ extension SizeForm {
 }
 
 extension SizeForm.ViewModel {
-    var size: Size? {
+    var size: NewSize? {
         guard isValid, let amount = amount else {
             return nil
         }
         let shouldSaveVolumePrefix = amountUnit.unitType == .weight && showingVolumePrefix
-        return Size(
-            quantity: quantity,
-            volumePrefixUnit: shouldSaveVolumePrefix ? volumePrefixUnit : nil,
-            name: name,
-            amount: amount,
-            amountUnit: amountUnit
-        )
-    }
-}
+        if shouldSaveVolumePrefix {
+            return .volumePrefixed(
+                quantity: quantity,
+                quantityString: quantity.cleanAmount,
+                volumePrefixUnit: volumePrefixUnit,
+                name: name,
+                amount: amount,
+                amountString: amount.cleanAmount,
+                unit: amountUnit
+            )
+        } else {
+            return .standard(
+                quantity: quantity,
+                quantityString: quantity.cleanAmount,
+                name: name,
+                amount: amount,
+                amountString: amount.cleanAmount,
+                unit: amountUnit
+            )
+        }
+    }}
 
 extension SizeForm.ViewModel {
     

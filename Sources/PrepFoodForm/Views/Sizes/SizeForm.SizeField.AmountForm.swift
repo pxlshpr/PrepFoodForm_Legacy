@@ -2,7 +2,8 @@ import SwiftUI
 import SwiftHaptics
 
 extension SizeForm.SizeField {
-    struct AmountForm: View {        
+    struct AmountForm: View {
+        @Environment(\.dismiss) var dismiss
         @EnvironmentObject var viewModel: FoodFormViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
         @State var showingUnitPicker = false
@@ -38,6 +39,10 @@ extension SizeForm.SizeField.AmountForm {
         ToolbarItemGroup(placement: .keyboard) {
             Button("Units") {
                 showingUnitPicker = true
+            }
+            Spacer()
+            Button("Done") {
+                dismiss()
             }
         }
     }

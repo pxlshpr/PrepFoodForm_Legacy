@@ -3,6 +3,7 @@ import NamePicker
 
 extension SizeForm {
     struct SizeField: View {
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
         
         @State var showingUnitPickerForVolumePrefix = false
@@ -41,6 +42,7 @@ extension SizeForm.SizeField {
         { unit in
             sizeFormViewModel.volumePrefixUnit = unit
         }
+        .environmentObject(viewModel)
     }
     
     var content: some View {
@@ -126,8 +128,9 @@ extension SizeForm.SizeField {
 }
 
 public struct SizeFormFieldPreview: View {
-    
-    @StateObject var viewModel = SizeForm.ViewModel()
+
+    @StateObject var viewModel = FoodFormViewModel.shared
+    @StateObject var sizeFormViewModel = SizeForm.ViewModel()
     
     @State var showingVolumePrefix: Bool = false
     
@@ -155,6 +158,7 @@ public struct SizeFormFieldPreview: View {
             Form {
                 SizeForm.SizeField()
                     .environmentObject(viewModel)
+                    .environmentObject(sizeFormViewModel)
                 volumePrefixToggle
             }
         }
@@ -163,7 +167,7 @@ public struct SizeFormFieldPreview: View {
         }
         .onChange(of: showingVolumePrefix) { newValue in
             withAnimation {
-                viewModel.showingVolumePrefix = newValue
+                sizeFormViewModel.showingVolumePrefix = newValue
             }
         }
     }

@@ -184,15 +184,14 @@ extension FoodFormViewModel {
 //        updateSummary()
     }
     
-    func add(size: Size) {
-        //TODO-SIZE: Add logic
-//        withAnimation {
-//            if size.isVolumePrefixed {
-//                volumePrefixedSizes.append(size)
-//            } else {
-//                standardSizes.append(size)
-//            }
-//        }
+    func add(size: NewSize) {
+        withAnimation {
+            if case .volumePrefixed = size {
+                volumePrefixedSizes.append(size)
+            } else {
+                standardSizes.append(size)
+            }
+        }
     }
     
     var isMeasurementBased: Bool {
