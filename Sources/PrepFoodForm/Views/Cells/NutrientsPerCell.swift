@@ -90,8 +90,8 @@ public struct ServingCellPreview: View {
     }
     
     func populateData() {
-        viewModel.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
-        viewModel.serving = FieldValue.serving(double: 25, string: "25", unit: .weight(.g))
+        viewModel.amount = FieldValue.amount(doubleValue: FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
+        viewModel.serving = FieldValue.serving(doubleValue: FieldValue.DoubleValue(double: 25, string: "25", unit: .weight(.g)))
     }
 }
 struct ServingCell_Previews: PreviewProvider {

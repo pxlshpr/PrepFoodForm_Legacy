@@ -45,7 +45,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.serving.unit,
+                pickedUnit: viewModel.serving.doubleValue.unit,
                 includeServing: false)
             {
                 showingSizeForm = true
@@ -54,14 +54,14 @@ extension FoodForm.NutrientsPerForm.ServingForm {
                     if unit.isServingBased {
                         viewModel.modifyServingAmount(for: unit)
                     }
-                    viewModel.serving.unit = unit
+                    viewModel.serving.doubleValue.unit = unit
                 }
             }
             .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: true, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.serving.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.serving.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -76,7 +76,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     }
     
     var textField: some View {
-        TextField("", text: $viewModel.serving.string)
+        TextField("", text: $viewModel.serving.doubleValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .placeholder(when: viewModel.serving.isEmpty) {

@@ -103,19 +103,19 @@ extension FoodForm.NutrientsPerForm.AmountForm {
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.amount.unit
+                pickedUnit: viewModel.amount.doubleValue.unit
             ) {
                 showingSizeForm = true
             } didPickUnit: { unit in
                 withAnimation {
-                    viewModel.amount.unit = unit
+                    viewModel.amount.doubleValue.unit = unit
                 }
             }
             .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: false, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.amount.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.amount.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -130,7 +130,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $viewModel.amount.string)
+        TextField("Required", text: $viewModel.amount.doubleValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)

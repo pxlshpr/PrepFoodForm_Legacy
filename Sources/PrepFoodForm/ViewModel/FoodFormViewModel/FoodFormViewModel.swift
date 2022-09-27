@@ -20,10 +20,10 @@ public class FoodFormViewModel: ObservableObject {
     @Published var amount: FieldValue = .amount() {
         didSet {
             updateShouldShowDensitiesSection()
-            if amount.unit != .serving {
-                serving.double = nil
-                serving.string = ""
-                serving.unit = .weight(.g)
+            if amount.doubleValue.unit != .serving {
+                serving.doubleValue.double = nil
+                serving.doubleValue.string = ""
+                serving.doubleValue.unit = .weight(.g)
             }
         }
     }

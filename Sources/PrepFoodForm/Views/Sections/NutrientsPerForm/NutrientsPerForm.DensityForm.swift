@@ -8,6 +8,7 @@ extension FoodForm.NutrientsPerForm {
         }
         
         @EnvironmentObject var viewModel: FoodFormViewModel
+        @Environment(\.dismiss) var dismiss
         
         @State var showingWeightUnitPicker = false
         @State var showingVolumeUnitPicker = false
@@ -35,17 +36,6 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            Button("Units") {
-                guard let focusedField = focusedField else {
-                    return
-                }
-                if focusedField == .weight {
-                    showingWeightUnitPicker = true
-                } else {
-                    showingVolumeUnitPicker = true
-                }
-            }
-            Spacer()
             Button {
                 focusedField = orderWeightFirst ? .weight : .volume
             } label: {
@@ -58,6 +48,20 @@ extension FoodForm.NutrientsPerForm.DensityForm {
                 Image(systemName: "chevron.down")
             }
             .disabled(bottomFieldIsFocused)
+            Button("Units") {
+                guard let focusedField = focusedField else {
+                    return
+                }
+                if focusedField == .weight {
+                    showingWeightUnitPicker = true
+                } else {
+                    showingVolumeUnitPicker = true
+                }
+            }
+            Spacer()
+            Button("Done") {
+                dismiss()
+            }
         }
     }
     

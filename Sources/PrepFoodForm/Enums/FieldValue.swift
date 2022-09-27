@@ -44,6 +44,10 @@ enum FieldValue: Hashable {
         var unitDescription: String {
             unit.shortDescription
         }
+        
+        var isEmpty: Bool {
+            double == nil
+        }
     }
     
     struct Density: Hashable {
@@ -59,8 +63,8 @@ enum FieldValue: Hashable {
     case barcode(string: String = "", fillType: FillType = .barcodeScan)
     case detail(string: String = "", fillType: FillType = .userInput)
     
-    case amount(double: Double? = nil, string: String = "", unit: FormUnit = .serving)
-    case serving(double: Double? = nil, string: String = "", unit: FormUnit = .weight(.g))
+    case amount(doubleValue: DoubleValue = DoubleValue(unit: .serving))
+    case serving(doubleValue: DoubleValue = DoubleValue(unit: .weight(.g)))
 
     case density(density: Density? = nil)
 
@@ -126,10 +130,8 @@ extension FieldValue {
         case .barcode(string: let string, _):
             return string.isEmpty
         
-        case .amount(double: let double, _, _):
-            return double == nil
-        case .serving(double: let double, _, _):
-            return double == nil
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.isEmpty
             
         case .density(let density):
             return density == nil
@@ -142,7 +144,7 @@ extension FieldValue {
             return double == nil
         }
     }
-    
+
     var string: String {
         get {
             switch self {
@@ -157,12 +159,7 @@ extension FieldValue {
             case .barcode(string: let string, _):
                 return string
                 
-            case .amount(_, string: let string, _):
-                return string
-            case .serving(_, string: let string, _):
-                return string
-                
-            case .density:
+            case .amount, .serving, .density:
                 return ""
 
             case .energy(_, let string, _, _):
@@ -188,24 +185,24 @@ extension FieldValue {
                 
             //MARK: - Amount Per
                 
-            case .amount(_, _, unit: let formUnit):
-                guard !newValue.isEmpty else {
-                    self = .amount(double: nil, string: newValue, unit: formUnit)
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self = .amount(double: double, string: newValue, unit: formUnit)
-            case .serving(_, _, unit: let formUnit):
-                guard !newValue.isEmpty else {
-                    self = .serving(double: nil, string: newValue, unit: formUnit)
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self = .serving(double: double, string: newValue, unit: formUnit)
+//            case .amount(_, _, unit: let formUnit):
+//                guard !newValue.isEmpty else {
+//                    self = .amount(double: nil, string: newValue, unit: formUnit)
+//                    return
+//                }
+//                guard let double = Double(newValue) else {
+//                    return
+//                }
+//                self = .amount(double: double, string: newValue, unit: formUnit)
+//            case .serving(_, _, unit: let formUnit):
+//                guard !newValue.isEmpty else {
+//                    self = .serving(double: nil, string: newValue, unit: formUnit)
+//                    return
+//                }
+//                guard let double = Double(newValue) else {
+//                    return
+//                }
+//                self = .serving(double: double, string: newValue, unit: formUnit)
             
             //MARK: Nutrients
                 
@@ -236,7 +233,7 @@ extension FieldValue {
                     return
                 }
                 self = .micro(nutrientType: nutrientType, double: double, string: newValue, unit: nutrientUnit)
-            case .density:
+            default:
                 break
             }
         }
@@ -245,10 +242,10 @@ extension FieldValue {
     var double: Double? {
         get {
             switch self {
-            case .amount(double: let double, _, _):
-                return double
-            case .serving(double: let double, _, _):
-                return double
+//            case .amount(double: let double, _, _):
+//                return double
+//            case .serving(double: let double, _, _):
+//                return double
             
             case .energy(let double, _, _, _):
                 return double
@@ -262,10 +259,10 @@ extension FieldValue {
         }
         set {
             switch self {
-            case .amount(_, _, unit: let formUnit):
-                self = .amount(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
-            case .serving(_, _, unit: let formUnit):
-                self = .serving(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
+//            case .amount(_, _, unit: let formUnit):
+//                self = .amount(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
+//            case .serving(_, _, unit: let formUnit):
+//                self = .serving(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
 
             case .energy(_, _, let energyUnit, _):
                 self = .energy(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyUnit)
@@ -415,23 +412,21 @@ extension FieldValue {
         }
     }
     
-    var unit: FormUnit {
+    var doubleValue: DoubleValue {
         get {
             switch self {
-            case .amount(_, _, unit: let formUnit):
-                return formUnit
-            case .serving(_, _, unit: let formUnit):
-                return formUnit
+            case .amount(let doubleValue), .serving(let doubleValue):
+                return doubleValue
             default:
-                return .weight(.g)
+                return DoubleValue(unit: .weight(.g))
             }
         }
         set {
             switch self {
-            case .amount(double: let double, string: let string, _):
-                self = .amount(double: double, string: string, unit: newValue)
-            case .serving(double: let double, string: let string, _):
-                self = .serving(double: double, string: string, unit: newValue)
+            case .amount:
+                self = .amount(doubleValue: newValue)
+            case .serving:
+                self = .serving(doubleValue: newValue)
             default:
                 break
             }
