@@ -6,6 +6,12 @@ enum NewSize: Hashable {
     case volumePrefixed(quantity: Double? = 1, quantityString: String = "", volumePrefixUnit: FormUnit = .volume(.cup), name: String = "", amount: Double?, amountString: String = "", unit: FormUnit = .weight(.g))
 }
 
+extension NewSize: Identifiable {
+    var id: Int {
+        hashValue
+    }
+}
+
 extension NewSize {
     var volumePrefixUnit: FormUnit? {
         switch self {

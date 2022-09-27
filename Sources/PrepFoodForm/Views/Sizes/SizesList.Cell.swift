@@ -17,6 +17,7 @@ extension SizesList.Cell {
                         .foregroundColor(Color(.quaternaryLabel))
                 }
                 Text(size.nameString)
+                    .foregroundColor(.primary)
             }
             Spacer()
             Text(size.scaledAmountString)

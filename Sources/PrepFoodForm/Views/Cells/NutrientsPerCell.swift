@@ -35,7 +35,29 @@ extension FoodForm.NutrientsPerCell {
                     Text("\(viewModel.servingDescription)")
                         .foregroundColor(.secondary)
                 }
+                Spacer()
+                sizesCount
             }
+        }
+    }
+    
+    @ViewBuilder
+    var sizesCount: some View {
+        if viewModel.numberOfSizes > 0 {
+            HStack {
+//                Image(systemName: "plus.circle.fill")
+//                    .foregroundColor(Color(.quaternaryLabel))
+                Text("\(viewModel.numberOfSizes) size\(viewModel.numberOfSizes > 1 ? "s" : "")")
+                    .foregroundColor(Color(.secondaryLabel))
+            }
+            .padding(.vertical, 5)
+            .padding(.leading, 7)
+            .padding(.trailing, 9)
+            .background(
+                Capsule(style: .continuous)
+                    .foregroundColor(Color(.secondarySystemFill))
+            )
+            .padding(.vertical, 5)
         }
     }
 }

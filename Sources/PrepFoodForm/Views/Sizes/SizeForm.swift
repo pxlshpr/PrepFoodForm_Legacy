@@ -5,33 +5,35 @@ struct SizeForm: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
-    @StateObject var sizeFormViewModel: ViewModel
+    @StateObject var sizeFormViewModel: SizeFormViewModel
     @State var showingVolumePrefixToggle: Bool = false
     
+    var isEditing: Bool
     var didAddSize: ((NewSize) -> ())?
     
-    init(includeServing: Bool = true, allowAddSize: Bool = true, didAddSize: ((NewSize) -> ())? = nil) {
+    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: NewSize? = nil, didAddSize: ((NewSize) -> ())? = nil) {
+        
         self.didAddSize = didAddSize
-        _sizeFormViewModel = StateObject(wrappedValue: ViewModel(includeServing: includeServing, allowAddSize: allowAddSize))
+        
+        self.isEditing = existingSize != nil
+        
+        let sizeFormViewModel = SizeFormViewModel(
+            includeServing: includeServing,
+            allowAddSize: allowAddSize,
+            existingSize: existingSize
+        )
+        _sizeFormViewModel = StateObject(wrappedValue: sizeFormViewModel)
     }
     
     var body: some View {
         NavigationStack(path: $sizeFormViewModel.path) {
             VStack(spacing: 0) {
                 form
-                if sizeFormViewModel.isValid {
-                    VStack {
-                        addButton
-                        if didAddSize == nil {
-                            addAndAddAnotherButton
-                        }
-                    }
-                    .background(Color(.systemGroupedBackground))
-                }
+                bottomElements
             }
-            .navigationTitle("Add Size")
+            .edgesIgnoringSafeArea(.bottom)
+            .navigationTitle("\(isEditing ? "Edit" : "Add") Size")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { navigationLeadingContent }
         }
         .onChange(of: sizeFormViewModel.quantityString) { newValue in
             sizeFormViewModel.quantity = Double(newValue) ?? 0
@@ -46,16 +48,45 @@ struct SizeForm: View {
         }
     }
     
-    var navigationLeadingContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigationBarLeading) {
-//            Button("Fill") {
-//                sizeFormViewModel.amountString = "5"
-//                sizeFormViewModel.amountUnit = .weight(.g)
-//                sizeFormViewModel.name = "cookie"
-//            }
+    var bottomElements: some View {
+        
+        @ViewBuilder
+        var statusElement: some View {
+            switch sizeFormViewModel.formState {
+            case .okToSave:
+                VStack {
+                    addButton
+                    if didAddSize == nil && !isEditing {
+                        addAndAddAnotherButton
+                    }
+                }
+                .transition(.move(edge: .bottom))
+            case .duplicate:
+                Label("There already exists a size with this name.", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundColor(Color(.secondaryLabel))
+                    .symbolRenderingMode(.multicolor)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .foregroundColor(Color(.tertiarySystemFill))
+                    )
+                    .padding(.top)
+                    .transition(.move(edge: .bottom))
+            default:
+                EmptyView()
+            }
         }
+        
+        return ZStack {
+            Color(.systemGroupedBackground)
+            statusElement
+                .padding(.bottom, 34)
+                .zIndex(1)
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .fixedSize(horizontal: false, vertical: true)
     }
-    
+        
     var form: some View {
         Form {
             SizeField()
@@ -77,9 +108,15 @@ struct SizeForm: View {
         }
     }
     
+    var addButtonTitle: String {
+        guard !isEditing else {
+            return "Save"
+        }
+        return didAddSize == nil ? "Add" : "Add and Select"
+    }
+    
     var addButton: some View {
-        let title = didAddSize == nil ? "Add" : "Add and Select"
-        return FormPrimaryButton(title: title) {
+        return FormPrimaryButton(title: addButtonTitle) {
             guard let size = sizeFormViewModel.size else {
                 return
             }
@@ -95,5 +132,28 @@ struct SizeForm: View {
         FormSecondaryButton(title: "Add and Add Another") {
             
         }
+    }
+}
+
+struct SizeFormPreview: View {
+    
+    @StateObject var viewModel = FoodFormViewModel()
+    
+    var body: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    SizeForm()
+                        .environmentObject(viewModel)
+                        .presentationDetents([.height(420), .large])
+                        .presentationDragIndicator(.hidden)
+                }
+        }
+    }
+}
+
+struct SizeForm_Previews: PreviewProvider {
+    static var previews: some View {
+        SizeFormPreview()
     }
 }

@@ -1,18 +1,18 @@
 import SwiftUI
 import SwiftHaptics
 
-extension SizeForm.SizeField {
+extension SizeField {
     struct AmountForm: View {
         @Environment(\.dismiss) var dismiss
         @EnvironmentObject var viewModel: FoodFormViewModel
-        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
+        @EnvironmentObject var sizeFormViewModel: SizeFormViewModel
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
         @FocusState var isFocused: Bool
     }
 }
 
-extension SizeForm.SizeField.AmountForm {
+extension SizeField.AmountForm {
     var body: some View {
         Form {
             Section(header: header, footer: footer) {
@@ -23,6 +23,7 @@ extension SizeForm.SizeField.AmountForm {
             }
         }
         .navigationTitle("Amount")
+        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingUnitPicker) {
             unitPickerForAmount
         }

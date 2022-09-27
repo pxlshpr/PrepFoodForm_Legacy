@@ -1,12 +1,12 @@
 import SwiftUI
 
-extension SizeForm.SizeField {
+extension SizeField {
     struct QuantityForm: View {
-        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
+        @EnvironmentObject var sizeFormViewModel: SizeFormViewModel
     }
 }
 
-extension SizeForm.SizeField.QuantityForm {
+extension SizeField.QuantityForm {
     var body: some View {
         Form {
             Section(header: header, footer: footer) {
@@ -17,6 +17,7 @@ extension SizeForm.SizeField.QuantityForm {
             }
         }
         .navigationTitle("Quantity")
+        .navigationBarTitleDisplayMode(.inline)
         .scrollDismissesKeyboard(.interactively)
     }
     

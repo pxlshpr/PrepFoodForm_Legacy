@@ -2,7 +2,7 @@ import SwiftUI
 import CameraImagePicker
 import SwiftHaptics
 
-let wizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
+let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
 public struct FoodForm: View {
     
@@ -26,7 +26,7 @@ public struct FoodForm: View {
                         Haptics.transientHaptic()
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                        withAnimation(wizardAnimation) {
+                        withAnimation(WizardAnimation) {
                             if viewModel.shouldShowWizard {
                                 viewModel.showingWizard = true
                                 viewModel.shouldShowWizard = false
@@ -143,7 +143,7 @@ public struct FoodForm: View {
     
     func startWithEmptyFood() {
         Haptics.transientHaptic()
-        withAnimation(wizardAnimation) {
+        withAnimation(WizardAnimation) {
             viewModel.showingWizard = false
         }
     }

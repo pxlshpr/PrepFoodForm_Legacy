@@ -1,56 +1,59 @@
 import SwiftUI
+import SwiftHaptics
 
-extension SizeForm {
-    class ViewModel: ObservableObject {
+class SizeFormViewModel: ObservableObject {
 
-        @Published var includeServing: Bool
-        @Published var allowAddSize: Bool
+    @Published var path: [Route] = []
 
-        @Published var path: [Route] = []
-        
-        @Published var name: String = "" {
-            didSet {
-                withAnimation {
-                    isValid = getIsValid()
-                }
-            }
+    @Published var name: String
+    
+    @Published var quantityString: String
+    
+    @Published var amountString: String
+    
+    @Published var amountUnit: FormUnit
+
+    @Published var showingVolumePrefix: Bool {
+        didSet {
+            updateFormState()
         }
-        
-        @Published var quantityString: String = "1" {
-            didSet {
-                withAnimation {
-                    isValid = getIsValid()
-                }
-            }
-        }
-        
-        @Published var amountString: String = "" {
-            didSet {
-                withAnimation {
-                    isValid = getIsValid()
-                }
-            }
-        }
-        
-        @Published var amountUnit: FormUnit = .weight(.g)
+    }
+    @Published var volumePrefixUnit: FormUnit
+    
+    //TODO: Why are we storing this?
+    @Published var quantity: Double = 1
+    
+    @Published var includeServing: Bool
+    @Published var allowAddSize: Bool
+    @Published var formState: FormState
 
-        @Published var showingVolumePrefix = false
-        @Published var volumePrefixUnit: FormUnit = .volume(.cup)
+    let existingSize: NewSize?
+    
+    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: NewSize? = nil) {
+        self.includeServing = includeServing
+        self.allowAddSize = allowAddSize
         
-        @Published var quantity: Double = 1
+        self.existingSize = existingSize
+        self.formState = existingSize == nil ? .empty : .noChange
+        self.name = existingSize?.nameString ?? ""
+        self.quantityString = existingSize?.quantityString ?? "1"
+        self.amountString = existingSize?.amountString ?? ""
+        self.amountUnit = existingSize?.unit ?? .weight(.g)
+        self.quantity = existingSize?.quantityDouble ?? 1
         
-        @Published var isValid: Bool = false
-
-        init(includeServing: Bool = true, allowAddSize: Bool = true) {
-            self.includeServing = includeServing
-            self.allowAddSize = allowAddSize
+        if let volumePrefixUnit = existingSize?.volumePrefixUnit {
+            showingVolumePrefix = true
+            self.volumePrefixUnit = volumePrefixUnit
+        } else {
+            showingVolumePrefix = false
+            self.volumePrefixUnit = .volume(.cup)
         }
     }
 }
 
-extension SizeForm.ViewModel {
+extension SizeFormViewModel {
     var size: NewSize? {
-        guard isValid, let amount = amount else {
+        guard let amount else {
             return nil
         }
         let shouldSaveVolumePrefix = amountUnit.unitType == .weight && showingVolumePrefix
@@ -74,14 +77,76 @@ extension SizeForm.ViewModel {
                 unit: amountUnit
             )
         }
-    }}
+    }
+}
 
-extension SizeForm.ViewModel {
+enum FormState: Hashable {
+    case empty
+    case noChange
+    case duplicate
+    case invalid(message: String)
+    case okToSave
+}
+
+extension SizeFormViewModel {
     
-    func getIsValid() -> Bool {
-        guard !amountString.isEmpty, let _ = amount else { return false }
-        return !name.isEmpty
-        && quantity > 0
+    func updateFormState() {
+        let newFormState = getFormState()
+        guard self.formState != newFormState else {
+            return
+        }
+        
+        let animation = Animation.interpolatingSpring(
+            mass: 0.5,
+            stiffness: 220,
+            damping: 10,
+            initialVelocity: 2
+        )
+
+        withAnimation(animation) {
+//        withAnimation(.easeIn(duration: 4)) {
+            self.formState = getFormState()
+            print("Updated form state from \(self.formState) to \(newFormState)")
+
+            switch formState {
+            case .okToSave:
+                Haptics.successFeedback()
+            case .invalid:
+                Haptics.errorFeedback()
+            case .duplicate:
+                Haptics.warningFeedback()
+            default:
+                break
+            }
+        }
+    }
+    
+    func getFormState() -> FormState {
+        
+        let volumePrefixUnit = showingVolumePrefix ? self.volumePrefixUnit : nil
+        if FoodFormViewModel.shared.containsSize(withName: nameFieldString, andVolumePrefixUnit: volumePrefixUnit, ignoring: existingSize) {
+            return .duplicate
+        }
+
+        guard !amountString.isEmpty, let _ = amount else {
+            return .invalid(message: "Amount cannot be empty")
+        }
+        guard !name.isEmpty else {
+            return .invalid(message: "Name cannot be empty")
+        }
+        guard quantity > 0 else {
+            return .invalid(message: "Quantity has to be greater than 0")
+        }
+        
+        if let size {
+            if let existingSize {
+                if size == existingSize {
+                    return .noChange
+                }
+            }
+        }
+
+        return .okToSave
     }
     
     var amountIsValid: Bool {
@@ -90,6 +155,7 @@ extension SizeForm.ViewModel {
         }
         return true
     }
+    
     var amount: Double? {
         Double(amountString) ?? 0
     }

@@ -1,38 +1,66 @@
 import SwiftUI
 import NamePicker
 
-extension SizeForm {
-    struct SizeField: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @EnvironmentObject var sizeFormViewModel: SizeForm.ViewModel
-        
-        @State var showingUnitPickerForVolumePrefix = false
-    }
+struct SizeField: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @EnvironmentObject var sizeFormViewModel: SizeFormViewModel
+    
+    @State var showingUnitPickerForVolumePrefix = false
+    @State var showingQuantityForm = false
+    @State var showingNamePicker = false
+    @State var showingAmountForm = false
 }
 
-extension SizeForm.SizeField {
+extension SizeField {
     
     var body: some View {
         content
-        .navigationDestination(for: SizeForm.Route.self) {
-            switch $0 {
-            case .name:
-                namePicker
-            case .quantity:
-                QuantityForm()
-                    .environmentObject(sizeFormViewModel)
-            case .amount:
-                AmountForm()
-                    .environmentObject(sizeFormViewModel)
-            case .volumePrefix:
-                unitPickerForVolumePrefix
-            case .amountUnit:
-                EmptyView()
+            .sheet(isPresented: $showingQuantityForm) {
+                NavigationView {
+                    QuantityForm()
+                        .environmentObject(sizeFormViewModel)
+                }
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.hidden)
+                .onDisappear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        sizeFormViewModel.updateFormState()
+                    }
+                }
             }
-        }
-        .sheet(isPresented: $showingUnitPickerForVolumePrefix) {
-            unitPickerForVolumePrefix
-        }
+            .sheet(isPresented: $showingNamePicker) {
+                NavigationView {
+                    namePicker
+                }
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.hidden)
+                .onDisappear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        sizeFormViewModel.updateFormState()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAmountForm) {
+                NavigationView {
+                    AmountForm()
+                        .environmentObject(sizeFormViewModel)
+                }
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.hidden)
+                .onDisappear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        sizeFormViewModel.updateFormState()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingUnitPickerForVolumePrefix) {
+                unitPickerForVolumePrefix
+                    .onDisappear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            sizeFormViewModel.updateFormState()
+                        }
+                    }
+            }
     }
     
     var unitPickerForVolumePrefix: some View {
@@ -50,7 +78,7 @@ extension SizeForm.SizeField {
             Group {
                 Spacer()
                 button(sizeFormViewModel.quantityString) {
-                    sizeFormViewModel.path.append(.quantity)
+                    showingQuantityForm = true
                 }
                 Spacer()
                 symbol("×")
@@ -67,7 +95,7 @@ extension SizeForm.SizeField {
                         .layoutPriority(3)
                 }
                 button(sizeFormViewModel.nameFieldString, placeholder: "name") {
-                    sizeFormViewModel.path.append(.name)
+                    showingNamePicker = true
                 }
                 .layoutPriority(2)
             }
@@ -77,7 +105,7 @@ extension SizeForm.SizeField {
                     .layoutPriority(3)
                 Spacer()
                 button(sizeFormViewModel.amountFieldString, placeholder: "amount") {
-                    sizeFormViewModel.path.append(.amount)
+                    showingAmountForm = true
                 }
                 .layoutPriority(1)
                 Spacer()
@@ -130,7 +158,7 @@ extension SizeForm.SizeField {
 public struct SizeFormFieldPreview: View {
 
     @StateObject var viewModel = FoodFormViewModel.shared
-    @StateObject var sizeFormViewModel = SizeForm.ViewModel()
+    @StateObject var sizeFormViewModel = SizeFormViewModel()
     
     @State var showingVolumePrefix: Bool = false
     
@@ -156,7 +184,7 @@ public struct SizeFormFieldPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                SizeForm.SizeField()
+                SizeField()
                     .environmentObject(viewModel)
                     .environmentObject(sizeFormViewModel)
                 volumePrefixToggle

@@ -194,6 +194,26 @@ extension FoodFormViewModel {
         }
     }
     
+    var numberOfSizes: Int {
+        standardSizes.count + volumePrefixedSizes.count
+    }
+    
+    /// Checks that we don't already have a size with the same name (and volume prefix unit) as what was provided
+    func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: NewSize?) -> Bool {
+        for sizes in [standardSizes, volumePrefixedSizes] {
+            for size in sizes {
+                guard size != sizeToIgnore else {
+                    continue
+                }
+                if size.nameString.lowercased() == name.lowercased(),
+                   size.volumePrefixUnit == volumePrefixUnit {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+    
     var isMeasurementBased: Bool {
         amount.unit.isMeasurementBased || serving.unit.isMeasurementBased
     }

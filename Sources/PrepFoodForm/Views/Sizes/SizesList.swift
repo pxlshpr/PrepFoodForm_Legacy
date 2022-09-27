@@ -3,13 +3,19 @@ import SwiftUI
 struct SizesList: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @State var showingSizeForm = false
+    @State var showingAddSizeForm = false
     
+    @State var sizeToEdit: NewSize? = nil
+    
+    @State var showingEditSizeForm = false
+    @State var standardSizeIndexToEdit: Int? = nil
+    @State var volumePrefixedSizeIndexToEdit: Int? = nil
+
     var body: some View {
         list
         .toolbar { navigationTrailingContent }
         .toolbar { bottomBar }
-        .sheet(isPresented: $showingSizeForm) {
+        .sheet(isPresented: $showingAddSizeForm) {
             SizeForm()
                 .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
@@ -17,6 +23,22 @@ struct SizesList: View {
         }
         .navigationTitle("Sizes")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $sizeToEdit) { sizeToEdit in
+            SizeForm(existingSize: sizeToEdit) { newSize in
+                
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
+        }
+        .sheet(isPresented: $showingEditSizeForm) {
+            if let standardSizeIndexToEdit {
+                Text("standard: \(standardSizeIndexToEdit)")
+            } else if let volumePrefixedSizeIndexToEdit {
+                Text("volume: \(volumePrefixedSizeIndexToEdit)")
+            } else {
+                EmptyView()
+            }
+        }
     }
     
     var navigationTrailingContent: some ToolbarContent {
@@ -48,7 +70,11 @@ struct SizesList: View {
     var standardSizesSection: some View {
         Section {
             ForEach(viewModel.standardSizes.indices, id: \.self) { index in
-                Cell(size: $viewModel.standardSizes[index])
+                Button {
+                    sizeToEdit = viewModel.standardSizes[index]
+                } label: {
+                    Cell(size: $viewModel.standardSizes[index])
+                }
             }
             .onDelete(perform: deleteStandardSizes)
             .onMove(perform: moveStandardSizes)
@@ -67,7 +93,13 @@ struct SizesList: View {
         
         return Section(header: header, footer: footer) {
             ForEach(viewModel.volumePrefixedSizes.indices, id: \.self) { index in
-                Cell(size: $viewModel.volumePrefixedSizes[index])
+                Button {
+                    volumePrefixedSizeIndexToEdit = index
+                    standardSizeIndexToEdit = nil
+                    showingEditSizeForm = true
+                } label: {
+                    Cell(size: $viewModel.volumePrefixedSizes[index])
+                }
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
             .onMove(perform: moveVolumePrefixedSizes)
@@ -77,7 +109,7 @@ struct SizesList: View {
     var addButton: some View {
         Section {
             Button {
-                showingSizeForm = true
+                showingAddSizeForm = true
             } label: {
                 Image(systemName: "plus")
             }

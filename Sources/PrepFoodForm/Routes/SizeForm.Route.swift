@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension SizeForm {
+extension SizeFormViewModel {
     enum Route: Hashable {
         case quantity
         case name
