@@ -77,7 +77,7 @@ extension FoodFormViewModel {
             self.standardSizes = mockStandardSizes
             self.volumePrefixedSizes = mockVolumePrefixedSizes
             
-            self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
+//            self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             
             self.energy = FieldValue.energy(double: 125, string: "125", unit: .kJ)
             self.carb = FieldValue.macro(macro: .carb, double: 23, string: "23")
@@ -185,8 +185,7 @@ extension FoodFormViewModel {
         print("Now we need to change: \(size) to new amount \(newAmount)")
         
         size.amount = newAmount
-//        standardSizes.first!.amount = newAmount
-        updateSummary()
+//        updateSummary()
     }
     
     func add(size: Size) {

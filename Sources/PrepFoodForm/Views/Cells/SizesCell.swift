@@ -3,25 +3,24 @@ import SwiftUI
 extension FoodForm.NutrientsPerForm {
     struct SizesCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
+        let maxNumberOfSizes = 4
     }
 }
 
 extension FoodForm.NutrientsPerForm.SizesCell {
     struct SizeCell: View {
-        var sizeViewModel: SizeViewModel
+        @Binding var size: NewSize
     }
 }
 
 extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     var body: some View {
         HStack {
-            Text(sizeViewModel.fullNameString)
+            Text(size.fullNameString)
                 .foregroundColor(.primary)
             Spacer()
-//            Text("•")
-//                .foregroundColor(Color(.tertiaryLabel))
             HStack {
-                Text(sizeViewModel.scaledAmountString)
+                Text(size.scaledAmountString)
                     .foregroundColor(Color(.secondaryLabel))
             }
         }
@@ -34,16 +33,32 @@ extension FoodForm.NutrientsPerForm.SizesCell {
         content
     }
     
+    var numberOfStandardSizes: Int {
+        min(viewModel.standardNewSizes.count, maxNumberOfSizes)
+    }
+
+    /// We're displaying standard sizes first, so these take the remaining availble slots
+    var numberOfVolumePrefixedSizes: Int {
+        min(maxNumberOfSizes - numberOfStandardSizes, viewModel.volumePrefixedSizes.count)
+    }
+    
+    var numberOfExcessSizes: Int {
+        max((viewModel.standardNewSizes.count + viewModel.volumePrefixedNewSizes.count) - maxNumberOfSizes, 0)
+    }
+
     var content: some View {
         VStack(alignment: .leading, spacing: 5) {
-            ForEach(viewModel.summarySizeViewModels, id: \.self.size.hashValue) {
-                SizeCell(sizeViewModel: $0)
+            ForEach(0..<numberOfStandardSizes, id: \.self) { index in
+                SizeCell(size: $viewModel.standardNewSizes[index])
             }
-            if let excessCount = viewModel.numberOfExcessSizes {
+            ForEach(0..<numberOfVolumePrefixedSizes, id: \.self) { index in
+                SizeCell(size: $viewModel.volumePrefixedNewSizes[index])
+            }
+            if numberOfExcessSizes > 0 {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                         .foregroundColor(Color(.quaternaryLabel))
-                    Text("\(excessCount) more")
+                    Text("\(numberOfExcessSizes) more")
                         .foregroundColor(Color(.secondaryLabel))
                 }
                 .padding(.vertical, 5)
@@ -60,28 +75,28 @@ extension FoodForm.NutrientsPerForm.SizesCell {
 }
 
 extension FoodFormViewModel {
-    var maxNumberOfSummarySizeViewModels: Int {
-        4
-    }
-    
-    var shouldShowExcessSizesCount: Bool {
-        numberOfExcessSizes != nil
-    }
-    
-    var numberOfExcessSizes: Int? {
-        guard allSizes.count > 4 else {
-            return nil
-        }
-        return allSizes.count - maxNumberOfSummarySizeViewModels
-    }
-    
-    func getSummarySizeViewModels() -> [SizeViewModel] {
-        Array(allSizesViewModels.prefix(maxNumberOfSummarySizeViewModels))
-    }
-    
-    func updateSummary() {
-        summarySizeViewModels = getSummarySizeViewModels()
-    }
+//    var maxNumberOfSummarySizeViewModels: Int {
+//        4
+//    }
+//
+//    var shouldShowExcessSizesCount: Bool {
+//        numberOfExcessSizes != nil
+//    }
+//
+//    var numberOfExcessSizes: Int? {
+//        guard allSizes.count > 4 else {
+//            return nil
+//        }
+//        return allSizes.count - maxNumberOfSummarySizeViewModels
+//    }
+//
+//    func getSummarySizeViewModels() -> [SizeViewModel] {
+//        Array(allSizesViewModels.prefix(maxNumberOfSummarySizeViewModels))
+//    }
+//
+//    func updateSummary() {
+//        summarySizeViewModels = getSummarySizeViewModels()
+//    }
 }
 
 //MARK: - Preview

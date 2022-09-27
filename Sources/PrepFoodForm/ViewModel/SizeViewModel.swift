@@ -9,6 +9,7 @@ struct SizeViewModel: Hashable {
         }
         return unit.shortDescription
     }
+    
     var nameString: String {
         size.name
     }

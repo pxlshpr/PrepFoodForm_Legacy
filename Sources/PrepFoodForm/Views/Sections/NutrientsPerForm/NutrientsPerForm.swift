@@ -15,12 +15,12 @@ extension FoodForm {
 extension FoodForm.NutrientsPerForm {
     public var body: some View {
         form
-        .onChange(of: viewModel.standardSizes) { newValue in
-            viewModel.updateSummary()
-        }
-        .onChange(of: viewModel.volumePrefixedSizes) { newValue in
-            viewModel.updateSummary()
-        }
+//        .onChange(of: viewModel.standardSizes) { newValue in
+//            viewModel.updateSummary()
+//        }
+//        .onChange(of: viewModel.volumePrefixedSizes) { newValue in
+//            viewModel.updateSummary()
+//        }
         .toolbar { bottomToolbarContent }
         .navigationTitle("Amount Per")
         .navigationBarTitleDisplayMode(.inline)

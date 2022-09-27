@@ -40,6 +40,9 @@ public class FoodFormViewModel: ObservableObject {
     }
     
     //MARK: Sizes
+    @Published var standardNewSizes: [NewSize] = []
+    @Published var volumePrefixedNewSizes: [NewSize] = []
+
     @Published var standardSizes: [Size] = []
     @Published var volumePrefixedSizes: [Size] = []
     @Published var summarySizeViewModels: [SizeViewModel] = []

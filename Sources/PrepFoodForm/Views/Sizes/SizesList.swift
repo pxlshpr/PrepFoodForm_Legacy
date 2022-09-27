@@ -1,46 +1,5 @@
 import SwiftUI
 
-extension SizesList {
-    struct Cell: View {
-        var sizeViewModel: SizeViewModel
-    }
-}
-
-extension SizesList.Cell {
-    var body: some View {
-        HStack {
-//            Text(sizeViewModel.quantityString)
-//            Text("×")
-//                .foregroundColor(Color(.quaternaryLabel))
-            HStack(spacing: 0) {
-                if let volumePrefixString = sizeViewModel.volumePrefixString {
-                    Text(volumePrefixString)
-                        .foregroundColor(Color(.secondaryLabel))
-                    Text(", ")
-                        .foregroundColor(Color(.quaternaryLabel))
-                }
-                Text(sizeViewModel.nameString)
-            }
-            Spacer()
-            Text(sizeViewModel.scaledAmountString)
-                .foregroundColor(Color(.secondaryLabel))
-        }
-    }
-}
-
-class SizeSet: Identifiable {
-    let id = UUID()
-    var sizes: [Size]
-    
-    init(sizes: [Size]) {
-        self.sizes = sizes
-    }
-    
-    func fancyMove(from source: IndexSet, to destination: Int) {
-        sizes.move(fromOffsets: source, toOffset: destination)
-    }
-}
-
 struct SizesList: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -77,10 +36,10 @@ struct SizesList: View {
 
     var list: some View {
         List {
-            if !viewModel.standardSizes.isEmpty {
+            if !viewModel.standardNewSizes.isEmpty {
                 standardSizesSection
             }
-            if !viewModel.volumePrefixedSizes.isEmpty {
+            if !viewModel.volumePrefixedNewSizes.isEmpty {
                 volumePrefixedSizesSection
             }
         }
@@ -88,8 +47,8 @@ struct SizesList: View {
     
     var standardSizesSection: some View {
         Section {
-            ForEach(viewModel.standardSizesViewModels, id: \.self) {
-                Cell(sizeViewModel: $0)
+            ForEach(viewModel.standardNewSizes.indices, id: \.self) { index in
+                Cell(size: $viewModel.standardNewSizes[index])
             }
             .onDelete(perform: deleteStandardSizes)
             .onMove(perform: moveStandardSizes)
@@ -107,8 +66,8 @@ struct SizesList: View {
         }
         
         return Section(header: header, footer: footer) {
-            ForEach(viewModel.volumePrefixedSizesViewModels, id: \.self) {
-                Cell(sizeViewModel: $0)
+            ForEach(viewModel.volumePrefixedNewSizes.indices, id: \.self) { index in
+                Cell(size: $viewModel.volumePrefixedNewSizes[index])
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
             .onMove(perform: moveVolumePrefixedSizes)
