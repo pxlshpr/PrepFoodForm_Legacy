@@ -23,8 +23,8 @@ enum FillType: Hashable {
     }
     
     var buttonSystemImage: String {
-//        buttonSystemImageWithoutFill + ".fill"
-        buttonSystemImageWithoutFill
+        buttonSystemImageWithoutFill + ".fill"
+//        buttonSystemImageWithoutFill
     }
     var buttonSystemImageWithoutFill: String {
         switch self {

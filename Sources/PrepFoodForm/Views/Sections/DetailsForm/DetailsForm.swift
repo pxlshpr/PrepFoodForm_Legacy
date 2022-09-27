@@ -27,33 +27,7 @@ extension FoodForm.DetailsForm {
             FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji.stringValue.string)
         }
         .sheet(isPresented: $showingSheet) {
-            NavigationView {
-                Form {
-                    Section {
-                        Text("This value was pre-filled from the following third-party food.")
-                    }
-                    Section {
-                        Button {
-                            
-                        } label: {
-                            HStack {
-                                HStack {
-                                    Image(systemName: "link")
-                                    Text("Website")
-                                }
-                                .foregroundColor(.secondary)
-                                Spacer()
-                                Text("MyFitnessPal")
-                                    .foregroundColor(.accentColor)
-                            }
-                        }
-                    }
-                }
-                .navigationTitle("Pre-filled")
-                .navigationBarTitleDisplayMode(.inline)
-            }
-            .presentationDetents([.height(300), .medium])
-            .presentationDragIndicator(.hidden)
+            FillForm()
         }
         .sheet(isPresented: $showingCodeScanner) {
             CodeScanner(handleScan: self.handleScan)
@@ -62,21 +36,26 @@ extension FoodForm.DetailsForm {
         .interactiveDismissDisabled()
     }
     
+    @ViewBuilder
+    func fillButton(stringValue: FieldValue.StringValue) -> some View {
+        if viewModel.shouldShowFillButton {
+            Button {
+                Haptics.feedback(style: .soft)
+                showingSheet = true
+            } label: {
+                Image(systemName: stringValue.fillType.buttonSystemImage)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
     var form: some View {
         Form {
             Section("Name") {
                 HStack {
                     TextField("Required", text: $viewModel.name.stringValue.string)
-                    Button {
-                        Haptics.feedback(style: .soft)
-                        showingSheet = true
-                    } label: {
-                        Image(systemName: "link.circle.fill")
-//                        Image(systemName: "photo.circle.fill")
-//                        Image(systemName: "viewfinder.circle.fill")
-                            .imageScale(.large)
-                    }
-                    .buttonStyle(.borderless)
+                    fillButton(stringValue: viewModel.name.stringValue)
                 }
             }
             Section("Emoji") {
@@ -92,23 +71,17 @@ extension FoodForm.DetailsForm {
                         .placeholder(when: viewModel.detail.isEmpty) {
                             Text("Optional").foregroundColor(Color(.quaternaryLabel))
                         }
-                    Button {
-                        Haptics.feedback(style: .soft)
-                        showingSheet = true
-                    } label: {
-//                        Image(systemName: "link.circle.fill")
-//                        Image(systemName: "photo.circle.fill")
-                        Image(systemName: "viewfinder.circle.fill")
-                            .imageScale(.large)
-                    }
-                    .buttonStyle(.borderless)
+                    fillButton(stringValue: viewModel.detail.stringValue)
                 }
             }
             Section("Brand") {
-                TextField("", text: $viewModel.brand.stringValue.string)
-                    .placeholder(when: viewModel.brand.isEmpty) {
-                        Text("Optional").foregroundColor(Color(.quaternaryLabel))
-                    }
+                HStack {
+                    TextField("", text: $viewModel.brand.stringValue.string)
+                        .placeholder(when: viewModel.brand.isEmpty) {
+                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
+                        }
+                    fillButton(stringValue: viewModel.brand.stringValue)
+                }
             }
             Section("Barcode") {
                 Button {

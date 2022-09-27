@@ -1,7 +1,9 @@
 import SwiftUI
 import PrepUnits
+import SwiftHaptics
 
 struct EnergyForm: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
@@ -24,7 +26,22 @@ extension EnergyForm {
             HStack {
                 textField
                 unitLabel
+                
             }
+        }
+    }
+    
+    @ViewBuilder
+    var fillButton: some View {
+        if viewModel.shouldShowFillButton {
+            Button {
+                Haptics.feedback(style: .soft)
+//                showingSheet = true
+            } label: {
+                Image(systemName: fieldValue.energyValue.fillType.buttonSystemImage)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.borderless)
         }
     }
     

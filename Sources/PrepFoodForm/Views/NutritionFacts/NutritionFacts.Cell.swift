@@ -3,6 +3,7 @@ import PrepUnits
 
 extension FoodForm.NutritionFacts {
     struct Cell: View {
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
         @Binding var fieldValue: FieldValue
     }
@@ -40,7 +41,7 @@ extension FoodForm.NutritionFacts.Cell {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             Spacer()
-            inputIcon
+            fillTypeIcon
             disclosureArrow
         }
         .foregroundColor(fieldValue.labelColor(for: colorScheme))
@@ -62,9 +63,9 @@ extension FoodForm.NutritionFacts.Cell {
     }
     
     @ViewBuilder
-    var inputIcon: some View {
-        if let imageName = fieldValue.fillTypeIconImage {
-            Image(systemName: imageName)
+    var fillTypeIcon: some View {
+        if viewModel.shouldShowFillButton {
+            Image(systemName: fieldValue.fillType.iconSystemImage)
                 .foregroundColor(Color(.secondaryLabel))
         }
     }

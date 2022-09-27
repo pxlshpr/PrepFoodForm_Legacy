@@ -390,16 +390,17 @@ extension FieldValue {
         }
     }
 
-    var fillTypeIconImage: String? {
-        //TODO: Write this
-        return nil
-//        guard identifier.valueType == .nutrient else {
-//            return fillType.iconSystemImage
-//        }
-//        guard fillType != .userInput else {
-//            return nil
-//        }
-//        return fillType.iconSystemImage
+    var fillType: FillType {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.fillType
+        case .macro(let macroValue):
+            return macroValue.fillType
+        case .micro(let microValue):
+            return microValue.fillType
+        default:
+            return .userInput
+        }
     }
 }
 

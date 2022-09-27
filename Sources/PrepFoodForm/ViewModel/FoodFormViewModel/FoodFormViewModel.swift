@@ -169,3 +169,18 @@ public class FoodFormViewModel: ObservableObject {
 
     @Published var shouldShowDensitiesSection = false
 }
+
+extension FoodFormViewModel {
+    var hasNonUserInputFills: Bool {
+        for value in [name.stringValue, emoji.stringValue, detail.stringValue, brand.stringValue] {
+            if value.fillType != .userInput {
+                return true
+            }
+        }
+        return false
+    }
+    
+    var shouldShowFillButton: Bool {
+        hasNonUserInputFills
+    }
+}

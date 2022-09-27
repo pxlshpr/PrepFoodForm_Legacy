@@ -25,6 +25,7 @@ extension FoodForm.NutritionFacts {
             MacronutrientForm(fieldValue: fieldValue)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+                .environmentObject(viewModel)
         }
     }
 
@@ -38,14 +39,17 @@ extension FoodForm.NutritionFacts {
             }
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+                .environmentObject(viewModel)
         }
     }
 
     var energyForm: some View {
         NavigationLink {
             EnergyForm(fieldValue: $viewModel.energy)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: $viewModel.energy)
+                .environmentObject(viewModel)
         }
     }
 

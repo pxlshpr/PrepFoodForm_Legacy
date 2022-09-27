@@ -43,6 +43,21 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             }
         }
     }
+    
+    @ViewBuilder
+    var fillButton: some View {
+        if viewModel.shouldShowFillButton {
+            Button {
+                Haptics.feedback(style: .soft)
+                showingSheet = true
+            } label: {
+                Image(systemName: viewModel.amount.doubleValue.fillType.buttonSystemImage)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+
     var fieldSourceTypeButton: some View {
         Button {
             Haptics.feedback(style: .soft)
@@ -94,12 +109,12 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                 HStack {
                     textField
                     unitButton
-                    fieldSourceTypeButton
+                    fillButton
                 }
             }
         }
         .onChange(of: viewModel.amount) { newValue in
-            fieldSourceType = "pencil.circle.fill"
+//            fieldSourceType = "pencil.circle.fill"
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
