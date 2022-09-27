@@ -29,7 +29,7 @@ extension MacronutrientForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $fieldValue.string)
+        TextField("Required", text: $fieldValue.macroValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -37,7 +37,7 @@ extension MacronutrientForm {
     }
     
     var unitLabel: some View {
-        Text(fieldValue.unitString)
+        Text(fieldValue.macroValue.unitDescription)
             .foregroundColor(.secondary)
     }
     

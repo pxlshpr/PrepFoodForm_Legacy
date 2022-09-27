@@ -50,8 +50,8 @@ extension FoodFormViewModel {
             
             self.standardSizes = sizes
 
-            self.amount = FieldValue.amount(doubleValue: FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
-            self.serving = FieldValue.serving(doubleValue: FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
+            self.amount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
+            self.serving = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
         } else {
             self.name =  FieldValue.name(FieldValue.StringValue(string: "Carrot"))
             self.emoji = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
@@ -59,10 +59,10 @@ extension FoodFormViewModel {
             self.brand = FieldValue.brand(FieldValue.StringValue(string: "Woolworths"))
             self.barcode = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
             
-            self.amount = FieldValue.amount(doubleValue: FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
-            self.serving = FieldValue.serving(doubleValue: FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))
+            self.amount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
+            self.serving = FieldValue.serving(FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))
             
-            self.density = FieldValue.density(density: FieldValue.Density(
+            self.density = FieldValue.density(FieldValue.DensityValue(
                 weight: FieldValue.DoubleValue(double: 20, string: "20", unit: .weight(.g)),
                 volume: FieldValue.DoubleValue(double: 25, string: "25", unit: .volume(.mL)))
             )
@@ -70,34 +70,32 @@ extension FoodFormViewModel {
             self.standardSizes = mockStandardSizes
             self.volumePrefixedSizes = mockVolumePrefixedSizes
             
-//            self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
-            
-            self.energy = FieldValue.energy(double: 125, string: "125", unit: .kJ)
-            self.carb = FieldValue.macro(macro: .carb, double: 23, string: "23")
-            self.fat = FieldValue.macro(macro: .fat, double: 8, string: "8")
-            self.protein = FieldValue.macro(macro: .protein, double: 3, string: "3")
+            self.energy = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
+            self.carb = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
+            self.fat = FieldValue.macro(FieldValue.MacroValue(macro: .fat, double: 8, string: "8"))
+            self.protein = FieldValue.macro(FieldValue.MacroValue(macro: .protein, double: 3, string: "3"))
             
             //TODO: Micronutrients
             if includeAllMicronutrients {
                 for g in micronutrients.indices {
                     for f in micronutrients[g].fieldValues.indices {
-                        micronutrients[g].fieldValues[f].double = Double.random(in: 1...300)
+                        micronutrients[g].fieldValues[f].microValue.double = Double.random(in: 1...300)
                     }
                 }
             } else {
                 for g in micronutrients.indices {
                     for f in micronutrients[g].fieldValues.indices {
-                        if micronutrients[g].fieldValues[f].nutrientType == .saturatedFat {
-                            micronutrients[g].fieldValues[f].double = 25
+                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .saturatedFat {
+                            micronutrients[g].fieldValues[f].microValue.double = 25
                         }
-                        if micronutrients[g].fieldValues[f].nutrientType == .biotin {
-                            micronutrients[g].fieldValues[f].double = 5
+                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .biotin {
+                            micronutrients[g].fieldValues[f].microValue.double = 5
                         }
-                        if micronutrients[g].fieldValues[f].nutrientType == .caffeine {
-                            micronutrients[g].fieldValues[f].double = 250
+                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .caffeine {
+                            micronutrients[g].fieldValues[f].microValue.double = 250
                         }
-                        if micronutrients[g].fieldValues[f].nutrientType == .addedSugars {
-                            micronutrients[g].fieldValues[f].double = 35
+                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .addedSugars {
+                            micronutrients[g].fieldValues[f].microValue.double = 35
                         }
                     }
                 }

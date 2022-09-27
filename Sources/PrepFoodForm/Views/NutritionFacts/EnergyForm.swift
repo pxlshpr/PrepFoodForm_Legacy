@@ -29,7 +29,7 @@ extension EnergyForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $fieldValue.string)
+        TextField("Required", text: $fieldValue.energyValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -43,7 +43,7 @@ extension EnergyForm {
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            Picker("", selection: $fieldValue.energyUnit) {
+            Picker("", selection: $fieldValue.energyValue.unit) {
                 ForEach(EnergyUnit.allCases, id: \.self) { unit in
                     Text(unit.shortDescription).tag(unit)
                 }

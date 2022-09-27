@@ -48,9 +48,9 @@ public class FoodFormViewModel: ObservableObject {
     
     //MARK: Nutrition Facts
     @Published var energy: FieldValue = .energy()
-    @Published var carb: FieldValue = .macro(macro: .carb)
-    @Published var fat: FieldValue = .macro(macro: .fat)
-    @Published var protein: FieldValue = .macro(macro: .protein)
+    @Published var carb: FieldValue = .macro(FieldValue.MacroValue(macro: .carb))
+    @Published var fat: FieldValue = .macro(FieldValue.MacroValue(macro: .fat))
+    @Published var protein: FieldValue = .macro(FieldValue.MacroValue(macro: .protein))
     
     @Published var micronutrients: [(group: NutrientTypeGroup, fieldValues: [FieldValue])] = [
         (NutrientTypeGroup.fats, [

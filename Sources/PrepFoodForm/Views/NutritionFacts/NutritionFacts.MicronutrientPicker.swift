@@ -56,8 +56,8 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
             MicronutrientForm(fieldValue: fieldValue) { string, nutrientUnit in
                 /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
                 withAnimation {
-                    fieldValue.wrappedValue.string = string
-                    fieldValue.wrappedValue.nutrientUnit = nutrientUnit
+                    fieldValue.wrappedValue.microValue.string = string
+                    fieldValue.wrappedValue.microValue.unit = nutrientUnit
                 }
             }
         } label: {

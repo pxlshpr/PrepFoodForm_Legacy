@@ -353,7 +353,7 @@ extension FoodFormViewModel {
             self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .thirdPartyFoodPrefill))
         }
         
-        self.energy = FieldValue.energy(double: food.energy, string: food.energy.cleanAmount, unit: .kcal, fillType: .thirdPartyFoodPrefill)
+        self.energy = .energy(FieldValue.EnergyValue(double: food.energy, string: food.energy.cleanAmount, unit: .kcal, fillType: .thirdPartyFoodPrefill))
         
         prefilledFood = food
         

@@ -27,8 +27,8 @@ extension MicronutrientForm {
         .toolbar { keyboardToolbarContents }
         .onAppear {
             isFocused = true
-            string = fieldValue.string
-            nutrientUnit = fieldValue.nutrientUnit
+            string = fieldValue.microValue.string
+            nutrientUnit = fieldValue.microValue.unit
         }
     }
     
@@ -54,7 +54,7 @@ extension MicronutrientForm {
     }
     
     var units: [NutrientUnit] {
-        fieldValue.supportedNutrientUnits
+        fieldValue.microValue.supportedNutrientUnits
     }
     
     var keyboardToolbarContents: some ToolbarContent {

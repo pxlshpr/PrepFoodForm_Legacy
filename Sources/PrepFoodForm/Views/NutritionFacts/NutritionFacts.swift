@@ -32,8 +32,8 @@ extension FoodForm.NutritionFacts {
         NavigationLink {
             MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { string, nutrientUnit in
                 withAnimation {
-                    fieldValue.wrappedValue.string = string
-                    fieldValue.wrappedValue.nutrientUnit = nutrientUnit
+                    fieldValue.wrappedValue.microValue.string = string
+                    fieldValue.wrappedValue.microValue.unit = nutrientUnit
                 }
             }
         } label: {

@@ -39,10 +39,10 @@ extension FoodFormViewModel: FoodLabelDataSource {
         var nutrients: [NutrientType : Double] = [:]
         for (_, array) in micronutrients {
             for fieldValue in array {
-                guard let nutrientType = fieldValue.nutrientType else {
+                guard case .micro = fieldValue else {
                     continue
                 }
-                nutrients[nutrientType] = fieldValue.double
+                nutrients[fieldValue.microValue.nutrientType] = fieldValue.double
             }
         }
         return nutrients

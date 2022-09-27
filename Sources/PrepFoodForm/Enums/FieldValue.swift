@@ -3,9 +3,21 @@ import PrepUnits
 
 enum FieldValue: Hashable {
     
-    struct DoubleValue: Hashable {
-        var internalDouble: Double? = nil
-        var internalString: String = ""
+    struct MicroValue: Hashable {
+        var nutrientType: NutrientType
+        var internalDouble: Double?
+        var internalString: String
+        var unit: NutrientUnit
+        var fillType: FillType
+
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FillType = .userInput) {
+            self.nutrientType = nutrientType
+            self.internalDouble = double
+            self.internalString = string
+            self.unit = unit
+            self.fillType = fillType
+        }
+        
         var double: Double? {
             get {
                 return internalDouble
@@ -33,12 +45,174 @@ enum FieldValue: Hashable {
                 self.internalString = newValue
             }
         }
-        var unit: FormUnit
         
-        init(double: Double? = nil, string: String = "", unit: FormUnit) {
+        var unitDescription: String {
+            unit.shortDescription
+        }
+        
+        var isEmpty: Bool {
+            double == nil
+        }
+        
+        func textColor(for colorScheme: ColorScheme) -> Color {
+            .gray
+        }
+        
+        var supportedNutrientUnits: [NutrientUnit] {
+            nutrientType.units.map {
+                $0
+            }
+        }
+    }
+
+    struct MacroValue: Hashable {
+        var macro: Macro
+        var internalDouble: Double?
+        var internalString: String
+        var fillType: FillType
+
+        init(macro: Macro, double: Double? = nil, string: String = "", fillType: FillType = .userInput) {
+            self.macro = macro
+            self.internalDouble = double
+            self.internalString = string
+            self.fillType = fillType
+        }
+        
+        var double: Double? {
+            get {
+                return internalDouble
+            }
+            set {
+                internalDouble = newValue
+                internalString = newValue?.cleanAmount ?? ""
+            }
+        }
+        
+        var string: String {
+            get {
+                return internalString
+            }
+            set {
+                guard !newValue.isEmpty else {
+                    internalDouble = nil
+                    internalString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.internalDouble = double
+                self.internalString = newValue
+            }
+        }
+        
+        var isEmpty: Bool {
+            double == nil
+        }
+        
+        var unitDescription: String {
+            NutrientUnit.g.shortDescription
+        }
+        
+        func textColor(for colorScheme: ColorScheme) -> Color {
+            macro.textColor(for: colorScheme)
+        }
+    }
+    
+    struct EnergyValue: Hashable {
+        var internalDouble: Double?
+        var internalString: String
+        var unit: EnergyUnit
+        var fillType: FillType
+
+        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FillType = .userInput) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
+            self.fillType = fillType
+        }
+        
+        var double: Double? {
+            get {
+                return internalDouble
+            }
+            set {
+                internalDouble = newValue
+                internalString = newValue?.cleanAmount ?? ""
+            }
+        }
+        
+        var string: String {
+            get {
+                return internalString
+            }
+            set {
+                guard !newValue.isEmpty else {
+                    internalDouble = nil
+                    internalString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.internalDouble = double
+                self.internalString = newValue
+            }
+        }
+        
+        var unitDescription: String {
+            unit.shortDescription
+        }
+        
+        var isEmpty: Bool {
+            double == nil
+        }
+        
+        func textColor(for colorScheme: ColorScheme) -> Color {
+            .accentColor
+        }
+        
+    }
+    
+    struct DoubleValue: Hashable {
+        var internalDouble: Double? = nil
+        var internalString: String = ""
+        var unit: FormUnit
+        var fillType: FillType
+
+        init(double: Double? = nil, string: String = "", unit: FormUnit, fillType: FillType = .userInput) {
+            self.internalDouble = double
+            self.internalString = string
+            self.unit = unit
+            self.fillType = fillType
+        }
+        
+        var double: Double? {
+            get {
+                return internalDouble
+            }
+            set {
+                internalDouble = newValue
+                internalString = newValue?.cleanAmount ?? ""
+            }
+        }
+        
+        var string: String {
+            get {
+                return internalString
+            }
+            set {
+                guard !newValue.isEmpty else {
+                    internalDouble = nil
+                    internalString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.internalDouble = double
+                self.internalString = newValue
+            }
         }
         
         var unitDescription: String {
@@ -50,11 +224,12 @@ enum FieldValue: Hashable {
         }
     }
     
-    struct Density: Hashable {
+    struct DensityValue: Hashable {
         static let DefaultWeight = DoubleValue(unit: .weight(.g))
         static let DefaultVolume = DoubleValue(unit: .volume(.cup))
         var weight = DefaultWeight
         var volume = DefaultVolume
+        var fillType: FillType = .userInput
     }
 
     struct StringValue: Hashable {
@@ -71,26 +246,18 @@ enum FieldValue: Hashable {
     case brand(StringValue = StringValue())
     case barcode(StringValue = StringValue())
     case detail(StringValue = StringValue())
-    
-    case amount(doubleValue: DoubleValue = DoubleValue(unit: .serving))
-    case serving(doubleValue: DoubleValue = DoubleValue(unit: .weight(.g)))
-
-    case density(density: Density? = nil)
-
-    case energy(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FillType = .userInput)
-    case macro(macro: Macro, double: Double? = nil, string: String = "", fillType: FillType = .userInput)
-    case micro(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FillType = .userInput)
+    case amount(DoubleValue = DoubleValue(unit: .serving))
+    case serving(DoubleValue = DoubleValue(unit: .weight(.g)))
+    case density(DensityValue? = nil)
+    case energy(EnergyValue = EnergyValue())
+    case macro(MacroValue)
+    case micro(MicroValue)
 }
 
 extension FieldValue {
     init(micronutrient: NutrientType, fillType: FillType = .userInput) {
-        self = .micro(
-            nutrientType: micronutrient,
-            double: nil,
-            string: "",
-            unit: micronutrient.units.first ?? .g,
-            fillType: fillType
-        )
+        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
+        self = .micro(microValue)
     }
 }
 
@@ -117,10 +284,10 @@ extension FieldValue: CustomStringConvertible {
 
         case .energy:
             return "Energy"
-        case .macro(macro: let macro, _, _, _):
-            return macro.description
-        case .micro(nutrientType: let nutrientType, _, _, _, _):
-            return nutrientType.description
+        case .macro(let macroValue):
+            return macroValue.macro.description
+        case .micro(let microValue):
+            return microValue.nutrientType.description
         }
     }
 }
@@ -136,152 +303,91 @@ extension FieldValue {
             
         case .density(let density):
             return density == nil
-
-        case .energy(let double, _, _, _):
-            return double == nil
-        case .macro(_, let double, _, _):
-            return double == nil
-        case .micro(_, let double, _, _, _):
-            return double == nil
+            
+        case .energy(let energyValue):
+            return energyValue.isEmpty
+            
+        case .macro(let macroValue):
+            return macroValue.isEmpty
+        case .micro(let microValue):
+            return microValue.isEmpty
         }
     }
-
-    var string: String {
-        get {
-            switch self {
-            case .energy(_, let string, _, _):
-                return string
-            case .macro(_, _, let string, _):
-                return string
-            case .micro(_, _, let string, _, _):
-                return string
-            default:
-                return ""
-            }
-        }
-        set {
-            switch self {
-            //MARK: Nutrients
-                
-            case .energy(_, _, let energyUnit, _):
-                guard !newValue.isEmpty else {
-                    self = .energy(double: nil, string: newValue, unit: energyUnit)
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self = .energy(double: double, string: newValue, unit: energyUnit)
-            case .macro(let macro, _, _, _):
-                guard !newValue.isEmpty else {
-                    self = .macro(macro: macro, double: nil, string: newValue)
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self = .macro(macro: macro, double: double, string: newValue)
-            case .micro(let nutrientType, _, _, let nutrientUnit, _):
-                guard !newValue.isEmpty else {
-                    self = .micro(nutrientType: nutrientType, double: nil, string: newValue, unit: nutrientUnit)
-                    return
-                }
-                guard let double = Double(newValue) else {
-                    return
-                }
-                self = .micro(nutrientType: nutrientType, double: double, string: newValue, unit: nutrientUnit)
-            default:
-                break
-            }
-        }
-    }
-    
-    var double: Double? {
-        get {
-            switch self {
-            case .energy(let double, _, _, _):
-                return double
-            case .macro(_, let double, _, _):
-                return double
-            case .micro(_, let double, _, _, _):
-                return double
-            default:
-                return nil
-            }
-        }
-        set {
-            switch self {
-            case .energy(_, _, let energyUnit, _):
-                self = .energy(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyUnit)
-            case .macro(let macro, _, _, _):
-                self = .macro(macro: macro, double: newValue, string: newValue?.cleanAmount ?? "")
-            case .micro(let nutrientType, _, _, let nutrientUnit, _):
-                self = .micro(nutrientType: nutrientType, double: newValue, string: newValue?.cleanAmount ?? "", unit: nutrientUnit)
-            default:
-                break
-            }
-        }
-    }
-    
 }
 
 
 extension FieldValue {
-    var amountString: String {
-        switch self {
-        case .energy(let double, _, _, _):
-            return double?.cleanAmount ?? "Required"
-        case .macro(_, let double, _, _):
-            return double?.cleanAmount ?? "Required"
-        case .micro(_, let double, _, _, _):
-            return double?.cleanAmount ?? ""
-        default:
-            return ""
-        }
-    }
-    
-    var unitString: String {
-        switch self {
-        case .energy(_, _, let energyUnit, _):
-            return energyUnit.shortDescription
-        case .macro:
-            return NutrientUnit.g.shortDescription
-        case .micro(_, _, _, let nutrientUnit, _):
-            return nutrientUnit.shortDescription
-        default:
-            return ""
-        }
-    }
-    
-    var iconImageName: String {
-        switch self {
-        case .energy: return "flame.fill"
-        case .macro: return "circle.circle.fill"
-        case .micro: return "circle.circle"
-        default:
-            return ""
-        }
-    }
-    
-    func textColor(for colorScheme: ColorScheme) -> Color {
-        switch self {
-        case .energy:
-            return .accentColor
-        case .macro(let macro, _, _, _):
-            return macro.textColor(for: colorScheme)
-        case .micro:
-            return .gray
-        default:
-            return .primary
-        }
-    }
-    
+
     var amountColor: Color {
         isEmpty ? Color(.quaternaryLabel) : Color(.label)
     }
     
+    var iconImageName: String {
+        switch self {
+        case .energy:
+            return "flame.fill"
+        case .macro:
+            return "circle.circle.fill"
+        case .micro:
+            return "circle.circle"
+        default:
+            return ""
+        }
+    }
+    
+    var amountString: String {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.double?.cleanAmount ?? "Required"
+        case .macro(let macroValue):
+            return macroValue.double?.cleanAmount ?? "Required"
+        case .micro(let microValue):
+            return microValue.double?.cleanAmount ?? ""
+        default:
+            return ""
+        }
+    }
+    
+    var double: Double? {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.double
+        case .macro(let macroValue):
+            return macroValue.double
+        case .micro(let microValue):
+            return microValue.double
+        default:
+            return nil
+        }
+    }
+
+    var unitString: String {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.unitDescription
+        case .macro(let macroValue):
+            return macroValue.unitDescription
+        case .micro(let microValue):
+            return microValue.unitDescription
+        default:
+            return ""
+        }
+    }
+
     func labelColor(for colorScheme: ColorScheme) -> Color {
-        isEmpty ? Color(.secondaryLabel) :  textColor(for: colorScheme)
+        guard !isEmpty else {
+            return Color(.secondaryLabel)
+        }
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.textColor(for: colorScheme)
+        case .macro(let macroValue):
+            return macroValue.textColor(for: colorScheme)
+        case .micro(let microValue):
+            return microValue.textColor(for: colorScheme)
+        default:
+            return .gray
+        }
     }
 
     var fillTypeIconImage: String? {
@@ -295,70 +401,10 @@ extension FieldValue {
 //        }
 //        return fillType.iconSystemImage
     }
-
-    var supportedNutrientUnits: [NutrientUnit] {
-        switch self {
-        case .micro(let nutrientType, _, _, _, _):
-            return nutrientType.units.map {
-                $0
-            }
-        default:
-            return []
-        }
-    }
-    
-    var nutrientType: NutrientType? {
-        switch self {
-        case .micro(let nutrientType, _, _, _, _):
-            return nutrientType
-        default:
-            return nil
-        }
-    }
 }
 
 
 extension FieldValue {
-    var nutrientUnit: NutrientUnit {
-        get {
-            switch self {
-            case .macro:
-                return .g
-            case .micro(_, _, _, let nutrientUnit, _):
-                return nutrientUnit
-            default:
-                return .g
-            }
-        }
-        set {
-            switch self {
-            case .micro(let nutrientType, let double, let string, _, _):
-                self = .micro(nutrientType: nutrientType, double: double, string: string, unit: newValue)
-            default:
-                break
-            }
-        }
-    }
-    
-    var energyUnit: EnergyUnit {
-        get {
-            switch self {
-            case .energy(_, _, let energyUnit, _):
-                return energyUnit
-            default:
-                return .kcal
-            }
-        }
-        set {
-            switch self {
-            case .energy(let double, let string, _, _):
-                self = .energy(double: double, string: string, unit: newValue)
-            default:
-                break
-            }
-        }
-    }
-    
     var doubleValue: DoubleValue {
         get {
             switch self {
@@ -371,9 +417,9 @@ extension FieldValue {
         set {
             switch self {
             case .amount:
-                self = .amount(doubleValue: newValue)
+                self = .amount(newValue)
             case .serving:
-                self = .serving(doubleValue: newValue)
+                self = .serving(newValue)
             default:
                 break
             }
@@ -407,19 +453,76 @@ extension FieldValue {
         }
     }
     
+    var energyValue: EnergyValue {
+        get {
+            switch self {
+            case .energy(let energyValue):
+                return energyValue
+            default:
+                return EnergyValue()
+            }
+        }
+        set {
+            switch self {
+            case .energy:
+                self = .energy(newValue)
+            default:
+                break
+            }
+        }
+    }
+    
+    var macroValue: MacroValue {
+        get {
+            switch self {
+            case .macro(let macroValue):
+                return macroValue
+            default:
+                return MacroValue(macro: .carb)
+            }
+        }
+        set {
+            switch self {
+            case .macro:
+                self = .macro(newValue)
+            default:
+                break
+            }
+        }
+    }
+
+    var microValue: MicroValue {
+        get {
+            switch self {
+            case .micro(let microValue):
+                return microValue
+            default:
+                return MicroValue(nutrientType: .addedSugars)
+            }
+        }
+        set {
+            switch self {
+            case .micro:
+                self = .micro(newValue)
+            default:
+                break
+            }
+        }
+    }
+
     var weight: DoubleValue {
         get {
             switch self {
             case .density(let density):
-                return density?.weight ?? Density.DefaultWeight
+                return density?.weight ?? DensityValue.DefaultWeight
             default:
-                return Density.DefaultWeight
+                return DensityValue.DefaultWeight
             }
         }
         set {
             switch self {
             case .density(let density):
-                self = .density(density: Density(weight: newValue, volume: density?.volume ?? Density.DefaultVolume))
+                self = .density(DensityValue(weight: newValue, volume: density?.volume ?? DensityValue.DefaultVolume))
             default:
                 break
             }
@@ -430,15 +533,15 @@ extension FieldValue {
         get {
             switch self {
             case .density(let density):
-                return density?.volume ?? Density.DefaultVolume
+                return density?.volume ?? DensityValue.DefaultVolume
             default:
-                return Density.DefaultVolume
+                return DensityValue.DefaultVolume
             }
         }
         set {
             switch self {
             case .density(let density):
-                self = .density(density: Density(weight: density?.weight ?? Density.DefaultWeight, volume: newValue))
+                self = .density(DensityValue(weight: density?.weight ?? DensityValue.DefaultWeight, volume: newValue))
             default:
                 break
             }
