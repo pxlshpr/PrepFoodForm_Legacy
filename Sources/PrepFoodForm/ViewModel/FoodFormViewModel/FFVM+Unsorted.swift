@@ -137,22 +137,22 @@ extension FoodFormViewModel {
     func updateShouldShowDensitiesSection() {
         withAnimation {
             shouldShowDensitiesSection =
-            (amount.formUnit.isMeasurementBased && (amount.double ?? 0) > 0)
+            (amount.unit.isMeasurementBased && (amount.double ?? 0) > 0)
             ||
-            (amount.formUnit.isMeasurementBased && servingAmount > 0)
+            (amount.unit.isMeasurementBased && servingAmount > 0)
         }
     }
 
     var amountIsServing: Bool {
-        amount.formUnit == .serving
+        amount.unit == .serving
     }
 
     var isWeightBased: Bool {
-        amount.formUnit.isWeightBased || servingUnit.isWeightBased
+        amount.unit.isWeightBased || servingUnit.isWeightBased
     }
 
     var isVolumeBased: Bool {
-        amount.formUnit.isVolumeBased || servingUnit.isVolumeBased
+        amount.unit.isVolumeBased || servingUnit.isVolumeBased
     }
     
     var shouldShowSizesSection: Bool {
@@ -201,7 +201,7 @@ extension FoodFormViewModel {
     }
     
     var isMeasurementBased: Bool {
-        amount.formUnit.isMeasurementBased || servingUnit.isMeasurementBased
+        amount.unit.isMeasurementBased || servingUnit.isMeasurementBased
     }
     
     var allSizes: [Size] {
@@ -233,14 +233,14 @@ extension FoodFormViewModel {
     }
     
     var hasServing: Bool {
-        amount.formUnit == .serving
+        amount.unit == .serving
     }
     
     var amountDescription: String {
         guard !amount.isEmpty else {
             return ""
         }
-        return "\(amount.string) \(amount.formUnit.shortDescription)"
+        return "\(amount.string) \(amount.unit.shortDescription)"
     }
     
     var servingAmount: Double {
@@ -248,7 +248,7 @@ extension FoodFormViewModel {
     }
     
     var amountFormHeaderString: String {
-        switch amount.formUnit {
+        switch amount.unit {
         case .serving:
             return "Servings"
         case .weight:
@@ -289,11 +289,11 @@ extension FoodFormViewModel {
     }
     
     var amountUnitString: String {
-        amount.formUnit.description
+        amount.unit.description
     }
     
     var amountUnitShortString: String {
-        amount.formUnit.shortDescription
+        amount.unit.shortDescription
     }
 
     var densityWeightAmount: Double {

@@ -327,7 +327,7 @@ extension FieldValue {
         }
     }
     
-    var formUnit: FormUnit {
+    var unit: FormUnit {
         get {
             switch self {
             case .amount(_, _, unit: let formUnit):

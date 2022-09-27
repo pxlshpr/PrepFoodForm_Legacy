@@ -104,18 +104,18 @@ extension FoodForm.NutrientsPerForm.AmountForm {
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
                 sizes: viewModel.allSizes,
-                pickedUnit: viewModel.amount.formUnit
+                pickedUnit: viewModel.amount.unit
             ) {
                 showingSizeForm = true
             } didPickUnit: { unit in
                 withAnimation {
-                    viewModel.amount.formUnit = unit
+                    viewModel.amount.unit = unit
                 }
             }
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: false, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.amount.formUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.amount.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
