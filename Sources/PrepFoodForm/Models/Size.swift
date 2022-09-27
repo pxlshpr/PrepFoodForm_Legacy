@@ -1,23 +1,6 @@
 import Foundation
 import PrepUnits
 
-extension Size: Equatable {
-    static func ==(lhs: Size, rhs: Size) -> Bool {
-        lhs.hashValue == rhs.hashValue
-    }
-}
-
-extension Size: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(quantity)
-        hasher.combine(volumePrefixUnit)
-        hasher.combine(name)
-        hasher.combine(amount)
-        hasher.combine(amountUnit)
-    }
-}
-
 class Size: Identifiable {
     var id = UUID()
     var quantity: Double
@@ -68,5 +51,22 @@ class Size: Identifiable {
     
     var isVolumeBased: Bool {
         amountUnit.isVolumeBased
+    }
+}
+
+extension Size: Equatable {
+    static func ==(lhs: Size, rhs: Size) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+}
+
+extension Size: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(quantity)
+        hasher.combine(volumePrefixUnit)
+        hasher.combine(name)
+        hasher.combine(amount)
+        hasher.combine(amountUnit)
     }
 }

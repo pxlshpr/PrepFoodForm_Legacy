@@ -14,7 +14,7 @@ extension FoodFormViewModel {
         || !brand.isEmpty
         || !barcode.isEmpty
         || !amount.isEmpty
-        || !servingString.isEmpty
+        || !serving.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty
         || !summarySizeViewModels.isEmpty
@@ -58,8 +58,7 @@ extension FoodFormViewModel {
             self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
 
             self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
-            self.servingString = "0.2"
-            self.servingUnit = .size(standardSizes.first!, nil)
+            self.serving = FieldValue.amount(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil))
         } else {
             self.name =  FieldValue.name(string: "Carrot")
             self.emoji = FieldValue.emoji(string: "🥕")
@@ -68,9 +67,7 @@ extension FoodFormViewModel {
             self.barcode = FieldValue.barcode(string: "5012345678900")
             
             self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
-
-            self.servingString = "50"
-            self.servingUnit = .weight(.g)
+            self.serving = FieldValue.serving(double: 50, string: "50", unit: .weight(.g))
             
             self.densityWeightString = "20"
             self.densityWeightUnit = .weight(.g)
@@ -139,7 +136,7 @@ extension FoodFormViewModel {
             shouldShowDensitiesSection =
             (amount.unit.isMeasurementBased && (amount.double ?? 0) > 0)
             ||
-            (amount.unit.isMeasurementBased && servingAmount > 0)
+            (amount.unit.isMeasurementBased && (serving.double ?? 0) > 0)
         }
     }
 
@@ -148,11 +145,11 @@ extension FoodFormViewModel {
     }
 
     var isWeightBased: Bool {
-        amount.unit.isWeightBased || servingUnit.isWeightBased
+        amount.unit.isWeightBased || serving.unit.isWeightBased
     }
 
     var isVolumeBased: Bool {
-        amount.unit.isVolumeBased || servingUnit.isVolumeBased
+        amount.unit.isVolumeBased || serving.unit.isVolumeBased
     }
     
     var shouldShowSizesSection: Bool {
@@ -170,23 +167,25 @@ extension FoodFormViewModel {
             newServingAmount = 0
         }
         
-        servingString = "\(newServingAmount.clean)"
+        serving.string = "\(newServingAmount.clean)"
     }
 
     func modifyServingUnitIfServingBased() {
-        guard servingUnit.isServingBased, case .size(let size, _) = servingUnit else {
+        guard serving.unit.isServingBased, case .size(let size, _) = serving.unit else {
             return
         }
         let newAmount: Double
-        if servingAmount > 0 {
+        if let servingAmount = serving.double, servingAmount > 0 {
             newAmount = size.quantity / servingAmount
         } else {
             newAmount = 0
         }
         
+        //FIXME: crashes when serving-based unit is created from field itself
         print("Now we need to change: \(size) to new amount \(newAmount)")
         
-        standardSizes.first!.amount = newAmount
+        size.amount = newAmount
+//        standardSizes.first!.amount = newAmount
         updateSummary()
     }
     
@@ -201,7 +200,7 @@ extension FoodFormViewModel {
     }
     
     var isMeasurementBased: Bool {
-        amount.unit.isMeasurementBased || servingUnit.isMeasurementBased
+        amount.unit.isMeasurementBased || serving.unit.isMeasurementBased
     }
     
     var allSizes: [Size] {
@@ -229,7 +228,7 @@ extension FoodFormViewModel {
     }
     
     var hasNutrientsPerServingContent: Bool {
-        !servingString.isEmpty
+        !serving.isEmpty
     }
     
     var hasServing: Bool {
@@ -241,10 +240,6 @@ extension FoodFormViewModel {
             return ""
         }
         return "\(amount.string) \(amount.unit.shortDescription)"
-    }
-    
-    var servingAmount: Double {
-        Double(servingString) ?? 0
     }
     
     var amountFormHeaderString: String {
@@ -261,7 +256,7 @@ extension FoodFormViewModel {
     }
 
     var servingFormHeaderString: String {
-        switch servingUnit {
+        switch serving.unit {
         case .weight:
             return "Weight"
         case .volume:
@@ -274,18 +269,18 @@ extension FoodFormViewModel {
     }
 
     var servingUnitDescription: String {
-        servingUnit.description
+        serving.unit.description
     }
     
     var servingUnitShortString: String {
-        servingUnit.shortDescription
+        serving.unit.shortDescription
     }
     
     var servingDescription: String {
-        guard !servingString.isEmpty else {
+        guard !serving.isEmpty else {
             return ""
         }
-        return "\(servingString) \(servingUnitShortString)"
+        return "\(serving.string) \(serving.unit.shortDescription)"
     }
     
     var amountUnitString: String {
@@ -359,7 +354,7 @@ extension FoodFormViewModel {
     }
     
     var servingSizeFooterString: String {
-        switch servingUnit {
+        switch serving.unit {
         case .weight:
             return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
         case .volume:

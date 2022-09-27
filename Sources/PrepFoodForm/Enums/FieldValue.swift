@@ -9,7 +9,8 @@ enum FieldValue: Hashable {
     case detail(string: String = "", fillType: FieldFillType = .userInput)
     
     case amount(double: Double? = nil, string: String = "", unit: FormUnit = .serving)
-    
+    case serving(double: Double? = nil, string: String = "", unit: FormUnit = .weight(.g))
+
     case energy(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FieldFillType = .userInput)
     case macro(macro: Macro, double: Double? = nil, string: String = "", fillType: FieldFillType = .userInput)
     case micro(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FieldFillType = .userInput)
@@ -43,7 +44,9 @@ extension FieldValue: CustomStringConvertible {
         
         case .amount:
             return "Amount Per"
-            
+        case .serving:
+            return "Serving Size"
+
         case .energy:
             return "Energy"
         case .macro(macro: let macro, _, _, _):
@@ -70,7 +73,9 @@ extension FieldValue {
         
         case .amount(double: let double, _, _):
             return double == nil
-        
+        case .serving(double: let double, _, _):
+            return double == nil
+
         case .energy(let double, _, _, _):
             return double == nil
         case .macro(_, let double, _, _):
@@ -96,7 +101,9 @@ extension FieldValue {
                 
             case .amount(_, string: let string, _):
                 return string
-                
+            case .serving(_, string: let string, _):
+                return string
+
             case .energy(_, let string, _, _):
                 return string
             case .macro(_, _, let string, _):
@@ -127,7 +134,16 @@ extension FieldValue {
                     return
                 }
                 self = .amount(double: double, string: newValue, unit: formUnit)
-                
+            case .serving(_, _, unit: let formUnit):
+                guard !newValue.isEmpty else {
+                    self = .serving(double: nil, string: newValue, unit: formUnit)
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self = .serving(double: double, string: newValue, unit: formUnit)
+
             case .energy(_, _, let energyUnit, _):
                 guard !newValue.isEmpty else {
                     self = .energy(double: nil, string: newValue, unit: energyUnit)
@@ -164,7 +180,9 @@ extension FieldValue {
             switch self {
             case .amount(double: let double, _, _):
                 return double
-                
+            case .serving(double: let double, _, _):
+                return double
+
             case .energy(let double, _, _, _):
                 return double
             case .macro(_, let double, _, _):
@@ -179,6 +197,9 @@ extension FieldValue {
             switch self {
             case .amount(_, _, unit: let formUnit):
                 self = .amount(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
+            case .serving(_, _, unit: let formUnit):
+                self = .serving(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
+
             case .energy(_, _, let energyUnit, _):
                 self = .energy(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyUnit)
             case .macro(let macro, _, _, _):
@@ -332,6 +353,8 @@ extension FieldValue {
             switch self {
             case .amount(_, _, unit: let formUnit):
                 return formUnit
+            case .serving(_, _, unit: let formUnit):
+                return formUnit
             default:
                 return .weight(.g)
             }
@@ -340,6 +363,8 @@ extension FieldValue {
             switch self {
             case .amount(double: let double, string: let string, _):
                 self = .amount(double: double, string: string, unit: newValue)
+            case .serving(double: let double, string: let string, _):
+                self = .serving(double: double, string: string, unit: newValue)
             default:
                 break
             }

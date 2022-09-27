@@ -46,7 +46,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
                 sizes: viewModel.allSizes,
-                pickedUnit: viewModel.servingUnit,
+                pickedUnit: viewModel.serving.unit,
                 includeServing: false)
             {
                 showingSizeForm = true
@@ -55,13 +55,13 @@ extension FoodForm.NutrientsPerForm.ServingForm {
                     if unit.isServingBased {
                         viewModel.modifyServingAmount(for: unit)
                     }
-                    viewModel.servingUnit = unit
+                    viewModel.serving.unit = unit
                 }
             }
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: true, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.servingUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.serving.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -76,10 +76,10 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     }
     
     var textField: some View {
-        TextField("", text: $viewModel.servingString)
+        TextField("", text: $viewModel.serving.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
-            .placeholder(when: viewModel.servingString.isEmpty) {
+            .placeholder(when: viewModel.serving.isEmpty) {
                 Text("Optional").foregroundColor(Color(.quaternaryLabel))
             }
             .focused($isFocused)
@@ -105,6 +105,6 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     @ViewBuilder
     var footer: some View {
         Text(viewModel.servingSizeFooterString)
-            .foregroundColor(viewModel.servingString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+            .foregroundColor(viewModel.serving.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 }

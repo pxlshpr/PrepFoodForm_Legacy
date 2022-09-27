@@ -17,37 +17,25 @@ public class FoodFormViewModel: ObservableObject {
     @Published var barcode: FieldValue = .barcode()
     
     //MARK: Amount Per
-    @Published var amount: FieldValue = .amount()
+    @Published var amount: FieldValue = .amount() {
+        didSet {
+            updateShouldShowDensitiesSection()
+            if amount.unit != .serving {
+                serving.double = nil
+                serving.string = ""
+                serving.unit = .weight(.g)
+            }
+        }
+    }
     
-//    @Published var amountString: String = "" {
-//        didSet {
-//            updateShouldShowDensitiesSection()
-//        }
-//    }
-//
-//    @Published var amountUnit: FormUnit = .serving {
-//        didSet {
-//            updateShouldShowDensitiesSection()
-//            if amountUnit != .serving {
-//                servingString = ""
-//                servingUnit = .weight(.g)
-//            }
-//        }
-//    }
-    
-    @Published var servingString: String = "" {
+    @Published var serving: FieldValue = .serving() {
         didSet {
             /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
             modifyServingUnitIfServingBased()
             updateShouldShowDensitiesSection()
-            //                if !servingString.isEmpty && amountString.isEmpty {
-            //                    amountString = "1"
-            //                }
-        }
-    }
-    @Published var servingUnit: FormUnit = .weight(.g) {
-        didSet {
-            updateShouldShowDensitiesSection()
+//            if !servingString.isEmpty && amountString.isEmpty {
+//                amountString = "1"
+//            }
         }
     }
     
