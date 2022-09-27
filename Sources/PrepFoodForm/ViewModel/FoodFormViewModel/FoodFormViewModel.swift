@@ -10,9 +10,9 @@ public class FoodFormViewModel: ObservableObject {
     public init() { }
     
     //MARK: - Food Details
-    @Published var name = FieldValue(identifier: .name())
+    @Published var name: FieldValue = .name()
     @Published var emoji = ""
-    @Published var detail = FieldValue(identifier: .detail())
+    @Published var detail: FieldValue = .detail()
     @Published var brand = ""
     @Published var barcode = ""
     
@@ -60,10 +60,10 @@ public class FoodFormViewModel: ObservableObject {
     @Published var densityVolumeUnit: FormUnit = .volume(.mL)
     
     //MARK: Nutrition Facts
-    @Published var energy = FieldValue(identifier: .energy())
-    @Published var carb = FieldValue(identifier: .macro(.carb))
-    @Published var fat = FieldValue(identifier: .macro(.fat))
-    @Published var protein = FieldValue(identifier: .macro(.protein))
+    @Published var energy: FieldValue = .energy()
+    @Published var carb: FieldValue = .macro(macro: .carb)
+    @Published var fat: FieldValue = .macro(macro: .fat)
+    @Published var protein: FieldValue = .macro(macro: .protein)
     
     @Published var micronutrients: [(group: NutrientTypeGroup, fieldValues: [FieldValue])] = [
         (NutrientTypeGroup.fats, [

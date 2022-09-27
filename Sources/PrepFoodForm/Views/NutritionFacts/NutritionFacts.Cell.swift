@@ -34,9 +34,9 @@ extension FoodForm.NutritionFacts.Cell {
         HStack {
             Spacer().frame(width: 2)
             HStack(spacing: 4) {
-                Image(systemName: fieldValue.identifier.iconImageName)
+                Image(systemName: fieldValue.iconImageName)
                     .font(.system(size: 14))
-                Text(fieldValue.identifier.description)
+                Text(fieldValue.description)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             Spacer()
@@ -51,7 +51,7 @@ extension FoodForm.NutritionFacts.Cell {
             Text(fieldValue.amountString)
                 .foregroundColor(fieldValue.amountColor)
                 .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-            if fieldValue.identifier.double != nil {
+            if fieldValue.double != nil {
                 Text(fieldValue.unitString)
                     .font(.system(size: 17, weight: .semibold, design: .rounded))
                     .bold()
@@ -105,39 +105,3 @@ struct NutritionFacts_Cell_Previews: PreviewProvider {
         NutritionFactsCellPreview()
     }
 }
-
-let mockEnergyFact = NutritionFact(
-    type: .energy,
-    amount: 250,
-    unit: .kj)
-
-let mockCarbFact = NutritionFact(
-    type: .macro(.carb),
-    amount: 45,
-    unit: .g)
-
-let mockFatFact = NutritionFact(
-    type: .macro(.fat),
-    amount: 12,
-    unit: .g)
-
-let mockProteinFact = NutritionFact(
-    type: .macro(.protein),
-    amount: 23,
-    unit: .g)
-
-let mockSaturatedFat = NutritionFact(
-    type: .micro(.saturatedFat),
-    amount: 6,
-    unit: .g)
-
-let mockSodium = NutritionFact(
-    type: .micro(.sodium),
-    amount: 1060,
-    unit: .mg)
-
-let mockFolate = NutritionFact(
-    type: .micro(.folate),
-    amount: 45,
-    unit: .g)
-

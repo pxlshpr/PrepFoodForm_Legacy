@@ -32,8 +32,8 @@ extension FoodForm.NutritionFacts {
         NavigationLink {
             MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { string, nutrientUnit in
                 withAnimation {
-                    fieldValue.wrappedValue.identifier.string = string
-                    fieldValue.wrappedValue.identifier.nutrientUnit = nutrientUnit
+                    fieldValue.wrappedValue.string = string
+                    fieldValue.wrappedValue.nutrientUnit = nutrientUnit
                 }
             }
         } label: {
@@ -105,16 +105,6 @@ extension FoodForm.NutritionFacts {
                 addMicronutrientButton
             }
         }
-    }
-    
-    func button(fact: NutritionFact) -> some View {
-        Color.red
-//        NavigationLink {
-//            FoodForm.NutritionFacts.FactForm(fact: fact, type: fact.type)
-//                .environmentObject(viewModel)
-//        } label: {
-//            FoodForm.NutritionFacts.Cell(fact: fact)
-//        }
     }
     
     func titleCell(_ title: String) -> some View {

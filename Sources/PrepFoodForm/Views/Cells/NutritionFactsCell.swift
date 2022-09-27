@@ -39,10 +39,10 @@ extension FoodFormViewModel: FoodLabelDataSource {
         var nutrients: [NutrientType : Double] = [:]
         for (_, array) in micronutrients {
             for fieldValue in array {
-                guard let nutrientType = fieldValue.identifier.nutrientType else {
+                guard let nutrientType = fieldValue.nutrientType else {
                     continue
                 }
-                nutrients[nutrientType] = fieldValue.identifier.double
+                nutrients[nutrientType] = fieldValue.double
             }
         }
         return nutrients
@@ -61,19 +61,19 @@ extension FoodFormViewModel: FoodLabelDataSource {
     }
     
     public var carbAmount: Double {
-        carb.identifier.double ?? 0
+        carb.double ?? 0
     }
     
     public var proteinAmount: Double {
-        protein.identifier.double ?? 0
+        protein.double ?? 0
     }
     
     public var fatAmount: Double {
-        fat.identifier.double ?? 0
+        fat.double ?? 0
     }
     
     public var energyAmount: Double {
-        energy.identifier.double ?? 0
+        energy.double ?? 0
     }
 }
 
@@ -111,33 +111,5 @@ public struct NutritionFactsCellPreview: View {
 struct NutritionFactsCell_Previews: PreviewProvider {
     static var previews: some View {
         NutritionFactsCellPreview()
-    }
-}
-
-extension FoodForm.NutritionFactsCell {
-    struct Row: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @Environment(\.colorScheme) var colorScheme
-        var fact: NutritionFact
-    }
-}
-
-extension FoodForm.NutritionFactsCell.Row {
-    
-    var body: some View {
-        HStack {
-            Text(fact.type.description)
-                .bold(fact.type == .energy)
-//                .foregroundColor(fact.type.textColor(for: colorScheme))
-//                .bold()
-                .foregroundColor(.primary)
-            Spacer()
-            if let amountDescription = fact.amountDescription {
-                Text(amountDescription)
-//                    .foregroundColor(fact.type.textColor(for: colorScheme))
-                    .foregroundColor(Color(.secondaryLabel))
-                    .bold(fact.type == .energy)
-            }
-        }
     }
 }

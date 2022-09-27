@@ -61,9 +61,9 @@ extension FoodFormViewModel {
             self.servingString = "0.2"
             self.servingUnit = .size(standardSizes.first!, nil)
         } else {
-            self.name =  FieldValue(identifier: .name("Carrot"))
+            self.name =  FieldValue.name(string: "Carrot")
             self.emoji = "🥕"
-            self.detail = FieldValue(identifier: .detail("Baby"))
+            self.detail = FieldValue.detail(string: "Baby")
             self.brand = "Woolworths"
             self.barcode = "5012345678900"
             
@@ -82,44 +82,37 @@ extension FoodFormViewModel {
             
             self.summarySizeViewModels = Array((standardSizes + volumePrefixedSizes).map { SizeViewModel(size: $0) }.prefix(maxNumberOfSummarySizeViewModels))
             
-            self.energy = FieldValue(identifier: .energy(125, "125", .kJ))
-            self.carb = FieldValue(identifier: .macro(.carb, 23))
-            self.fat = FieldValue(identifier: .macro(.fat, 8))
-            self.protein = FieldValue(identifier: .macro(.protein, 3))
+            self.energy = FieldValue.energy(double: 125, string: "125", unit: .kJ)
+            self.carb = FieldValue.macro(macro: .carb, double: 23, string: "23")
+            self.fat = FieldValue.macro(macro: .fat, double: 8, string: "8")
+            self.protein = FieldValue.macro(macro: .protein, double: 3, string: "3")
             
             //TODO: Micronutrients
             if includeAllMicronutrients {
                 for g in micronutrients.indices {
                     for f in micronutrients[g].fieldValues.indices {
-                        micronutrients[g].fieldValues[f].identifier.double = Double.random(in: 1...300)
+                        micronutrients[g].fieldValues[f].double = Double.random(in: 1...300)
                     }
                 }
             } else {
                 for g in micronutrients.indices {
                     for f in micronutrients[g].fieldValues.indices {
-                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .saturatedFat {
-                            micronutrients[g].fieldValues[f].identifier.double = 25
+                        if micronutrients[g].fieldValues[f].nutrientType == .saturatedFat {
+                            micronutrients[g].fieldValues[f].double = 25
                         }
-                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .biotin {
-                            micronutrients[g].fieldValues[f].identifier.double = 5
+                        if micronutrients[g].fieldValues[f].nutrientType == .biotin {
+                            micronutrients[g].fieldValues[f].double = 5
                         }
-                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .caffeine {
-                            micronutrients[g].fieldValues[f].identifier.double = 250
+                        if micronutrients[g].fieldValues[f].nutrientType == .caffeine {
+                            micronutrients[g].fieldValues[f].double = 250
                         }
-                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .addedSugars {
-                            micronutrients[g].fieldValues[f].identifier.double = 35
+                        if micronutrients[g].fieldValues[f].nutrientType == .addedSugars {
+                            micronutrients[g].fieldValues[f].double = 35
                         }
                     }
                 }
             }
         }
-    }
-    
-    func nutrientValue(for nutrientType: NutrientType) -> Double? {
-        guard let nutritionFact = nutritionFact(for: .micro(nutrientType)) else {
-            return nil
-        }
-        return nutritionFact.amount
     }
     
     var hasNutritionFacts: Bool {
@@ -128,41 +121,13 @@ extension FoodFormViewModel {
         || !carb.isEmpty
         || !fat.isEmpty
         || !protein.isEmpty
-    }
-    
-    func removeFact(of type: NutritionFactType) {
-//        setNutritionFactType(type, withAmount: nil, unit: nil)
-    }
+    }    
 }
 
 extension FoodFormViewModel {
     
     var hasMicronutrients: Bool {
         !micronutrientsIsEmpty
-    }
-    
-    func hasNutrientFor(_ nutrientType: NutrientType) -> Bool {
-        nutritionFact(for: .micro(nutrientType)) != nil
-    }
-    
-    func nutritionFact(for type: NutritionFactType) -> NutritionFact? {
-        switch type {
-        case .energy:
-            return nil
-//            return energyFact
-        case .macro(let macro):
-            switch macro {
-            case .carb:
-                return nil
-            case .fat:
-                return nil
-            case .protein:
-                return nil
-            }
-        case .micro:
-            return nil
-//            return micronutrients.first(where: { $0.type == type })
-        }
     }
     
     var shouldShowServingInField: Bool {

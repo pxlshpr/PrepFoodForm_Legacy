@@ -56,12 +56,12 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
             MicronutrientForm(fieldValue: fieldValue) { string, nutrientUnit in
                 /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
                 withAnimation {
-                    fieldValue.wrappedValue.identifier.string = string
-                    fieldValue.wrappedValue.identifier.nutrientUnit = nutrientUnit
+                    fieldValue.wrappedValue.string = string
+                    fieldValue.wrappedValue.nutrientUnit = nutrientUnit
                 }
             }
         } label: {
-            Text(fieldValue.wrappedValue.identifier.description)
+            Text(fieldValue.wrappedValue.description)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
@@ -89,17 +89,6 @@ extension FoodFormViewModel {
         //TODO: Micronutrients
         false
 //        micronutrients.contains(where: { $0.identifier.nutrientType == type })
-    }
-}
-
-extension NutritionFact {
-    var nutrientType: NutrientType? {
-        switch type {
-        case .micro(let type):
-            return type
-        default:
-            return nil
-        }
     }
 }
 
