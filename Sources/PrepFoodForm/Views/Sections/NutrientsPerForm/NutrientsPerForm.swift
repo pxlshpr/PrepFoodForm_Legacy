@@ -87,9 +87,9 @@ extension FoodForm.NutrientsPerForm {
         @ViewBuilder
         var header: some View {
             if viewModel.isWeightBased {
-                Text("Weight-to-Volume Ratio")
+                Text("Weight-to-Volume Conversion")
             } else if viewModel.isVolumeBased {
-                Text("Volume-to-Weight Ratio")
+                Text("Volume-to-Weight Conversion")
             }
         }
         

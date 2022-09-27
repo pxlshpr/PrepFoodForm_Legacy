@@ -2,22 +2,75 @@ import SwiftUI
 import PrepUnits
 
 enum FieldValue: Hashable {
-    case name(string: String = "", fillType: FieldFillType = .userInput)
+    
+    struct DoubleValue: Hashable {
+        var internalDouble: Double? = nil
+        var internalString: String = ""
+        var double: Double? {
+            get {
+                return internalDouble
+            }
+            set {
+                internalDouble = newValue
+                internalString = newValue?.cleanAmount ?? ""
+            }
+        }
+        
+        var string: String {
+            get {
+                return internalString
+            }
+            set {
+                guard !newValue.isEmpty else {
+                    internalDouble = nil
+                    internalString = newValue
+                    return
+                }
+                guard let double = Double(newValue) else {
+                    return
+                }
+                self.internalDouble = double
+                self.internalString = newValue
+            }
+        }
+        var unit: FormUnit
+        
+        init(double: Double? = nil, string: String = "", unit: FormUnit) {
+            self.internalDouble = double
+            self.internalString = string
+            self.unit = unit
+        }
+        
+        var unitDescription: String {
+            unit.shortDescription
+        }
+    }
+    
+    struct Density: Hashable {
+        static let DefaultWeight = DoubleValue(unit: .weight(.g))
+        static let DefaultVolume = DoubleValue(unit: .volume(.cup))
+        var weight = DefaultWeight
+        var volume = DefaultVolume
+    }
+
+    case name(string: String = "", fillType: FillType = .userInput)
     case emoji(string: String = "")
-    case brand(string: String = "", fillType: FieldFillType = .userInput)
-    case barcode(string: String = "", fillType: FieldFillType = .barcodeScan)
-    case detail(string: String = "", fillType: FieldFillType = .userInput)
+    case brand(string: String = "", fillType: FillType = .userInput)
+    case barcode(string: String = "", fillType: FillType = .barcodeScan)
+    case detail(string: String = "", fillType: FillType = .userInput)
     
     case amount(double: Double? = nil, string: String = "", unit: FormUnit = .serving)
     case serving(double: Double? = nil, string: String = "", unit: FormUnit = .weight(.g))
 
-    case energy(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FieldFillType = .userInput)
-    case macro(macro: Macro, double: Double? = nil, string: String = "", fillType: FieldFillType = .userInput)
-    case micro(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FieldFillType = .userInput)
+    case density(density: Density? = nil)
+
+    case energy(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FillType = .userInput)
+    case macro(macro: Macro, double: Double? = nil, string: String = "", fillType: FillType = .userInput)
+    case micro(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FillType = .userInput)
 }
 
 extension FieldValue {
-    init(micronutrient: NutrientType, fillType: FieldFillType = .userInput) {
+    init(micronutrient: NutrientType, fillType: FillType = .userInput) {
         self = .micro(
             nutrientType: micronutrient,
             double: nil,
@@ -46,6 +99,8 @@ extension FieldValue: CustomStringConvertible {
             return "Amount Per"
         case .serving:
             return "Serving Size"
+        case .density:
+            return "Density"
 
         case .energy:
             return "Energy"
@@ -75,6 +130,9 @@ extension FieldValue {
             return double == nil
         case .serving(double: let double, _, _):
             return double == nil
+            
+        case .density(let density):
+            return density == nil
 
         case .energy(let double, _, _, _):
             return double == nil
@@ -103,6 +161,9 @@ extension FieldValue {
                 return string
             case .serving(_, string: let string, _):
                 return string
+                
+            case .density:
+                return ""
 
             case .energy(_, let string, _, _):
                 return string
@@ -125,6 +186,8 @@ extension FieldValue {
             case .barcode:
                 self = .barcode(string: newValue)
                 
+            //MARK: - Amount Per
+                
             case .amount(_, _, unit: let formUnit):
                 guard !newValue.isEmpty else {
                     self = .amount(double: nil, string: newValue, unit: formUnit)
@@ -143,7 +206,9 @@ extension FieldValue {
                     return
                 }
                 self = .serving(double: double, string: newValue, unit: formUnit)
-
+            
+            //MARK: Nutrients
+                
             case .energy(_, _, let energyUnit, _):
                 guard !newValue.isEmpty else {
                     self = .energy(double: nil, string: newValue, unit: energyUnit)
@@ -171,6 +236,8 @@ extension FieldValue {
                     return
                 }
                 self = .micro(nutrientType: nutrientType, double: double, string: newValue, unit: nutrientUnit)
+            case .density:
+                break
             }
         }
     }
@@ -182,7 +249,7 @@ extension FieldValue {
                 return double
             case .serving(double: let double, _, _):
                 return double
-
+            
             case .energy(let double, _, _, _):
                 return double
             case .macro(_, let double, _, _):
@@ -370,4 +437,43 @@ extension FieldValue {
             }
         }
     }
+    
+    var weight: DoubleValue {
+        get {
+            switch self {
+            case .density(let density):
+                return density?.weight ?? Density.DefaultWeight
+            default:
+                return Density.DefaultWeight
+            }
+        }
+        set {
+            switch self {
+            case .density(let density):
+                self = .density(density: Density(weight: newValue, volume: density?.volume ?? Density.DefaultVolume))
+            default:
+                break
+            }
+        }
+    }
+    
+    var volume: DoubleValue {
+        get {
+            switch self {
+            case .density(let density):
+                return density?.volume ?? Density.DefaultVolume
+            default:
+                return Density.DefaultVolume
+            }
+        }
+        set {
+            switch self {
+            case .density(let density):
+                self = .density(density: Density(weight: density?.weight ?? Density.DefaultWeight, volume: newValue))
+            default:
+                break
+            }
+        }
+    }
+
 }

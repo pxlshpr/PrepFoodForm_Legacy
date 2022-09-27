@@ -27,19 +27,19 @@ class SizeFormViewModel: ObservableObject {
     @Published var allowAddSize: Bool
     @Published var formState: FormState
 
-    let existingSize: NewSize?
+    let existingSize: Size?
     
-    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: NewSize? = nil) {
+    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: Size? = nil) {
         self.includeServing = includeServing
         self.allowAddSize = allowAddSize
         
         self.existingSize = existingSize
         self.formState = existingSize == nil ? .empty : .noChange
-        self.name = existingSize?.nameString ?? ""
+        self.name = existingSize?.name ?? ""
         self.quantityString = existingSize?.quantityString ?? "1"
         self.amountString = existingSize?.amountString ?? ""
         self.amountUnit = existingSize?.unit ?? .weight(.g)
-        self.quantity = existingSize?.quantityDouble ?? 1
+        self.quantity = existingSize?.quantity ?? 1
         
         if let volumePrefixUnit = existingSize?.volumePrefixUnit {
             showingVolumePrefix = true
@@ -52,31 +52,20 @@ class SizeFormViewModel: ObservableObject {
 }
 
 extension SizeFormViewModel {
-    var size: NewSize? {
+    var size: Size? {
         guard let amount else {
             return nil
         }
         let shouldSaveVolumePrefix = amountUnit.unitType == .weight && showingVolumePrefix
-        if shouldSaveVolumePrefix {
-            return .volumePrefixed(
-                quantity: quantity,
-                quantityString: quantity.cleanAmount,
-                volumePrefixUnit: volumePrefixUnit,
-                name: name,
-                amount: amount,
-                amountString: amount.cleanAmount,
-                unit: amountUnit
-            )
-        } else {
-            return .standard(
-                quantity: quantity,
-                quantityString: quantity.cleanAmount,
-                name: name,
-                amount: amount,
-                amountString: amount.cleanAmount,
-                unit: amountUnit
-            )
-        }
+        return Size(
+            quantity: quantity,
+            quantityString: quantity.cleanAmount,
+            volumePrefixUnit: shouldSaveVolumePrefix ? volumePrefixUnit : nil,
+            name: name,
+            amount: amount,
+            amountString: amount.cleanAmount,
+            unit: amountUnit
+        )
     }
 }
 

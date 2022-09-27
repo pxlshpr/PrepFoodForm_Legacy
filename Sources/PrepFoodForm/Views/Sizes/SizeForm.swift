@@ -9,9 +9,9 @@ struct SizeForm: View {
     @State var showingVolumePrefixToggle: Bool = false
     
     var isEditing: Bool
-    var didAddSize: ((NewSize) -> ())?
+    var didAddSize: ((Size) -> ())?
     
-    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: NewSize? = nil, didAddSize: ((NewSize) -> ())? = nil) {
+    init(includeServing: Bool = true, allowAddSize: Bool = true, existingSize: Size? = nil, didAddSize: ((Size) -> ())? = nil) {
         
         self.didAddSize = didAddSize
         

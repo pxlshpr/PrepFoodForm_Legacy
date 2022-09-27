@@ -17,17 +17,12 @@ extension FoodFormViewModel {
         || !serving.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty
-        || !densityWeightString.isEmpty
-        || !densityVolumeString.isEmpty
+        || !density.isEmpty
         || !energy.isEmpty
         || !carb.isEmpty
         || !fat.isEmpty
         || !protein.isEmpty
         || !micronutrientsIsEmpty
-//            || amountUnit != .serving
-//            || servingUnit != .weight(.g)
-//            || !densityWeightUnit.isEmpty
-//            || !densityVolumeUnit.isEmpty
     }
     
     var micronutrientsIsEmpty: Bool {
@@ -49,8 +44,8 @@ extension FoodFormViewModel {
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         shouldShowWizard = false
         if onlyServing {
-            let sizes: [NewSize] = [
-                .standard(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
+            let sizes: [Size] = [
+                Size(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
             ]
             
             self.standardSizes = sizes
@@ -67,10 +62,10 @@ extension FoodFormViewModel {
             self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
             self.serving = FieldValue.serving(double: 50, string: "50", unit: .weight(.g))
             
-            self.densityWeightString = "20"
-            self.densityWeightUnit = .weight(.g)
-            self.densityVolumeString = "25"
-            self.densityVolumeUnit = .volume(.mL)
+            self.density = FieldValue.density(density: FieldValue.Density(
+                weight: FieldValue.DoubleValue(double: 20, string: "20", unit: .weight(.g)),
+                volume: FieldValue.DoubleValue(double: 25, string: "25", unit: .volume(.mL)))
+            )
             
             self.standardSizes = mockStandardSizes
             self.volumePrefixedSizes = mockVolumePrefixedSizes
@@ -159,7 +154,7 @@ extension FoodFormViewModel {
             return
         }
         let newServingAmount: Double
-        if let amount = size.amountDouble, let quantity = size.quantityDouble, amount > 0 {
+        if let amount = size.amount, let quantity = size.quantity, amount > 0 {
             newServingAmount = quantity / amount
         } else {
             newServingAmount = 0
@@ -173,7 +168,7 @@ extension FoodFormViewModel {
             return
         }
         let newAmount: Double
-        if let quantity = size.quantityDouble, let servingAmount = serving.double, servingAmount > 0 {
+        if let quantity = size.quantity, let servingAmount = serving.double, servingAmount > 0 {
             newAmount = quantity / servingAmount
         } else {
             newAmount = 0
@@ -184,9 +179,9 @@ extension FoodFormViewModel {
 //        updateSummary()
     }
     
-    func add(size: NewSize) {
+    func add(size: Size) {
         withAnimation {
-            if case .volumePrefixed = size {
+            if size.isVolumePrefixed {
                 volumePrefixedSizes.append(size)
             } else {
                 standardSizes.append(size)
@@ -199,13 +194,13 @@ extension FoodFormViewModel {
     }
     
     /// Checks that we don't already have a size with the same name (and volume prefix unit) as what was provided
-    func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: NewSize?) -> Bool {
+    func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: Size?) -> Bool {
         for sizes in [standardSizes, volumePrefixedSizes] {
             for size in sizes {
                 guard size != sizeToIgnore else {
                     continue
                 }
-                if size.nameString.lowercased() == name.lowercased(),
+                if size.name.lowercased() == name.lowercased(),
                    size.volumePrefixUnit == volumePrefixUnit {
                     return true
                 }
@@ -287,18 +282,18 @@ extension FoodFormViewModel {
     }
 
     var densityWeightAmount: Double {
-        Double(densityWeightString) ?? 0
+        density.weight.double ?? 0
     }
 
     var densityVolumeAmount: Double {
-        Double(densityVolumeString) ?? 0
+        density.volume.double ?? 0
     }
     
     var hasValidDensity: Bool {
         densityWeightAmount > 0
         && densityVolumeAmount > 0
-        && densityWeightUnit.unitType == .weight
-        && densityVolumeUnit.unitType == .volume
+        && density.weight.unit.unitType == .weight
+        && density.volume.unit.unitType == .volume
     }
 
     var densityDescription: String? {
@@ -306,8 +301,8 @@ extension FoodFormViewModel {
             return nil
         }
                 
-        let weight = "\(densityWeightAmount.cleanAmount) \(densityWeightUnit.shortDescription)"
-        let volume = "\(densityVolumeAmount.cleanAmount) \(densityVolumeUnit.shortDescription)"
+        let weight = "\(densityWeightAmount.cleanAmount) \(density.weight.unitDescription)"
+        let volume = "\(densityVolumeAmount.cleanAmount) \(density.volume.unitDescription)"
         
         if isWeightBased {
             return "\(weight) = \(volume)"
@@ -334,17 +329,17 @@ extension FoodFormViewModel {
 
     var lhsDensityUnitString: String {
         if isWeightBased {
-            return densityWeightUnit.shortDescription
+            return density.weight.unitDescription
         } else {
-            return densityVolumeUnit.shortDescription
+            return density.volume.unitDescription
         }
     }
     
     var rhsDensityUnitString: String {
         if isWeightBased {
-            return densityVolumeUnit.shortDescription
+            return density.volume.unitDescription
         } else {
-            return densityWeightUnit.shortDescription
+            return density.weight.unitDescription
         }
     }
     

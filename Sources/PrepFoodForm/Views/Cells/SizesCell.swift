@@ -9,7 +9,7 @@ extension FoodForm.NutrientsPerForm {
 
 extension FoodForm.NutrientsPerForm.SizesCell {
     struct SizeCell: View {
-        @Binding var size: NewSize
+        @Binding var size: Size
     }
 }
 
@@ -134,14 +134,14 @@ struct SizesCell_Previews: PreviewProvider {
     }
 }
 
-let mockStandardSizes: [NewSize] = [
-    .standard(quantity: 1, quantityString: "1", name: "small", amount: 80, amountString: "80", unit: .weight(.g)),
-    .standard(quantity: 2, quantityString: "2", name: "medium", amount: 180, amountString: "180", unit: .weight(.g)),
-    .standard(quantity: 1, quantityString: "1", name: "large", amount: 240, amountString: "240", unit: .weight(.g)),
+let mockStandardSizes: [Size] = [
+    Size(quantity: 1, quantityString: "1", name: "small", amount: 80, amountString: "80", unit: .weight(.g)),
+    Size(quantity: 2, quantityString: "2", name: "medium", amount: 180, amountString: "180", unit: .weight(.g)),
+    Size(quantity: 1, quantityString: "1", name: "large", amount: 240, amountString: "240", unit: .weight(.g)),
 ]
 
-let mockVolumePrefixedSizes: [NewSize] = [
-    .volumePrefixed(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, amountString: "155", unit: .weight(.g)),
-    .volumePrefixed(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountString: "110", unit: .weight(.g)),
-    .volumePrefixed(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountString: "205", unit: .weight(.g)),
+let mockVolumePrefixedSizes: [Size] = [
+    Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, amountString: "155", unit: .weight(.g), fillType: .thirdPartyFoodPrefill),
+    Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountString: "110", unit: .weight(.g), fillType: .thirdPartyFoodPrefill),
+    Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountString: "205", unit: .weight(.g), fillType: .imageAutofill(UUID())),
 ]

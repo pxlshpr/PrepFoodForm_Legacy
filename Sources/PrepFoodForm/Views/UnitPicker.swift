@@ -197,7 +197,7 @@ extension UnitPicker {
         }
     }
     
-    func volumePrefixes(for size: NewSize) -> some View {
+    func volumePrefixes(for size: Size) -> some View {
         ForEach(volumeUnits, id: \.self) { volumeUnit in
             Button {
                 pickedUnit(unit: .size(size, volumeUnit))
@@ -209,7 +209,7 @@ extension UnitPicker {
                             .foregroundColor(.primary)
                         Text(", ")
                             .foregroundColor(Color(.tertiaryLabel))
-                        Text(size.nameString)
+                        Text(size.name)
                             .foregroundColor(Color(.secondaryLabel))
                     }
                     Spacer()
@@ -234,7 +234,7 @@ extension UnitPicker {
                 pickedUnit(unit: .size(size, nil))
             } label: {
                 HStack {
-                    Text(size.nameString)
+                    Text(size.name)
                         .foregroundColor(.primary)
                     Spacer()
                     HStack {
@@ -249,7 +249,7 @@ extension UnitPicker {
     
     var volumePrefixedSizeContents: some View {
         ForEach(viewModel.volumePrefixedSizes, id: \.self) { size in
-            DisclosureGroup(size.nameString) {
+            DisclosureGroup(size.name) {
                 volumePrefixes(for: size)
             }
 //            NavigationLinkButton {

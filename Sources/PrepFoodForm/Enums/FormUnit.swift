@@ -3,7 +3,7 @@ import PrepUnits
 indirect enum FormUnit: Hashable {
     case weight(WeightUnit)
     case volume(VolumeUnit)
-    case size(NewSize, VolumeUnit?)
+    case size(Size, VolumeUnit?)
     case serving
 }
 

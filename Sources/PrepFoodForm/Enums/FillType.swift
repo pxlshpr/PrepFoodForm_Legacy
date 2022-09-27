@@ -1,6 +1,6 @@
 import Foundation
 
-enum FieldFillType: Hashable {
+enum FillType: Hashable {
     case userInput
     case imageSelection(UUID)
     case imageAutofill(UUID)
@@ -10,7 +10,7 @@ enum FieldFillType: Hashable {
     var iconSystemImage: String {
         switch self {
         case .userInput:
-            return "square.and.pencil"
+            return "keyboard"
         case .imageSelection:
             return "photo"
         case .imageAutofill:
@@ -21,18 +21,23 @@ enum FieldFillType: Hashable {
             return "barcode.viewfinder"
         }
     }
+    
     var buttonSystemImage: String {
+//        buttonSystemImageWithoutFill + ".fill"
+        buttonSystemImageWithoutFill
+    }
+    var buttonSystemImageWithoutFill: String {
         switch self {
         case .userInput:
-            return "square.and.pencil.circle.fill"
+            return "pencil.circle"
         case .imageSelection:
-            return "photo.circle.fill"
+            return "photo.circle"
         case .imageAutofill:
-            return "viewfinder.circle.fill"
+            return "viewfinder.circle"
         case .thirdPartyFoodPrefill:
-            return "link.circle.fill"
+            return "link.circle"
         case .barcodeScan:
-            return "viewfinder.circle.fill"
+            return "viewfinder.circle"
         }
     }
 }

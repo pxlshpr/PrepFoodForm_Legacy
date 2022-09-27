@@ -40,18 +40,11 @@ public class FoodFormViewModel: ObservableObject {
     }
     
     //MARK: Sizes
-    @Published var standardSizes: [NewSize] = []
-    @Published var volumePrefixedSizes: [NewSize] = []
+    @Published var standardSizes: [Size] = []
+    @Published var volumePrefixedSizes: [Size] = []
 
-//    @Published var standardSizes: [Size] = []
-//    @Published var volumePrefixedSizes: [Size] = []
-//    @Published var summarySizeViewModels: [SizeViewModel] = []
-    
     //MARK: Density
-    @Published var densityWeightString: String = ""
-    @Published var densityWeightUnit: FormUnit = .weight(.g)
-    @Published var densityVolumeString: String = ""
-    @Published var densityVolumeUnit: FormUnit = .volume(.mL)
+    @Published var density = FieldValue.density()
     
     //MARK: Nutrition Facts
     @Published var energy: FieldValue = .energy()
