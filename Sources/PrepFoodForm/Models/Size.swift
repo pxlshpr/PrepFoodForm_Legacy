@@ -1,12 +1,21 @@
 import Foundation
 import PrepUnits
 
-enum NewSize {
+enum NewSize: Hashable {
     case standard(quantity: Double? = 1, quantityString: String = "", name: String = "", amount: Double?, amountString: String = "", unit: FormUnit = .weight(.g))
-    case volumePrefixed(quantity: Double? = 1, quantityString: String = "", volumePrefixUnit: VolumeUnit = .cup, name: String = "", amount: Double?, amountString: String = "", unit: FormUnit = .weight(.g))
+    case volumePrefixed(quantity: Double? = 1, quantityString: String = "", volumePrefixUnit: FormUnit = .volume(.cup), name: String = "", amount: Double?, amountString: String = "", unit: FormUnit = .weight(.g))
 }
 
 extension NewSize {
+    var volumePrefixUnit: FormUnit? {
+        switch self {
+        case .standard(_, _, _, _, _, _):
+            return nil
+        case .volumePrefixed(_, _, let volumePrefixUnit, _, _, _, _):
+            return volumePrefixUnit
+        }
+    }
+
     var volumePrefixString: String? {
         switch self {
         case .standard(_, _, _, _, _, _):
@@ -178,6 +187,38 @@ extension NewSize {
     
     var scaledAmountString: String {
         "\(scaledAmount.cleanAmount) \(unit.shortDescription)"
+    }
+    
+    var isServingBased: Bool {
+        unit.isServingBased
+    }
+    
+    var isMeasurementBased: Bool {
+        unit.isMeasurementBased
+    }
+    
+    var isWeightBased: Bool {
+        unit.isWeightBased
+    }
+    
+    var isVolumeBased: Bool {
+        unit.isVolumeBased
+    }
+
+    func namePrefixed(with volumeUnit: VolumeUnit?) -> String {
+        if let volumeUnit = volumeUnit {
+            return "\(volumeUnit.shortDescription) \(nameString)"
+        } else {
+            return prefixedName
+        }
+    }
+    
+    var prefixedName: String {
+        if let volumePrefixString {
+            return "\(volumePrefixString) \(nameString)"
+        } else {
+            return nameString
+        }
     }
 }
 

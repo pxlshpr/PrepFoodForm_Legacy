@@ -36,10 +36,10 @@ struct SizesList: View {
 
     var list: some View {
         List {
-            if !viewModel.standardNewSizes.isEmpty {
+            if !viewModel.standardSizes.isEmpty {
                 standardSizesSection
             }
-            if !viewModel.volumePrefixedNewSizes.isEmpty {
+            if !viewModel.volumePrefixedSizes.isEmpty {
                 volumePrefixedSizesSection
             }
         }
@@ -47,8 +47,8 @@ struct SizesList: View {
     
     var standardSizesSection: some View {
         Section {
-            ForEach(viewModel.standardNewSizes.indices, id: \.self) { index in
-                Cell(size: $viewModel.standardNewSizes[index])
+            ForEach(viewModel.standardSizes.indices, id: \.self) { index in
+                Cell(size: $viewModel.standardSizes[index])
             }
             .onDelete(perform: deleteStandardSizes)
             .onMove(perform: moveStandardSizes)
@@ -66,8 +66,8 @@ struct SizesList: View {
         }
         
         return Section(header: header, footer: footer) {
-            ForEach(viewModel.volumePrefixedNewSizes.indices, id: \.self) { index in
-                Cell(size: $viewModel.volumePrefixedNewSizes[index])
+            ForEach(viewModel.volumePrefixedSizes.indices, id: \.self) { index in
+                Cell(size: $viewModel.volumePrefixedSizes[index])
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
             .onMove(perform: moveVolumePrefixedSizes)

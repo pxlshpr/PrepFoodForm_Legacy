@@ -4,16 +4,14 @@ import SwiftHaptics
 
 struct UnitPicker: View {
     
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
-    
-    @State var path: [Route] = []
     
     @State var type: UnitType
     @State var pickedUnit: FormUnit
 
     @State var pickedVolumePrefixUnit: FormUnit = .volume(.cup)
     
-    var sizes: [Size]
     var includeServing: Bool
     var allowAddSize: Bool
     var filteredType: UnitType?
@@ -22,9 +20,15 @@ struct UnitPicker: View {
     var didPickUnit: (FormUnit) -> ()
     var didTapAddSize: (() -> ())?
 
-    init(sizes: [Size] = [], pickedUnit unit: FormUnit = .weight(.g), includeServing: Bool = true, servingDescription: String? = nil, allowAddSize: Bool = true, filteredType: UnitType? = nil, didTapAddSize: (() -> ())? = nil, didPickUnit: @escaping (FormUnit) -> ())
+    init(
+        pickedUnit unit: FormUnit = .weight(.g),
+        includeServing: Bool = true,
+        servingDescription: String? = nil,
+        allowAddSize: Bool = true,
+        filteredType: UnitType? = nil,
+        didTapAddSize: (() -> ())? = nil,
+        didPickUnit: @escaping (FormUnit) -> ())
     {
-        self.sizes = sizes
         self.didPickUnit = didPickUnit
         self.didTapAddSize = didTapAddSize
         self.includeServing = includeServing
@@ -35,26 +39,15 @@ struct UnitPicker: View {
         _pickedUnit = State(initialValue: unit)
         _type = State(initialValue: unit.unitType)
     }
-    
-    enum Route: Hashable {
-        case weights
-        case volumes
-        case sizes
-        case volumePrefixes(Size)
-    }
 }
 
 extension UnitPicker {
     
     var body: some View {
-        NavigationStack(path: $path) {
-//            drillDownList
+        NavigationView {
             longList
             .navigationTitle(navigationTitleString)
             .navigationBarTitleDisplayMode(.inline)
-            .navigationDestination(for: Route.self) { route in
-                navigationDestination(for: route)
-            }
         }
         .onChange(of: pickedUnit) { newValue in
             pickedUnitChanged(to: newValue)
@@ -71,7 +64,7 @@ extension UnitPicker {
     //MARK: - Components
     
     var shouldShowAddSizeButton: Bool {
-        allowAddSize && standardSizeViewModels.isEmpty && volumePrefixedSizeViewModels.isEmpty
+        allowAddSize && viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty
     }
     
     var longList: some View {
@@ -81,12 +74,12 @@ extension UnitPicker {
                     filteredList(for: filteredType)
                 }
             } else {
-                if !standardSizeViewModels.isEmpty {
+                if !viewModel.standardSizes.isEmpty {
                     Section("Sizes") {
                         standardSizeContents
                     }
                 }
-                if !volumePrefixedSizeViewModels.isEmpty {
+                if !viewModel.volumePrefixedSizes.isEmpty {
                     Section("Volume Prefixed Sizes") {
                         volumePrefixedSizeContents
                     }
@@ -115,84 +108,6 @@ extension UnitPicker {
                 }
             }
         }
-    }
-
-    var drillDownList: some View {
-        List {
-            if let filteredType = filteredType {
-                Section {
-                    filteredList(for: filteredType)
-                }
-            } else {
-                Section {
-                    if shouldShowServing {
-                        servingButton
-                    }
-                    weightUnitButton(for: .g)
-                    volumeUnitButton(for: .mL)
-                }
-                Section("Other Units") {
-                    NavigationLinkButton {
-                        path.append(.weights)
-                    } label: {
-                        Text("Weights")
-                            .foregroundColor(.primary)
-                    }
-                    NavigationLinkButton {
-                        path.append(.volumes)
-                    } label: {
-                        Text("Volumes")
-                            .foregroundColor(.primary)
-                    }
-                    if allowAddSize || !sizes.isEmpty {
-                        NavigationLinkButton {
-                            path.append(.sizes)
-                        } label: {
-                            Text("Sizes")
-                                .foregroundColor(.primary)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    @ViewBuilder
-    func navigationDestination(for route: Route) -> some View {
-        switch route {
-        case .weights:
-            weightsList
-        case .volumes:
-            volumesList
-        case .sizes:
-            sizesList
-        case .volumePrefixes(let size):
-            List {
-                volumePrefixes(for: size)
-            }
-            .navigationTitle("\(size.name.capitalizingFirstLetter()) Volumes")
-        }
-    }
-    
-    var weightsList: some View {
-        List {
-            weightsGroupContents
-        }
-        .navigationTitle("Weights")
-    }
-    
-    var volumesList: some View {
-        List {
-            volumesGroupContents
-        }
-        .navigationTitle("Volumes")
-    }
-    
-    var sizesList: some View {
-        List {
-            sizesGroupContents
-        }
-        .navigationTitle("Sizes")
     }
     
     var shouldShowServing: Bool {
@@ -282,7 +197,7 @@ extension UnitPicker {
         }
     }
     
-    func volumePrefixes(for size: Size) -> some View {
+    func volumePrefixes(for size: NewSize) -> some View {
         ForEach(volumeUnits, id: \.self) { volumeUnit in
             Button {
                 pickedUnit(unit: .size(size, volumeUnit))
@@ -294,7 +209,7 @@ extension UnitPicker {
                             .foregroundColor(.primary)
                         Text(", ")
                             .foregroundColor(Color(.tertiaryLabel))
-                        Text(size.name)
+                        Text(size.nameString)
                             .foregroundColor(Color(.secondaryLabel))
                     }
                     Spacer()
@@ -306,24 +221,24 @@ extension UnitPicker {
         }
     }
     
-    var standardSizeViewModels: [SizeViewModel] {
-        sizes.filter({ !$0.isVolumePrefixed }).map { SizeViewModel(size: $0) }
-    }
-    var volumePrefixedSizeViewModels: [SizeViewModel] {
-        sizes.filter({ $0.isVolumePrefixed }).map { SizeViewModel(size: $0) }
-    }
+//    var standardSizeViewModels: [SizeViewModel] {
+//        sizes.filter({ !$0.isVolumePrefixed }).map { SizeViewModel(size: $0) }
+//    }
+//    var volumePrefixedSizeViewModels: [SizeViewModel] {
+//        sizes.filter({ $0.isVolumePrefixed }).map { SizeViewModel(size: $0) }
+//    }
 
     var standardSizeContents: some View {
-        ForEach(standardSizeViewModels, id: \.self) { sizeViewModel in
+        ForEach(viewModel.standardSizes, id: \.self) { size in
             Button {
-                pickedUnit(unit: .size(sizeViewModel.size, nil))
+                pickedUnit(unit: .size(size, nil))
             } label: {
                 HStack {
-                    Text(sizeViewModel.nameString)
+                    Text(size.nameString)
                         .foregroundColor(.primary)
                     Spacer()
                     HStack {
-                        Text(sizeViewModel.scaledAmountString)
+                        Text(size.scaledAmountString)
                             .foregroundColor(Color(.secondaryLabel))
                     }
                 }
@@ -333,9 +248,9 @@ extension UnitPicker {
     }
     
     var volumePrefixedSizeContents: some View {
-        ForEach(volumePrefixedSizeViewModels, id: \.self) { sizeViewModel in
-            DisclosureGroup(sizeViewModel.nameString) {
-                volumePrefixes(for: sizeViewModel.size)
+        ForEach(viewModel.volumePrefixedSizes, id: \.self) { size in
+            DisclosureGroup(size.nameString) {
+                volumePrefixes(for: size)
             }
 //            NavigationLinkButton {
 //                path.append(.volumePrefixes(sizeViewModel.size))
@@ -350,12 +265,12 @@ extension UnitPicker {
     
     var sizesGroupContents: some View {
         Group {
-            if !standardSizeViewModels.isEmpty {
+            if !viewModel.standardSizes.isEmpty {
                 Section {
                     standardSizeContents
                 }
             }
-            if !volumePrefixedSizeViewModels.isEmpty {
+            if !viewModel.volumePrefixedSizes.isEmpty {
                 Section("Volume-prefixed") {
                     volumePrefixedSizeContents
                 }
@@ -432,6 +347,7 @@ extension UnitPicker {
 
 public struct NewUnitPickerPreview: View {
     
+    @StateObject var viewModel = FoodFormViewModel.shared
     @State var showingUnitPicker = false
     
 //    @State var pickedUnit: FormUnit = .weight(.g)
@@ -451,11 +367,11 @@ public struct NewUnitPickerPreview: View {
     
     var unitPicker: some View {
         UnitPicker(
-            sizes: (mockStandardSizes + mockVolumePrefixedSizes),
             pickedUnit: pickedUnit
         ) { pickedUnit in
             
         }
+        .environmentObject(viewModel)
     }
 }
 

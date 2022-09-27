@@ -44,7 +44,6 @@ extension SizeForm.SizeField.AmountForm {
 
     var unitPickerForAmount: some View {
         UnitPicker(
-            sizes: viewModel.allSizes,
             pickedUnit: sizeFormViewModel.amountUnit,
             includeServing: sizeFormViewModel.includeServing,
             servingDescription: viewModel.servingDescription,
@@ -54,6 +53,7 @@ extension SizeForm.SizeField.AmountForm {
         } didPickUnit: { unit in
             sizeFormViewModel.amountUnit = unit
         }
+        .environmentObject(viewModel)
         .sheet(isPresented: $showingSizeForm) {
             SizeForm(includeServing: viewModel.hasServing, allowAddSize: false) { size in
                 withAnimation {

@@ -45,7 +45,6 @@ extension FoodForm.NutrientsPerForm.ServingForm {
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
-                sizes: viewModel.allSizes,
                 pickedUnit: viewModel.serving.unit,
                 includeServing: false)
             {
@@ -58,6 +57,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
                     viewModel.serving.unit = unit
                 }
             }
+            .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: true, allowAddSize: false) { size in
                     withAnimation {

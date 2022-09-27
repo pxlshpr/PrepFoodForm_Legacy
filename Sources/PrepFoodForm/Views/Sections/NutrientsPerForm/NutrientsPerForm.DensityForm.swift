@@ -104,6 +104,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
             { unit in
                 viewModel.densityWeightUnit = unit
             }
+            .environmentObject(viewModel)
         }
         .sheet(isPresented: $showingVolumeUnitPicker) {
             UnitPicker(
@@ -112,6 +113,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
             { unit in
                 viewModel.densityVolumeUnit = unit
             }
+            .environmentObject(viewModel)
         }
     }
     

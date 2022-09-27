@@ -179,7 +179,7 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Group {
-            if viewModel.allSizes.isEmpty {
+            if viewModel.standardSizes.isEmpty, viewModel.volumePrefixedSizes.isEmpty {
                 Section(header: header, footer: footer) {
                     addButton
                 }

@@ -17,7 +17,6 @@ extension FoodFormViewModel {
         || !serving.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty
-        || !summarySizeViewModels.isEmpty
         || !densityWeightString.isEmpty
         || !densityVolumeString.isEmpty
         || !energy.isEmpty
@@ -50,12 +49,11 @@ extension FoodFormViewModel {
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         shouldShowWizard = false
         if onlyServing {
-            let sizes = [
-                Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
+            let sizes: [NewSize] = [
+                .standard(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
             ]
             
             self.standardSizes = sizes
-            self.summarySizeViewModels = sizes.map { SizeViewModel(size: $0) }
 
             self.amount = FieldValue.amount(double: 1, string: "1", unit: .serving)
             self.serving = FieldValue.amount(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil))
@@ -161,8 +159,8 @@ extension FoodFormViewModel {
             return
         }
         let newServingAmount: Double
-        if size.amount > 0 {
-            newServingAmount = size.quantity / size.amount
+        if let amount = size.amountDouble, let quantity = size.quantityDouble, amount > 0 {
+            newServingAmount = quantity / amount
         } else {
             newServingAmount = 0
         }
@@ -175,53 +173,32 @@ extension FoodFormViewModel {
             return
         }
         let newAmount: Double
-        if let servingAmount = serving.double, servingAmount > 0 {
-            newAmount = size.quantity / servingAmount
+        if let quantity = size.quantityDouble, let servingAmount = serving.double, servingAmount > 0 {
+            newAmount = quantity / servingAmount
         } else {
             newAmount = 0
         }
         
-        //FIXME: crashes when serving-based unit is created from field itself
-        print("Now we need to change: \(size) to new amount \(newAmount)")
-        
-        size.amount = newAmount
+        //TODO-SIZE: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
+//        size.amountDouble = newAmount
 //        updateSummary()
     }
     
     func add(size: Size) {
-        withAnimation {
-            if size.isVolumePrefixed {
-                volumePrefixedSizes.append(size)
-            } else {
-                standardSizes.append(size)
-            }
-        }
+        //TODO-SIZE: Add logic
+//        withAnimation {
+//            if size.isVolumePrefixed {
+//                volumePrefixedSizes.append(size)
+//            } else {
+//                standardSizes.append(size)
+//            }
+//        }
     }
     
     var isMeasurementBased: Bool {
         amount.unit.isMeasurementBased || serving.unit.isMeasurementBased
     }
     
-    var allSizes: [Size] {
-        standardSizes + volumePrefixedSizes
-    }
-    
-    var allSizesViewModels: [SizeViewModel] {
-        allSizes.map { SizeViewModel(size: $0) }
-    }
-
-    var standardSizesViewModels: [SizeViewModel] {
-        standardSizes
-            .filter({ $0.volumePrefixUnit == nil })
-            .map { SizeViewModel(size: $0) }
-    }
-
-    var volumePrefixedSizesViewModels: [SizeViewModel] {
-        volumePrefixedSizes
-            .filter({ $0.volumePrefixUnit != nil })
-            .map { SizeViewModel(size: $0) }
-    }
-
     var hasNutrientsPerContent: Bool {
         !amount.isEmpty
     }

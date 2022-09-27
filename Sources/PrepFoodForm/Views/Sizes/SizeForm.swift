@@ -8,9 +8,9 @@ struct SizeForm: View {
     @StateObject var sizeFormViewModel: ViewModel
     @State var showingVolumePrefixToggle: Bool = false
     
-    var didAddSize: ((Size) -> ())?
+    var didAddSize: ((NewSize) -> ())?
     
-    init(includeServing: Bool = true, allowAddSize: Bool = true, didAddSize: ((Size) -> ())? = nil) {
+    init(includeServing: Bool = true, allowAddSize: Bool = true, didAddSize: ((NewSize) -> ())? = nil) {
         self.didAddSize = didAddSize
         _sizeFormViewModel = StateObject(wrappedValue: ViewModel(includeServing: includeServing, allowAddSize: allowAddSize))
     }
@@ -84,7 +84,8 @@ struct SizeForm: View {
                 return
             }
             if let didAddSize = didAddSize {
-                didAddSize(size)
+                //TODO-Size revisit this
+//                didAddSize(size)
             }
             viewModel.add(size: size)
             dismiss()
