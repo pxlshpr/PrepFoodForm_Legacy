@@ -35,7 +35,7 @@ extension MFPFoodView {
 //MARK: - ViewModel: FoodLabelDataSource
 
 extension MFPFoodView.ViewModel: FoodLabelDataSource {
-    var amountString: String {
+    var amountPerString: String {
         guard let processedFood else {
             return "1 serving"
         }
@@ -85,18 +85,6 @@ extension MFPFoodView.ViewModel: FoodLabelDataSource {
     
     var showRDAValues: Bool {
         true
-    }
-    
-    var haveMicros: Bool {
-        false
-    }
-    
-    var haveCustomMicros: Bool {
-        false
-    }
-    
-    func nutrient(ofType: NutrientType) -> Double? {
-        nil
     }
 }
 

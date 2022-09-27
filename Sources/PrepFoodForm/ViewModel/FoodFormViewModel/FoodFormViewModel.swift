@@ -17,7 +17,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var barcode = ""
     
     //MARK: Amount Per
-    @Published var amountString: String = "" {
+    @Published public var amountString: String = "" {
         didSet {
             updateShouldShowDensitiesSection()
         }

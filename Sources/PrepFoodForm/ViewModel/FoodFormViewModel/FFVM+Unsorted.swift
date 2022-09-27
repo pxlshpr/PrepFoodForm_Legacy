@@ -48,6 +48,7 @@ extension FoodFormViewModel {
     
     /// Prefill used for Previews
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
+        shouldShowWizard = false
         if onlyServing {
             let sizes = [
                 Size(quantity: 1, name: "container", amount: 5, amountUnit: .serving)
@@ -87,7 +88,30 @@ extension FoodFormViewModel {
             self.protein = FieldValue(identifier: .macro(.protein, 3))
             
             //TODO: Micronutrients
-//            self.micronutrients = includeAllMicronutrients ? mockAllMicronutrients : mockMicronutrients
+            if includeAllMicronutrients {
+                for g in micronutrients.indices {
+                    for f in micronutrients[g].fieldValues.indices {
+                        micronutrients[g].fieldValues[f].identifier.double = Double.random(in: 1...300)
+                    }
+                }
+            } else {
+                for g in micronutrients.indices {
+                    for f in micronutrients[g].fieldValues.indices {
+                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .saturatedFat {
+                            micronutrients[g].fieldValues[f].identifier.double = 25
+                        }
+                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .biotin {
+                            micronutrients[g].fieldValues[f].identifier.double = 5
+                        }
+                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .caffeine {
+                            micronutrients[g].fieldValues[f].identifier.double = 250
+                        }
+                        if micronutrients[g].fieldValues[f].identifier.nutrientType == .addedSugars {
+                            micronutrients[g].fieldValues[f].identifier.double = 35
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -112,18 +136,6 @@ extension FoodFormViewModel {
 }
 
 extension FoodFormViewModel {
-
-    var carbAmount: Double {
-        carb.identifier.double ?? 0
-    }
-    
-    var proteinAmount: Double {
-        protein.identifier.double ?? 0
-    }
-    
-    var fatAmount: Double {
-        fat.identifier.double ?? 0
-    }
     
     var hasMicronutrients: Bool {
         !micronutrientsIsEmpty
@@ -131,10 +143,6 @@ extension FoodFormViewModel {
     
     func hasNutrientFor(_ nutrientType: NutrientType) -> Bool {
         nutritionFact(for: .micro(nutrientType)) != nil
-    }
-    
-    var energyAmount: Double {
-        energy.identifier.double ?? 0
     }
     
     func nutritionFact(for type: NutritionFactType) -> NutritionFact? {
@@ -405,18 +413,5 @@ extension FoodFormViewModel {
     var shouldShowSavePublicButton: Bool {
         //TODO: only show if user includes a valid source
         true
-    }
-}
-
-let mockMicronutrients = [
-    NutritionFact(type: .micro(.saturatedFat), amount: 25, unit: .g),
-    NutritionFact(type: .micro(.biotin), amount: 5, unit: .g),
-    NutritionFact(type: .micro(.caffeine), amount: 250, unit: .mg),
-    NutritionFact(type: .micro(.addedSugars), amount: 35, unit: .g),
-]
-
-var mockAllMicronutrients: [NutritionFact] {
-    NutrientType.allCases.map {
-        NutritionFact(type: .micro($0), amount: Double.random(in: 1...300), unit: $0.units.first!.nutritionFactUnit)
     }
 }
