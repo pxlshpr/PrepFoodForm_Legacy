@@ -30,7 +30,7 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var emoji: some View {
             if !viewModel.emoji.isEmpty {
-                Text(viewModel.emoji.string)
+                Text(viewModel.emoji.stringValue.string)
                     .font(.system(size: 50))
             }
         }
@@ -38,7 +38,7 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var name: some View {
             if !viewModel.name.isEmpty {
-                Text(viewModel.name.string)
+                Text(viewModel.name.stringValue.string)
                     .bold()
             } else {
                 Text("[Name Required]")
@@ -49,21 +49,21 @@ extension FoodForm.DetailsCell {
         @ViewBuilder
         var detail: some View {
             if !viewModel.detail.isEmpty {
-                Text(viewModel.detail.string)
+                Text(viewModel.detail.stringValue.string)
             }
         }
 
         @ViewBuilder
         var brand: some View {
             if !viewModel.brand.isEmpty {
-                Text(viewModel.brand.string)
+                Text(viewModel.brand.stringValue.string)
             }
         }
         
         @ViewBuilder
         var barcode: some View {
             if !viewModel.barcode.isEmpty {
-                barcodeView(for: viewModel.barcode.string)
+                barcodeView(for: viewModel.barcode.stringValue.string)
             }
         }
 
@@ -133,11 +133,11 @@ struct DetailsCellPreview: View {
     }
     
     func populateData() {
-        viewModel.emoji = FieldValue.emoji(string: "🧈")
-        viewModel.name = FieldValue.name(string: "Butter")
-        viewModel.detail = FieldValue.detail(string: "Salted")
-        viewModel.brand = FieldValue.brand(string: "Emborg")
-        viewModel.barcode = FieldValue.barcode(string: "10123456789019")
+        viewModel.emoji = FieldValue.emoji(FieldValue.StringValue(string: "🧈"))
+        viewModel.name = FieldValue.name(FieldValue.StringValue(string: "Butter"))
+        viewModel.detail = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
+        viewModel.brand = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
+        viewModel.barcode = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
 //        viewModel.barcode = "2166529V"
     }
 }

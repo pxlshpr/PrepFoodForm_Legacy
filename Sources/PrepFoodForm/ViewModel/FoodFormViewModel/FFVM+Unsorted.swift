@@ -53,11 +53,11 @@ extension FoodFormViewModel {
             self.amount = FieldValue.amount(doubleValue: FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
             self.serving = FieldValue.serving(doubleValue: FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
         } else {
-            self.name =  FieldValue.name(string: "Carrot")
-            self.emoji = FieldValue.emoji(string: "🥕")
-            self.detail = FieldValue.detail(string: "Baby")
-            self.brand = FieldValue.brand(string: "Woolworths")
-            self.barcode = FieldValue.barcode(string: "5012345678900")
+            self.name =  FieldValue.name(FieldValue.StringValue(string: "Carrot"))
+            self.emoji = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
+            self.detail = FieldValue.detail(FieldValue.StringValue(string: "Baby"))
+            self.brand = FieldValue.brand(FieldValue.StringValue(string: "Woolworths"))
+            self.barcode = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
             
             self.amount = FieldValue.amount(doubleValue: FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
             self.serving = FieldValue.serving(doubleValue: FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))

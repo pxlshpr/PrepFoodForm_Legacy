@@ -57,11 +57,20 @@ enum FieldValue: Hashable {
         var volume = DefaultVolume
     }
 
-    case name(string: String = "", fillType: FillType = .userInput)
-    case emoji(string: String = "")
-    case brand(string: String = "", fillType: FillType = .userInput)
-    case barcode(string: String = "", fillType: FillType = .barcodeScan)
-    case detail(string: String = "", fillType: FillType = .userInput)
+    struct StringValue: Hashable {
+        var string: String = ""
+        var fillType: FillType = .userInput
+        
+        var isEmpty: Bool {
+            string.isEmpty
+        }
+    }
+    
+    case name(StringValue = StringValue())
+    case emoji(StringValue = StringValue())
+    case brand(StringValue = StringValue())
+    case barcode(StringValue = StringValue())
+    case detail(StringValue = StringValue())
     
     case amount(doubleValue: DoubleValue = DoubleValue(unit: .serving))
     case serving(doubleValue: DoubleValue = DoubleValue(unit: .weight(.g)))
@@ -119,17 +128,9 @@ extension FieldValue: CustomStringConvertible {
 extension FieldValue {
     var isEmpty: Bool {
         switch self {
-        case .name(let string, _):
-            return string.isEmpty
-        case .emoji(let string):
-            return string.isEmpty
-        case .detail(let string, _):
-            return string.isEmpty
-        case .brand(let string, _):
-            return string.isEmpty
-        case .barcode(string: let string, _):
-            return string.isEmpty
-        
+        case .name(let stringValue), .detail(let stringValue), .brand(let stringValue), .barcode(let stringValue), .emoji(let stringValue):
+            return stringValue.isEmpty
+            
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.isEmpty
             
@@ -148,62 +149,18 @@ extension FieldValue {
     var string: String {
         get {
             switch self {
-            case .name(let string, _):
-                return string
-            case .emoji(let string):
-                return string
-            case .detail(let string, _):
-                return string
-            case .brand(string: let string, _):
-                return string
-            case .barcode(string: let string, _):
-                return string
-                
-            case .amount, .serving, .density:
-                return ""
-
             case .energy(_, let string, _, _):
                 return string
             case .macro(_, _, let string, _):
                 return string
             case .micro(_, _, let string, _, _):
                 return string
+            default:
+                return ""
             }
         }
         set {
             switch self {
-            case .name:
-                self = .name(string: newValue)
-            case .emoji:
-                self = .emoji(string: newValue)
-            case .detail:
-                self = .detail(string: newValue)
-            case .brand:
-                self = .brand(string: newValue)
-            case .barcode:
-                self = .barcode(string: newValue)
-                
-            //MARK: - Amount Per
-                
-//            case .amount(_, _, unit: let formUnit):
-//                guard !newValue.isEmpty else {
-//                    self = .amount(double: nil, string: newValue, unit: formUnit)
-//                    return
-//                }
-//                guard let double = Double(newValue) else {
-//                    return
-//                }
-//                self = .amount(double: double, string: newValue, unit: formUnit)
-//            case .serving(_, _, unit: let formUnit):
-//                guard !newValue.isEmpty else {
-//                    self = .serving(double: nil, string: newValue, unit: formUnit)
-//                    return
-//                }
-//                guard let double = Double(newValue) else {
-//                    return
-//                }
-//                self = .serving(double: double, string: newValue, unit: formUnit)
-            
             //MARK: Nutrients
                 
             case .energy(_, _, let energyUnit, _):
@@ -242,11 +199,6 @@ extension FieldValue {
     var double: Double? {
         get {
             switch self {
-//            case .amount(double: let double, _, _):
-//                return double
-//            case .serving(double: let double, _, _):
-//                return double
-            
             case .energy(let double, _, _, _):
                 return double
             case .macro(_, let double, _, _):
@@ -259,11 +211,6 @@ extension FieldValue {
         }
         set {
             switch self {
-//            case .amount(_, _, unit: let formUnit):
-//                self = .amount(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
-//            case .serving(_, _, unit: let formUnit):
-//                self = .serving(double: newValue, string: newValue?.cleanAmount ?? "", unit: formUnit)
-
             case .energy(_, _, let energyUnit, _):
                 self = .energy(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyUnit)
             case .macro(let macro, _, _, _):
@@ -427,6 +374,33 @@ extension FieldValue {
                 self = .amount(doubleValue: newValue)
             case .serving:
                 self = .serving(doubleValue: newValue)
+            default:
+                break
+            }
+        }
+    }
+    
+    var stringValue: StringValue {
+        get {
+            switch self {
+            case .name(let stringValue), .barcode(let stringValue), .detail(let stringValue), .brand(let stringValue), .emoji(let stringValue):
+                return stringValue
+            default:
+                return StringValue()
+            }
+        }
+        set {
+            switch self {
+            case .name:
+                self = .name(newValue)
+            case .brand:
+                self = .brand(newValue)
+            case .emoji:
+                self = .emoji(newValue)
+            case .detail:
+                self = .detail(newValue)
+            case .barcode:
+                self = .barcode(newValue)
             default:
                 break
             }
