@@ -28,7 +28,7 @@ struct FillForm: View {
             Button {
                 
             } label: {
-                Text("Third-party food")
+                Text("From Third-party food")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
@@ -58,7 +58,7 @@ struct FillForm: View {
             Button {
                 
             } label: {
-                Text("Scanned Image")
+                Text("From a Scanned Image")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
@@ -86,7 +86,7 @@ struct FillForm: View {
                 HStack {
                     HStack {
                         Image(systemName: "photo.on.rectangle.angled")
-                        Text("Choose another value")
+                        Text("Select a value")
                     }
                     .foregroundColor(.primary)
                     Spacer()
