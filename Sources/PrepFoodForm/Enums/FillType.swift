@@ -10,7 +10,7 @@ enum FillType: Hashable {
     var iconSystemImage: String {
         switch self {
         case .userInput:
-            return "keyboard"
+            return ""
         case .imageSelection:
             return "photo"
         case .imageAutofill:
@@ -23,21 +23,17 @@ enum FillType: Hashable {
     }
     
     var buttonSystemImage: String {
-        buttonSystemImageWithoutFill + ".fill"
-//        buttonSystemImageWithoutFill
-    }
-    var buttonSystemImageWithoutFill: String {
         switch self {
         case .userInput:
-            return "pencil.circle"
+            return "circle.dashed"
         case .imageSelection:
-            return "photo.circle"
+            return "photo.circle.fill"
         case .imageAutofill:
-            return "viewfinder.circle"
+            return "viewfinder.circle.fill"
         case .thirdPartyFoodPrefill:
-            return "link.circle"
+            return "link.circle.fill"
         case .barcodeScan:
-            return "viewfinder.circle"
+            return "viewfinder.circle.fill"
         }
     }
 }

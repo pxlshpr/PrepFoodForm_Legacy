@@ -23,6 +23,7 @@ extension FoodForm.NutritionFacts {
     func macronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
         NavigationLink {
             MacronutrientForm(fieldValue: fieldValue)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
                 .environmentObject(viewModel)

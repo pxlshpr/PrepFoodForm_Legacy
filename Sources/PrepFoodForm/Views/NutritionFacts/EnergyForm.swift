@@ -8,6 +8,8 @@ struct EnergyForm: View {
     @FocusState var isFocused: Bool
     
     @Binding var fieldValue: FieldValue
+    
+    @State var showingFillForm = false
 }
 
 extension EnergyForm {
@@ -19,6 +21,12 @@ extension EnergyForm {
         .onAppear {
             isFocused = true
         }
+        .onChange(of: fieldValue.energyValue.string) { newValue in
+            fieldValue.energyValue.fillType = .userInput
+        }
+        .sheet(isPresented: $showingFillForm) {
+            FillForm()
+        }
     }
     
     var form: some View {
@@ -26,7 +34,7 @@ extension EnergyForm {
             HStack {
                 textField
                 unitLabel
-                
+                fillButton
             }
         }
     }
@@ -36,7 +44,7 @@ extension EnergyForm {
         if viewModel.shouldShowFillButton {
             Button {
                 Haptics.feedback(style: .soft)
-//                showingSheet = true
+                showingFillForm = true
             } label: {
                 Image(systemName: fieldValue.energyValue.fillType.buttonSystemImage)
                     .imageScale(.large)

@@ -1,11 +1,14 @@
 import SwiftUI
 import PrepUnits
+import SwiftHaptics
 
 struct MacronutrientForm: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
     @Binding var fieldValue: FieldValue
+    @State var showingFillForm = false
 }
 
 extension MacronutrientForm {
@@ -17,6 +20,9 @@ extension MacronutrientForm {
         .onAppear {
             isFocused = true
         }
+        .sheet(isPresented: $showingFillForm) {
+            FillForm()
+        }
     }
     
     var form: some View {
@@ -24,7 +30,22 @@ extension MacronutrientForm {
             HStack {
                 textField
                 unitLabel
+                fillButton
             }
+        }
+    }
+    
+    @ViewBuilder
+    var fillButton: some View {
+        if viewModel.shouldShowFillButton {
+            Button {
+                Haptics.feedback(style: .soft)
+                showingFillForm = true
+            } label: {
+                Image(systemName: fieldValue.macroValue.fillType.buttonSystemImage)
+                    .imageScale(.large)
+            }
+            .buttonStyle(.borderless)
         }
     }
     

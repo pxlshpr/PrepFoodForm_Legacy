@@ -38,6 +38,7 @@ extension FoodForm.DetailsForm {
     
     @ViewBuilder
     func fillButton(stringValue: FieldValue.StringValue) -> some View {
+        //TODO: In addition to shouldShowFillButton, if it's empty—only show it if we have a value (particulkarly for detail)
         if viewModel.shouldShowFillButton {
             Button {
                 Haptics.feedback(style: .soft)

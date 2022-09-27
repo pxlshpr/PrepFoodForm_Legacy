@@ -1,6 +1,7 @@
 import SwiftUI
 import CameraImagePicker
 import SwiftHaptics
+import PrepUnits
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
@@ -220,7 +221,8 @@ public struct FoodForm: View {
         
         return Section(header: header, footer: footer) {
             Button {
-                viewModel.showingThirdPartySearch = true
+//                viewModel.showingThirdPartySearch = true
+                viewModel.simulateThirdPartyImport()
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
                     .foregroundColor(.primary)
@@ -342,6 +344,10 @@ import MFPScraper
 
 extension FoodFormViewModel {
     
+    func simulateThirdPartyImport() {
+        prefill(MockProcessedFood.Banana)
+    }
+    
     func prefill(_ food: MFPProcessedFood) {
 
         self.showingThirdPartySearch = false
@@ -410,7 +416,31 @@ extension FoodFormViewModel {
     }
     
     func prefillNutrients(from food: MFPProcessedFood) {
-        self.energy = .energy(FieldValue.EnergyValue(double: food.energy, string: food.energy.cleanAmount, unit: .kcal, fillType: .thirdPartyFoodPrefill))
+        self.energy = food.energyFieldValue
+        self.carb = food.carbFieldValue
+        self.fat = food.fatFieldValue
+        self.protein = food.proteinFieldValue
+    }
+}
+
+extension MFPProcessedFood {
+    var energyFieldValue: FieldValue {
+        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fillType: .thirdPartyFoodPrefill))
+    }
+    
+    func macroFieldValue(macro: Macro, double: Double) -> FieldValue {
+        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fillType: .thirdPartyFoodPrefill))
+    }
+    
+    var carbFieldValue: FieldValue {
+        macroFieldValue(macro: .carb, double: carbohydrate)
+    }
+    var fatFieldValue: FieldValue {
+        macroFieldValue(macro: .fat, double: fat)
+    }
+
+    var proteinFieldValue: FieldValue {
+        macroFieldValue(macro: .protein, double: protein)
     }
 }
 
