@@ -12,7 +12,7 @@ enum FillType: Hashable {
         case .userInput:
             return ""
         case .imageSelection:
-            return "photo"
+            return "hand.tap"
         case .imageAutofill:
             return "text.viewfinder"
         case .thirdPartyFoodPrefill:
@@ -34,6 +34,33 @@ enum FillType: Hashable {
             return "link.circle.fill"
         case .barcodeScan:
             return "viewfinder.circle.fill"
+        }
+    }
+    
+    var isImageAutofill: Bool {
+        switch self {
+        case .imageAutofill:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var usesImage: Bool {
+        switch self {
+        case .imageSelection, .imageAutofill:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var isImageSelection: Bool {
+        switch self {
+        case .imageSelection:
+            return true
+        default:
+            return false
         }
     }
 }

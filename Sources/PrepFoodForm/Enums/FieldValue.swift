@@ -391,15 +391,17 @@ extension FieldValue {
     }
 
     var fillType: FillType {
-        switch self {
-        case .energy(let energyValue):
-            return energyValue.fillType
-        case .macro(let macroValue):
-            return macroValue.fillType
-        case .micro(let microValue):
-            return microValue.fillType
-        default:
-            return .userInput
+        get {
+            switch self {
+            case .energy(let energyValue):
+                return energyValue.fillType
+            case .macro(let macroValue):
+                return macroValue.fillType
+            case .micro(let microValue):
+                return microValue.fillType
+            default:
+                return .userInput
+            }
         }
     }
 }
