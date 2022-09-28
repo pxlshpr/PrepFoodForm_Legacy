@@ -17,6 +17,6 @@
 //    case nutritionFactForm(NutritionFactType)
 //    
 //    case sourceForm
-//    case sourceImage(SourceImageViewModel)
+//    case sourceImage(ImageViewModel)
 //    case mfpSearch
 //}

@@ -173,7 +173,8 @@ public struct FoodForm: View {
         
         return Section(header: header) {
             Button {
-                showingScan = true
+//                showingScan = true
+                viewModel.simulateImageSelection()
             } label: {
                 Label("Choose Images", systemImage: SourceType.images.systemImage)
                     .foregroundColor(.primary)
@@ -181,7 +182,8 @@ public struct FoodForm: View {
             }
             .buttonStyle(.borderless)
             Button {
-                showingScan = true
+//                showingScan = true
+                viewModel.simulateImageSelection()
             } label: {
                 Label("Take Photos", systemImage: "camera")
                     .foregroundColor(.primary)
@@ -346,6 +348,29 @@ extension FoodFormViewModel {
     
     func simulateThirdPartyImport() {
         prefill(MockProcessedFood.Banana)
+    }
+    
+    func simulateAddingImage(_ number: Int) {
+        let image = labelImage(number)!
+
+        let imageViewModel = ImageViewModel(image)
+        imageViewModels.append(imageViewModel)
+    }
+    
+    func simulateImageSelection() {
+        
+        sourceType = .images
+        imageSetStatus = .classifying
+        
+        simulateAddingImage(6)
+        simulateAddingImage(1)
+        simulateAddingImage(2)
+        simulateAddingImage(3)
+        simulateAddingImage(4)
+
+        withAnimation {
+            showingWizard = false
+        }
     }
     
     func prefill(_ food: MFPProcessedFood) {

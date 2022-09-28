@@ -3,27 +3,33 @@ import ActivityIndicatorView
 
 struct SourceImage: View {
     
-    @ObservedObject var sourceImageViewModel: SourceImageViewModel
+    @ObservedObject var imageViewModel: ImageViewModel
     
-    init(sourceImageViewModel: SourceImageViewModel) {
-        _sourceImageViewModel = ObservedObject(wrappedValue: sourceImageViewModel)
+    let width: CGFloat
+    let height: CGFloat
+    
+    init(imageViewModel: ImageViewModel, width: CGFloat = 120, height: CGFloat = 120) {
+        _imageViewModel = ObservedObject(wrappedValue: imageViewModel)
+        self.width = width
+        self.height = height
     }
     
     @ViewBuilder
     var body: some View {
         Group {
-            if let image = sourceImageViewModel.image {
+            if let image = imageViewModel.image {
                 imageView(with: image)
             } else {
                 placeholder
             }
         }
-        .frame(width: 120, height: 120)
+        .frame(width: width, height: height)
         .clipShape(
-            RoundedRectangle(cornerRadius: 10,
-                             style: .continuous))
-        .shadow(radius: sourceImageViewModel.status == .processing ? 0 : 3, x: 0, y: 3)
-        .animation(.default, value: sourceImageViewModel.status)
+//            RoundedRectangle(cornerRadius: 10, style: .continuous)
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+        )
+        .shadow(radius: imageViewModel.status == .classifying ? 0 : 3, x: 0, y: 3)
+        .animation(.default, value: imageViewModel.status)
     }
     
     var placeholder: some View {
@@ -31,7 +37,8 @@ struct SourceImage: View {
             Color(.systemFill)
 //            ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots(count: 8))
             ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots())
-                .frame(width: 60, height: 60)
+//                .frame(width: 60, height: 60)
+                .frame(width: 30, height: 30)
                 .foregroundColor(Color(.tertiaryLabel))
         }
     }
@@ -46,11 +53,11 @@ struct SourceImage: View {
     var overlay: some View {
         @ViewBuilder
         var color: some View {
-            switch sourceImageViewModel.status {
-            case .processing:
+            switch imageViewModel.status {
+            case .classifying:
                 Color(.darkGray)
                     .opacity(0.5)
-            case .processed:
+            case .classified:
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color(.darkGray).opacity(0.9), location: 0),
@@ -67,28 +74,32 @@ struct SourceImage: View {
         
         @ViewBuilder
         var activityView: some View {
-            if sourceImageViewModel.status == .processing {
+            if imageViewModel.status == .classifying {
                 ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots(count: 3, inset: 2))
 //                ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots(count: 8))
-                    .frame(width: 50, height: 50)
+//                    .frame(width: 50, height: 50)
+                    .frame(width: 30, height: 30)
                     .foregroundColor(.white)
             }
         }
         
         @ViewBuilder
         var checkmark: some View {
-            if sourceImageViewModel.status == .processed {
+            if imageViewModel.status == .classified {
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
                         Image(systemName: "text.viewfinder")
                             .renderingMode(.original)
-                            .imageScale(.large)
+                            .foregroundColor(.white)
+//                            .imageScale(.large)
+                            .imageScale(.small)
                             .padding(2)
                             .background(
-                                RoundedRectangle(cornerRadius: 4, style: .continuous)
-                                    .foregroundColor(.accentColor)
+                                RoundedRectangle(cornerRadius: 3, style: .continuous)
+//                                    .foregroundColor(.accentColor)
+                                    .foregroundColor(.green)
                                     .opacity(0.7)
                             )
                             .padding(5)
@@ -102,35 +113,23 @@ struct SourceImage: View {
             activityView
             checkmark
         }
+        .frame(width: width, height: height)
     }
 }
 
 public struct SourceImagePreview: View {
         
-    @StateObject var viewModel: FoodFormViewModel
+    @StateObject var viewModel: ImageViewModel
     
     public init() {
-        
-        let viewModel = FoodFormViewModel()
-        viewModel.sourceImageViewModels = Array(repeating: SourceImageViewModel(), count: 5)
-//        viewModel.setSampleImages()
+        let path = Bundle.module.path(forResource: "label6", ofType: "jpg")!
+        let image = UIImage(contentsOfFile: path)!
+        let viewModel = ImageViewModel(image)
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
-        NavigationView {
-            Form {
-                Section {
-                    SourceImagesCarousel()
-                        .environmentObject(viewModel)
-                }
-            }
-            .navigationTitle("Source Image")
-            .navigationBarTitleDisplayMode(.inline)
-        }
-        .onAppear {
-            viewModel.simulateScan()
-        }
+        SourceImage(imageViewModel: viewModel)
     }
 }
 

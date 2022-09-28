@@ -1,8 +1,8 @@
 import Foundation
 
-enum SourceImageStatus {
+enum ImageStatus {
     case loading
-    case notProcessed
-    case processing
-    case processed
+    case notClassified
+    case classifying
+    case classified
 }

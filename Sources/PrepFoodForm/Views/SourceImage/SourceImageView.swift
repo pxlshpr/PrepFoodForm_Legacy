@@ -4,7 +4,7 @@ import ActivityIndicatorView
 struct SourceImageView: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    var sourceImageViewModel: SourceImageViewModel
+    var imageViewModel: ImageViewModel
     
     var body: some View {
         zoomableScrollView
@@ -35,7 +35,7 @@ struct SourceImageView: View {
     var zoomableScrollView: some View {
         GeometryReader { proxy in
             ZoomableScrollView {
-                if let image = sourceImageViewModel.image {
+                if let image = imageViewModel.image {
                     imageView(with: image)
                 }
             }

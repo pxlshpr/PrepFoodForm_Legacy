@@ -15,6 +15,8 @@ struct EnergyForm: View {
     
     @State var ignoreNextAmountChange: Bool = false
     @State var ignoreNextUnitChange: Bool = false
+    
+    @State var imageToDisplay: UIImage? = nil
 }
 
 struct ImageTextPicker: View {
@@ -35,12 +37,27 @@ struct ImageTextPicker: View {
             }
             fieldValue.energyValue.double = 135
             fieldValue.energyValue.unit = .kcal
-            fieldValue.energyValue.fillType = .imageSelection(UUID())
+//            fieldValue.energyValue.fillType = .imageSelection(UUID())
             dismiss()
         }
     }
 }
 extension EnergyForm {
+    
+    func cropImage() {
+        Task {
+//            let croppedImage = await viewModel.croppedImage(for: fieldValue.energyValue.fillType)
+            guard let outputId = fieldValue.energyValue.fillType.outputId else {
+                return
+            }
+            let image = viewModel.image(for: outputId)
+
+            await MainActor.run {
+                self.imageToDisplay = image
+            }
+        }
+    }
+    
     var body: some View {
         content
         .scrollDismissesKeyboard(.never)
@@ -48,6 +65,7 @@ extension EnergyForm {
         .toolbar { keyboardToolbarContents }
         .onAppear {
             isFocused = true
+            cropImage()
         }
         .onChange(of: fieldValue.energyValue.double) { newValue in
             guard !ignoreNextAmountChange else {
@@ -120,14 +138,7 @@ extension EnergyForm {
             }
         }
         
-        var sampleImage: UIImage? {
-            guard let path = Bundle.module.path(forResource: "energy1", ofType: "jpg") else {
-                return nil
-            }
-            return UIImage(contentsOfFile: path)
-        }
-        
-        func imageSection(for image: UIImage) -> some View {
+        var imageSection: some View {
             var header: some View {
                 var string: String {
                     fieldValue.energyValue.fillType.isImageAutofill ? "Detected Text" : "Selected Text"
@@ -138,23 +149,20 @@ extension EnergyForm {
                 }
                 
                 return Text(string)
-//                return Label(string, systemImage: systemImage)
             }
             
             return Section(header: header) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-//                Button {
-//                } label: {
-//                    Text("Select another text")
-//                }
+//                if let image = imageToDisplay {
+                if let image = sampleImage {
+                    imageWithBox(for: image)
+                }
             }
         }
+        
         @ViewBuilder
         var optionalImageSection: some View {
-            if fieldValue.energyValue.fillType.usesImage, let image = sampleImage {
-                imageSection(for: image)
+            if !fieldValue.energyValue.fillType.usesImage {
+                imageSection
             }
         }
         
@@ -175,6 +183,51 @@ extension EnergyForm {
             textFieldSection
             optionalImageSection
             optionalSelectSection
+        }
+    }
+    
+    var sampleImage: UIImage? {
+        guard let path = Bundle.module.path(forResource: "label4", ofType: "jpg") else {
+            return nil
+        }
+        return UIImage(contentsOfFile: path)
+    }
+    
+    func imageWithBox(for uiImage: UIImage) -> some View {
+        var image: some View {
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                )
+                .shadow(radius: 3, x: 0, y: 3)
+                .padding(.top, 5)
+                .padding(.bottom, 8)
+                .padding(.horizontal, 3)
+        }
+        
+        @ViewBuilder
+        var box: some View {
+            if let box = fieldValue.energyValue.fillType.boundingBox {
+                GeometryReader { geometry in
+                    RoundedRectangle(cornerRadius: 5)
+                        .foregroundColor(Color.accentColor)
+                        .opacity(0.3)
+                        .frame(width: box.rectForSize(geometry.size).width, height: box.rectForSize(geometry.size).height)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.accentColor, lineWidth: 1)
+                                .opacity(0.8)
+                        )
+                        .offset(x: box.rectForSize(geometry.size).minX, y: box.rectForSize(geometry.size).minY)
+                }
+            }
+        }
+        
+        return ZStack(alignment: .topLeading) {
+            image
+            box
         }
     }
     
@@ -223,12 +276,10 @@ extension EnergyForm {
                 }
                 fieldValue.energyValue.double = 115
                 fieldValue.energyValue.unit = .kcal
-                fieldValue.energyValue.fillType = .imageAutofill(UUID())
             }
         }
     }
     
-    @ViewBuilder
     var imageSelectButton: some View {
         var title: String {
             fieldValue.energyValue.fillType.isImageSelection ? "Selected 140" : "Select"
@@ -286,11 +337,13 @@ extension EnergyForm {
             .keyboardType(.decimalPad)
             .focused($isFocused)
             .interactiveDismissDisabled()
+            .font(.largeTitle)
     }
     
     var unitLabel: some View {
         Text(fieldValue.unitString)
             .foregroundColor(.secondary)
+            .font(.title3)
     }
     
     var keyboardToolbarContents: some ToolbarContent {

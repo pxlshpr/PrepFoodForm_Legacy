@@ -16,6 +16,7 @@ let package = Package(
     ],
     dependencies: [
          // Dependencies declare other packages that this package depends on.
+        .package(url: "https://github.com/pxlshpr/NutritionLabelClassifier", from: "0.0.169"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
         .package(url: "https://github.com/pxlshpr/ISEmojiView", from: "0.3.3"),
@@ -34,6 +35,7 @@ let package = Package(
         .target(
             name: "PrepFoodForm",
             dependencies: [
+                .product(name: "NutritionLabelClassifier", package: "nutritionlabelclassifier"),
                 .product(name: "ISEmojiView", package: "isemojiview"),
                 .product(name: "NamePicker", package: "namepicker"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),

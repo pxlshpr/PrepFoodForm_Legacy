@@ -54,40 +54,88 @@ extension FoodForm.SourceSection {
             FoodForm.SourceForm()
                 .environmentObject(viewModel)
         } label: {
-            HStack(alignment: .top) {
-                Text(viewModel.sourceType.description)
-                    .foregroundColor(.primary)
-                Spacer()
-                Group {
-                    if viewModel.sourceType == .images {
-                        Text("17 nutrition facts extracted")
-                            .multilineTextAlignment(.trailing)
-                    } else if viewModel.sourceType == .link {
-                        Text(verbatim: "https://www.myfitnesspal.com/food/calories/banan-1511734581")
-                            .lineLimit(1)
-//                            .frame(maxWidth: 200, alignment: .trailing)
-                    }
+            switch viewModel.sourceType {
+            case .images:
+                VStack(alignment: .leading, spacing: 15) {
+                    imagesGrid
+                    imageSetStatus
                 }
-                .foregroundColor(.secondary)
+            default:
+                Text("Not handled")
             }
+//            HStack(alignment: .top) {
+//                Text(viewModel.sourceType.description)
+//                    .foregroundColor(.primary)
+//                Spacer()
+//                Group {
+//                    if viewModel.sourceType == .images {
+//                        Text("17 nutrition facts extracted")
+//                            .multilineTextAlignment(.trailing)
+//                    } else if viewModel.sourceType == .link {
+//                        Text(verbatim: "https://www.myfitnesspal.com/food/calories/banan-1511734581")
+//                            .lineLimit(1)
+////                            .frame(maxWidth: 200, alignment: .trailing)
+//                    }
+//                }
+//                .foregroundColor(.secondary)
+//            }
         }
+    }
+    
+    var imagesGrid: some View {
+//        GeometryReader { geometry in
+            HStack {
+                ForEach(viewModel.imageViewModels, id: \.self) { imageViewModel in
+                    SourceImage(imageViewModel: imageViewModel, width: 55, height: 55)
+                }
+            }
+//        }
+    }
+    
+    var imageSetStatusString: String {
+        switch viewModel.imageSetStatus {
+        case .loading:
+            return "Loading images"
+        case .classifying:
+            return "Detecting nutrition facts"
+        case .classified:
+            return "\(viewModel.classifiedNutrientCount) nutrition facts detected"
+        default:
+            return "(not handled)"
+        }
+    }
+    
+    var imageSetStatus: some View {
+        Text(imageSetStatusString)
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .foregroundColor(Color(.secondarySystemFill))
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var header: some View {
         Text("Source")
     }
     
+    @ViewBuilder
     var footer: some View {
-        Button {
-            
-        } label: {
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Provide a source if you want this food to be eligible for the public database and award you member points.")
-                    .foregroundColor(Color(.secondaryLabel))
-                    .multilineTextAlignment(.leading)
-                Label("Learn more", systemImage: "info.circle")
+        if viewModel.sourceType == .manualEntry {
+            Button {
+                
+            } label: {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Provide a source if you want this food to be eligible for the public database and award you member points.")
+                        .foregroundColor(Color(.secondaryLabel))
+                        .multilineTextAlignment(.leading)
+                    Label("Learn more", systemImage: "info.circle")
+                }
+                .font(.footnote)
             }
-            .font(.footnote)
         }
     }
     
@@ -140,7 +188,8 @@ struct SourceCellPreview: View {
     
     init() {
         let viewModel = FoodFormViewModel()
-        viewModel.isImporting = true
+        viewModel.simulateImageSelection()
+//        viewModel.isImporting = true
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     

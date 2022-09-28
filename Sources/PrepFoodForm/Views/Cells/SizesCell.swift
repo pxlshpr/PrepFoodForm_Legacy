@@ -143,5 +143,5 @@ let mockStandardSizes: [Size] = [
 let mockVolumePrefixedSizes: [Size] = [
     Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, amountString: "155", unit: .weight(.g), fillType: .thirdPartyFoodPrefill),
     Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountString: "110", unit: .weight(.g), fillType: .thirdPartyFoodPrefill),
-    Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountString: "205", unit: .weight(.g), fillType: .imageAutofill(UUID())),
+    Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountString: "205", unit: .weight(.g), fillType: .thirdPartyFoodPrefill),
 ]

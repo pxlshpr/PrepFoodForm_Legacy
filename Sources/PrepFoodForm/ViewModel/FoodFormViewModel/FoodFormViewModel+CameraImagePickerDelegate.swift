@@ -9,17 +9,17 @@ extension FoodFormViewModel: CameraImagePickerDelegate {
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {
         sourceType = .images
         withAnimation {
-            sourceImageViewModels = Array(repeating: SourceImageViewModel(), count: numberOfImagesBeingLoaded)
+//            imageViewModels = Array(repeating: ImageViewModel(), count: numberOfImagesBeingLoaded)
         }
     }
     
     public func didLoadLibraryImage(_ image: UIImage, at index: Int) {
-        guard index < sourceImageViewModels.count else {
+        guard index < imageViewModels.count else {
             return
         }
         print("didLoadLibraryImage at : \(index)")
         withAnimation {
-            sourceImageViewModels[index].image = image
+            imageViewModels[index].image = image
         }
     }
 }

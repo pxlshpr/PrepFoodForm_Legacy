@@ -85,7 +85,7 @@ struct FillForm: View {
             } label: {
                 HStack {
                     HStack {
-                        Image(systemName: "photo.on.rectangle.angled")
+                        Image(systemName: "hand.tap")
                         Text("Select a value")
                     }
                     .foregroundColor(.primary)

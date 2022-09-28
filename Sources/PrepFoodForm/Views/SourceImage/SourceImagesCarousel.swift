@@ -10,10 +10,10 @@ struct SourceImagesCarousel: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 0) {
-                ForEach(viewModel.sourceImageViewModels.indices, id: \.self) { index in
+                ForEach(viewModel.imageViewModels.indices, id: \.self) { index in
                     sourceImage(at: index)
                         .padding(.leading, index == 0 ? 10 : 0)
-                        .padding(.trailing, index ==  viewModel.sourceImageViewModels.count - 1 ? 10 : 0)
+                        .padding(.trailing, index ==  viewModel.imageViewModels.count - 1 ? 10 : 0)
                 }
             }
         }
@@ -31,7 +31,7 @@ struct SourceImagesCarousel: View {
                 Text("Delete")
             }
         } label: {
-            SourceImage(sourceImageViewModel: viewModel.sourceImageViewModels[index])
+            SourceImage(imageViewModel: viewModel.imageViewModels[index])
         } primaryAction: {
             didTapViewOnImage?(index)
         }

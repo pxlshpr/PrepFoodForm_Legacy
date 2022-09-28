@@ -399,8 +399,12 @@ extension FieldValue {
                 return macroValue.fillType
             case .micro(let microValue):
                 return microValue.fillType
-            default:
-                return .userInput
+            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+                return stringValue.fillType
+            case .amount(let doubleValue), .serving(let doubleValue):
+                return doubleValue.fillType
+            case .density(let density):
+                return density?.fillType ?? .userInput
             }
         }
     }

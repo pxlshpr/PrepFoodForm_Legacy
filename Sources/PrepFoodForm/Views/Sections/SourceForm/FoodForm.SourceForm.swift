@@ -25,7 +25,7 @@ extension FoodForm.SourceForm {
 //            guard let image = newValue else {
 //                return
 //            }
-//            viewModel.sourceImageViewModels.append(SourceImageViewModel(image: image))
+//            viewModel.imageViewModels.append(ImageViewModel(image: image))
 //            viewModel.sourceType = .images
 //            showingSourceTypePicker = false
 //            capturedImage = nil
@@ -43,9 +43,9 @@ extension FoodForm.SourceForm {
             if viewModel.sourceIncludesImages {
                 imagesSection
             }
-            if viewModel.isProcessingSource {
-                activitySection
-            }
+//            if viewModel.isClassifyingImage {
+//                activitySection
+//            }
             if !viewModel.isScanning {
                 resultsSection
             }
@@ -105,7 +105,7 @@ extension FoodForm.SourceForm {
     
     var activitySection: some View {
         var activityTitle: String {
-            let imagesCount = viewModel.sourceImageViewModels.count
+            let imagesCount = viewModel.imageViewModels.count
             guard viewModel.isScanning else {
                 return "Processed \(imagesCount) images"
             }
@@ -155,7 +155,7 @@ extension FoodForm.SourceForm {
             Section("Images") {
                 SourceImagesCarousel { index in
                     //TODO: Change this to new navigation layout
-//                    viewModel.path.append(.sourceImage(viewModel.sourceImageViewModels[index]))
+//                    viewModel.path.append(.sourceImage(viewModel.imageViewModels[index]))
                 } didTapDeleteOnImage: { index in
                 }
                 .environmentObject(viewModel)

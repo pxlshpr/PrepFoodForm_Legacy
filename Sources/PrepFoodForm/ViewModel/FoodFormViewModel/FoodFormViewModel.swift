@@ -2,6 +2,8 @@ import SwiftUI
 import PrepUnits
 import SwiftUISugar
 import MFPScraper
+import SwiftHaptics
+import NutritionLabelClassifier
 
 public class FoodFormViewModel: ObservableObject {
     
@@ -121,8 +123,8 @@ public class FoodFormViewModel: ObservableObject {
     
     //MARK: - Source
     @Published var sourceType: SourceType = .manualEntry
-    @Published var isProcessingSource = false
-    @Published var sourceImageViewModels: [SourceImageViewModel] = []
+    @Published var imageViewModels: [ImageViewModel] = []
+    @Published var imageSetStatus: ImageStatus = .loading
     
     //MARK: Scan
     var scanTask: Task<(), any Error>? = nil
@@ -134,7 +136,7 @@ public class FoodFormViewModel: ObservableObject {
             }
             withAnimation {
                 DispatchQueue.main.async {
-                    self.isProcessingSource = self.isScanning || self.isImporting
+//                    self.isClassifyingImage = self.isScanning || self.isImporting
                 }
             }
         }
@@ -151,7 +153,7 @@ public class FoodFormViewModel: ObservableObject {
                 sourceType = .onlineSource
             }
             withAnimation {
-                isProcessingSource = isScanning || isImporting
+//                isClassifyingImage = isScanning || isImporting
             }
         }
     }
@@ -171,9 +173,33 @@ public class FoodFormViewModel: ObservableObject {
 }
 
 extension FoodFormViewModel {
+    
+    var allMicronutrientFields: [FieldValue] {
+        micronutrients.reduce([FieldValue]()) { partialResult, tuple in
+            partialResult + tuple.fieldValues
+        }
+    }
+    var allFields: [FieldValue] {
+        [
+            name, emoji, detail, brand, barcode,
+            amount, serving, density,
+            energy, carb, fat, protein,
+        ]
+        + allMicronutrientFields
+    }
+    
+    var allSizes: [Size] {
+        standardSizes + volumePrefixedSizes
+    }
+    
     var hasNonUserInputFills: Bool {
-        for value in [name.stringValue, emoji.stringValue, detail.stringValue, brand.stringValue] {
-            if value.fillType != .userInput {
+        for field in allFields {
+            if field.fillType != .userInput {
+                return true
+            }
+        }
+        for size in allSizes {
+            if size.fillType != .userInput {
                 return true
             }
         }
@@ -182,5 +208,25 @@ extension FoodFormViewModel {
     
     var shouldShowFillButton: Bool {
         hasNonUserInputFills
+    }
+    
+    func imageDidFinishClassifying(_ imageViewModel: ImageViewModel) {
+        guard imageSetStatus != .classified else {
+            return
+        }
+        
+        if imageViewModels.allSatisfy({ $0.status == .classified }) {
+            Haptics.successFeedback()
+            withAnimation {
+                imageSetStatus = .classified
+            }
+            processAllClassifierOutputs()
+        }
+    }
+    
+    var classifiedNutrientCount: Int {
+        imageViewModels.reduce(0) { partialResult, imageViewModel in
+            partialResult + (imageViewModel.output?.nutrients.rows.count ?? 0)
+        }
     }
 }
