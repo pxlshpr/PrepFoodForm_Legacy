@@ -362,11 +362,12 @@ extension FoodFormViewModel {
         sourceType = .images
         imageSetStatus = .classifying
         
-//        simulateAddingImage(6)
-        simulateAddingImage(1)
-        simulateAddingImage(2)
-        simulateAddingImage(3)
-        simulateAddingImage(4)
+        simulateAddingImage(8)
+//        simulateAddingImage(7)
+//        simulateAddingImage(1)
+//        simulateAddingImage(2)
+//        simulateAddingImage(3)
+//        simulateAddingImage(4)
 
         withAnimation {
             showingWizard = false

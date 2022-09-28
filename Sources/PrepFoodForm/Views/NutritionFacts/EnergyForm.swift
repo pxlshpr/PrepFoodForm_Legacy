@@ -256,7 +256,11 @@ extension EnergyForm {
         .background(
             VStack(spacing: 0) {
                 Divider()
-                Color(.systemGroupedBackground)
+//                Color(.systemGroupedBackground)
+                Color.clear
+                    .background (
+                            .thinMaterial
+                    )
             }
         )
     }
