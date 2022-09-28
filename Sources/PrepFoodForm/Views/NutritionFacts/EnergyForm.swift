@@ -100,7 +100,6 @@ extension EnergyForm {
             VStack {
                 Spacer()
                 fillButtons
-                    .padding(.bottom, 10)
             }
         }
         return ZStack {
@@ -110,79 +109,83 @@ extension EnergyForm {
     }
     
     var form: some View {
-        var textFieldSection: some View {
-            var headerString: String {
-                switch fieldValue.energyValue.fillType {
-                case .thirdPartyFoodPrefill:
-                    return "Copied from third-pary food"
-                case .imageAutofill:
-                    return "Auto-filled from image"
-                case .imageSelection:
-                    return "Selected from image"
-                case .userInput:
-                    if !fieldValue.isEmpty {
-                        return "Manually entered"
-                    }
-                default:
-                    break
-                }
-                return ""
-            }
-            
-            return Section(headerString) {
-//            return Section {
-                HStack {
-                    textField
-                    unitLabel
-                }
-            }
-        }
-        
-        var imageSection: some View {
-            var header: some View {
-                var string: String {
-                    fieldValue.energyValue.fillType.isImageAutofill ? "Detected Text" : "Selected Text"
-                }
-                
-                var systemImage: String {
-                    fieldValue.energyValue.fillType.isImageAutofill ? "text.viewfinder" : "hand.tap"
-                }
-                
-                return Text(string)
-            }
-            
-            return Section(header: header) {
-                if let image = imageToDisplay {
-//                if let image = sampleImage {
-                    imageWithBox(for: image)
-                }
-            }
-        }
-        
-        @ViewBuilder
-        var optionalImageSection: some View {
-            if fieldValue.energyValue.fillType.usesImage {
-                imageSection
-            }
-        }
-        
-        @ViewBuilder
-        var optionalSelectSection: some View {
-            if fieldValue.energyValue.fillType.isImageSelection {
-                Section {
-                    Button {
-                        Haptics.feedback(style: .soft)
-                        showingImageTextPicker = true
-                    } label: {
-                        Text("Select another text")
-                    }
-                }
-            }
-        }
-        return Form {
+        Form {
             textFieldSection
             optionalImageSection
             optionalSelectSection
+        }
+        .safeAreaInset(edge: .bottom) {
+            Spacer().frame(height: 50)
+        }
+    }
+    
+    var textFieldSection: some View {
+        var headerString: String {
+            switch fieldValue.energyValue.fillType {
+            case .thirdPartyFoodPrefill:
+                return "Copied from third-pary food"
+            case .imageAutofill:
+                return "Auto-filled from image"
+            case .imageSelection:
+                return "Selected from image"
+            case .userInput:
+                if !fieldValue.isEmpty {
+                    return "Manually entered"
+                }
+            default:
+                break
+            }
+            return ""
+        }
+        
+        return Section(headerString) {
+//            return Section {
+            HStack {
+                textField
+                unitLabel
+            }
+        }
+    }
+    
+    var imageSection: some View {
+        var header: some View {
+            var string: String {
+                fieldValue.energyValue.fillType.isImageAutofill ? "Detected Text" : "Selected Text"
+            }
+            
+            var systemImage: String {
+                fieldValue.energyValue.fillType.isImageAutofill ? "text.viewfinder" : "hand.tap"
+            }
+            
+            return Text(string)
+        }
+        
+        return Section(header: header) {
+            if let image = imageToDisplay {
+//                if let image = sampleImage {
+                imageWithBox(for: image)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var optionalImageSection: some View {
+        if fieldValue.energyValue.fillType.usesImage {
+            imageSection
+        }
+    }
+    
+    @ViewBuilder
+    var optionalSelectSection: some View {
+        if fieldValue.energyValue.fillType.isImageSelection {
+            Section {
+                Button {
+                    Haptics.feedback(style: .soft)
+                    showingImageTextPicker = true
+                } label: {
+                    Text("Select another text")
+                }
+            }
         }
     }
     
@@ -211,7 +214,7 @@ extension EnergyForm {
         var box: some View {
             if let box = fieldValue.energyValue.fillType.boundingBox {
                 GeometryReader { geometry in
-                    RoundedRectangle(cornerRadius: 5)
+                    RoundedRectangle(cornerRadius: 3)
 //                        .foregroundColor(Color.accentColor)
                         .foregroundStyle(
                             Color.accentColor.gradient.shadow(
@@ -221,7 +224,7 @@ extension EnergyForm {
                         .opacity(0.3)
                         .frame(width: box.rectForSize(geometry.size).width, height: box.rectForSize(geometry.size).height)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 5)
+                            RoundedRectangle(cornerRadius: 3)
                                 .stroke(Color.accentColor, lineWidth: 1)
                                 .opacity(0.8)
                         )
@@ -249,6 +252,13 @@ extension EnergyForm {
         }
         .onTapGesture {
         }
+        .padding(.vertical, 10)
+        .background(
+            VStack(spacing: 0) {
+                Divider()
+                Color(.systemGroupedBackground)
+            }
+        )
     }
     
     @ViewBuilder
