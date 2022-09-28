@@ -152,8 +152,8 @@ extension EnergyForm {
             }
             
             return Section(header: header) {
-//                if let image = imageToDisplay {
-                if let image = sampleImage {
+                if let image = imageToDisplay {
+//                if let image = sampleImage {
                     imageWithBox(for: image)
                 }
             }
@@ -161,7 +161,7 @@ extension EnergyForm {
         
         @ViewBuilder
         var optionalImageSection: some View {
-            if !fieldValue.energyValue.fillType.usesImage {
+            if fieldValue.energyValue.fillType.usesImage {
                 imageSection
             }
         }
@@ -212,7 +212,12 @@ extension EnergyForm {
             if let box = fieldValue.energyValue.fillType.boundingBox {
                 GeometryReader { geometry in
                     RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(Color.accentColor)
+//                        .foregroundColor(Color.accentColor)
+                        .foregroundStyle(
+                            Color.accentColor.gradient.shadow(
+                                .inner(color: .black, radius: 3)
+                            )
+                        )
                         .opacity(0.3)
                         .frame(width: box.rectForSize(geometry.size).width, height: box.rectForSize(geometry.size).height)
                         .overlay(
@@ -220,6 +225,7 @@ extension EnergyForm {
                                 .stroke(Color.accentColor, lineWidth: 1)
                                 .opacity(0.8)
                         )
+                        .shadow(radius: 3, x: 0, y: 2)
                         .offset(x: box.rectForSize(geometry.size).minX, y: box.rectForSize(geometry.size).minY)
                 }
             }

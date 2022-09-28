@@ -26,8 +26,8 @@ extension FoodFormViewModel {
 extension ValueText {
     
     var boundingBoxForCrop: CGRect {
-//        text.boundingBox
-        text.boundingBox.zoomedOutBoundingBox
+        text.boundingBox
+//        text.boundingBox.zoomedOutBoundingBox
     }
     
     func croppedImage(from image: UIImage) async -> UIImage {
