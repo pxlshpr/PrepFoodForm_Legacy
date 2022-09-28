@@ -26,8 +26,8 @@ extension MacronutrientForm {
             form
             VStack {
                 Spacer()
-                FillOptionsBar(fieldValue: $fieldValue)
-                    .environmentObject(viewModel)
+//                FillOptionsBar(fieldValue: $fieldValue)
+//                    .environmentObject(viewModel)
             }
         }
     }
@@ -66,9 +66,13 @@ extension MacronutrientForm {
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("Done") {
-                dismiss()
+            HStack(spacing: 0) {
+                FillOptionsBarNew(fieldValue: $fieldValue)
+                    .environmentObject(viewModel)
+                    .frame(maxWidth: .infinity)
+                Button("Done") {
+                    dismiss()
+                }
             }
         }
     }

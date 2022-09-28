@@ -25,11 +25,11 @@ extension EnergyForm {
     var content: some View {
         ZStack {
             form
-            VStack {
-                Spacer()
-                FillOptionsBar(fieldValue: $fieldValue)
-                    .environmentObject(viewModel)
-            }
+//            VStack {
+//                Spacer()
+//                FillOptionsBar(fieldValue: $fieldValue)
+//                    .environmentObject(viewModel)
+//            }
         }
     }
     
@@ -78,22 +78,27 @@ extension EnergyForm {
     }
     
     var unitLabel: some View {
-        Text(fieldValue.unitString)
-            .foregroundColor(.secondary)
-            .font(.title3)
+//        Text(fieldValue.unitString)
+//            .foregroundColor(.secondary)
+//            .font(.title3)
+        Picker("", selection: $fieldValue.energyValue.unit) {
+            ForEach(EnergyUnit.allCases, id: \.self) { unit in
+                Text(unit.shortDescription).tag(unit)
+            }
+        }
+        .pickerStyle(.segmented)
+
     }
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            Picker("", selection: $fieldValue.energyValue.unit) {
-                ForEach(EnergyUnit.allCases, id: \.self) { unit in
-                    Text(unit.shortDescription).tag(unit)
+            HStack(spacing: 0) {
+                FillOptionsBarNew(fieldValue: $fieldValue)
+                    .environmentObject(viewModel)
+                    .frame(maxWidth: .infinity)
+                Button("Done") {
+                    dismiss()
                 }
-            }
-            .pickerStyle(.segmented)
-            Spacer()
-            Button("Done") {
-                dismiss()
             }
         }
     }
