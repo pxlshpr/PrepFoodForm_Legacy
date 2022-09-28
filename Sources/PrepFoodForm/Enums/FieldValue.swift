@@ -356,6 +356,8 @@ extension FieldValue {
             return macroValue.double
         case .micro(let microValue):
             return microValue.double
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.double
         default:
             return nil
         }
@@ -406,6 +408,73 @@ extension FieldValue {
             case .density(let density):
                 return density?.fillType ?? .userInput
             }
+        }
+        set {
+            switch self {
+            case .name(let stringValue):
+                self = .name(StringValue(string: stringValue.string, fillType: newValue))
+            case .emoji(let stringValue):
+                self = .emoji(StringValue(string: stringValue.string, fillType: newValue))
+            case .brand(let stringValue):
+                self = .brand(StringValue(string: stringValue.string, fillType: newValue))
+            case .barcode(let stringValue):
+                self = .barcode(StringValue(string: stringValue.string, fillType: newValue))
+            case .detail(let stringValue):
+                self = .detail(StringValue(string: stringValue.string, fillType: newValue))
+            case .amount(let doubleValue):
+                self = .amount(DoubleValue(
+                    double: doubleValue.double,
+                    string: doubleValue.string,
+                    unit: doubleValue.unit,
+                    fillType: newValue)
+                )
+            case .serving(let doubleValue):
+                self = .serving(DoubleValue(
+                    double: doubleValue.double,
+                    string: doubleValue.string,
+                    unit: doubleValue.unit,
+                    fillType: newValue)
+                )
+            case .density(let densityValue):
+                self = .density(DensityValue(
+                    weight: densityValue?.weight ?? DensityValue.DefaultWeight,
+                    volume: densityValue?.volume ?? DensityValue.DefaultVolume,
+                    fillType: newValue)
+                )
+            case .energy(let energyValue):
+                self = .energy(EnergyValue(
+                    double: energyValue.double,
+                    string: energyValue.string,
+                    unit: energyValue.unit,
+                    fillType: newValue)
+                )
+            case .macro(let macroValue):
+                self = .macro(MacroValue(
+                    macro: macroValue.macro,
+                    double: macroValue.double,
+                    string: macroValue.string,
+                    fillType: newValue)
+                )
+            case .micro(let microValue):
+                self = .micro(MicroValue(
+                    nutrientType: microValue.nutrientType,
+                    double: microValue.double,
+                    string: microValue.string,
+                    unit: microValue.unit,
+                    fillType: newValue)
+                )
+            }
+        }
+    }
+    
+    var fillButtonString: String {
+        switch self {
+        case .energy(let energyValue):
+            return "\(energyValue.string) \(energyValue.unitDescription)"
+        case .macro(let macroValue):
+            return "\(macroValue.string) \(macroValue.unitDescription)"
+        default:
+            return ""
         }
     }
 }

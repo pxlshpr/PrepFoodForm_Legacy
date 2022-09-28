@@ -40,6 +40,25 @@ enum FillType: Hashable {
         //        }
     }
     
+    var sectionHeaderString: String {
+        switch self {
+        case .thirdPartyFoodPrefill:
+            return "Copied from third-pary food"
+        case .imageAutofill:
+            return "Auto-filled from image"
+        case .imageSelection:
+            return "Selected from image"
+        case .userInput:
+//            if !fieldValue.isEmpty {
+//                return "Manually entered"
+//            }
+            return ""
+        default:
+            break
+        }
+        return ""
+    }
+    
     var isImageAutofill: Bool {
         switch self {
         case .imageAutofill:

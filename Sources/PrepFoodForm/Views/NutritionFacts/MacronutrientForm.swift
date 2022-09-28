@@ -8,44 +8,46 @@ struct MacronutrientForm: View {
     @FocusState var isFocused: Bool
     
     @Binding var fieldValue: FieldValue
-    @State var showingFillForm = false
 }
 
 extension MacronutrientForm {
     var body: some View {
-        form
-        .scrollDismissesKeyboard(.never)
-        .navigationTitle(fieldValue.description)
-        .toolbar { keyboardToolbarContents }
-        .onAppear {
-            isFocused = true
-        }
-        .sheet(isPresented: $showingFillForm) {
-            FillForm()
+        content
+            .scrollDismissesKeyboard(.never)
+            .navigationTitle(fieldValue.description)
+            .toolbar { keyboardToolbarContents }
+            .onAppear {
+                isFocused = true
+            }
+    }
+    
+    var content: some View {
+        ZStack {
+            form
+            VStack {
+                Spacer()
+                FillOptionsBar(fieldValue: $fieldValue)
+                    .environmentObject(viewModel)
+            }
         }
     }
     
     var form: some View {
         Form {
-            HStack {
-                textField
-                unitLabel
-                fillButton
-            }
+            textFieldSection
+            FilledImageSection(fieldValue: $fieldValue)
+        }
+        .safeAreaInset(edge: .bottom) {
+            Spacer().frame(height: 50)
         }
     }
     
-    @ViewBuilder
-    var fillButton: some View {
-        if viewModel.shouldShowFillButton {
-            Button {
-                Haptics.feedback(style: .soft)
-                showingFillForm = true
-            } label: {
-                Image(systemName: fieldValue.macroValue.fillType.buttonSystemImage)
-                    .imageScale(.large)
+    var textFieldSection: some View {
+        Section(fieldValue.fillType.sectionHeaderString) {
+            HStack {
+                textField
+                unitLabel
             }
-            .buttonStyle(.borderless)
         }
     }
     
