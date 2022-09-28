@@ -163,6 +163,8 @@ extension EnergyForm {
             if fieldValue.energyValue.fillType.isImageSelection {
                 Section {
                     Button {
+                        Haptics.feedback(style: .soft)
+                        showingImageTextPicker = true
                     } label: {
                         Text("Select another text")
                     }
