@@ -210,9 +210,9 @@ public struct FoodForm: View {
     
     var cameraButton: some View {
         Button {
-//                showingScan = true
 //            viewModel.simulateImageSelection()
-            viewModel.showingCameraImagePicker = true
+            viewModel.simulateImageClassification()
+//            viewModel.showingCameraImagePicker = true
         } label: {
             Label("Take Photos", systemImage: "camera")
                 .foregroundColor(.primary)
@@ -228,27 +228,7 @@ public struct FoodForm: View {
             Label("Choose Photos", systemImage: SourceType.images.systemImage)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
-//                Image(systemName: "photo.on.rectangle.angled")
-//                    .font(.system(size: 25))
-//                    .foregroundColor(.white)
         }
-    }
-    
-    var photosPickerButton_legacy: some View {
-        Button {
-//                showingScan = true
-//                viewModel.simulateImageSelection()
-//                viewModel.simulateImageClassification()
-
-//                viewModel.showingCameraImagePicker = true
-
-            showingPhotosPicker = true
-        } label: {
-            Label("Choose Photos", systemImage: SourceType.images.systemImage)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .buttonStyle(.borderless)
     }
     
     var thirdPartyFoodSection: some View {

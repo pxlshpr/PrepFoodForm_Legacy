@@ -4,6 +4,8 @@ import CameraImagePicker
 extension FoodFormViewModel: CameraImagePickerDelegate {
     public func didCapture(_ image: UIImage) {
         sourceType = .images
+        
+//        showingCameraImagePicker = false
         withAnimation {
             showingWizard = false
         }

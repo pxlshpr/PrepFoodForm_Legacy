@@ -9,33 +9,42 @@ struct MacronutrientForm: View {
     
     @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
-//    @State var showingImageTextPicker = false
 }
 
 extension MacronutrientForm {
     var body: some View {
-        form
+        content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
             .toolbar { keyboardToolbarContents }
             .onAppear {
                 isFocused = true
+                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+            }
+            .onChange(of: fieldValue.fillType) { newValue in
+                fieldFormViewModel.getCroppedImage(for: newValue)
             }
             .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
-                ImageTextPicker(fillType: fieldValue.fillType) { text, ouputId in
-                    fieldFormViewModel.showingImageTextPicker = false
-                }
-                .environmentObject(viewModel)
+                imageTextPicker
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
             }
     }
     
+    var content: some View {
+        ZStack {
+            form
+            VStack {
+                Spacer()
+                FilledImageButton()
+                    .environmentObject(fieldFormViewModel)
+            }
+        }
+    }
+    
     var form: some View {
         Form {
             textFieldSection
-//            FilledImageSection(fieldValue: $fieldValue)
-//                .environmentObject(fieldFormViewModel)
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
@@ -43,7 +52,7 @@ extension MacronutrientForm {
     }
     
     var textFieldSection: some View {
-        Section(fieldValue.fillType.sectionHeaderString) {
+        Section {
             HStack {
                 textField
                 unitLabel
@@ -73,10 +82,28 @@ extension MacronutrientForm {
                     .environmentObject(fieldFormViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)
+                Spacer()
                 Button("Done") {
                     dismiss()
                 }
             }
         }
+    }
+    
+    var imageTextPicker: some View {
+        ImageTextPicker(fillType: fieldValue.fillType) { text, outputId in
+            
+            fieldFormViewModel.showingImageTextPicker = false
+            
+            var newFieldValue = fieldValue
+            newFieldValue.macroValue.double = text.string.double
+            newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+
+            fieldFormViewModel.ignoreNextChange = true
+            withAnimation {
+                fieldValue = newFieldValue
+            }
+        }
+        .environmentObject(viewModel)
     }
 }
