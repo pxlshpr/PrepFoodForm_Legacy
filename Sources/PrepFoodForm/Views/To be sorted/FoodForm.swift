@@ -224,7 +224,7 @@ public struct FoodForm: View {
 //            viewModel.simulateImageSelection()
             viewModel.simulateImageClassification()
         } label: {
-            Label("Mock Photos", systemImage: "wand.and.stars")
+            Label("Mock Photos", systemImage: "wand.and.rays")
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
