@@ -1,12 +1,14 @@
 import SwiftUI
 import PhotosUI
 import NutritionLabelClassifier
+import VisionSugar
 
 class ImageViewModel: ObservableObject {
     
     @Published var status: ImageStatus
     @Published var image: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
+    @Published var textsWithNumbers: [RecognizedText] = []
     var output: Output? = nil
     
     init(_ image: UIImage) {
@@ -29,6 +31,12 @@ class ImageViewModel: ObservableObject {
         self.status = .classified
         self.photosPickerItem = nil
         self.output = output
+        
+        let textsWithNumbers = output.texts.accurate.filter { text in
+            text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
+        }
+
+        self.textsWithNumbers = textsWithNumbers
     }
     
     func startClassifyTask(with image: UIImage) {
@@ -44,9 +52,14 @@ class ImageViewModel: ObservableObject {
             NutritionLabelClassifier(image: image, contentSize: image.size).classify { output in
                 self.output = output
                 
+                let textsWithNumbers = output?.texts.accurate.filter { text in
+                    text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
+                } ?? []
+                
                 Task {
                     await MainActor.run {
                         self.status = .classified
+                        self.textsWithNumbers = textsWithNumbers
                         FoodFormViewModel.shared.imageDidFinishClassifying(self)
                     }
                 }

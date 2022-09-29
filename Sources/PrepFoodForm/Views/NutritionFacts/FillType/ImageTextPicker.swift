@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import NutritionLabelClassifier
 import VisionSugar
+import SwiftUIPager
 
 struct ImageTextPicker: View {
     @Environment(\.dismiss) var dismiss
@@ -9,9 +10,8 @@ struct ImageTextPicker: View {
 
     @State var tappedText: RecognizedText? = nil
     
-    @State var texts: [RecognizedText] = []
-    @State var currentImageViewModel: ImageViewModel?
-    
+    @State var page: Page = .first()
+
     let selectedTextId: UUID?
     let selectedImageOutputId: UUID?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
@@ -31,8 +31,6 @@ struct ImageTextPicker: View {
         }
         
         self.didSelectRecognizedText = didSelectRecognizedText
-        
-        self.currentImageViewModel = nil
     }
     
     var body: some View {
@@ -40,40 +38,90 @@ struct ImageTextPicker: View {
             content
                 .navigationTitle("Select a text")
                 .navigationBarTitleDisplayMode(.inline)
+                .toolbar { bottomToolbar }
         }
     }
     
     var content: some View {
         ZStack {
-            zoomableScrollView
+            pager
             selectedText
         }
-        .task {
-            await MainActor.run {
-                if let selectedImageOutputId {
-                    self.currentImageViewModel = viewModel.imageViewModel(forOutputId: selectedImageOutputId)
-                } else {
-                    self.currentImageViewModel = viewModel.imageViewModels.first
+//        .background(Color(.systemGroupedBackground))
+    }
+    
+    var bottomToolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            HStack {
+                ForEach(viewModel.imageViewModels.indices, id: \.self) { index in
+                    thumbnail(at: index)
                 }
             }
-            
-            let texts = viewModel.imageViewModels.first!.output!.texts.accurate.filter { text in
-                text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
-            }
-            await MainActor.run {
-                self.texts = texts
-            }
+//            .frame(width: .infinity)
+            Spacer()
         }
     }
     
-    var zoomableScrollView: some View {
+    @State var selectedViewModelIndex: Int = 0
+    
+    func thumbnail(at index: Int) -> some View {
+        var isSelected: Bool {
+            selectedViewModelIndex == index
+        }
+        
+        return Group {
+            if let image = viewModel.imageViewModels[index].image {
+                Button {
+                    page.update(.new(index: index))
+                    Haptics.feedback(style: .rigid)
+                    selectedViewModelIndex = index
+                } label: {
+                    Image(uiImage: image)
+                        .interpolation(.none)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                                .opacity(isSelected ? 1.0 : 0.0)
+                        )
+                }
+            }
+        }
+    }
+
+    var pager: some View {
+        Pager(page: page,
+              data: viewModel.imageViewModels,
+              id: \.hashValue,
+              content: { imageViewModel in
+            zoomableScrollView(for: imageViewModel)
+        })
+        .sensitivity(.high)
+        .pagingPriority(.high)
+//        .interactive(scale: 0.7)
+//        .interactive(opacity: 0.99)
+        .onPageWillChange(pageWillChange(to:))
+//        .onPageChanged(controller.pageChanged(to:)) //TODO: Remove this if it is not needed anymore
+    }
+    
+    func pageWillChange(to pageIndex: Int) {
+        withAnimation {
+            selectedViewModelIndex = pageIndex
+        }
+    }
+    
+    func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         ZoomableScrollView {
-            if let image = viewModel.imageViewModels.first!.image {
-                imageView(with: image)
-            }
+            imageView(for: imageViewModel)
         }
     }
-    
+
     @ViewBuilder
     var selectedText: some View {
         if let tappedText {
@@ -91,21 +139,23 @@ struct ImageTextPicker: View {
         }
     }
     
-    func imageView(with image: UIImage) -> some View {
-        Image(uiImage: image)
-            .resizable()
-            .scaledToFit()
-            .overlay {
-                boxesLayer
-                    .transition(.opacity)
-            }
+    @ViewBuilder
+    func imageView(for imageViewModel: ImageViewModel) -> some View {
+        if let image = imageViewModel.image {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .overlay {
+                    boxesLayer(for: imageViewModel)
+                        .transition(.opacity)
+                }
+        }
     }
     
-    @ViewBuilder
-    var boxesLayer: some View {
+    func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
-                ForEach(texts, id: \.self) { text in
+                ForEach(imageViewModel.textsWithNumbers, id: \.self) { text in
                     boxLayer(for: text, inSize: geometry.size)
                     .offset(x: text.boundingBox.rectForSize(geometry.size).minX,
                             y: text.boundingBox.rectForSize(geometry.size).minY)
@@ -115,12 +165,15 @@ struct ImageTextPicker: View {
         }
     }
     
+    var currentOutputId: UUID? {
+        viewModel.imageViewModels[selectedViewModelIndex].output?.id
+    }
+    
     func boxLayer(for text: RecognizedText, inSize size: CGSize) -> some View {
         var boxView: some View {
             Button {
                 Haptics.feedback(style: .rigid)
-                didSelectRecognizedText(text, currentImageViewModel?.output?.id ?? UUID())
-//                        tappedText = text
+                didSelectRecognizedText(text, currentOutputId ?? UUID())
             } label: {
                 RoundedRectangle(cornerRadius: 3)
                     .foregroundStyle(
@@ -162,6 +215,17 @@ public struct ImageTextPickerPreview: View {
     }
     
     public var body: some View {
+        NavigationView {
+            Color.clear
+                .sheet(isPresented: .constant(true)) {
+                    imageTextPicker
+                        .presentationDetents([.medium, .large])
+                        .presentationDragIndicator(.hidden)
+                }
+        }
+    }
+    
+    var imageTextPicker: some View {
         ImageTextPicker(fillType: .userInput) { text, ouputId in
         }
         .environmentObject(viewModel)
@@ -177,8 +241,8 @@ struct ImageTextPicker_Previews: PreviewProvider {
 extension FoodFormViewModel {
     
     func populateWithSampleImages() {
-        populateWithSampleImage(7)
         populateWithSampleImage(8)
+        populateWithSampleImage(7)
     }
     
     func populateWithSampleImage(_ number: Int) {

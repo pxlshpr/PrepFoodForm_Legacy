@@ -35,6 +35,7 @@ public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         hostedView.translatesAutoresizingMaskIntoConstraints = true
         hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         hostedView.frame = scrollView.bounds
+//        hostedView.backgroundColor = UIColor.systemGroupedBackground
         scrollView.addSubview(hostedView)
         
         NotificationCenter.default.addObserver(forName: .resetZoomableScrollViewScale, object: nil, queue: .main) { notification in

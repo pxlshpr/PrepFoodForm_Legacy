@@ -28,6 +28,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.45"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
+        .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -47,6 +48,7 @@ let package = Package(
                 .product(name: "FoodLabel", package: "foodlabel"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
+                .product(name: "SwiftUIPager", package: "swiftuipager"),
             ],
             resources: [.process("SampleImages")]
         ),

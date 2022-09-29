@@ -127,11 +127,13 @@ struct FillOptionsBar: View {
             action()
         } label: {
             ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
+//                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                Capsule(style: .continuous)
                     .foregroundColor(backgroundColor)
                 HStack {
                     Image(systemName: systemImage)
                         .foregroundColor(isSelected ? .white : .secondary)
+                        .imageScale(.small)
                         .frame(height: 25)
                     Text(string)
                         .foregroundColor(isSelected ? .white : .primary)
