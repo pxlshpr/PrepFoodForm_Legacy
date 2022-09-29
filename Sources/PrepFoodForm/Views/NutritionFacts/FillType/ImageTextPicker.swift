@@ -51,7 +51,9 @@ struct ImageTextPicker: View {
         .task {
             await MainActor.run {
                 if let selectedImageOutputId {
-                    self.currentImageViewModel = viewModel.imageViewModel(forOutputId: selectedImageOutputId) ?? viewModel.imageViewModels.first
+                    self.currentImageViewModel = viewModel.imageViewModel(forOutputId: selectedImageOutputId)
+                } else {
+                    self.currentImageViewModel = viewModel.imageViewModels.first
                 }
             }
             
@@ -104,13 +106,7 @@ struct ImageTextPicker: View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 ForEach(texts, id: \.self) { text in
-                    Button {
-                        Haptics.feedback(style: .rigid)
-                        didSelectRecognizedText(text, currentImageViewModel?.output?.id ?? UUID())
-//                        tappedText = text
-                    } label: {
-                        boxView(for: text, inSize: geometry.size)
-                    }
+                    boxLayer(for: text, inSize: geometry.size)
                     .offset(x: text.boundingBox.rectForSize(geometry.size).minX,
                             y: text.boundingBox.rectForSize(geometry.size).minY)
                 }
@@ -119,11 +115,13 @@ struct ImageTextPicker: View {
         }
     }
     
-    @ViewBuilder
-    func boxView(for text: RecognizedText, inSize size: CGSize) -> some View {
-        HStack {
-            VStack(alignment: .leading) {
-                
+    func boxLayer(for text: RecognizedText, inSize size: CGSize) -> some View {
+        var boxView: some View {
+            Button {
+                Haptics.feedback(style: .rigid)
+                didSelectRecognizedText(text, currentImageViewModel?.output?.id ?? UUID())
+//                        tappedText = text
+            } label: {
                 RoundedRectangle(cornerRadius: 3)
                     .foregroundStyle(
                         Color.accentColor.gradient.shadow(
@@ -131,11 +129,6 @@ struct ImageTextPicker: View {
                         )
                     )
                     .opacity(0.3)
-
-//                Color.accentColor
-//                    .cornerRadius(6.0)
-//                    .opacity(0.4)
-                
                     .frame(width: text.boundingBox.rectForSize(size).width,
                            height: text.boundingBox.rectForSize(size).height)
                 
@@ -145,7 +138,12 @@ struct ImageTextPicker: View {
                             .opacity(0.8)
                     )
                     .shadow(radius: 3, x: 0, y: 2)
-
+            }
+        }
+        
+        return HStack {
+            VStack(alignment: .leading) {
+                boxView
                 Spacer()
             }
             Spacer()

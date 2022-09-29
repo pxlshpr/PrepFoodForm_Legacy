@@ -81,7 +81,9 @@ struct FillOptionsBar: View {
                 withAnimation {
                     Haptics.feedback(style: .rigid)
                     fieldFormViewModel.ignoreNextChange = true
-                    fieldValue = outputFieldValue
+                    withAnimation {
+                        fieldValue = outputFieldValue
+                    }
 //                    if fieldValue.energyValue.double != 115 {
 //                        ignoreNextAmountChange = true
 //                    }

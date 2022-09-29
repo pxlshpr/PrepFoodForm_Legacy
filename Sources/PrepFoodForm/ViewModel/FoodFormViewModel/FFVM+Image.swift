@@ -4,7 +4,8 @@ import NutritionLabelClassifier
 
 extension FoodFormViewModel {
     func croppedImage(for fillType: FillType) async -> UIImage? {
-        guard let outputId = fillType.outputId, let recognizedText = fillType.text,
+        guard let outputId = fillType.outputId,
+              let recognizedText = fillType.text,
               let image = image(for: outputId)
         else {
             return nil

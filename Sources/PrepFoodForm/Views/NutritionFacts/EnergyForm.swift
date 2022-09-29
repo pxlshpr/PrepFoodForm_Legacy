@@ -42,10 +42,16 @@ extension EnergyForm {
                 ImageTextPicker(fillType: fieldValue.fillType) { text, outputId in
                     
                     fieldFormViewModel.showingImageTextPicker = false
-                    fieldValue.energyValue.double = text.string.double
                     
+                    var newFieldValue = fieldValue
+                    newFieldValue.energyValue.double = text.string.double
+                    newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+
                     fieldFormViewModel.ignoreNextChange = true
-                    fieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+                    withAnimation {
+                        fieldValue = newFieldValue
+//                        fieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+                    }
                 }
                 .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])

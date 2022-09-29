@@ -10,34 +10,42 @@ struct FilledImageSection: View {
     @State var imageToDisplay: UIImage? = nil
 
     var body: some View {
-        Group {
-            if fieldValue.fillType.usesImage {
-                Section(header: header) {
-                    Button {
-                        fieldFormViewModel.showingImageTextPicker = true
-                    } label: {
-                        HStack {
-                            Spacer()
-                            image
-                            Spacer()
-                        }
-                    }
-                    .buttonStyle(.borderless)
+        sectionBuilder
+        .onAppear {
+            //TODO: Do this on reassignments of the fillType and also when classification completes while on this page (at least with a notification as a fallback), if the user hasn't typed anything yet of course.
+            getCroppedImage(for: fieldValue.fillType)
+        }
+        .onChange(of: fieldValue.fillType) { newValue in
+            getCroppedImage(for: newValue)
+        }
+    }
+    
+    @ViewBuilder
+    var sectionBuilder: some View {
+        if fieldValue.fillType.usesImage {
+            Section(header: header) {
+                if let image = imageToDisplay {
+                    button(for: image)
                 }
             }
         }
-        .onAppear {
-            //TODO: Do this on reassignments of the fillType and also when classification completes while on this page (at least with a notification as a fallback), if the user hasn't typed anything yet of course.
-            getCroppedImage()
-        }
-        .onChange(of: fieldValue.fillType) { newValue in
-            getCroppedImage()
-        }
     }
 
+    func button(for image: UIImage) -> some View {
+        Button {
+            fieldFormViewModel.showingImageTextPicker = true
+        } label: {
+            HStack {
+                Spacer()
+                imageView(image)
+                Spacer()
+            }
+        }
+        .buttonStyle(.borderless)
+    }
     
     @ViewBuilder
-    var image: some View {
+    func imageView(_ image: UIImage) -> some View {
         if let uiImage = imageToDisplay {
             Image(uiImage: uiImage)
                 .resizable()
@@ -93,10 +101,10 @@ struct FilledImageSection: View {
         }
     }
     
-    func getCroppedImage() {
+    func getCroppedImage(for fillType: FillType) {
         guard fieldValue.fillType.usesImage else { return }
         Task {
-            let croppedImage = await viewModel.croppedImage(for: fieldValue.fillType)
+            let croppedImage = await viewModel.croppedImage(for: fillType)
 
             await MainActor.run {
                 self.imageToDisplay = croppedImage
