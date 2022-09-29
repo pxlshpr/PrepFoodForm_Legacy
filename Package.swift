@@ -17,13 +17,13 @@ let package = Package(
     dependencies: [
          // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/pxlshpr/NutritionLabelClassifier", from: "0.0.173"),
+        .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.18"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
         .package(url: "https://github.com/pxlshpr/ISEmojiView", from: "0.3.3"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.12"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.168"),
         .package(url: "https://github.com/pxlshpr/CodeScanner", from: "0.0.7"),
-        .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.12"),
         .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.49"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.45"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),

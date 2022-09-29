@@ -8,7 +8,7 @@ let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, d
 
 public struct FoodForm: View {
     
-    @Environment(\.dismiss) var dismiss
+//    @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
@@ -16,9 +16,12 @@ public struct FoodForm: View {
     
     @State var showingPhotosPicker = true
     @State var selectedPhotos: [PhotosPickerItem] = []
+    
+    let didTapAdd: (() -> ())?
 
-    public init() {
+    public init(didTapAdd: (() -> Void)? = nil) {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
+        self.didTapAdd = didTapAdd
     }
     
     public var body: some View {
@@ -126,15 +129,18 @@ public struct FoodForm: View {
                 VStack {
                     if viewModel.shouldShowSavePublicButton {
                         FormPrimaryButton(title: "Add to Public Database") {
-                            dismiss()
+                            didTapAdd?()
+//                            dismiss()
                         }
                         .padding(.top)
                         FormSecondaryButton(title: "Add to Private Database") {
-                            dismiss()
+                            didTapAdd?()
+//                            dismiss()
                         }
                     } else {
                         FormPrimaryButton(title: "Add to Private Database") {
-                            dismiss()
+                            didTapAdd?()
+//                            dismiss()
                         }
                         .padding(.top)
                     }
