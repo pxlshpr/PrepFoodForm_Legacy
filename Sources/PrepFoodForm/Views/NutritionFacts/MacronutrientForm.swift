@@ -22,10 +22,12 @@ extension MacronutrientForm {
                 isFocused = true
             }
             .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
-                ImageTextPicker(selectedTextId: fieldValue.fillType.valueText?.text.id)
-                    .environmentObject(viewModel)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
+                ImageTextPicker(fillType: fieldValue.fillType) { text, ouputId in
+                    fieldFormViewModel.showingImageTextPicker = false
+                }
+                .environmentObject(viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
             }
     }
     
@@ -33,6 +35,7 @@ extension MacronutrientForm {
         Form {
             textFieldSection
             FilledImageSection(fieldValue: $fieldValue)
+                .environmentObject(fieldFormViewModel)
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
@@ -66,7 +69,7 @@ extension MacronutrientForm {
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             HStack(spacing: 0) {
-                FillOptionsBarNew(fieldValue: $fieldValue)
+                FillOptionsBar(fieldValue: $fieldValue)
                     .environmentObject(fieldFormViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)

@@ -45,6 +45,16 @@ extension FoodFormViewModel {
         }
     }
     
+    func simulateImageClassification() {
+        sourceType = .images
+        populateWithSampleImages()
+        processAllClassifierOutputs()
+        imageSetStatus = .classified
+        withAnimation {
+            showingWizard = false
+        }
+    }
+    
     func prefill(_ food: MFPProcessedFood) {
 
         self.showingThirdPartySearch = false

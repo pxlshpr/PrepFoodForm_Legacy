@@ -1,6 +1,8 @@
 import SwiftUI
 import PrepUnits
 import SwiftHaptics
+import NutritionLabelClassifier
+import VisionSugar
 
 class FieldFormViewModel: ObservableObject {
     @Published var showingImageTextPicker: Bool = false
@@ -17,6 +19,15 @@ struct EnergyForm: View {
 //    @State var showingImageTextPicker = false
 }
 
+extension String {
+    var double: Double? {
+        guard let doubleString = capturedGroups(using: #"(?:^|[ ]+)([0-9.,]+)"#, allowCapturingEntireString: true).first else {
+            return nil
+        }
+        return Double(doubleString)
+    }
+}
+
 extension EnergyForm {
     
     var body: some View {
@@ -28,10 +39,17 @@ extension EnergyForm {
                 isFocused = true
             }
             .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
-                ImageTextPicker(selectedTextId: fieldValue.fillType.valueText?.text.id)
-                    .environmentObject(viewModel)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
+                ImageTextPicker(fillType: fieldValue.fillType) { text, outputId in
+                    
+                    fieldFormViewModel.showingImageTextPicker = false
+                    fieldValue.energyValue.double = text.string.double
+                    
+                    fieldFormViewModel.ignoreNextChange = true
+                    fieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+                }
+                .environmentObject(viewModel)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
             }
     }
     
@@ -39,7 +57,8 @@ extension EnergyForm {
         Form {
             textFieldSection
             FilledImageSection(fieldValue: $fieldValue)
-            optionalSelectSection
+                .environmentObject(fieldFormViewModel)
+//            optionalSelectSection
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
@@ -61,11 +80,13 @@ extension EnergyForm {
             Section {
                 Button {
                     Haptics.feedback(style: .soft)
+                    fieldFormViewModel.showingImageTextPicker = true
                     //TODO: Communicate this
                     //                    showingImageTextPicker = true
                 } label: {
                     Text("Select another text")
                 }
+                .buttonStyle(.borderless)
             }
         }
     }
@@ -95,7 +116,7 @@ extension EnergyForm {
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             HStack(spacing: 0) {
-                FillOptionsBarNew(fieldValue: $fieldValue)
+                FillOptionsBar(fieldValue: $fieldValue)
                     .environmentObject(fieldFormViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)

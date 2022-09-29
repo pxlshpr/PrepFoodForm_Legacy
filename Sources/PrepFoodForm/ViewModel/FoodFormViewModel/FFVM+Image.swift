@@ -4,13 +4,13 @@ import NutritionLabelClassifier
 
 extension FoodFormViewModel {
     func croppedImage(for fillType: FillType) async -> UIImage? {
-        guard let outputId = fillType.outputId, let valueText = fillType.valueText,
+        guard let outputId = fillType.outputId, let recognizedText = fillType.text,
               let image = image(for: outputId)
         else {
             return nil
         }
         
-        return await valueText.croppedImage(from: image)
+        return await recognizedText.croppedImage(from: image)
     }
     
     func image(for outputId: UUID) -> UIImage? {
@@ -22,16 +22,12 @@ extension FoodFormViewModel {
         return nil
     }
 }
+import VisionSugar
 
-extension ValueText {
-    
-    var boundingBoxForCrop: CGRect {
-        text.boundingBox
-//        text.boundingBox.zoomedOutBoundingBox
-    }
-    
+extension RecognizedText {
+
     func croppedImage(from image: UIImage) async -> UIImage {
-        let cropRect = boundingBoxForCrop.rectForSize(image.size)
+        let cropRect = boundingBox.rectForSize(image.size)
         let image = image.fixOrientationIfNeeded()
         return cropImage(imageToCrop: image, toRect: cropRect)
     }

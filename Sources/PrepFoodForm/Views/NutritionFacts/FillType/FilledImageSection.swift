@@ -5,6 +5,7 @@ import SwiftHaptics
 struct FilledImageSection: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
+    @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
     @Binding var fieldValue: FieldValue
     @State var imageToDisplay: UIImage? = nil
 
@@ -12,16 +13,23 @@ struct FilledImageSection: View {
         Group {
             if fieldValue.fillType.usesImage {
                 Section(header: header) {
-                    NavigationLink {
-                        
+                    Button {
+                        fieldFormViewModel.showingImageTextPicker = true
                     } label: {
-                        image
+                        HStack {
+                            Spacer()
+                            image
+                            Spacer()
+                        }
                     }
                 }
             }
         }
         .onAppear {
             //TODO: Do this on reassignments of the fillType and also when classification completes while on this page (at least with a notification as a fallback), if the user hasn't typed anything yet of course.
+            getCroppedImage()
+        }
+        .onChange(of: fieldValue.fillType) { newValue in
             getCroppedImage()
         }
     }
@@ -85,12 +93,9 @@ struct FilledImageSection: View {
     }
     
     func getCroppedImage() {
+        guard fieldValue.fillType.usesImage else { return }
         Task {
             let croppedImage = await viewModel.croppedImage(for: fieldValue.fillType)
-//            guard let outputId = fieldValue.energyValue.fillType.outputId else {
-//                return
-//            }
-//            let image = viewModel.image(for: outputId)
 
             await MainActor.run {
                 self.imageToDisplay = croppedImage

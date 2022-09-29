@@ -6,30 +6,85 @@ import VisionSugar
 struct ImageTextPicker: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: FoodFormViewModel
-    let selectedTextId: UUID?
-//    let selectedImageOutputId: UUID?
 
     @State var tappedText: RecognizedText? = nil
     
+    @State var texts: [RecognizedText] = []
+    @State var currentImageViewModel: ImageViewModel?
+    
+    let selectedTextId: UUID?
+    let selectedImageOutputId: UUID?
+    let didSelectRecognizedText: (RecognizedText, UUID) -> Void
+    
+    init(fillType: FillType, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
+        
+        switch fillType {
+        case .imageSelection(let recognizedText, let outputId):
+            self.selectedTextId = recognizedText.id
+            self.selectedImageOutputId = outputId
+        case .imageAutofill(let valueText, let outputId):
+            self.selectedTextId = valueText.text.id
+            self.selectedImageOutputId = outputId
+        default:
+            self.selectedTextId = nil
+            self.selectedImageOutputId = nil
+        }
+        
+        self.didSelectRecognizedText = didSelectRecognizedText
+        
+        self.currentImageViewModel = nil
+    }
+    
     var body: some View {
+        NavigationView {
+            content
+                .navigationTitle("Select a text")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    var content: some View {
         ZStack {
-            ZoomableScrollView {
-                if let image = viewModel.imageViewModels.first!.image {
-                    imageView(with: image)
+            zoomableScrollView
+            selectedText
+        }
+        .task {
+            await MainActor.run {
+                if let selectedImageOutputId {
+                    self.currentImageViewModel = viewModel.imageViewModel(forOutputId: selectedImageOutputId) ?? viewModel.imageViewModels.first
                 }
             }
-            if let tappedText {
-                VStack {
-                    Spacer()
-                    Text(tappedText.string)
-                        .foregroundColor(.white)
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .foregroundColor(Color.accentColor.opacity(0.8))
-                        )
-                        .padding(.bottom)
-                }
+            
+            let texts = viewModel.imageViewModels.first!.output!.texts.accurate.filter { text in
+                text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
+            }
+            await MainActor.run {
+                self.texts = texts
+            }
+        }
+    }
+    
+    var zoomableScrollView: some View {
+        ZoomableScrollView {
+            if let image = viewModel.imageViewModels.first!.image {
+                imageView(with: image)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var selectedText: some View {
+        if let tappedText {
+            VStack {
+                Spacer()
+                Text(tappedText.string)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .foregroundColor(Color.accentColor.opacity(0.8))
+                    )
+                    .padding(.bottom)
             }
         }
     }
@@ -44,14 +99,6 @@ struct ImageTextPicker: View {
             }
     }
     
-    var imageViewModel: ImageViewModel {
-        viewModel.imageViewModels.first!
-    }
-    
-    var texts: [RecognizedText] {
-        imageViewModel.output?.nutrients.rows.compactMap { $0.valueText1?.text } ?? []
-    }
-    
     @ViewBuilder
     var boxesLayer: some View {
         GeometryReader { geometry in
@@ -59,7 +106,8 @@ struct ImageTextPicker: View {
                 ForEach(texts, id: \.self) { text in
                     Button {
                         Haptics.feedback(style: .rigid)
-                        tappedText = text
+                        didSelectRecognizedText(text, currentImageViewModel?.output?.id ?? UUID())
+//                        tappedText = text
                     } label: {
                         boxView(for: text, inSize: geometry.size)
                     }
@@ -116,8 +164,9 @@ public struct ImageTextPickerPreview: View {
     }
     
     public var body: some View {
-        ImageTextPicker(selectedTextId: nil)
-            .environmentObject(viewModel)
+        ImageTextPicker(fillType: .userInput) { text, ouputId in
+        }
+        .environmentObject(viewModel)
     }
 }
 

@@ -174,7 +174,8 @@ public struct FoodForm: View {
         return Section(header: header) {
             Button {
 //                showingScan = true
-                viewModel.simulateImageSelection()
+//                viewModel.simulateImageSelection()
+                viewModel.simulateImageClassification()
             } label: {
                 Label("Choose Images", systemImage: SourceType.images.systemImage)
                     .foregroundColor(.primary)

@@ -232,6 +232,10 @@ extension FoodFormViewModel {
             partialResult + (imageViewModel.output?.nutrients.rows.count ?? 0)
         }
     }
+    
+    func imageViewModel(forOutputId outputId: UUID) -> ImageViewModel? {
+        imageViewModels.first(where: { $0.output?.id == outputId })
+    }
 }
 
 extension ImageViewModel {
