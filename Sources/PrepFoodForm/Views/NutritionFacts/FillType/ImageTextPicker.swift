@@ -177,6 +177,7 @@ struct ImageTextPicker_Previews: PreviewProvider {
 extension FoodFormViewModel {
     
     func populateWithSampleImages() {
+        populateWithSampleImage(7)
         populateWithSampleImage(8)
     }
     

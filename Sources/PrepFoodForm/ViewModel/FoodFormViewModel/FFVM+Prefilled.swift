@@ -33,7 +33,7 @@ extension FoodFormViewModel {
         sourceType = .images
         imageSetStatus = .classifying
         
-        simulateAddingImage(8)
+        simulateAddingImage(7)
 //        simulateAddingImage(7)
 //        simulateAddingImage(1)
 //        simulateAddingImage(2)
