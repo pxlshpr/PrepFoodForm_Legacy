@@ -68,7 +68,29 @@ class ImageViewModel: ObservableObject {
     }
     
     func startLoadingTask(with item: PhotosPickerItem) {
-        //TODO: Load the image here too once picked from photo picker
+        Task(priority: .userInitiated) {
+            guard let image = try await loadImage(pickerItem: item) else {
+                return
+            }
+            
+            await MainActor.run {
+                self.image = image
+                self.status = .notClassified
+                self.startClassifyTask(with: image)
+            }
+        }
+    }
+    
+    func loadImage(pickerItem: PhotosPickerItem) async throws -> UIImage? {
+        guard let data = try await pickerItem.loadTransferable(type: Data.self) else {
+            return nil
+//            throw PhotoPickerError.load
+        }
+        guard let image = UIImage(data: data) else {
+            return nil
+//            throw PhotoPickerError.image
+        }
+        return image
     }
 }
 

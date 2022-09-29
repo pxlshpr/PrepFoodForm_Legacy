@@ -18,6 +18,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var brand: FieldValue = .brand()
     @Published var barcode: FieldValue = .barcode()
     
+    @Published var showingCameraImagePicker: Bool = false
+    
     //MARK: Amount Per
     @Published var amount: FieldValue = .amount() {
         didSet {

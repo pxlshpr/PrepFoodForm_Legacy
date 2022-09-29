@@ -66,7 +66,7 @@ extension SourceType {
 //        case .scan:
 //            return "text.viewfinder"
         case .images:
-            return "photo.on.rectangle.angled"
+            return "photo.on.rectangle"
         case .onlineSource:
             return "magnifyingglass"
         case .link:

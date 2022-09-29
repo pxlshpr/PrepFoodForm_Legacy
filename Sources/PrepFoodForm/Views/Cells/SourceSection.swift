@@ -85,7 +85,7 @@ extension FoodForm.SourceSection {
     var imagesGrid: some View {
 //        GeometryReader { geometry in
             HStack {
-                ForEach(viewModel.imageViewModels, id: \.self) { imageViewModel in
+                ForEach(viewModel.imageViewModels, id: \.self.hashValue) { imageViewModel in
                     SourceImage(imageViewModel: imageViewModel, width: 55, height: 55)
                 }
             }

@@ -2,6 +2,7 @@ import SwiftUI
 import CameraImagePicker
 import SwiftHaptics
 import PrepUnits
+import PhotosUI
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
@@ -13,6 +14,9 @@ public struct FoodForm: View {
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
     
+    @State var showingPhotosPicker = true
+    @State var selectedPhotos: [PhotosPickerItem] = []
+
     public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
@@ -34,6 +38,16 @@ public struct FoodForm: View {
                             }
                         }
                     }
+                }
+                .onChange(of: selectedPhotos) { newValue in
+                    viewModel.selectedPhotosChanged(to: newValue)
+                    showingPhotosPicker = false
+                    withAnimation {
+                        viewModel.showingWizard = false
+                    }
+                }
+                .sheet(isPresented: $viewModel.showingCameraImagePicker) {
+                    CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
                 }
         }
     }
@@ -172,25 +186,9 @@ public struct FoodForm: View {
         }
         
         return Section(header: header) {
-            Button {
-//                showingScan = true
-//                viewModel.simulateImageSelection()
-                viewModel.simulateImageClassification()
-            } label: {
-                Label("Choose Images", systemImage: SourceType.images.systemImage)
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.borderless)
-            Button {
-//                showingScan = true
-                viewModel.simulateImageSelection()
-            } label: {
-                Label("Take Photos", systemImage: "camera")
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .buttonStyle(.borderless)
+            photosPickerButton
+            cameraButton
+            
         }
         .sheet(isPresented: $showingScan) {
             ScanForm()
@@ -202,6 +200,49 @@ public struct FoodForm: View {
                     }
                 }
         }
+    }
+    
+    var cameraButton: some View {
+        Button {
+//                showingScan = true
+//            viewModel.simulateImageSelection()
+            viewModel.showingCameraImagePicker = true
+        } label: {
+            Label("Take Photos", systemImage: "camera")
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.borderless)
+    }
+    
+    var photosPickerButton: some View {
+        PhotosPicker(selection: $selectedPhotos,
+                     maxSelectionCount: 5,
+                     matching: .images) {
+            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+//                Image(systemName: "photo.on.rectangle.angled")
+//                    .font(.system(size: 25))
+//                    .foregroundColor(.white)
+        }
+    }
+    
+    var photosPickerButton_legacy: some View {
+        Button {
+//                showingScan = true
+//                viewModel.simulateImageSelection()
+//                viewModel.simulateImageClassification()
+
+//                viewModel.showingCameraImagePicker = true
+
+            showingPhotosPicker = true
+        } label: {
+            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.borderless)
     }
     
     var thirdPartyFoodSection: some View {

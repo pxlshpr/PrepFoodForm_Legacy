@@ -1,8 +1,18 @@
 import SwiftUI
 import PrepUnits
 import NutritionLabelClassifier
+import PhotosUI
 
 extension FoodFormViewModel {
+    func selectedPhotosChanged(to items: [PhotosPickerItem]) {
+        
+        sourceType = .images
+        for item in items {
+            let imageViewModel = ImageViewModel(photosPickerItem: item)
+            imageViewModels.append(imageViewModel)
+        }
+    }
+
     func croppedImage(for fillType: FillType) async -> UIImage? {
         guard let outputId = fillType.outputId,
               let recognizedText = fillType.text,
@@ -27,16 +37,17 @@ import VisionSugar
 
 extension RecognizedText {
 
-    func croppedImage(from image: UIImage) async -> UIImage {
+    func croppedImage(from image: UIImage) async -> UIImage? {
         let cropRect = boundingBox.rectForSize(image.size)
         let image = image.fixOrientationIfNeeded()
         return cropImage(imageToCrop: image, toRect: cropRect)
     }
     
-    func cropImage(imageToCrop:UIImage, toRect rect:CGRect) -> UIImage {
-        let imageRef:CGImage = imageToCrop.cgImage!.cropping(to: rect)!
-        let cropped:UIImage = UIImage(cgImage:imageRef)
-        return cropped
+    func cropImage(imageToCrop:UIImage, toRect rect:CGRect) -> UIImage? {
+        guard let imageRef = imageToCrop.cgImage?.cropping(to: rect) else {
+            return nil
+        }
+        return UIImage(cgImage: imageRef)
     }
 }
 

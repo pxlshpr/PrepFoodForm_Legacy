@@ -37,7 +37,9 @@ public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         hostedView.frame = scrollView.bounds
 //        hostedView.backgroundColor = UIColor.systemGroupedBackground
         scrollView.addSubview(hostedView)
-        
+
+        scrollView.setZoomScale(1, animated: true)
+
         NotificationCenter.default.addObserver(forName: .resetZoomableScrollViewScale, object: nil, queue: .main) { notification in
             scrollView.setZoomScale(1, animated: true)
         }

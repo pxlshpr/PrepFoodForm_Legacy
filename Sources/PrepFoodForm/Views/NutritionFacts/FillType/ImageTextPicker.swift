@@ -39,12 +39,15 @@ struct ImageTextPicker: View {
                 .navigationTitle("Select a text")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { bottomToolbar }
+                .toolbar(.visible, for: .bottomBar)
+                .toolbarBackground(.visible, for: .bottomBar)
         }
     }
     
     var content: some View {
         ZStack {
             pager
+//                .edgesIgnoringSafeArea(.bottom)
             selectedText
         }
 //        .background(Color(.systemGroupedBackground))
@@ -73,7 +76,10 @@ struct ImageTextPicker: View {
         return Group {
             if let image = viewModel.imageViewModels[index].image {
                 Button {
-                    page.update(.new(index: index))
+                    let increment = index - selectedViewModelIndex
+                    withAnimation {
+                        page.update(.move(increment: increment))
+                    }
                     Haptics.feedback(style: .rigid)
                     selectedViewModelIndex = index
                 } label: {
