@@ -21,7 +21,7 @@ struct EnergyForm: View {
 
 extension String {
     var double: Double? {
-        guard let doubleString = capturedGroups(using: #"(?:^|[ ]+)([0-9.,]+)"#, allowCapturingEntireString: true).first else {
+        guard let doubleString = capturedGroups(using: #"(?:^|[ ]+)([0-9.,]+)"#, allowCapturingEntireString: true).last else {
             return nil
         }
         return Double(doubleString)
@@ -120,6 +120,7 @@ extension EnergyForm {
                     .environmentObject(fieldFormViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)
+                Spacer()
                 Button("Done") {
                     dismiss()
                 }

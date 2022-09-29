@@ -22,6 +22,7 @@ struct FilledImageSection: View {
                             Spacer()
                         }
                     }
+                    .buttonStyle(.borderless)
                 }
             }
         }

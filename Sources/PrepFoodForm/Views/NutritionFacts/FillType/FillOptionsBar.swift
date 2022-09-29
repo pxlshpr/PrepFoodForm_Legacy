@@ -3,6 +3,7 @@ import SwiftHaptics
 
 struct FillOptionsBar: View {
     
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var viewModel: FoodFormViewModel
     @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
 
@@ -96,25 +97,40 @@ struct FillOptionsBar: View {
     
     var imageSelectButton: some View {
         var title: String {
-            fieldValue.energyValue.fillType.isImageSelection ? "Selected" : "Select"
+            fieldValue.energyValue.fillType.isImageSelection ? "Select" : "Select"
         }
-        return button(title, systemImage: "hand.tap", isSelected: fieldValue.energyValue.fillType.isImageSelection) {
+        return button(title, systemImage: "hand.tap", isSelected: fieldValue.energyValue.fillType.isImageSelection, disableAllowed: false) {
             Haptics.feedback(style: .soft)
             fieldFormViewModel.showingImageTextPicker = true
         }
     }
     
-    func button(_ string: String, systemImage: String, isSelected: Bool, action: @escaping () -> ()) -> some View {
+    func button(_ string: String, systemImage: String, isSelected: Bool, disableAllowed: Bool = true, action: @escaping () -> ()) -> some View {
         
-        Button {
+        let selectionColorDark = Color(hex: "6c6c6c")
+        let selectionColorLight = Color(hex: "959596")
+
+        var backgroundColor: Color {
+            guard isSelected else {
+                return Color(.secondarySystemFill)
+            }
+            if disableAllowed {
+                return .accentColor
+            } else {
+                return colorScheme == .light ? selectionColorLight : selectionColorDark
+            }
+        }
+        
+        return Button {
             action()
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .foregroundColor(isSelected ? .accentColor : Color(.secondarySystemFill))
+                    .foregroundColor(backgroundColor)
                 HStack {
                     Image(systemName: systemImage)
                         .foregroundColor(isSelected ? .white : .secondary)
+                        .frame(height: 25)
                     Text(string)
                         .foregroundColor(isSelected ? .white : .primary)
                 }
@@ -128,7 +144,8 @@ struct FillOptionsBar: View {
 //                    .foregroundColor(isSelected.wrappedValue ? .accentColor : Color(.secondarySystemFill))
 //            )
         }
-        .disabled(isSelected)
+        .grayscale(isSelected ? 1 : 0)
+        .disabled(disableAllowed ? isSelected : false)
     }
     
 }
