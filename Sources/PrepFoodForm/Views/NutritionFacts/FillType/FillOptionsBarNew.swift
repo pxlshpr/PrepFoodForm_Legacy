@@ -4,22 +4,18 @@ import SwiftHaptics
 struct FillOptionsBarNew: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @Binding var fieldValue: FieldValue
+    @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
 
-    @State var showingImageTextPicker = false
-    @State var ignoreNextChange: Bool = false
+    @Binding var fieldValue: FieldValue
+//    @Binding var showingImageTextPicker: Bool
+//    @State var ignoreNextChange: Bool = false
 
     var body: some View {
         scrollView
-            .sheet(isPresented: $showingImageTextPicker) {
-                ImageTextPicker(fieldValue: $fieldValue, ignoreNextChange: $ignoreNextChange)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
-            }
             //TODO: Maybe do an onchange on the whole fieldValue? or grab textfield and do it there
             .onChange(of: fieldValue) { newValue in
-                guard !ignoreNextChange else {
-                    ignoreNextChange = false
+                guard !fieldFormViewModel.ignoreNextChange else {
+                    fieldFormViewModel.ignoreNextChange = false
                     return
                 }
                 withAnimation {
@@ -83,7 +79,7 @@ struct FillOptionsBarNew: View {
             {
                 withAnimation {
                     Haptics.feedback(style: .rigid)
-                    ignoreNextChange = true
+                    fieldFormViewModel.ignoreNextChange = true
                     fieldValue = outputFieldValue
 //                    if fieldValue.energyValue.double != 115 {
 //                        ignoreNextAmountChange = true
@@ -104,7 +100,7 @@ struct FillOptionsBarNew: View {
         }
         return button(title, systemImage: "hand.tap", isSelected: fieldValue.energyValue.fillType.isImageSelection) {
             Haptics.feedback(style: .soft)
-            showingImageTextPicker = true
+            fieldFormViewModel.showingImageTextPicker = true
         }
     }
     

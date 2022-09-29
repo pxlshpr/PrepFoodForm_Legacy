@@ -215,6 +215,9 @@ extension FoodFormViewModel {
             return
         }
         
+        /// Used for testing currently—so that we can save the output and read it again without re-running the classifier
+        imageViewModel.saveOutputToJson()
+        
         if imageViewModels.allSatisfy({ $0.status == .classified }) {
             Haptics.successFeedback()
             withAnimation {
@@ -227,6 +230,27 @@ extension FoodFormViewModel {
     var classifiedNutrientCount: Int {
         imageViewModels.reduce(0) { partialResult, imageViewModel in
             partialResult + (imageViewModel.output?.nutrients.rows.count ?? 0)
+        }
+    }
+}
+
+extension ImageViewModel {
+    func saveOutputToJson() {
+        guard let output else {
+            return
+        }
+        
+        let encoder = JSONEncoder()
+        do {
+            let data = try encoder.encode(output)
+            
+            if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                url.appendPathComponent("output.json")
+                try data.write(to: url)
+                print("📝 Wrote output to: \(url)")
+            }
+        } catch {
+            print(error)
         }
     }
 }

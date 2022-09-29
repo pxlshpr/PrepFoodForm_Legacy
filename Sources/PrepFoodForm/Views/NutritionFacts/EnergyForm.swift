@@ -2,35 +2,37 @@ import SwiftUI
 import PrepUnits
 import SwiftHaptics
 
+class FieldFormViewModel: ObservableObject {
+    @Published var showingImageTextPicker: Bool = false
+    @Published var ignoreNextChange: Bool = false
+}
+
 struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
+    @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
+//    @State var showingImageTextPicker = false
 }
 
 extension EnergyForm {
     
     var body: some View {
-        content
+        form
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
             .toolbar { keyboardToolbarContents }
             .onAppear {
                 isFocused = true
             }
-    }
-    
-    var content: some View {
-        ZStack {
-            form
-//            VStack {
-//                Spacer()
-//                FillOptionsBar(fieldValue: $fieldValue)
-//                    .environmentObject(viewModel)
-//            }
-        }
+            .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
+                ImageTextPicker(selectedTextId: fieldValue.fillType.valueText?.text.id)
+                    .environmentObject(viewModel)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
     }
     
     var form: some View {
@@ -94,6 +96,7 @@ extension EnergyForm {
         ToolbarItemGroup(placement: .keyboard) {
             HStack(spacing: 0) {
                 FillOptionsBarNew(fieldValue: $fieldValue)
+                    .environmentObject(fieldFormViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)
                 Button("Done") {

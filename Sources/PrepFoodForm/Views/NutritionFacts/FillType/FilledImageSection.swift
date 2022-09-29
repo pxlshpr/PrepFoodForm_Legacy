@@ -57,10 +57,7 @@ struct FilledImageSection: View {
     }
 
     var sampleImage: UIImage? {
-        guard let path = Bundle.module.path(forResource: "label4", ofType: "jpg") else {
-            return nil
-        }
-        return UIImage(contentsOfFile: path)
+        PrepFoodForm.sampleImage(4)
     }
 
     @ViewBuilder

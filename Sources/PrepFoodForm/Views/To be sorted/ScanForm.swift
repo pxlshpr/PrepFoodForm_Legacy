@@ -26,15 +26,9 @@ struct ScanForm: View {
 }
 
 extension FoodFormViewModel {
-    func labelImage(_ number: Int) -> UIImage? {
-        guard let path = Bundle.module.path(forResource: "label\(number)", ofType: "jpg") else {
-            return nil
-        }
-        return UIImage(contentsOfFile: path)
-    }
     
     var labelImage: UIImage? {
-        labelImage(1)
+        PrepFoodForm.sampleImage(1)
     }
     
     var sampleImagesArray: [UIImage] {
@@ -43,8 +37,7 @@ extension FoodFormViewModel {
     
     func setSampleImages() {
 //        for i in 1...5 {
-//            let path = Bundle.module.path(forResource: "label\(i)", ofType: "jpg")!
-//            let image = UIImage(contentsOfFile: path)!
+//            let image = PrepFoodForm.sampleImage(i)!
 //            let sourceImageViewModel = ImageViewModel(image: image)
 //            imageViewModels.append(sourceImageViewModel)
 //        }

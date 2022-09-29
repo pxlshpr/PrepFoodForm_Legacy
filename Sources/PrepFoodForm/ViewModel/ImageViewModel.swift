@@ -15,14 +15,22 @@ class ImageViewModel: ObservableObject {
         self.startClassifyTask(with: image)
 //        self.status = .classified
     }
-    
+
     init(photosPickerItem: PhotosPickerItem) {
         self.image = nil
         self.photosPickerItem = photosPickerItem
         self.status = .loading
         self.startLoadingTask(with: photosPickerItem)
     }
-
+    
+    /// Used for testing purposes to manually create an `ImageViewModel` with a preloaded `UIImage` and `Output`
+    init(image: UIImage, output: Output) {
+        self.image = image
+        self.status = .classified
+        self.photosPickerItem = nil
+        self.output = output
+    }
+    
     func startClassifyTask(with image: UIImage) {
         self.status = .classifying
         Task(priority: .userInitiated) {

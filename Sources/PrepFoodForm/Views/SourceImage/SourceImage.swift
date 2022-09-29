@@ -122,8 +122,7 @@ public struct SourceImagePreview: View {
     @StateObject var viewModel: ImageViewModel
     
     public init() {
-        let path = Bundle.module.path(forResource: "label6", ofType: "jpg")!
-        let image = UIImage(contentsOfFile: path)!
+        let image = PrepFoodForm.sampleImage(6)!
         let viewModel = ImageViewModel(image)
         _viewModel = StateObject(wrappedValue: viewModel)
     }

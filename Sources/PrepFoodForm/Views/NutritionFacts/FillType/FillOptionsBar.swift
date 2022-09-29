@@ -6,16 +6,11 @@ struct FillOptionsBar: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Binding var fieldValue: FieldValue
 
-    @State var showingImageTextPicker = false
+    @Binding var showingImageTextPicker: Bool
     @State var ignoreNextChange: Bool = false
 
     var body: some View {
         scrollView
-            .sheet(isPresented: $showingImageTextPicker) {
-                ImageTextPicker(fieldValue: $fieldValue, ignoreNextChange: $ignoreNextChange)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
-            }
             //TODO: Maybe do an onchange on the whole fieldValue? or grab textfield and do it there
             .onChange(of: fieldValue) { newValue in
                 guard !ignoreNextChange else {
