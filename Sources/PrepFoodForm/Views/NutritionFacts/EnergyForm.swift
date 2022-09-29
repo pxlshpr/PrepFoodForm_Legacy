@@ -7,6 +7,28 @@ import VisionSugar
 class FieldFormViewModel: ObservableObject {
     @Published var showingImageTextPicker: Bool = false
     @Published var ignoreNextChange: Bool = false
+    @Published var imageToDisplay: UIImage? = nil
+    @Published var shouldShowImage: Bool = false
+
+    func getCroppedImage(for fillType: FillType) {
+        guard fillType.usesImage else {
+            withAnimation {
+                imageToDisplay = nil
+                shouldShowImage = false
+            }
+            return
+        }
+        Task {
+            let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fillType)
+
+            await MainActor.run {
+                withAnimation {
+                    self.imageToDisplay = croppedImage
+                    self.shouldShowImage = true
+                }
+            }
+        }
+    }
 }
 
 struct EnergyForm: View {
@@ -16,7 +38,6 @@ struct EnergyForm: View {
     
     @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
-//    @State var showingImageTextPicker = false
 }
 
 extension String {
@@ -31,12 +52,16 @@ extension String {
 extension EnergyForm {
     
     var body: some View {
-        form
+        content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
             .toolbar { keyboardToolbarContents }
             .onAppear {
                 isFocused = true
+                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+            }
+            .onChange(of: fieldValue.fillType) { newValue in
+                fieldFormViewModel.getCroppedImage(for: newValue)
             }
             .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
                 ImageTextPicker(fillType: fieldValue.fillType) { text, outputId in
@@ -59,12 +84,24 @@ extension EnergyForm {
             }
     }
     
+    var content: some View {
+        ZStack {
+            form
+            VStack {
+                Spacer()
+//                if fieldFormViewModel.shouldShowImage && !fieldFormViewModel.showingImageTextPicker {
+                    FilledImageButton()
+                        .environmentObject(fieldFormViewModel)
+//                        .transition(.move(edge: .bottom))
+//                        .animation(.default, value: fieldFormViewModel.showingImageTextPicker)
+//                }
+            }
+        }
+    }
+    
     var form: some View {
         Form {
             textFieldSection
-            FilledImageSection(fieldValue: $fieldValue)
-                .environmentObject(fieldFormViewModel)
-//            optionalSelectSection
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
@@ -72,7 +109,8 @@ extension EnergyForm {
     }
     
     var textFieldSection: some View {
-        Section(fieldValue.fillType.sectionHeaderString) {
+//        Section(fieldValue.fillType.sectionHeaderString) {
+        Section {
             HStack {
                 textField
                 unitLabel

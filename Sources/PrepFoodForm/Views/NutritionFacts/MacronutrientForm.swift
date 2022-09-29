@@ -34,8 +34,8 @@ extension MacronutrientForm {
     var form: some View {
         Form {
             textFieldSection
-            FilledImageSection(fieldValue: $fieldValue)
-                .environmentObject(fieldFormViewModel)
+//            FilledImageSection(fieldValue: $fieldValue)
+//                .environmentObject(fieldFormViewModel)
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
