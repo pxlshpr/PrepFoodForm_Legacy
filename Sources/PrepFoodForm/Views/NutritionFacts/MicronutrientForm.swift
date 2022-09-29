@@ -2,38 +2,91 @@ import SwiftUI
 import PrepUnits
 
 struct MicronutrientForm: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
+    @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
+    
     @State var isBeingEdited: Bool
-    var didSubmit: ((String, NutrientUnit) -> ())
+    var didSubmit: ((FieldValue) -> ())
     
-    @State var string: String = ""
-    @State var nutrientUnit: NutrientUnit = .g
+    @State var fieldValueCopy: FieldValue
     
-    init(fieldValue: Binding<FieldValue>, isBeingEdited: Bool = false, didSubmit: @escaping ((String, NutrientUnit) -> ())) {
+//    @State var string: String = ""
+//    @State var nutrientUnit: NutrientUnit = .g
+//    @State var fillType: FillType = .userInput
+    
+    init(fieldValue: Binding<FieldValue>, isBeingEdited: Bool = false, didSubmit: @escaping ((FieldValue) -> ())) {
         _fieldValue = fieldValue
         _isBeingEdited = State(initialValue: isBeingEdited)
         self.didSubmit = didSubmit
+        _fieldValueCopy = State(initialValue: fieldValue.wrappedValue)
     }
 }
 
 extension MicronutrientForm {
     var body: some View {
-        form
-        .scrollDismissesKeyboard(.never)
-        .navigationTitle(fieldValue.description)
-        .toolbar { keyboardToolbarContents }
-        .onAppear {
-            isFocused = true
-            string = fieldValue.microValue.string
-            nutrientUnit = fieldValue.microValue.unit
+        content
+            .scrollDismissesKeyboard(.never)
+            .navigationTitle(fieldValue.description)
+            .toolbar { keyboardToolbarContents }
+            .onAppear {
+                isFocused = true
+                
+                fieldFormViewModel.ignoreNextChange = true
+                fieldValueCopy = fieldValue
+//                string = fieldValue.microValue.string
+//                nutrientUnit = fieldValue.microValue.unit
+//                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                    self.fieldFormViewModel.ignoreNextChange = false
+//                }
+//                fillType = fieldValue.fillType
+                
+                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+            }
+            .onChange(of: fieldValueCopy.fillType) { newValue in
+                fieldFormViewModel.getCroppedImage(for: newValue)
+            }
+            .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
+                imageTextPicker
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
+            .onChange(of: fieldValueCopy) { newValue in
+                guard !fieldFormViewModel.ignoreNextChange else {
+                    fieldFormViewModel.ignoreNextChange = false
+                    return
+                }
+                withAnimation {
+                    fieldValue.fillType = .userInput
+                }
+            }
+    }
+   
+    var content: some View {
+        ZStack {
+            form
+            VStack {
+                Spacer()
+                FilledImageButton()
+                    .environmentObject(fieldFormViewModel)
+            }
         }
     }
     
     var form: some View {
         Form {
+            textFieldSection
+        }
+        .safeAreaInset(edge: .bottom) {
+            Spacer().frame(height: 50)
+        }
+    }
+    
+    var textFieldSection: some View {
+        Section {
             HStack {
                 textField
                 unitLabel
@@ -42,15 +95,27 @@ extension MicronutrientForm {
     }
     
     var textField: some View {
-        TextField("Optional", text: $string)
+        TextField("Optional", text: $fieldValueCopy.microValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
+            .font(.largeTitle)
     }
     
+    @ViewBuilder
     var unitLabel: some View {
-        Text(nutrientUnit.shortDescription)
-            .foregroundColor(.secondary)
+        if units.count > 1 {
+            Picker("", selection: $fieldValueCopy.microValue.nutrientType) {
+                ForEach(units, id: \.self) { unit in
+                    Text(unit.shortDescription).tag(unit)
+                }
+            }
+            .pickerStyle(.segmented)
+        } else {
+            Text(fieldValueCopy.microValue.unitDescription)
+                .foregroundColor(.secondary)
+                .font(.title3)
+        }
     }
     
     var units: [NutrientUnit] {
@@ -59,19 +124,33 @@ extension MicronutrientForm {
     
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
-            if units.count > 1 {
-                Picker("", selection: $nutrientUnit) {
-                    ForEach(units, id: \.self) { unit in
-                        Text(unit.shortDescription).tag(unit)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
+            FillOptionsBar(fieldValue: $fieldValueCopy)
+                .environmentObject(fieldFormViewModel)
+                .environmentObject(viewModel)
+                .frame(maxWidth: .infinity)
             Spacer()
             Button(isBeingEdited ? "Save" : "Add") {
-                didSubmit(string, nutrientUnit)
+                didSubmit(fieldValueCopy)
                 dismiss()
             }
         }
+    }
+    
+    var imageTextPicker: some View {
+        ImageTextPicker(fillType: fieldValueCopy.fillType) { text, outputId in
+            
+            fieldFormViewModel.showingImageTextPicker = false
+            
+            var newFieldValue = fieldValue
+            newFieldValue.microValue.double = text.string.double
+            newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+            
+            fieldFormViewModel.ignoreNextChange = true
+            withAnimation {
+                fieldValueCopy = newFieldValue
+                fieldFormViewModel.ignoreNextChange = true
+            }
+        }
+        .environmentObject(viewModel)
     }
 }

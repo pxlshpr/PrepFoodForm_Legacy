@@ -53,13 +53,15 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
     
     func nutrientButton(for fieldValue: Binding<FieldValue>) -> some View {
         NavigationLink {
-            MicronutrientForm(fieldValue: fieldValue) { string, nutrientUnit in
+            MicronutrientForm(fieldValue: fieldValue) { fieldValueCopy in
                 /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
                 withAnimation {
-                    fieldValue.wrappedValue.microValue.string = string
-                    fieldValue.wrappedValue.microValue.unit = nutrientUnit
+                    fieldValue.wrappedValue.microValue.string = fieldValueCopy.microValue.string
+                    fieldValue.wrappedValue.microValue.unit = fieldValueCopy.microValue.unit
+                    fieldValue.wrappedValue.fillType = fieldValueCopy.fillType
                 }
             }
+            .environmentObject(viewModel)
         } label: {
             Text(fieldValue.wrappedValue.description)
                 .foregroundColor(.primary)

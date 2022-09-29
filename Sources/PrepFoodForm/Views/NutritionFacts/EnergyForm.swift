@@ -32,6 +32,16 @@ extension EnergyForm {
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
             }
+            .onChange(of: fieldValue) { newValue in
+                guard !fieldFormViewModel.ignoreNextChange else {
+                    fieldFormViewModel.ignoreNextChange = false
+                    return
+                }
+                withAnimation {
+                    fieldValue.fillType = .userInput
+                }
+            }
+
     }
     
     var content: some View {

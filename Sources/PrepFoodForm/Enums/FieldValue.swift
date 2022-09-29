@@ -473,6 +473,8 @@ extension FieldValue {
             return "\(energyValue.string) \(energyValue.unitDescription)"
         case .macro(let macroValue):
             return "\(macroValue.string) \(macroValue.unitDescription)"
+        case .micro(let microValue):
+            return "\(microValue.string) \(microValue.unitDescription)"
         default:
             return ""
         }

@@ -32,12 +32,14 @@ extension FoodForm.NutritionFacts {
 
     func micronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
         NavigationLink {
-            MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { string, nutrientUnit in
+            MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { fieldValueCopy in
                 withAnimation {
-                    fieldValue.wrappedValue.microValue.string = string
-                    fieldValue.wrappedValue.microValue.unit = nutrientUnit
+                    fieldValue.wrappedValue.microValue.string = fieldValueCopy.microValue.string
+                    fieldValue.wrappedValue.microValue.unit = fieldValueCopy.microValue.unit
+                    fieldValue.wrappedValue.fillType = fieldValueCopy.microValue.fillType
                 }
             }
+            .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
                 .environmentObject(viewModel)

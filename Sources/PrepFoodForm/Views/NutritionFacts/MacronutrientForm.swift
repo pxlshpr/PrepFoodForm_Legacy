@@ -26,8 +26,17 @@ extension MacronutrientForm {
             }
             .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
                 imageTextPicker
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.hidden)
+            }
+            .onChange(of: fieldValue) { newValue in
+                guard !fieldFormViewModel.ignoreNextChange else {
+                    fieldFormViewModel.ignoreNextChange = false
+                    return
+                }
+                withAnimation {
+                    fieldValue.fillType = .userInput
+                }
             }
     }
     
@@ -98,7 +107,7 @@ extension MacronutrientForm {
             var newFieldValue = fieldValue
             newFieldValue.macroValue.double = text.string.double
             newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
-
+            
             fieldFormViewModel.ignoreNextChange = true
             withAnimation {
                 fieldValue = newFieldValue

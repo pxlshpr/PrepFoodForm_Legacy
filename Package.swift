@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
          // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/pxlshpr/NutritionLabelClassifier", from: "0.0.173"),
+        .package(url: "https://github.com/pxlshpr/NutritionLabelClassifier", from: "0.0.174"),
         .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.18"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),

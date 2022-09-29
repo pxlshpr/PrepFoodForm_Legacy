@@ -13,25 +13,6 @@ struct FillOptionsBar: View {
 
     var body: some View {
         scrollView
-            //TODO: Maybe do an onchange on the whole fieldValue? or grab textfield and do it there
-            .onChange(of: fieldValue) { newValue in
-                guard !fieldFormViewModel.ignoreNextChange else {
-                    fieldFormViewModel.ignoreNextChange = false
-                    return
-                }
-                withAnimation {
-                    fieldValue.fillType = .userInput
-                }
-            }
-//            .onChange(of: fieldValue.energyValue.unit) { newValue in
-//                guard !ignoreNextUnitChange else {
-//                    ignoreNextUnitChange = false
-//                    return
-//                }
-//                withAnimation {
-//                    fieldValue.energyValue.fillType = .userInput
-//                }
-//            }
     }
     
     var scrollView: some View {
@@ -52,7 +33,7 @@ struct FillOptionsBar: View {
         if let prefillFieldValue = viewModel.fieldValueFromPrefilledFood(for: fieldValue) {
             button(prefillFieldValue.fillButtonString,
                    systemImage: "link",
-                   isSelected: fieldValue.energyValue.fillType == .thirdPartyFoodPrefill)
+                   isSelected: fieldValue.fillType == .thirdPartyFoodPrefill)
             {
                 withAnimation {
                     Haptics.feedback(style: .rigid)
@@ -63,9 +44,9 @@ struct FillOptionsBar: View {
 //                    if fieldValue.unit != .kcal {
 //                        ignoreNextUnitChange = true
 //                    }
-//                    fieldValue.energyValue.double = 125
-//                    fieldValue.energyValue.unit = .kcal
-//                    fieldValue.energyValue.fillType = .thirdPartyFoodPrefill
+//                    fieldValue.double = 125
+//                    fieldValue.unit = .kcal
+//                    fieldValue.fillType = .thirdPartyFoodPrefill
                 }
             }
         }
@@ -84,14 +65,14 @@ struct FillOptionsBar: View {
                     withAnimation {
                         fieldValue = outputFieldValue
                     }
-//                    if fieldValue.energyValue.double != 115 {
+//                    if fieldValue.double != 115 {
 //                        ignoreNextAmountChange = true
 //                    }
-//                    if fieldValue.energyValue.unit != .kcal {
+//                    if fieldValue.unit != .kcal {
 //                        ignoreNextUnitChange = true
 //                    }
-//                    fieldValue.energyValue.double = 115
-//                    fieldValue.energyValue.unit = .kcal
+//                    fieldValue.double = 115
+//                    fieldValue.unit = .kcal
                 }
             }
         }
@@ -99,9 +80,9 @@ struct FillOptionsBar: View {
     
     var imageSelectButton: some View {
         var title: String {
-            fieldValue.energyValue.fillType.isImageSelection ? "Select" : "Select"
+            fieldValue.fillType.isImageSelection ? "Select" : "Select"
         }
-        return button(title, systemImage: "hand.tap", isSelected: fieldValue.energyValue.fillType.isImageSelection, disableAllowed: false) {
+        return button(title, systemImage: "hand.tap", isSelected: fieldValue.fillType.isImageSelection, disableAllowed: false) {
             Haptics.feedback(style: .soft)
             fieldFormViewModel.showingImageTextPicker = true
         }
