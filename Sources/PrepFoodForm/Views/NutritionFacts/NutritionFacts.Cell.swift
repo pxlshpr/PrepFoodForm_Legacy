@@ -6,18 +6,34 @@ extension FoodForm.NutritionFacts {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
         @Binding var fieldValue: FieldValue
+        @State var imageToDisplay: UIImage? = nil
     }
 }
 
 extension FoodForm.NutritionFacts.Cell {
+    
     var body: some View {
-        content
-            .padding(.horizontal, 16)
-            .padding(.bottom, 13)
-            .padding(.top, 13)
-            .background(cellBackgroundColor)
-            .cornerRadius(10)
-            .padding(.bottom, 10)
+        ZStack {
+            content
+                .padding(.horizontal, 16)
+                .padding(.bottom, 13)
+                .padding(.top, 13)
+                .background(cellBackgroundColor)
+                .cornerRadius(10)
+                .padding(.bottom, 10)
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    croppedImage
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 13)
+                }
+            }
+        }
+        .onAppear {
+            getCroppedImage(for: fieldValue.fillType)
+        }
     }
     
     var content: some View {
@@ -48,24 +64,64 @@ extension FoodForm.NutritionFacts.Cell {
     }
     
     var bottomRow: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 3) {
-            Text(fieldValue.amountString)
-                .foregroundColor(fieldValue.amountColor)
-                .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-            if fieldValue.double != nil {
-                Text(fieldValue.unitString)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .bold()
-                    .foregroundColor(Color(.secondaryLabel))
+//        HStack(alignment: .bottom) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Text(fieldValue.amountString)
+                    .foregroundColor(fieldValue.amountColor)
+                    .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
+                if fieldValue.double != nil {
+                    Text(fieldValue.unitString)
+                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                        .bold()
+                        .foregroundColor(Color(.secondaryLabel))
+                }
+                Spacer()
             }
-            Spacer()
+//            croppedImage
+//        }
+    }
+    
+    @ViewBuilder
+    var croppedImage: some View {
+        if let image = imageToDisplay {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                )
+                .shadow(radius: 3, x: 0, y: 3)
+                .frame(maxWidth: 200)
+                .frame(height: 50)
         }
     }
+    
+    func getCroppedImage(for fillType: FillType) {
+        guard fillType.usesImage else {
+            withAnimation {
+                imageToDisplay = nil
+//                shouldShowImage = false
+            }
+            return
+        }
+        Task {
+            let croppedImage = await viewModel.croppedImage(for: fillType)
+
+            await MainActor.run {
+                withAnimation {
+                    self.imageToDisplay = croppedImage
+//                    self.shouldShowImage = true
+                }
+            }
+        }
+    }
+
     
     @ViewBuilder
     var fillTypeIcon: some View {
         if viewModel.shouldShowFillButton {
             Image(systemName: fieldValue.fillType.iconSystemImage)
+//        Image(systemName: "text.viewfinder")
                 .foregroundColor(Color(.secondaryLabel))
         }
     }
@@ -88,21 +144,28 @@ public struct NutritionFacts_CellPreview: View {
     @StateObject var viewModel = FoodFormViewModel.shared
     @Environment(\.colorScheme) var colorScheme
     
+    var fieldValue: FieldValue {
+        var fieldValue = FieldValue(micronutrient: .calcium, fillType: .userInput)
+        fieldValue.microValue.double = 25
+        fieldValue.microValue.unit = .g
+        return fieldValue
+    }
+    
     public var body: some View {
         NavigationView {
-            FoodForm.NutritionFacts()
-                .environmentObject(viewModel)
+            ScrollView {
+                FoodForm.NutritionFacts.Cell(fieldValue: .constant(fieldValue))
+                    .environmentObject(viewModel)
+                    .padding(.horizontal)
+            }
         }
-        .onAppear {
-            viewModel.previewPrefill()
-        }
-    }
+     }
     
     public init() { }
 }
 
 struct NutritionFacts_Cell_Previews: PreviewProvider {
     static var previews: some View {
-        NutritionFactsCellPreview()
+        NutritionFacts_CellPreview()
     }
 }
