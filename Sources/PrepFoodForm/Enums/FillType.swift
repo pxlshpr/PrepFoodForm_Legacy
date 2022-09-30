@@ -7,6 +7,7 @@ enum FillType: Hashable {
     case userInput
     case imageSelection(recognizedText: RecognizedText, outputId: UUID)
     case imageAutofill(valueText: ValueText, outputId: UUID)
+    case calculated
     case thirdPartyFoodPrefill
     case barcodeScan
     
@@ -16,6 +17,8 @@ enum FillType: Hashable {
             return ""
         case .imageSelection:
             return "hand.tap"
+        case .calculated:
+            return "function"
         case .imageAutofill:
             return "text.viewfinder"
         case .thirdPartyFoodPrefill:
@@ -47,6 +50,8 @@ enum FillType: Hashable {
             return "Copied from third-pary food"
         case .imageAutofill:
             return "Auto-filled from image"
+        case .calculated:
+            return "Calculated"
         case .imageSelection:
             return "Selected from image"
         case .userInput:

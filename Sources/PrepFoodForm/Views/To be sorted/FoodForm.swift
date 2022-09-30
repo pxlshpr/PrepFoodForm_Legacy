@@ -99,6 +99,7 @@ public struct FoodForm: View {
                 Form {
                     manualEntrySection
                     imageSection
+                    simulateSection
                     thirdPartyFoodSection
                 }
 //                .scrollContentBackground(.hidden)
@@ -191,7 +192,6 @@ public struct FoodForm: View {
         return Section(header: header) {
             photosPickerButton
             cameraButton
-            simulateButton
         }
         .sheet(isPresented: $showingScan) {
             ScanForm()
@@ -216,10 +216,16 @@ public struct FoodForm: View {
         .buttonStyle(.borderless)
     }
 
+    var simulateSection: some View {
+        Section {
+            simulateButton
+        }
+    }
+    
     var simulateButton: some View {
         Button {
-//            viewModel.simulateImageSelection()
-            viewModel.simulateImageClassification()
+            viewModel.simulateImageSelection()
+//            viewModel.simulateImageClassification()
         } label: {
             Label("Mock Photos", systemImage: "wand.and.rays")
                 .foregroundColor(.primary)
