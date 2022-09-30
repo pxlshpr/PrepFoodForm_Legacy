@@ -48,10 +48,9 @@ public struct FoodForm: View {
                     }
                 }
                 .sheet(isPresented: $viewModel.showingCameraImagePicker) {
-                    Camera(didCaptureImage: { image in
-                        print("📸 Got an image of size: \(image.size)")
-                    }, didScanCode: nil)
-//                    CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
+                    Camera { image in
+                        viewModel.didCapture(image)
+                    }
                 }
         }
     }

@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftUISugar
-import CodeScanner
 import SwiftHaptics
+import Camera
 
 extension FoodForm {
     struct DetailsForm: View {
@@ -30,7 +30,16 @@ extension FoodForm.DetailsForm {
             FillForm()
         }
         .sheet(isPresented: $showingCodeScanner) {
-            CodeScanner(handleScan: self.handleScan)
+            CodeScanner { result in
+                showingCodeScanner = false
+                
+                switch result {
+                case .success(let code):
+                    viewModel.barcode.stringValue.string = code
+                case .failure(let error):
+                    print("Scanning failed: \(error)")
+                }
+            }
         }
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled()
@@ -126,17 +135,6 @@ extension FoodForm.DetailsForm {
             
         } label: {
             Image(systemName: "barcode.viewfinder")
-        }
-    }
-    
-    func handleScan(result: Result<String, CodeScanner.ScanError>) {
-        showingCodeScanner = false
-        
-        switch result {
-        case .success(let code):
-            viewModel.barcode.stringValue.string = code
-        case .failure(let error):
-            print("Scanning failed: \(error)")
         }
     }
 }
