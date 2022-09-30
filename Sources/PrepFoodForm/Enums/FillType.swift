@@ -111,6 +111,22 @@ enum FillType: Hashable {
             return nil
         }
     }
+    
+    var boundingBoxToCrop: CGRect? {
+        switch self {
+        case .imageAutofill(let valueText, _):
+            if let attributeText = valueText.attributeText, attributeText != valueText.text {
+                return attributeText.boundingBox.union(valueText.text.boundingBox)
+            } else {
+                return valueText.text.boundingBox
+            }
+        case .imageSelection(let recognizedText, _):
+            return recognizedText.boundingBox
+        default:
+            return nil
+        }
+    }
+
     var scanResultId: UUID? {
         switch self {
         case .imageSelection(_, let scanResultId):

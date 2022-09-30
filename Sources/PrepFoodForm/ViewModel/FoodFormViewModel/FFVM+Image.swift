@@ -15,13 +15,13 @@ extension FoodFormViewModel {
 
     func croppedImage(for fillType: FillType) async -> UIImage? {
         guard let scanResultId = fillType.scanResultId,
-              let recognizedText = fillType.text,
+              let boundingBoxToCrop = fillType.boundingBoxToCrop,
               let image = image(for: scanResultId)
         else {
             return nil
         }
         
-        return await recognizedText.croppedImage(from: image)
+        return await image.cropped(boundingBox: boundingBoxToCrop)
     }
     
     func image(for scanResultId: UUID) -> UIImage? {
@@ -35,15 +35,14 @@ extension FoodFormViewModel {
 }
 import VisionSugar
 
-extension RecognizedText {
-
-    func croppedImage(from image: UIImage) async -> UIImage? {
-        let cropRect = boundingBox.rectForSize(image.size)
-        let image = image.fixOrientationIfNeeded()
+extension UIImage {
+    func cropped(boundingBox: CGRect) async -> UIImage? {
+        let cropRect = boundingBox.rectForSize(size)
+        let image = fixOrientationIfNeeded()
         return cropImage(imageToCrop: image, toRect: cropRect)
     }
     
-    func cropImage(imageToCrop:UIImage, toRect rect:CGRect) -> UIImage? {
+    func cropImage(imageToCrop: UIImage, toRect rect: CGRect) -> UIImage? {
         guard let imageRef = imageToCrop.cgImage?.cropping(to: rect) else {
             return nil
         }

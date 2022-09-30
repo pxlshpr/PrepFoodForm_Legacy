@@ -51,7 +51,7 @@ class ImageViewModel: ObservableObject {
             
             
             Task {
-                let results = try await FoodLabelScanner(image: image).getScanResults()
+                let results = try await FoodLabelScanner(image: image).scan()
                 
                 self.scanResult = results
                 
