@@ -3,12 +3,13 @@ import CameraImagePicker
 import SwiftHaptics
 import PrepUnits
 import PhotosUI
+import Camera
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
 public struct FoodForm: View {
     
-//    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
@@ -17,11 +18,8 @@ public struct FoodForm: View {
     @State var showingPhotosPicker = true
     @State var selectedPhotos: [PhotosPickerItem] = []
     
-    let didTapAdd: (() -> ())?
-
-    public init(didTapAdd: (() -> Void)? = nil) {
+    public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
-        self.didTapAdd = didTapAdd
     }
     
     public var body: some View {
@@ -50,7 +48,10 @@ public struct FoodForm: View {
                     }
                 }
                 .sheet(isPresented: $viewModel.showingCameraImagePicker) {
-                    CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
+                    Camera(didCaptureImage: { image in
+                        print("📸 Got an image of size: \(image.size)")
+                    }, didScanCode: nil)
+//                    CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
                 }
         }
     }
@@ -129,18 +130,15 @@ public struct FoodForm: View {
                 VStack {
                     if viewModel.shouldShowSavePublicButton {
                         FormPrimaryButton(title: "Add to Public Database") {
-                            didTapAdd?()
-//                            dismiss()
+                            dismiss()
                         }
                         .padding(.top)
                         FormSecondaryButton(title: "Add to Private Database") {
-                            didTapAdd?()
-//                            dismiss()
+                            dismiss()
                         }
                     } else {
                         FormPrimaryButton(title: "Add to Private Database") {
-                            didTapAdd?()
-//                            dismiss()
+                            dismiss()
                         }
                         .padding(.top)
                     }
