@@ -45,10 +45,10 @@ extension FoodFormViewModel {
         }
     }
     
-    func simulateImageClassification() {
+    func simulateImageClassification(_ indexes: [Int]) {
         sourceType = .images
-        populateWithSampleImages()
-        processAllClassifierOutputs()
+        populateWithSampleImages(indexes)
+        processAllClassifierScanResults()
         imageSetStatus = .classified
         withAnimation {
             showingWizard = false

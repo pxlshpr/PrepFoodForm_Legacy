@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftHaptics
-import NutritionLabelClassifier
+import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
 
@@ -13,21 +13,21 @@ struct ImageTextPicker: View {
     @State var page: Page = .first()
 
     let selectedTextId: UUID?
-    let selectedImageOutputId: UUID?
+    let selectedImageScanResultId: UUID?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
     
     init(fillType: FillType, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
         
         switch fillType {
-        case .imageSelection(let recognizedText, let outputId):
+        case .imageSelection(let recognizedText, let scanResultId):
             self.selectedTextId = recognizedText.id
-            self.selectedImageOutputId = outputId
-        case .imageAutofill(let valueText, let outputId):
+            self.selectedImageScanResultId = scanResultId
+        case .imageAutofill(let valueText, let scanResultId):
             self.selectedTextId = valueText.text.id
-            self.selectedImageOutputId = outputId
+            self.selectedImageScanResultId = scanResultId
         default:
             self.selectedTextId = nil
-            self.selectedImageOutputId = nil
+            self.selectedImageScanResultId = nil
         }
         
         self.didSelectRecognizedText = didSelectRecognizedText
@@ -171,15 +171,15 @@ struct ImageTextPicker: View {
         }
     }
     
-    var currentOutputId: UUID? {
-        viewModel.imageViewModels[selectedViewModelIndex].output?.id
+    var currentScanResultId: UUID? {
+        viewModel.imageViewModels[selectedViewModelIndex].scanResult?.id
     }
     
     func boxLayer(for text: RecognizedText, inSize size: CGSize) -> some View {
         var boxView: some View {
             Button {
                 Haptics.feedback(style: .rigid)
-                didSelectRecognizedText(text, currentOutputId ?? UUID())
+                didSelectRecognizedText(text, currentScanResultId ?? UUID())
             } label: {
                 RoundedRectangle(cornerRadius: 3)
                     .foregroundStyle(
@@ -216,7 +216,7 @@ public struct ImageTextPickerPreview: View {
     
     public init() {
         let viewModel = FoodFormViewModel()
-        viewModel.populateWithSampleImages()
+        viewModel.populateWithSampleImages([7, 8])
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
@@ -246,16 +246,17 @@ struct ImageTextPicker_Previews: PreviewProvider {
 
 extension FoodFormViewModel {
     
-    func populateWithSampleImages() {
-        populateWithSampleImage(8)
-        populateWithSampleImage(7)
+    func populateWithSampleImages(_ indexes: [Int]) {
+        for index in indexes {
+            populateWithSampleImage(index)
+        }
     }
     
     func populateWithSampleImage(_ number: Int) {
-        guard let image = sampleImage(number), let output = sampleOutput(number) else {
+        guard let image = sampleImage(number), let scanResult = sampleScanResult(number) else {
             fatalError("Couldn't populate sample image: \(number)")
         }
-        imageViewModels.append(ImageViewModel(image: image, output: output))
+        imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
     }
     
 }

@@ -98,6 +98,7 @@ enum FieldValue: Hashable {
                     internalString = newValue
                     return
                 }
+                
                 guard let double = Double(newValue) else {
                     return
                 }

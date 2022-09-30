@@ -183,7 +183,7 @@ extension MFPSearch.ViewModel {
     //            .map(\.data)
     //            .decode(type: ListResponse.self, decoder: JSONDecoder())
     //            .receive(on: DispatchQueue.main)
-    //            .handleEvents(receiveOutput: { response in
+    //            .handleEvents(receiveScanResult: { response in
     //                self.canLoadMorePages = response.hasMorePages
     //                self.isLoadingPage = false
     //                self.currentPage += 1

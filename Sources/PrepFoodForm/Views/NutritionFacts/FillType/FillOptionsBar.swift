@@ -21,6 +21,7 @@ struct FillOptionsBar: View {
                 prefillButton
                 imageAutofillButton
                 imageSelectButton
+                calculatedButton
             }
         }
         .onTapGesture {
@@ -54,8 +55,10 @@ struct FillOptionsBar: View {
     
     @ViewBuilder
     var imageAutofillButton: some View {
-        if let outputFieldValue = viewModel.fieldValueFromOutputs(for: fieldValue) {
-            button(outputFieldValue.fillButtonString,
+        if let scanResultFieldValue = viewModel.fieldValueFromScanResults(for: fieldValue),
+           !scanResultFieldValue.fillType.isCalculated
+        {
+            button(scanResultFieldValue.fillButtonString,
                    systemImage: "text.viewfinder",
                    isSelected: fieldValue.fillType.isImageAutofill)
             {
@@ -63,7 +66,7 @@ struct FillOptionsBar: View {
                     Haptics.feedback(style: .rigid)
                     fieldFormViewModel.ignoreNextChange = true
                     withAnimation {
-                        fieldValue = outputFieldValue
+                        fieldValue = scanResultFieldValue
                     }
 //                    if fieldValue.double != 115 {
 //                        ignoreNextAmountChange = true
@@ -82,13 +85,13 @@ struct FillOptionsBar: View {
         var title: String {
             fieldValue.fillType.isImageSelection ? "Select" : "Select"
         }
-        return button(title, systemImage: "hand.tap", isSelected: fieldValue.fillType.isImageSelection, disableAllowed: false) {
+        return button(title, systemImage: "hand.tap", isSelected: fieldValue.fillType.isImageSelection, disabledWhenSelected: false) {
             Haptics.feedback(style: .soft)
             fieldFormViewModel.showingImageTextPicker = true
         }
     }
     
-    func button(_ string: String, systemImage: String, isSelected: Bool, disableAllowed: Bool = true, action: @escaping () -> ()) -> some View {
+    func button(_ string: String, systemImage: String, isSelected: Bool, disabledWhenSelected: Bool = true, action: @escaping () -> ()) -> some View {
         
         let selectionColorDark = Color(hex: "6c6c6c")
         let selectionColorLight = Color(hex: "959596")
@@ -97,7 +100,7 @@ struct FillOptionsBar: View {
             guard isSelected else {
                 return Color(.secondarySystemFill)
             }
-            if disableAllowed {
+            if disabledWhenSelected {
                 return .accentColor
             } else {
                 return colorScheme == .light ? selectionColorLight : selectionColorDark
@@ -130,7 +133,71 @@ struct FillOptionsBar: View {
 //            )
         }
         .grayscale(isSelected ? 1 : 0)
-        .disabled(disableAllowed ? isSelected : false)
+        .disabled(disabledWhenSelected ? isSelected : false)
     }
     
+    @ViewBuilder
+    var calculatedButton: some View {
+        if let calculatedFieldValue = viewModel.calculatedFieldValue(for: fieldValue) {
+            button(
+                calculatedFieldValue.fillButtonString,
+                systemImage: "equal.square",
+                isSelected: fieldValue.fillType.isCalculated)
+            {
+                withAnimation {
+                    Haptics.feedback(style: .rigid)
+                    fieldFormViewModel.ignoreNextChange = true
+                    withAnimation {
+                        fieldValue = calculatedFieldValue
+                    }
+                }
+            }
+        }
+    }
+}
+
+import FoodLabelScanner
+
+extension FoodFormViewModel {
+    
+    func calculatedFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+        var newFieldValue = fieldValue
+        
+        switch fieldValue {
+        case .energy:
+            /// First check if we have a calculated value from the scanResult (which will be indicated by it not having an associated text)
+            if let energyFieldValue = calculatedFieldValueFromScanResults(for: .energy) {
+                return energyFieldValue
+            } else {
+                /// If this is not the case—do the calculation ourself by seeing if we have 3 other components of the energy equation and if so—calculating it
+
+            }
+            
+            
+        case .macro:
+            /// First check if we have a calculated value from the scanResult (which will be indicated by it not having an associated text)
+            if let macroFieldValue = calculatedFieldValueFromScanResults(for: fieldValue.macroValue.macro.attribute) {
+                return macroFieldValue
+            } else {
+                /// If this is not the case—do the calculation ourself by seeing if we have 3 other components of the energy equation and if so—calculating it
+                newFieldValue.macroValue.double = 54
+
+            }
+            
+            
+        default:
+            return nil
+        }
+        newFieldValue.fillType = .calculated
+        return newFieldValue
+    }
+    
+    func calculatedFieldValueFromScanResults(for attribute: Attribute) -> FieldValue? {
+        guard let fieldValue = fieldValueFromScanResults(for: attribute),
+              fieldValue.fillType == .calculated
+        else {
+            return nil
+        }
+        return fieldValue
+    }
 }

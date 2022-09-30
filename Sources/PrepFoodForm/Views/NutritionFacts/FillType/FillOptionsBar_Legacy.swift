@@ -83,7 +83,7 @@
 //    
 //    @ViewBuilder
 //    var imageAutofillButton: some View {
-//        if let outputFieldValue = viewModel.fieldValueFromOutputs(for: fieldValue) {
+//        if let outputFieldValue = viewModel.fieldValueFromScanResults(for: fieldValue) {
 //            button(outputFieldValue.fillButtonString,
 //                   systemImage: "text.viewfinder",
 //                   isSelected: fieldValue.fillType.isImageAutofill)

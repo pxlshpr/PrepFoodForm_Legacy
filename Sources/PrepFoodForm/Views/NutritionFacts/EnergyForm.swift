@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepUnits
 import SwiftHaptics
-import NutritionLabelClassifier
+import FoodLabelScanner
 import VisionSugar
 
 struct EnergyForm: View {
@@ -108,13 +108,13 @@ extension EnergyForm {
     }
     
     var imageTextPicker: some View {
-        ImageTextPicker(fillType: fieldValue.fillType) { text, outputId in
+        ImageTextPicker(fillType: fieldValue.fillType) { text, scanResultId in
             
             fieldFormViewModel.showingImageTextPicker = false
             
             var newFieldValue = fieldValue
             newFieldValue.energyValue.double = text.string.double
-            newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+            newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
 
             fieldFormViewModel.ignoreNextChange = true
             withAnimation {

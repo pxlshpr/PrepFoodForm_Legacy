@@ -224,8 +224,8 @@ public struct FoodForm: View {
     
     var simulateButton: some View {
         Button {
-            viewModel.simulateImageSelection()
-//            viewModel.simulateImageClassification()
+//            viewModel.simulateImageSelection()
+            viewModel.simulateImageClassification([9])
         } label: {
             Label("Mock Photos", systemImage: "wand.and.rays")
                 .foregroundColor(.primary)

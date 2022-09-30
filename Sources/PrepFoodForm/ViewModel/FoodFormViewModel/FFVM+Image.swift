@@ -1,6 +1,6 @@
 import SwiftUI
 import PrepUnits
-import NutritionLabelClassifier
+import FoodLabelScanner
 import PhotosUI
 
 extension FoodFormViewModel {
@@ -14,9 +14,9 @@ extension FoodFormViewModel {
     }
 
     func croppedImage(for fillType: FillType) async -> UIImage? {
-        guard let outputId = fillType.outputId,
+        guard let scanResultId = fillType.scanResultId,
               let recognizedText = fillType.text,
-              let image = image(for: outputId)
+              let image = image(for: scanResultId)
         else {
             return nil
         }
@@ -24,9 +24,9 @@ extension FoodFormViewModel {
         return await recognizedText.croppedImage(from: image)
     }
     
-    func image(for outputId: UUID) -> UIImage? {
+    func image(for scanResultId: UUID) -> UIImage? {
         for imageViewModel in imageViewModels {
-            if imageViewModel.output?.id == outputId {
+            if imageViewModel.scanResult?.id == scanResultId {
                 return imageViewModel.image
             }
         }

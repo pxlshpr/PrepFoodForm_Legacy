@@ -3,7 +3,7 @@ import PrepUnits
 import SwiftUISugar
 import MFPScraper
 import SwiftHaptics
-import NutritionLabelClassifier
+import FoodLabelScanner
 
 public class FoodFormViewModel: ObservableObject {
     
@@ -217,43 +217,43 @@ extension FoodFormViewModel {
             return
         }
         
-        /// Used for testing currently—so that we can save the output and read it again without re-running the classifier
-        imageViewModel.saveOutputToJson()
+        /// Used for testing currently—so that we can save the scanResult and read it again without re-running the classifier
+        imageViewModel.saveScanResultToJson()
         
         if imageViewModels.allSatisfy({ $0.status == .classified }) {
             Haptics.successFeedback()
             withAnimation {
                 imageSetStatus = .classified
             }
-            processAllClassifierOutputs()
+            processAllClassifierScanResults()
         }
     }
     
     var classifiedNutrientCount: Int {
         imageViewModels.reduce(0) { partialResult, imageViewModel in
-            partialResult + (imageViewModel.output?.nutrients.rows.count ?? 0)
+            partialResult + (imageViewModel.scanResult?.nutrients.rows.count ?? 0)
         }
     }
     
-    func imageViewModel(forOutputId outputId: UUID) -> ImageViewModel? {
-        imageViewModels.first(where: { $0.output?.id == outputId })
+    func imageViewModel(forScanResultId scanResultId: UUID) -> ImageViewModel? {
+        imageViewModels.first(where: { $0.scanResult?.id == scanResultId })
     }
 }
 
 extension ImageViewModel {
-    func saveOutputToJson() {
-        guard let output else {
+    func saveScanResultToJson() {
+        guard let scanResult else {
             return
         }
         
         let encoder = JSONEncoder()
         do {
-            let data = try encoder.encode(output)
+            let data = try encoder.encode(scanResult)
             
             if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                url.appendPathComponent("output.json")
+                url.appendPathComponent("scanResult.json")
                 try data.write(to: url)
-                print("📝 Wrote output to: \(url)")
+                print("📝 Wrote scanResult to: \(url)")
             }
         } catch {
             print(error)

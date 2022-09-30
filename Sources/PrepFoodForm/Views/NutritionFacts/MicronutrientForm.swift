@@ -137,13 +137,13 @@ extension MicronutrientForm {
     }
     
     var imageTextPicker: some View {
-        ImageTextPicker(fillType: fieldValueCopy.fillType) { text, outputId in
+        ImageTextPicker(fillType: fieldValueCopy.fillType) { text, scanResultId in
             
             fieldFormViewModel.showingImageTextPicker = false
             
             var newFieldValue = fieldValue
             newFieldValue.microValue.double = text.string.double
-            newFieldValue.fillType = .imageSelection(recognizedText: text, outputId: outputId)
+            newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
             
             fieldFormViewModel.ignoreNextChange = true
             withAnimation {

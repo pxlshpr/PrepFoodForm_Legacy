@@ -1,6 +1,6 @@
 import SwiftUI
 import PhotosUI
-import NutritionLabelClassifier
+import FoodLabelScanner
 import VisionSugar
 
 class ImageViewModel: ObservableObject {
@@ -9,7 +9,7 @@ class ImageViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
     @Published var textsWithNumbers: [RecognizedText] = []
-    var output: Output? = nil
+    var scanResult: ScanResult? = nil
     
     init(_ image: UIImage) {
         self.image = image
@@ -25,14 +25,14 @@ class ImageViewModel: ObservableObject {
         self.startLoadingTask(with: photosPickerItem)
     }
     
-    /// Used for testing purposes to manually create an `ImageViewModel` with a preloaded `UIImage` and `Output`
-    init(image: UIImage, output: Output) {
+    /// Used for testing purposes to manually create an `ImageViewModel` with a preloaded `UIImage` and `ScanResult`
+    init(image: UIImage, scanResult: ScanResult) {
         self.image = image
         self.status = .classified
         self.photosPickerItem = nil
-        self.output = output
+        self.scanResult = scanResult
         
-        let textsWithNumbers = output.texts.accurate.filter { text in
+        let textsWithNumbers = scanResult.texts.accurate.filter { text in
             text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
         }
 
@@ -49,19 +49,21 @@ class ImageViewModel: ObservableObject {
 //                FoodFormViewModel.shared.imageDidFinishClassifying(self)
 //            }
             
-            NutritionLabelClassifier(image: image, contentSize: image.size).classify { output in
-                self.output = output
+            
+            Task {
+                let results = try await FoodLabelScanner(image: image).getScanResults()
                 
-                let textsWithNumbers = output?.texts.accurate.filter { text in
+                self.scanResult = results
+                
+                //TODO: Move this to FoodLabelScanner
+                let textsWithNumbers = scanResult?.texts.accurate.filter { text in
                     text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
                 } ?? []
                 
-                Task {
-                    await MainActor.run {
-                        self.status = .classified
-                        self.textsWithNumbers = textsWithNumbers
-                        FoodFormViewModel.shared.imageDidFinishClassifying(self)
-                    }
+                await MainActor.run {
+                    self.status = .classified
+                    self.textsWithNumbers = textsWithNumbers
+                    FoodFormViewModel.shared.imageDidFinishClassifying(self)
                 }
             }
         }

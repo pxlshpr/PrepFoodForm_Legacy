@@ -1,12 +1,12 @@
 import Foundation
-import NutritionLabelClassifier
+import FoodLabelScanner
 import VisionSugar
 import UIKit
 
 enum FillType: Hashable {
     case userInput
-    case imageSelection(recognizedText: RecognizedText, outputId: UUID)
-    case imageAutofill(valueText: ValueText, outputId: UUID)
+    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID)
+    case imageAutofill(valueText: ValueText, scanResultId: UUID)
     case calculated
     case thirdPartyFoodPrefill
     case barcodeScan
@@ -18,7 +18,7 @@ enum FillType: Hashable {
         case .imageSelection:
             return "hand.tap"
         case .calculated:
-            return "function"
+            return "equal.square"
         case .imageAutofill:
             return "text.viewfinder"
         case .thirdPartyFoodPrefill:
@@ -64,7 +64,16 @@ enum FillType: Hashable {
         }
         return ""
     }
-    
+
+    var isCalculated: Bool {
+        switch self {
+        case .calculated:
+            return true
+        default:
+            return false
+        }
+    }
+
     var isImageAutofill: Bool {
         switch self {
         case .imageAutofill:
@@ -102,12 +111,12 @@ enum FillType: Hashable {
             return nil
         }
     }
-    var outputId: UUID? {
+    var scanResultId: UUID? {
         switch self {
-        case .imageSelection(_, let outputId):
-            return outputId
-        case .imageAutofill(_, let outputId):
-            return outputId
+        case .imageSelection(_, let scanResultId):
+            return scanResultId
+        case .imageAutofill(_, let scanResultId):
+            return scanResultId
         default:
             return nil
         }
