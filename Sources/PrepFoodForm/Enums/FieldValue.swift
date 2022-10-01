@@ -243,7 +243,7 @@ enum FieldValue: Hashable {
     }
     
     case name(StringValue = StringValue())
-    case emoji(StringValue = StringValue())
+    case emoji(StringValue = StringValue(string: randomFoodEmoji()))
     case brand(StringValue = StringValue())
     case barcode(StringValue = StringValue())
     case detail(StringValue = StringValue())
@@ -627,4 +627,10 @@ extension FieldValue {
         }
     }
 
+}
+
+import ISEmojiView
+
+func randomFoodEmoji() -> String {
+    EmojiLoader.emojiCategories().first(where: { $0.category == .foodAndDrink })?.emojis.randomElement()?.emoji ?? "🥕"
 }

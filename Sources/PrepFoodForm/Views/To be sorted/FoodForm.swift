@@ -99,7 +99,7 @@ public struct FoodForm: View {
                 Form {
                     manualEntrySection
                     imageSection
-                    simulateSection
+//                    simulateSection
                     thirdPartyFoodSection
                 }
 //                .scrollContentBackground(.hidden)
@@ -246,7 +246,7 @@ public struct FoodForm: View {
     
     var thirdPartyFoodSection: some View {
         var header: some View {
-            Text("Copy a third-party food")
+            Text("Prefill a third-party food")
         }
         var footer: some View {
             Button {
@@ -264,8 +264,8 @@ public struct FoodForm: View {
         
         return Section(header: header, footer: footer) {
             Button {
-//                viewModel.showingThirdPartySearch = true
-                viewModel.simulateThirdPartyImport()
+                viewModel.showingThirdPartySearch = true
+//                viewModel.simulateThirdPartyImport()
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
                     .foregroundColor(.primary)

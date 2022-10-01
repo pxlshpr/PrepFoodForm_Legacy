@@ -41,7 +41,7 @@ extension FoodForm.DetailsCell {
                 Text(viewModel.name.stringValue.string)
                     .bold()
             } else {
-                Text("[Name Required]")
+                Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             }
         }

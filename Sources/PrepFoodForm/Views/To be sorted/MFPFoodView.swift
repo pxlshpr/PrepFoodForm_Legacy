@@ -41,7 +41,7 @@ struct MFPFoodView: View {
         VStack(spacing: 0) {
             Spacer()
             Divider()
-            FormPrimaryButton(title: "Copy this food") {
+            FormPrimaryButton(title: "Prefill this food") {
                 if let processedFood = mfpFoodViewModel.processedFood {
                     viewModel.prefill(processedFood)
                 }
