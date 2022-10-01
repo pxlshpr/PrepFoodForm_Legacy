@@ -84,7 +84,8 @@ extension EnergyForm {
     
     var unitLabel: some View {
         Picker("", selection: $fieldValue.energyValue.unit) {
-            ForEach(EnergyUnit.allCases, id: \.self) { unit in
+            ForEach(EnergyUnit.allCases, id: \.self) { 
+                unit in
                 Text(unit.shortDescription).tag(unit)
             }
         }

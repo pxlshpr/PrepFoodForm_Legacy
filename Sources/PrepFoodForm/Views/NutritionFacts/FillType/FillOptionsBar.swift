@@ -15,18 +15,40 @@ struct FillOptionsBar: View {
         scrollView
     }
     
+    let ColorBarLight = Color(hex: "fbfbfc")
+    let ColorBarDark = Color(hex: "282827")
+    
+    var barColor: Color {
+        colorScheme == .light ? ColorBarLight : ColorBarDark
+    }
+    
+    var gradient: Gradient {
+        Gradient(colors: [barColor, .clear])
+    }
     var scrollView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ZStack {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    Color.clear.frame(width: 5)
+                    prefillButton
+                    imageAutofillButton
+                    imageSelectButton
+                    calculatedButton
+                    Color.clear.frame(width: 5)
+                }
+            }
+            .onTapGesture {
+            }
+            .padding(.vertical, 5)
             HStack {
-                prefillButton
-                imageAutofillButton
-                imageSelectButton
-                calculatedButton
+                LinearGradient(gradient: gradient, startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 10, height: 44)
+                Spacer()
+                LinearGradient(gradient: gradient, startPoint: .trailing, endPoint: .leading)
+                    .frame(width: 10, height: 44)
             }
         }
-        .onTapGesture {
-        }
-        .padding(.vertical, 5)
+        .frame(height: 44)
     }
     
     @ViewBuilder
@@ -199,5 +221,32 @@ extension FoodFormViewModel {
             return nil
         }
         return fieldValue
+    }
+}
+
+struct FillOptionsBarPreview: View {
+    
+    @State var fieldValue: FieldValue
+    @StateObject var viewModel = FoodFormViewModel()
+    
+    init() {
+        _fieldValue = State(initialValue: FieldValue(micronutrient: .addedSugars, fillType: .userInput))
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.gray
+                .edgesIgnoringSafeArea(.all)
+            FillOptionsBar(fieldValue: $fieldValue)
+                .environmentObject(viewModel)
+                .background(.white)
+                .padding(.horizontal)
+        }
+    }
+}
+
+struct FillOptionsBar_Previews: PreviewProvider {
+    static var previews: some View {
+        FillOptionsBarPreview()
     }
 }
