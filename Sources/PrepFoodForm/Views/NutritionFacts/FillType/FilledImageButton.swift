@@ -12,11 +12,16 @@ struct FilledImageButton: View {
         Button {
             fieldFormViewModel.showingImageTextPicker = true
         } label: {
-            HStack {
+            VStack {
                 Spacer()
-                imageView
-                Spacer()
+                HStack {
+                    Spacer()
+                    imageView
+                        .frame(maxWidth: 350, maxHeight: 150, alignment: .bottom)
+                    Spacer()
+                }
             }
+            .frame(width: 350, height: 150)
         }
         .buttonStyle(.borderless)
     }
@@ -44,7 +49,6 @@ struct FilledImageButton: View {
             .padding(.top, 5)
             .padding(.bottom, 8)
             .padding(.horizontal, 3)
-            .frame(maxWidth: 350, maxHeight: 150)
 //            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
     }
     

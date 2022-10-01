@@ -63,8 +63,8 @@ class ImageViewModel: ObservableObject {
                 await MainActor.run {
                     self.status = .classified
                     self.textsWithNumbers = textsWithNumbers
-                    FoodFormViewModel.shared.imageDidFinishClassifying(self)
                 }
+                FoodFormViewModel.shared.imageDidFinishClassifying(self)
             }
         }
     }

@@ -218,14 +218,16 @@ extension FoodFormViewModel {
         }
         
         /// Used for testing currently—so that we can save the scanResult and read it again without re-running the classifier
-        imageViewModel.saveScanResultToJson()
+//        imageViewModel.saveScanResultToJson()
         
         if imageViewModels.allSatisfy({ $0.status == .classified }) {
             Haptics.successFeedback()
-            withAnimation {
-                imageSetStatus = .classified
+            DispatchQueue.main.async {
+                withAnimation {
+                    self.imageSetStatus = .classified
+                    self.processAllClassifierScanResults()
+                }
             }
-            processAllClassifierScanResults()
         }
     }
     

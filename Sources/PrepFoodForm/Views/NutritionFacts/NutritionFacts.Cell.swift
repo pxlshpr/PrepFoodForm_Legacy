@@ -15,24 +15,50 @@ extension FoodForm.NutritionFacts.Cell {
     var body: some View {
         ZStack {
             content
-                .padding(.horizontal, 16)
-                .padding(.bottom, 13)
-                .padding(.top, 13)
-                .background(cellBackgroundColor)
-                .cornerRadius(10)
-                .padding(.bottom, 10)
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    croppedImage
-                        .padding(.trailing, 16)
-                        .padding(.bottom, 13)
-                }
-            }
+            imageLayer
         }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 13)
+        .padding(.top, 13)
+        .background(cellBackgroundColor)
+        .cornerRadius(10)
+        .padding(.bottom, 10)
         .onAppear {
             getCroppedImage(for: fieldValue.fillType)
+        }
+    }
+    
+    var imageLayer: some View {
+        VStack {
+            Spacer()
+            HStack(alignment: .bottom) {
+                Spacer()
+                VStack {
+                    Spacer()
+                    croppedImage
+//                    Color.blue
+                        .frame(maxWidth: 200, alignment: .trailing)
+                        .grayscale(1.0)
+//                        .opacity(0.5)
+                }
+                .frame(height: 40)
+//                .background(.green)
+                .padding(.trailing, 16)
+                .padding(.bottom, 6)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var croppedImage: some View {
+        if let image = imageToDisplay {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .clipShape(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                )
+                .shadow(radius: 3, x: 0, y: 3)
         }
     }
     
@@ -79,21 +105,6 @@ extension FoodForm.NutritionFacts.Cell {
             }
 //            croppedImage
 //        }
-    }
-    
-    @ViewBuilder
-    var croppedImage: some View {
-        if let image = imageToDisplay {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                )
-                .shadow(radius: 3, x: 0, y: 3)
-                .frame(maxWidth: 200)
-                .frame(height: 50)
-        }
     }
     
     func getCroppedImage(for fillType: FillType) {
@@ -158,6 +169,7 @@ public struct NutritionFacts_CellPreview: View {
                     .environmentObject(viewModel)
                     .padding(.horizontal)
             }
+            .background(Color(.systemGroupedBackground))
         }
      }
     

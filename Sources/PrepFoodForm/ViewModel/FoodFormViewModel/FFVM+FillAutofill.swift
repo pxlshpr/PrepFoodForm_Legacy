@@ -45,9 +45,7 @@ extension FoodFormViewModel {
             return
         }
         //TODO: Only do this if user hasn't already got a value in there
-        withAnimation {
-            energy = fieldValue
-        }
+        energy = fieldValue
     }
     
     func extractMacro(_ macro: Macro) {
@@ -55,15 +53,13 @@ extension FoodFormViewModel {
             return
         }
         //TODO: Only do this if user hasn't already got a value in there
-        withAnimation {
-            switch macro {
-            case .carb:
-                carb = fieldValue
-            case .fat:
-                fat = fieldValue
-            case .protein:
-                protein = fieldValue
-            }
+        switch macro {
+        case .carb:
+            carb = fieldValue
+        case .fat:
+            fat = fieldValue
+        case .protein:
+            protein = fieldValue
         }
     }
     
