@@ -1,5 +1,4 @@
 import SwiftUI
-import ISEmojiView
 
 struct MFPInfoSheet: View {
     

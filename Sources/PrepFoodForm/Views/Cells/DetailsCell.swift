@@ -25,15 +25,17 @@ extension FoodForm.DetailsCell {
             .foregroundColor(Color(.tertiaryLabel))
     }
     
-    var filledContent: some View {
-        
-        @ViewBuilder
-        var emoji: some View {
-            if !viewModel.emoji.isEmpty {
-                Text(viewModel.emoji.stringValue.string)
-                    .font(.system(size: 50))
-            }
+    var emojiButton: some View {
+        Button {
+            viewModel.showingEmojiPicker = true
+        } label: {
+            Text(viewModel.emoji.stringValue.string)
+                .font(.system(size: 50))
         }
+        .buttonStyle(.borderless)
+    }
+    
+    var filledContent: some View {
         
         @ViewBuilder
         var name: some View {
@@ -68,7 +70,7 @@ extension FoodForm.DetailsCell {
         }
 
         return HStack {
-            emoji
+            emojiButton
             VStack(alignment: .leading) {
                 HStack {
                     name
@@ -124,6 +126,7 @@ struct DetailsCellPreview: View {
                         FoodForm.DetailsCell()
                             .environmentObject(viewModel)
                     }
+                    .buttonStyle(.borderless)
                 }
             }
         }

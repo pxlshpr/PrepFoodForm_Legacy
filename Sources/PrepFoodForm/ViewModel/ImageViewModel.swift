@@ -32,7 +32,7 @@ class ImageViewModel: ObservableObject {
         self.photosPickerItem = nil
         self.scanResult = scanResult
         
-        let textsWithNumbers = scanResult.texts.accurate.filter { text in
+        let textsWithNumbers = scanResult.texts.filter { text in
             text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
         }
 
@@ -56,7 +56,7 @@ class ImageViewModel: ObservableObject {
                 self.scanResult = results
                 
                 //TODO: Move this to FoodLabelScanner
-                let textsWithNumbers = scanResult?.texts.accurate.filter { text in
+                let textsWithNumbers = scanResult?.texts.filter { text in
                     text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
                 } ?? []
                 

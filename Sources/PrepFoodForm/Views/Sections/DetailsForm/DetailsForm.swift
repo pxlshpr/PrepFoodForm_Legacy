@@ -7,7 +7,6 @@ extension FoodForm {
     struct DetailsForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         
-        @State var showingEmojiPicker = false
         @State var showingCodeScanner = false
         @State var showingSheet = false
         
@@ -23,9 +22,6 @@ extension FoodForm.DetailsForm {
             .navigationTitle("Details")
             .navigationBarTitleDisplayMode(.inline)
 //        }
-        .sheet(isPresented: $showingEmojiPicker) {
-            FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji.stringValue.string)
-        }
         .sheet(isPresented: $showingSheet) {
             FillForm()
         }
@@ -66,13 +62,6 @@ extension FoodForm.DetailsForm {
                 HStack {
                     TextField("Required", text: $viewModel.name.stringValue.string)
                     fillButton(stringValue: viewModel.name.stringValue)
-                }
-            }
-            Section("Emoji") {
-                NavigationLink {
-                    FoodForm.DetailsForm.EmojiPicker(emoji: $viewModel.emoji.stringValue.string)
-                } label: {
-                    emojiCell
                 }
             }
             Section("Detail") {

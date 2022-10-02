@@ -4,6 +4,7 @@ import SwiftHaptics
 import PrepUnits
 import PhotosUI
 import Camera
+import EmojiPicker
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
@@ -50,6 +51,13 @@ public struct FoodForm: View {
                 .sheet(isPresented: $viewModel.showingCameraImagePicker) {
                     Camera { image in
                         viewModel.didCapture(image)
+                    }
+                }
+                .sheet(isPresented: $viewModel.showingEmojiPicker) {
+                    EmojiPicker(categories: [.foodAndDrink, .animalsAndNature]) { emoji in
+                        Haptics.feedback(style: .rigid)
+                        viewModel.emoji.stringValue.string = emoji
+                        viewModel.showingEmojiPicker = false
                     }
                 }
         }
