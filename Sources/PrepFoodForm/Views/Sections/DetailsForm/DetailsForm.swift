@@ -59,28 +59,61 @@ extension FoodForm.DetailsForm {
     var form: some View {
         Form {
             Section("Name") {
-                HStack {
-                    TextField("Required", text: $viewModel.name.stringValue.string)
-                    fillButton(stringValue: viewModel.name.stringValue)
+                NavigationLink {
+                    NameForm()
+                        .environmentObject(viewModel)
+                } label: {
+                    if viewModel.name.stringValue.string.isEmpty {
+                        Text("Required")
+                            .foregroundColor(Color(.tertiaryLabel))
+                    } else {
+                        Text(viewModel.name.stringValue.string)
+                    }
                 }
+//                HStack {
+//                    TextField("Required", text: $viewModel.name.stringValue.string)
+//                    fillButton(stringValue: viewModel.name.stringValue)
+//                }
             }
             Section("Detail") {
-                HStack {
-                    TextField("", text: $viewModel.detail.stringValue.string)
-                        .placeholder(when: viewModel.detail.isEmpty) {
-                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
-                        }
-                    fillButton(stringValue: viewModel.detail.stringValue)
+                NavigationLink {
+                    DetailForm()
+                        .environmentObject(viewModel)
+                } label: {
+                    if viewModel.detail.stringValue.string.isEmpty {
+                        Text("Optional")
+                            .foregroundColor(Color(.quaternaryLabel))
+                    } else {
+                        Text(viewModel.detail.stringValue.string)
+                    }
                 }
+//                HStack {
+//                    TextField("", text: $viewModel.detail.stringValue.string)
+//                        .placeholder(when: viewModel.detail.isEmpty) {
+//                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
+//                        }
+//                    fillButton(stringValue: viewModel.detail.stringValue)
+//                }
             }
             Section("Brand") {
-                HStack {
-                    TextField("", text: $viewModel.brand.stringValue.string)
-                        .placeholder(when: viewModel.brand.isEmpty) {
-                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
-                        }
-                    fillButton(stringValue: viewModel.brand.stringValue)
+                NavigationLink {
+                    BrandForm()
+                        .environmentObject(viewModel)
+                } label: {
+                    if viewModel.brand.stringValue.string.isEmpty {
+                        Text("Optional")
+                            .foregroundColor(Color(.quaternaryLabel))
+                    } else {
+                        Text(viewModel.brand.stringValue.string)
+                    }
                 }
+//                HStack {
+//                    TextField("", text: $viewModel.brand.stringValue.string)
+//                        .placeholder(when: viewModel.brand.isEmpty) {
+//                            Text("Optional").foregroundColor(Color(.quaternaryLabel))
+//                        }
+//                    fillButton(stringValue: viewModel.brand.stringValue)
+//                }
             }
             Section("Barcode") {
                 Button {
@@ -124,6 +157,84 @@ extension FoodForm.DetailsForm {
             
         } label: {
             Image(systemName: "barcode.viewfinder")
+        }
+    }
+}
+
+struct NameForm: View {
+    
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @FocusState var isFocused: Bool
+
+    var body: some View {
+        Form {
+            Section {
+                HStack {
+                    TextField("Required", text: $viewModel.name.stringValue.string)
+                        .focused($isFocused)
+                        .onSubmit {
+                            dismiss()
+                        }
+                }
+            }
+        }
+        .navigationBarTitle("Name")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            isFocused = true
+        }
+    }
+}
+
+struct DetailForm: View {
+    
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @FocusState var isFocused: Bool
+    
+    var body: some View {
+        Form {
+            Section {
+                HStack {
+                    TextField("Optional", text: $viewModel.detail.stringValue.string)
+                        .focused($isFocused)
+                        .onSubmit {
+                            dismiss()
+                        }
+                }
+            }
+        }
+        .navigationBarTitle("Detail")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            isFocused = true
+        }
+    }
+}
+
+struct BrandForm: View {
+    
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @FocusState var isFocused: Bool
+
+    var body: some View {
+        Form {
+            Section {
+                HStack {
+                    TextField("Optional", text: $viewModel.brand.stringValue.string)
+                        .focused($isFocused)
+                        .onSubmit {
+                            dismiss()
+                        }
+                }
+            }
+        }
+        .navigationBarTitle("Brand")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            isFocused = true
         }
     }
 }

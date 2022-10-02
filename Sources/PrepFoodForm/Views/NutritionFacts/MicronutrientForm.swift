@@ -70,7 +70,7 @@ extension MicronutrientForm {
             form
             VStack {
                 Spacer()
-                FilledImageButton()
+                CroppedImageButton()
                     .environmentObject(fieldFormViewModel)
             }
         }

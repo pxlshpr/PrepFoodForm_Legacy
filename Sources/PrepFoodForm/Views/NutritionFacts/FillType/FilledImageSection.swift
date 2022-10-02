@@ -2,7 +2,7 @@
 //import PrepUnits
 //import SwiftHaptics
 //
-//struct FilledImageButton: View {
+//struct CroppedImageButton: View {
 //    
 //    @EnvironmentObject var viewModel: FoodFormViewModel
 //    @EnvironmentObject var fieldFormViewModel: FieldFormViewModel

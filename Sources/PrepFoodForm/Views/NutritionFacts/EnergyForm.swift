@@ -57,7 +57,7 @@ extension EnergyForm {
             form
 //            VStack {
 //                Spacer()
-//                FilledImageButton()
+//                CroppedImageButton()
 //                    .environmentObject(fieldFormViewModel)
 //            }
         }
@@ -85,7 +85,7 @@ extension EnergyForm {
     
     var filledImageSection: some View {
         Section("Filled Text") {
-            FilledImageButton()
+            CroppedImageButton()
                 .environmentObject(fieldFormViewModel)
         }
     }

@@ -2,7 +2,7 @@ import SwiftUI
 import PrepUnits
 import SwiftHaptics
 
-struct FilledImageButton: View {
+struct CroppedImageButton: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
@@ -13,7 +13,6 @@ struct FilledImageButton: View {
             fieldFormViewModel.showingImageTextPicker = true
         } label: {
             VStack {
-//                Spacer()
                 HStack {
                     Spacer()
                     imageView
@@ -21,20 +20,14 @@ struct FilledImageButton: View {
                     Spacer()
                 }
             }
-//            .frame(width: 350, height: 150)
         }
         .buttonStyle(.borderless)
     }
     
     @ViewBuilder
     var imageView: some View {
-        if let image = fieldFormViewModel.imageToDisplay {
-//            if fieldFormViewModel.showAnimation {
-//                imageView(for: image)
-//            } else {
-                imageView(for: image)
-//                    .transition(.move(edge: .bottom))
-//            }
+        if let image = sampleImage {
+            imageView(for: image)
         }
     }
     
@@ -52,18 +45,6 @@ struct FilledImageButton: View {
 //            .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .leading)))
     }
     
-//    var header: some View {
-//        var string: String {
-//            fieldValue.fillType.isImageAutofill ? "Detected Text" : "Selected Text"
-//        }
-//
-//        var systemImage: String {
-//            fieldValue.fillType.isImageAutofill ? "text.viewfinder" : "hand.tap"
-//        }
-//
-//        return Text(string)
-//    }
-
     var sampleImage: UIImage? {
         PrepFoodForm.sampleImage(4)
     }

@@ -45,7 +45,7 @@ extension MacronutrientForm {
             form
             VStack {
                 Spacer()
-                FilledImageButton()
+                CroppedImageButton()
                     .environmentObject(fieldFormViewModel)
             }
         }
