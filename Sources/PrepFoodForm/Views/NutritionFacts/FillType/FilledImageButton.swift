@@ -13,7 +13,7 @@ struct FilledImageButton: View {
             fieldFormViewModel.showingImageTextPicker = true
         } label: {
             VStack {
-                Spacer()
+//                Spacer()
                 HStack {
                     Spacer()
                     imageView
@@ -21,7 +21,7 @@ struct FilledImageButton: View {
                     Spacer()
                 }
             }
-            .frame(width: 350, height: 150)
+//            .frame(width: 350, height: 150)
         }
         .buttonStyle(.borderless)
     }
@@ -33,7 +33,7 @@ struct FilledImageButton: View {
 //                imageView(for: image)
 //            } else {
                 imageView(for: image)
-                    .transition(.move(edge: .bottom))
+//                    .transition(.move(edge: .bottom))
 //            }
         }
     }

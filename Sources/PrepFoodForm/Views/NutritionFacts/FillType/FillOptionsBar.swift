@@ -54,9 +54,10 @@ struct FillOptionsBar: View {
     @ViewBuilder
     var prefillButton: some View {
         if let prefillFieldValue = viewModel.fieldValueFromPrefilledFood(for: fieldValue) {
-            button(prefillFieldValue.fillButtonString,
-                   systemImage: "link",
-                   isSelected: fieldValue.fillType == .thirdPartyFoodPrefill)
+            FillOptionButton(
+                string: prefillFieldValue.fillButtonString,
+                systemImage: "link",
+                isSelected: fieldValue.fillType == .thirdPartyFoodPrefill)
             {
                 withAnimation {
                     Haptics.feedback(style: .rigid)
@@ -80,9 +81,10 @@ struct FillOptionsBar: View {
         if let scanResultFieldValue = viewModel.fieldValueFromScanResults(for: fieldValue),
            !scanResultFieldValue.fillType.isCalculated
         {
-            button(scanResultFieldValue.fillButtonString,
-                   systemImage: "text.viewfinder",
-                   isSelected: fieldValue.fillType.isImageAutofill)
+            FillOptionButton(
+                string: scanResultFieldValue.fillButtonString,
+                systemImage: "text.viewfinder",
+                isSelected: fieldValue.fillType.isImageAutofill)
             {
                 withAnimation {
                     Haptics.feedback(style: .rigid)
@@ -107,62 +109,22 @@ struct FillOptionsBar: View {
         var title: String {
             fieldValue.fillType.isImageSelection ? "Select" : "Select"
         }
-        return button(title, systemImage: "hand.tap", isSelected: fieldValue.fillType.isImageSelection, disabledWhenSelected: false) {
+        return FillOptionButton(
+            string: title,
+            systemImage: "hand.tap",
+            isSelected: fieldValue.fillType.isImageSelection,
+            disabledWhenSelected: false)
+        {
             Haptics.feedback(style: .soft)
             fieldFormViewModel.showingImageTextPicker = true
         }
     }
     
-    func button(_ string: String, systemImage: String, isSelected: Bool, disabledWhenSelected: Bool = true, action: @escaping () -> ()) -> some View {
-        
-        let selectionColorDark = Color(hex: "6c6c6c")
-        let selectionColorLight = Color(hex: "959596")
-
-        var backgroundColor: Color {
-            guard isSelected else {
-                return Color(.secondarySystemFill)
-            }
-            if disabledWhenSelected {
-                return .accentColor
-            } else {
-                return colorScheme == .light ? selectionColorLight : selectionColorDark
-            }
-        }
-        
-        return Button {
-            action()
-        } label: {
-            ZStack {
-//                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                Capsule(style: .continuous)
-                    .foregroundColor(backgroundColor)
-                HStack {
-                    Image(systemName: systemImage)
-                        .foregroundColor(isSelected ? .white : .secondary)
-                        .imageScale(.small)
-                        .frame(height: 25)
-                    Text(string)
-                        .foregroundColor(isSelected ? .white : .primary)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 5)
-            }
-            .fixedSize(horizontal: false, vertical: true)
-            .contentShape(Rectangle())
-//            .background(
-//                RoundedRectangle(cornerRadius: 15, style: .continuous)
-//                    .foregroundColor(isSelected.wrappedValue ? .accentColor : Color(.secondarySystemFill))
-//            )
-        }
-        .grayscale(isSelected ? 1 : 0)
-        .disabled(disabledWhenSelected ? isSelected : false)
-    }
-    
     @ViewBuilder
     var calculatedButton: some View {
         if let calculatedFieldValue = viewModel.calculatedFieldValue(for: fieldValue) {
-            button(
-                calculatedFieldValue.fillButtonString,
+            FillOptionButton(
+                string: calculatedFieldValue.fillButtonString,
                 systemImage: "equal.square",
                 isSelected: fieldValue.fillType.isCalculated)
             {

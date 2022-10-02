@@ -11,6 +11,8 @@ struct EnergyForm: View {
     
     @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
+    
+    @State var showingFilledText = false
 }
 
 extension EnergyForm {
@@ -19,7 +21,13 @@ extension EnergyForm {
         content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
-            .toolbar { keyboardToolbarContents }
+//            .toolbar { keyboardToolbarContents }
+            .onChange(of: fieldValue.energyValue.unit) { newValue in
+                withAnimation {
+                    showingFilledText.toggle()
+
+                }
+            }
             .onAppear {
                 isFocused = true
                 fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
@@ -47,20 +55,38 @@ extension EnergyForm {
     var content: some View {
         ZStack {
             form
-            VStack {
-                Spacer()
-                FilledImageButton()
-                    .environmentObject(fieldFormViewModel)
-            }
+//            VStack {
+//                Spacer()
+//                FilledImageButton()
+//                    .environmentObject(fieldFormViewModel)
+//            }
         }
     }
     
     var form: some View {
         Form {
             textFieldSection
+//            filledImageSection
+            fillOptionsSection
         }
         .safeAreaInset(edge: .bottom) {
             Spacer().frame(height: 50)
+        }
+    }
+    
+    var fillOptionsSection: some View {
+        Section {
+            FillOptionsGrid()
+            if showingFilledText {
+                Text("Hello")
+            }
+        }
+    }
+    
+    var filledImageSection: some View {
+        Section("Filled Text") {
+            FilledImageButton()
+                .environmentObject(fieldFormViewModel)
         }
     }
     
