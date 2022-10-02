@@ -29,7 +29,7 @@ extension FoodFormViewModel {
         imageViewModels.compactMap { $0.scanResult }
     }
 
-    func processAllClassifierScanResults() {
+    func processScanResults() {
         //TODO: Decide which column we're going to be using
         extractEnergy()
         extractMacro(.carb)

@@ -62,7 +62,7 @@
 //        if let prefillFieldValue = viewModel.fieldValueFromPrefilledFood(for: fieldValue) {
 //            button(prefillFieldValue.fillButtonString,
 //                   systemImage: "link",
-//                   isSelected: fieldValue.energyValue.fillType == .thirdPartyFoodPrefill)
+//                   isSelected: fieldValue.energyValue.fillType == .prefill)
 //            {
 //                withAnimation {
 //                    Haptics.feedback(style: .rigid)
@@ -75,7 +75,7 @@
 ////                    }
 ////                    fieldValue.energyValue.double = 125
 ////                    fieldValue.energyValue.unit = .kcal
-////                    fieldValue.energyValue.fillType = .thirdPartyFoodPrefill
+////                    fieldValue.energyValue.fillType = .prefill
 //                }
 //            }
 //        }

@@ -76,7 +76,7 @@ extension EnergyForm {
     
     var fillOptionsSection: some View {
         Section {
-            FillOptionsGrid()
+//            FillOptionsGrid()
             if showingFilledText {
                 Text("Hello")
             }
@@ -154,7 +154,7 @@ extension EnergyForm {
 
 struct EnergyFormPreview: View {
     
-    @State var fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 105, string: "105", unit: .kcal, fillType: .thirdPartyFoodPrefill))
+    @State var fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 105, string: "105", unit: .kcal, fillType: .prefill()))
     
     @StateObject var viewModel = FoodFormViewModel()
     var body: some View {

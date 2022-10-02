@@ -11,6 +11,9 @@ struct ImageTextPicker: View {
     @State var tappedText: RecognizedText? = nil
     
     @State var page: Page = .first()
+    
+    //TODO: this needs to be provided
+    @State var texts: [RecognizedText] = []
 
     let selectedTextId: UUID?
     let selectedImageScanResultId: UUID?
@@ -19,10 +22,10 @@ struct ImageTextPicker: View {
     init(fillType: FillType, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
         
         switch fillType {
-        case .imageSelection(let recognizedText, let scanResultId):
+        case .imageSelection(let recognizedText, let scanResultId, _):
             self.selectedTextId = recognizedText.id
             self.selectedImageScanResultId = scanResultId
-        case .imageAutofill(let valueText, let scanResultId):
+        case .imageAutofill(let valueText, let scanResultId, _):
             self.selectedTextId = valueText.text.id
             self.selectedImageScanResultId = scanResultId
         default:
@@ -161,7 +164,7 @@ struct ImageTextPicker: View {
     func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
-                ForEach(imageViewModel.textsWithNumbers, id: \.self) { text in
+                ForEach(texts, id: \.self) { text in
                     boxLayer(for: text, inSize: geometry.size)
                     .offset(x: text.boundingBox.rectForSize(geometry.size).minX,
                             y: text.boundingBox.rectForSize(geometry.size).minY)

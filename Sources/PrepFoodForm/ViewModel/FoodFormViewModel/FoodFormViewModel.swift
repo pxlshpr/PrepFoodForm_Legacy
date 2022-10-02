@@ -182,6 +182,7 @@ extension FoodFormViewModel {
             partialResult + tuple.fieldValues
         }
     }
+    
     var allFields: [FieldValue] {
         [
             name, emoji, detail, brand, barcode,
@@ -218,15 +219,17 @@ extension FoodFormViewModel {
             return
         }
         
-        /// Used for testing currently—so that we can save the scanResult and read it again without re-running the classifier
-//        imageViewModel.saveScanResultToJson()
+        Task(priority: .low) {
+            /// Used for testing currently—so that we can save the scanResult and read it again without re-running the classifier
+            imageViewModel.saveScanResultToJson()
+        }
         
         if imageViewModels.allSatisfy({ $0.status == .classified }) {
             Haptics.successFeedback()
             DispatchQueue.main.async {
                 withAnimation {
                     self.imageSetStatus = .classified
-                    self.processAllClassifierScanResults()
+                    self.processScanResults()
                 }
             }
         }
@@ -257,6 +260,23 @@ extension ImageViewModel {
                 url.appendPathComponent("scanResult.json")
                 try data.write(to: url)
                 print("📝 Wrote scanResult to: \(url)")
+            }
+        } catch {
+            print(error)
+        }
+    }
+}
+
+extension MFPProcessedFood {
+    func saveToJson() {
+        let encoder = JSONEncoder()
+        do {
+            let data = try encoder.encode(self)
+            
+            if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                url.appendPathComponent("mfpProcessedFood.json")
+                try data.write(to: url)
+                print("📝 Wrote mfpProcessedFood to: \(url)")
             }
         } catch {
             print(error)

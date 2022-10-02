@@ -48,7 +48,7 @@ extension FoodFormViewModel {
     func simulateImageClassification(_ indexes: [Int]) {
         sourceType = .images
         populateWithSampleImages(indexes)
-        processAllClassifierScanResults()
+        processScanResults()
         imageSetStatus = .classified
         withAnimation {
             showingWizard = false
@@ -56,7 +56,12 @@ extension FoodFormViewModel {
     }
     
     func prefill(_ food: MFPProcessedFood) {
-
+        
+        /// For testing purposes
+        Task(priority: .low) {
+            food.saveToJson()
+        }
+        
         self.showingThirdPartySearch = false
 
         prefillDetails(from: food)
@@ -77,13 +82,13 @@ extension FoodFormViewModel {
     
     func prefillDetails(from food: MFPProcessedFood) {
         if !food.name.isEmpty {
-            name = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .thirdPartyFoodPrefill))
+            name = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(selectedString: food.name)))
         }
         if let detail = food.detail, !detail.isEmpty {
-            self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .thirdPartyFoodPrefill))
+            self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(selectedString: food.detail)))
         }
         if let brand = food.brand, !brand.isEmpty {
-            self.brand = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .thirdPartyFoodPrefill))
+            self.brand = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(selectedString: food.brand)))
         }
     }
 
@@ -112,7 +117,7 @@ extension FoodFormViewModel {
             double: food.amount,
             string: food.amount.cleanAmount,
             unit: food.amountUnit.formUnit(withSize: size),
-            fillType: .thirdPartyFoodPrefill)
+            fillType: .prefill())
         )
     }
     
@@ -132,11 +137,11 @@ extension FoodFormViewModel {
 
 extension MFPProcessedFood {
     var energyFieldValue: FieldValue {
-        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fillType: .thirdPartyFoodPrefill))
+        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fillType: .prefill()))
     }
     
     func macroFieldValue(macro: Macro, double: Double) -> FieldValue {
-        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fillType: .thirdPartyFoodPrefill))
+        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fillType: .prefill()))
     }
     
     var carbFieldValue: FieldValue {

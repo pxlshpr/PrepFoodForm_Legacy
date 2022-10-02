@@ -54,13 +54,14 @@ struct FillOptionsBar: View {
     @ViewBuilder
     var prefillButton: some View {
         if let prefillFieldValue = viewModel.fieldValueFromPrefilledFood(for: fieldValue) {
-            FillOptionButton(
-                string: prefillFieldValue.fillButtonString,
-                systemImage: "link",
-                isSelected: fieldValue.fillType == .thirdPartyFoodPrefill)
-            {
-                withAnimation {
-                    Haptics.feedback(style: .rigid)
+            Color.blue
+//            FillOptionButton(
+//                string: prefillFieldValue.fillButtonString,
+//                systemImage: "link",
+//                isSelected: fieldValue.fillType == .prefill)
+//            {
+//                withAnimation {
+//                    Haptics.feedback(style: .rigid)
                     //TODO: Bring these back
 //                    if fieldValue.double != 125 {
 //                        ignoreNextAmountChange = true
@@ -70,9 +71,9 @@ struct FillOptionsBar: View {
 //                    }
 //                    fieldValue.double = 125
 //                    fieldValue.unit = .kcal
-//                    fieldValue.fillType = .thirdPartyFoodPrefill
-                }
-            }
+//                    fieldValue.fillType = .prefill
+//                }
+//            }
         }
     }
     
@@ -81,17 +82,18 @@ struct FillOptionsBar: View {
         if let scanResultFieldValue = viewModel.fieldValueFromScanResults(for: fieldValue),
            !scanResultFieldValue.fillType.isCalculated
         {
-            FillOptionButton(
-                string: scanResultFieldValue.fillButtonString,
-                systemImage: "text.viewfinder",
-                isSelected: fieldValue.fillType.isImageAutofill)
-            {
-                withAnimation {
-                    Haptics.feedback(style: .rigid)
-                    fieldFormViewModel.ignoreNextChange = true
-                    withAnimation {
-                        fieldValue = scanResultFieldValue
-                    }
+            Color.blue
+//            FillOptionButton(
+//                string: scanResultFieldValue.fillButtonString,
+//                systemImage: "text.viewfinder",
+//                isSelected: fieldValue.fillType.isImageAutofill)
+//            {
+//                withAnimation {
+//                    Haptics.feedback(style: .rigid)
+//                    fieldFormViewModel.ignoreNextChange = true
+//                    withAnimation {
+//                        fieldValue = scanResultFieldValue
+//                    }
 //                    if fieldValue.double != 115 {
 //                        ignoreNextAmountChange = true
 //                    }
@@ -100,43 +102,45 @@ struct FillOptionsBar: View {
 //                    }
 //                    fieldValue.double = 115
 //                    fieldValue.unit = .kcal
-                }
-            }
+//                }
+//            }
         }
     }
     
     var imageSelectButton: some View {
-        var title: String {
-            fieldValue.fillType.isImageSelection ? "Select" : "Select"
-        }
-        return FillOptionButton(
-            string: title,
-            systemImage: "hand.tap",
-            isSelected: fieldValue.fillType.isImageSelection,
-            disabledWhenSelected: false)
-        {
-            Haptics.feedback(style: .soft)
-            fieldFormViewModel.showingImageTextPicker = true
-        }
+        Color.blue
+//        var title: String {
+//            fieldValue.fillType.isImageSelection ? "Select" : "Select"
+//        }
+//        return FillOptionButton(
+//            string: title,
+//            systemImage: "hand.tap",
+//            isSelected: fieldValue.fillType.isImageSelection,
+//            disabledWhenSelected: false)
+//        {
+//            Haptics.feedback(style: .soft)
+//            fieldFormViewModel.showingImageTextPicker = true
+//        }
     }
     
     @ViewBuilder
     var calculatedButton: some View {
-        if let calculatedFieldValue = viewModel.calculatedFieldValue(for: fieldValue) {
-            FillOptionButton(
-                string: calculatedFieldValue.fillButtonString,
-                systemImage: "equal.square",
-                isSelected: fieldValue.fillType.isCalculated)
-            {
-                withAnimation {
-                    Haptics.feedback(style: .rigid)
-                    fieldFormViewModel.ignoreNextChange = true
-                    withAnimation {
-                        fieldValue = calculatedFieldValue
-                    }
-                }
-            }
-        }
+        Color.blue
+//        if let calculatedFieldValue = viewModel.calculatedFieldValue(for: fieldValue) {
+//            FillOptionButton(
+//                string: calculatedFieldValue.fillButtonString,
+//                systemImage: "equal.square",
+//                isSelected: fieldValue.fillType.isCalculated)
+//            {
+//                withAnimation {
+//                    Haptics.feedback(style: .rigid)
+//                    fieldFormViewModel.ignoreNextChange = true
+//                    withAnimation {
+//                        fieldValue = calculatedFieldValue
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

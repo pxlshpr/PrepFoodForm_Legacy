@@ -5,26 +5,38 @@ import UIKit
 
 enum FillType: Hashable {
     case userInput
-    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID)
-    case imageAutofill(valueText: ValueText, scanResultId: UUID)
+    
+    /// `value` is used to identify the specific `Value` for each of these that the user picked (for instances where alternative's may have been suggested and the user picked one of those instead)—so that we can later mark it as selected
+    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID, value: Value? = nil)
+    case imageAutofill(valueText: ValueText, scanResultId: UUID, value: Value? = nil)
+    
     case calculated
-    case thirdPartyFoodPrefill
+    /// The `selectedString` indicates which string was tapped and used to prefill this fill type—so that we can mark that fill option as selected
+    case prefill(selectedString: String? = nil)
     case barcodeScan
+    
+    struct SystemImage {
+        static let imageSelection = "hand.tap"
+        static let prefill = "link"
+        static let calculated = "equal.square"
+        static let imageAutofill = "text.viewfinder"
+        static let barcodeScan = "barcode.viewfinder"
+    }
     
     var iconSystemImage: String {
         switch self {
         case .userInput:
             return ""
         case .imageSelection:
-            return "hand.tap"
+            return SystemImage.imageSelection
         case .calculated:
-            return "equal.square"
+            return SystemImage.calculated
         case .imageAutofill:
-            return "text.viewfinder"
-        case .thirdPartyFoodPrefill:
-            return "link"
+            return SystemImage.imageAutofill
+        case .prefill:
+            return SystemImage.prefill
         case .barcodeScan:
-            return "barcode.viewfinder"
+            return SystemImage.barcodeScan
         }
     }
     
@@ -37,7 +49,7 @@ enum FillType: Hashable {
         //            return "hand.tap"
         //        case .imageAutofill:
         //            return "viewfinder.circle.fill"
-        //        case .thirdPartyFoodPrefill:
+        //        case .prefill:
         //            return "link"
         //        case .barcodeScan:
         //            return "viewfinder.circle.fill"
@@ -46,7 +58,7 @@ enum FillType: Hashable {
     
     var sectionHeaderString: String {
         switch self {
-        case .thirdPartyFoodPrefill:
+        case .prefill:
             return "Copied from third-pary food"
         case .imageAutofill:
             return "Auto-filled from image"
@@ -68,6 +80,15 @@ enum FillType: Hashable {
     var isCalculated: Bool {
         switch self {
         case .calculated:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isThirdPartyFoodPrefill: Bool {
+        switch self {
+        case .prefill:
             return true
         default:
             return false
@@ -103,9 +124,9 @@ enum FillType: Hashable {
     
     var text: RecognizedText? {
         switch self {
-        case .imageAutofill(let valueText, _):
+        case .imageAutofill(let valueText, _, _):
             return valueText.text
-        case .imageSelection(let recognizedText, _):
+        case .imageSelection(let recognizedText, _, _):
             return recognizedText
         default:
             return nil
@@ -114,13 +135,13 @@ enum FillType: Hashable {
     
     var boundingBoxToCrop: CGRect? {
         switch self {
-        case .imageAutofill(let valueText, _):
+        case .imageAutofill(let valueText, _, _):
             if let attributeText = valueText.attributeText, attributeText != valueText.text {
                 return attributeText.boundingBox.union(valueText.text.boundingBox)
             } else {
                 return valueText.text.boundingBox
             }
-        case .imageSelection(let recognizedText, _):
+        case .imageSelection(let recognizedText, _, _):
             return recognizedText.boundingBox
         default:
             return nil
@@ -129,9 +150,9 @@ enum FillType: Hashable {
 
     var scanResultId: UUID? {
         switch self {
-        case .imageSelection(_, let scanResultId):
+        case .imageSelection(_, let scanResultId, _):
             return scanResultId
-        case .imageAutofill(_, let scanResultId):
+        case .imageAutofill(_, let scanResultId, _):
             return scanResultId
         default:
             return nil

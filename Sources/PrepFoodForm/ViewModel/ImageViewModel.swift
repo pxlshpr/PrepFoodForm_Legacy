@@ -8,7 +8,6 @@ class ImageViewModel: ObservableObject {
     @Published var status: ImageStatus
     @Published var image: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
-    @Published var textsWithNumbers: [RecognizedText] = []
     var scanResult: ScanResult? = nil
     
     init(_ image: UIImage) {
@@ -31,12 +30,6 @@ class ImageViewModel: ObservableObject {
         self.status = .classified
         self.photosPickerItem = nil
         self.scanResult = scanResult
-        
-        let textsWithNumbers = scanResult.texts.filter { text in
-            text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
-        }
-
-        self.textsWithNumbers = textsWithNumbers
     }
     
     func startClassifyTask(with image: UIImage) {
@@ -55,14 +48,8 @@ class ImageViewModel: ObservableObject {
                 
                 self.scanResult = results
                 
-                //TODO: Move this to FoodLabelScanner
-                let textsWithNumbers = scanResult?.texts.filter { text in
-                    text.string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
-                } ?? []
-                
                 await MainActor.run {
                     self.status = .classified
-                    self.textsWithNumbers = textsWithNumbers
                 }
                 FoodFormViewModel.shared.imageDidFinishClassifying(self)
             }
