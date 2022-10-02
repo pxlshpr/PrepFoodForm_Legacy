@@ -295,16 +295,17 @@ extension MFPProcessedFood {
 
 extension FieldValue {
     static func prefillOptionForName(with string: String) -> FieldValue {
-        FieldValue.name(StringValue(string: string, fillType: .prefill(selectedString: string)))
+        FieldValue.name(StringValue(string: string, fillType: .prefill(prefillFields: [.name])))
     }
 }
+
+//TODO: Write an extension on FieldValue or RecognizedText that provides alternative `Value`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
 
 //MARK: FFVM + FillOptions Helpers
 extension FoodFormViewModel {
     func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
         !prefillFieldValues(for: fieldValue).isEmpty
     }
-    
     func prefillFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
         guard let food = prefilledFood else {
             return []
@@ -397,7 +398,7 @@ extension RecognizedText {
 extension FillType {
     func uses(text: RecognizedText) -> Bool {
         switch self {
-        case .imageSelection(let recognizedText, _, _):
+        case .imageSelection(let recognizedText, _, _, _):
             return recognizedText.id == text.id
         case .imageAutofill(let valueText, _, _):
             return valueText.text.id == text.id || valueText.attributeText?.id == text.id

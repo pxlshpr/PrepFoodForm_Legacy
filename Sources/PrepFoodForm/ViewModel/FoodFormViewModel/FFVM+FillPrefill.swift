@@ -82,13 +82,13 @@ extension FoodFormViewModel {
     
     func prefillDetails(from food: MFPProcessedFood) {
         if !food.name.isEmpty {
-            name = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(selectedString: food.name)))
+            name = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(prefillFields: [.name])))
         }
         if let detail = food.detail, !detail.isEmpty {
-            self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(selectedString: food.detail)))
+            self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(prefillFields: [.detail])))
         }
         if let brand = food.brand, !brand.isEmpty {
-            self.brand = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(selectedString: food.brand)))
+            self.brand = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(prefillFields: [.brand])))
         }
     }
 
