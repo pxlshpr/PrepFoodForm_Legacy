@@ -5,7 +5,7 @@ extension FoodForm.NutritionFacts {
     struct Cell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
-        @Binding var fieldValue: FieldValue
+        @Binding var fieldValueViewModel: FieldValueViewModel
         @State var imageToDisplay: UIImage? = nil
     }
 }
@@ -23,9 +23,9 @@ extension FoodForm.NutritionFacts.Cell {
         .background(cellBackgroundColor)
         .cornerRadius(10)
         .padding(.bottom, 10)
-        .onAppear {
-            getCroppedImage(for: fieldValue.fillType)
-        }
+//        .onAppear {
+//            getCroppedImage(for: fieldValue.fillType)
+//        }
     }
     
     var imageLayer: some View {
@@ -69,6 +69,10 @@ extension FoodForm.NutritionFacts.Cell {
                 bottomRow
             }
         }
+    }
+    
+    var fieldValue: FieldValue {
+        fieldValueViewModel.fieldValue
     }
     
     //MARK: - Components
@@ -162,12 +166,14 @@ public struct NutritionFacts_CellPreview: View {
         return fieldValue
     }
     
+    
     public var body: some View {
         NavigationView {
             ScrollView {
-                FoodForm.NutritionFacts.Cell(fieldValue: .constant(fieldValue))
-                    .environmentObject(viewModel)
-                    .padding(.horizontal)
+                Color.blue
+//                FoodForm.NutritionFacts.Cell(fieldValue: .constant(fieldValue))
+//                    .environmentObject(viewModel)
+//                    .padding(.horizontal)
             }
             .background(Color(.systemGroupedBackground))
         }

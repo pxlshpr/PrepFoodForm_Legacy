@@ -5,12 +5,12 @@ import SwiftHaptics
 struct CroppedImageButton: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
+    @EnvironmentObject var fieldValueViewModel: FieldValueViewModel
 //    @Binding var image: UIImage?
 
     var body: some View {
         Button {
-            fieldFormViewModel.showingImageTextPicker = true
+            fieldValueViewModel.showingImageTextPicker = true
         } label: {
             VStack {
                 HStack {

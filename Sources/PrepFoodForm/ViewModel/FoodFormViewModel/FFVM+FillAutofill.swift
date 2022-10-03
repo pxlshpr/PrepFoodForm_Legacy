@@ -44,7 +44,7 @@ extension FoodFormViewModel {
             return
         }
         //TODO: Only do this if user hasn't already got a value in there
-        energy = fieldValue
+        energyViewModel = .init(fieldValue: fieldValue)
         autofillFieldValues.append(fieldValue)
     }
     
@@ -55,11 +55,11 @@ extension FoodFormViewModel {
         //TODO: Only do this if user hasn't already got a value in there
         switch macro {
         case .carb:
-            carb = fieldValue
+            carbViewModel = .init(fieldValue: fieldValue)
         case .fat:
-            fat = fieldValue
+            fatViewModel = .init(fieldValue: fieldValue)
         case .protein:
-            protein = fieldValue
+            proteinViewModel = .init(fieldValue: fieldValue)
         }
         autofillFieldValues.append(fieldValue)
     }
@@ -79,7 +79,7 @@ extension FoodFormViewModel {
             print("Couldn't find indexes for nutrientType: \(nutrientType) in micronutrients array")
             return
         }
-        micronutrients[indexes.groupIndex].fieldValues[indexes.fieldIndex] = fieldValue
+        micronutrients[indexes.groupIndex].fieldValueViewModels[indexes.fieldIndex] = .init(fieldValue: fieldValue)
         autofillFieldValues.append(fieldValue)
     }
     
@@ -87,18 +87,14 @@ extension FoodFormViewModel {
         guard let groupIndex = micronutrients.firstIndex(where: { $0.group == nutrientType.group }) else {
             return nil
         }
-        guard let fieldIndex = micronutrients[groupIndex].fieldValues.firstIndex(where: { $0.microValue.nutrientType == nutrientType }) else {
+        guard let fieldIndex = micronutrients[groupIndex].fieldValueViewModels.firstIndex(where: { $0.fieldValue.microValue.nutrientType == nutrientType }) else {
             return nil
         }
         return (groupIndex, fieldIndex)
     }
 
     func fieldValueFromScanResults(for attribute: Attribute? = nil) -> FieldValue? {
-        guard let fieldValue = fieldValueFromScanResults(for: attribute, orNutrientType: nil) else {
-            return nil
-        }
-        fieldValue.getCroppedImage()
-        return fieldValue
+        fieldValueFromScanResults(for: attribute, orNutrientType: nil)
     }
 
     func fieldValueFromScanResults(for nutrientType: NutrientType? = nil) -> FieldValue? {
@@ -379,51 +375,3 @@ extension NutrientType {
 }
 
 let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
-
-extension FieldValue {
-    func getCroppedImage() {
-        guard fillType.usesImage else { return }
-        Task {
-            let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fillType)
-
-            await MainActor.run {
-                withAnimation {
-//                    self.image = croppedImage
-                }
-            }
-        }
-    }
-    
-    var image: UIImage? {
-        get {
-            fillType.image
-        }
-        set {
-            self.fillType.image = newValue
-        }
-    }
-}
-extension FillType {
-    var image: UIImage? {
-        get {
-            switch self {
-            case .imageSelection(_, _, _, _, let croppedImage):
-                return croppedImage
-            case .imageAutofill(_, _, _, let croppedImage):
-                return croppedImage
-            default:
-                return nil
-            }
-        }
-        set {
-            switch self {
-            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, let value, _):
-                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value, croppedImage: newValue)
-            case .imageAutofill(let valueText, let scanResultId, let value, _):
-                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: value, croppedImage: newValue)
-            default:
-                break
-            }
-        }
-    }
-}

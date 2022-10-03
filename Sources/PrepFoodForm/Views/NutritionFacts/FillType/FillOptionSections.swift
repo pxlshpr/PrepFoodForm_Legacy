@@ -264,9 +264,9 @@ extension FillType {
     var value: Value? {
         get {
             switch self {
-            case .imageSelection(_, _, _, let value, _):
+            case .imageSelection(_, _, _, let value):
                 return value
-            case .imageAutofill(_, _, let value, _):
+            case .imageAutofill(_, _, let value):
                 return value
             default:
                 return nil
@@ -274,9 +274,9 @@ extension FillType {
         }
         set {
             switch self {
-            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _, _):
+            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
                 self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
-            case .imageAutofill(let valueText, let scanResultId, _, _):
+            case .imageAutofill(let valueText, let scanResultId, _):
                 self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
             default:
                 break
@@ -460,7 +460,7 @@ extension FoodFormViewModel {
      Returns the `fieldValue` (if any) that is using the `RecognizedText`
      */
     func fieldValueUsing(text: RecognizedText) -> FieldValue? {
-        allFields.first(where: {
+        allFieldValues.first(where: {
             $0.fillType.uses(text: text)
         })
     }
@@ -493,9 +493,9 @@ extension RecognizedText {
 extension FillType {
     func uses(text: RecognizedText) -> Bool {
         switch self {
-        case .imageSelection(let recognizedText, _, _, _, _):
+        case .imageSelection(let recognizedText, _, _, _):
             return recognizedText.id == text.id
-        case .imageAutofill(let valueText, _, _, _):
+        case .imageAutofill(let valueText, _, _):
             return valueText.text.id == text.id || valueText.attributeText?.id == text.id
         default:
             return false
@@ -514,7 +514,7 @@ public struct FillOptionSectionsPreview: View {
     public init() {
         let viewModel = FoodFormViewModel.mock
         _viewModel = StateObject(wrappedValue: viewModel)
-        _string = State(initialValue: viewModel.energy.energyValue.string)
+        _string = State(initialValue: viewModel.energyViewModel.fieldValue.energyValue.string)
     }
     
     var fieldSection: some View {
@@ -526,7 +526,7 @@ public struct FillOptionSectionsPreview: View {
     }
     
     var optionsSections: some View {
-        FillOptionSections(fieldValue: $viewModel.energy)
+        FillOptionSections(fieldValue: $viewModel.energyViewModel.fieldValue)
             .environmentObject(viewModel)
     }
     
@@ -546,12 +546,12 @@ public struct FillOptionSectionsPreview: View {
 //            form
             scrollView
         }
-        .onChange(of: viewModel.energy.energyValue.double) { newValue in
+        .onChange(of: viewModel.energyViewModel.fieldValue.energyValue.double) { newValue in
             string = newValue?.cleanAmount ?? ""
         }
         .onChange(of: string) { newValue in
             withAnimation {
-                viewModel.energy.energyValue.fillType = .userInput
+                viewModel.energyViewModel.fieldValue.energyValue.fillType = .userInput
             }
         }
     }

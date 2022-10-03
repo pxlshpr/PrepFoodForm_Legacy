@@ -20,38 +20,38 @@ extension FoodForm.NutritionFacts {
             }
     }
 
-    func macronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
+    func macronutrientForm(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
         NavigationLink {
-            MacronutrientForm(fieldValue: fieldValue)
+            MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
     }
 
-    func micronutrientForm(for fieldValue: Binding<FieldValue>) -> some View {
+    func micronutrientCell(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
         NavigationLink {
-            MicronutrientForm(fieldValue: fieldValue, isBeingEdited: true) { fieldValueCopy in
+            MicronutrientForm(fieldValueViewModel: fieldValueViewModel, isBeingEdited: true) { fieldValueCopy in
                 withAnimation {
-                    fieldValue.wrappedValue.microValue.string = fieldValueCopy.microValue.string
-                    fieldValue.wrappedValue.microValue.unit = fieldValueCopy.microValue.unit
-                    fieldValue.wrappedValue.fillType = fieldValueCopy.microValue.fillType
+                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
+                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
+                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
                 }
             }
             .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValue: fieldValue)
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
     }
 
     var energyForm: some View {
         NavigationLink {
-            EnergyForm(fieldValue: $viewModel.energy)
+            EnergyForm(fieldValueViewModel: $viewModel.energyViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValue: $viewModel.energy)
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: $viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -71,9 +71,9 @@ extension FoodForm.NutritionFacts {
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
-            macronutrientForm(for: $viewModel.carb)
-            macronutrientForm(for: $viewModel.fat)
-            macronutrientForm(for: $viewModel.protein)
+            macronutrientForm(for: $viewModel.carbViewModel)
+            macronutrientForm(for: $viewModel.fatViewModel)
+            macronutrientForm(for: $viewModel.proteinViewModel)
         }
     }
     
@@ -101,9 +101,9 @@ extension FoodForm.NutritionFacts {
             ForEach(viewModel.micronutrients.indices, id: \.self) { g in
                 if viewModel.hasNonEmptyFieldValuesInMicronutrientsGroup(at: g) {
                     subtitleCell(viewModel.micronutrients[g].group.description)
-                    ForEach(viewModel.micronutrients[g].fieldValues.indices, id: \.self) { f in
-                        if !viewModel.micronutrients[g].fieldValues[f].isEmpty {
-                            micronutrientForm(for: $viewModel.micronutrients[g].fieldValues[f])
+                    ForEach(viewModel.micronutrients[g].fieldValueViewModels.indices, id: \.self) { f in
+                        if !viewModel.micronutrients[g].fieldValueViewModels[f].fieldValue.isEmpty {
+                            micronutrientCell(for: $viewModel.micronutrients[g].fieldValueViewModels[f])
                         }
                     }
                 }

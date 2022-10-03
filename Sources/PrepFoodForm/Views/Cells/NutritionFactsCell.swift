@@ -35,14 +35,15 @@ extension FoodForm.NutritionFactsCell {
 }
 
 extension FoodFormViewModel: FoodLabelDataSource {
+    
     public var nutrients: [NutrientType : Double] {
         var nutrients: [NutrientType : Double] = [:]
-        for (_, array) in micronutrients {
-            for fieldValue in array {
-                guard case .micro = fieldValue else {
+        for (_, fieldValueViewModels) in micronutrients {
+            for fieldValueViewModel in fieldValueViewModels {
+                guard case .micro = fieldValueViewModel.fieldValue else {
                     continue
                 }
-                nutrients[fieldValue.microValue.nutrientType] = fieldValue.double
+                nutrients[fieldValueViewModel.fieldValue.microValue.nutrientType] = fieldValueViewModel.fieldValue.double
             }
         }
         return nutrients
@@ -61,19 +62,19 @@ extension FoodFormViewModel: FoodLabelDataSource {
     }
     
     public var carbAmount: Double {
-        carb.double ?? 0
+        carbViewModel.fieldValue.double ?? 0
     }
     
     public var proteinAmount: Double {
-        protein.double ?? 0
+        proteinViewModel.fieldValue.double ?? 0
     }
     
     public var fatAmount: Double {
-        fat.double ?? 0
+        fatViewModel.fieldValue.double ?? 0
     }
     
     public var energyAmount: Double {
-        energy.double ?? 0
+        energyViewModel.fieldValue.double ?? 0
     }
 }
 

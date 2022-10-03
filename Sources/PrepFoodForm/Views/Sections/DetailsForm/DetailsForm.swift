@@ -31,7 +31,7 @@ extension FoodForm.DetailsForm {
                 
                 switch result {
                 case .success(let code):
-                    viewModel.barcode.stringValue.string = code
+                    viewModel.barcodeViewModel.fieldValue.stringValue.string = code
                 case .failure(let error):
                     print("Scanning failed: \(error)")
                 }
@@ -63,11 +63,11 @@ extension FoodForm.DetailsForm {
                     NameForm()
                         .environmentObject(viewModel)
                 } label: {
-                    if viewModel.name.stringValue.string.isEmpty {
+                    if viewModel.nameViewModel.fieldValue.stringValue.string.isEmpty {
                         Text("Required")
                             .foregroundColor(Color(.tertiaryLabel))
                     } else {
-                        Text(viewModel.name.stringValue.string)
+                        Text(viewModel.nameViewModel.fieldValue.stringValue.string)
                     }
                 }
 //                HStack {
@@ -80,11 +80,11 @@ extension FoodForm.DetailsForm {
                     DetailForm()
                         .environmentObject(viewModel)
                 } label: {
-                    if viewModel.detail.stringValue.string.isEmpty {
+                    if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
                         Text("Optional")
                             .foregroundColor(Color(.quaternaryLabel))
                     } else {
-                        Text(viewModel.detail.stringValue.string)
+                        Text(viewModel.detailViewModel.fieldValue.stringValue.string)
                     }
                 }
 //                HStack {
@@ -100,11 +100,11 @@ extension FoodForm.DetailsForm {
                     BrandForm()
                         .environmentObject(viewModel)
                 } label: {
-                    if viewModel.brand.stringValue.string.isEmpty {
+                    if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {
                         Text("Optional")
                             .foregroundColor(Color(.quaternaryLabel))
                     } else {
-                        Text(viewModel.brand.stringValue.string)
+                        Text(viewModel.brandViewModel.fieldValue.stringValue.string)
                     }
                 }
 //                HStack {
@@ -119,7 +119,7 @@ extension FoodForm.DetailsForm {
                 Button {
                     showingCodeScanner = true
                 } label: {
-                    Text(viewModel.barcode.isEmpty ? "Scan a barcode" : viewModel.barcode.stringValue.string)
+                    Text(viewModel.barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : viewModel.barcodeViewModel.fieldValue.stringValue.string)
                 }
 //                TextField("", text: $brand)
 //                    .keyboardType(.alphabet)
@@ -131,11 +131,11 @@ extension FoodForm.DetailsForm {
     
     var emojiCell: some View {
         Group {
-            if viewModel.emoji.isEmpty {
+            if viewModel.emojiViewModel.fieldValue.isEmpty {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             } else {
-                Text(viewModel.emoji.stringValue.string)
+                Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
                     .font(Font.system(size: 50.0))
             }
         }
@@ -171,7 +171,7 @@ struct NameForm: View {
         Form {
             Section {
                 HStack {
-                    TextField("Required", text: $viewModel.name.stringValue.string)
+                    TextField("Required", text: $viewModel.nameViewModel.fieldValue.stringValue.string)
                         .focused($isFocused)
                         .onSubmit {
                             dismiss()
@@ -197,7 +197,7 @@ struct DetailForm: View {
         Form {
             Section {
                 HStack {
-                    TextField("Optional", text: $viewModel.detail.stringValue.string)
+                    TextField("Optional", text: $viewModel.detailViewModel.fieldValue.stringValue.string)
                         .focused($isFocused)
                         .onSubmit {
                             dismiss()
@@ -223,7 +223,7 @@ struct BrandForm: View {
         Form {
             Section {
                 HStack {
-                    TextField("Optional", text: $viewModel.brand.stringValue.string)
+                    TextField("Optional", text: $viewModel.brandViewModel.fieldValue.stringValue.string)
                         .focused($isFocused)
                         .onSubmit {
                             dismiss()

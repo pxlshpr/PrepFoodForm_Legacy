@@ -12,27 +12,27 @@ public class FoodFormViewModel: ObservableObject {
     public init() { }
     
     //MARK: - Food Details
-    @Published var name: FieldValue = .name()
-    @Published var emoji: FieldValue = .emoji()
-    @Published var detail: FieldValue = .detail()
-    @Published var brand: FieldValue = .brand()
-    @Published var barcode: FieldValue = .barcode()
+    @Published var nameViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .name())
+    @Published var emojiViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .emoji())
+    @Published var detailViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .detail())
+    @Published var brandViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .brand())
+    @Published var barcodeViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .barcode())
     
     @Published var showingCameraImagePicker: Bool = false
     
     //MARK: Amount Per
-    @Published var amount: FieldValue = .amount() {
+    @Published var amountViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .amount()) {
         didSet {
             updateShouldShowDensitiesSection()
-            if amount.doubleValue.unit != .serving {
-                serving.doubleValue.double = nil
-                serving.doubleValue.string = ""
-                serving.doubleValue.unit = .weight(.g)
+            if amountViewModel.fieldValue.doubleValue.unit != .serving {
+                servingViewModel.fieldValue.doubleValue.double = nil
+                servingViewModel.fieldValue.doubleValue.string = ""
+                servingViewModel.fieldValue.doubleValue.unit = .weight(.g)
             }
         }
     }
     
-    @Published var serving: FieldValue = .serving() {
+    @Published var servingViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .serving()) {
         didSet {
             /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
             modifyServingUnitIfServingBased()
@@ -43,87 +43,87 @@ public class FoodFormViewModel: ObservableObject {
         }
     }
     
-    var autofillFieldValues: [FieldValue] = []
-    
     //MARK: Sizes
     @Published var standardSizes: [Size] = []
     @Published var volumePrefixedSizes: [Size] = []
 
     //MARK: Density
-    @Published var density = FieldValue.density()
+    @Published var densityViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: FieldValue.density())
     
     //MARK: Nutrition Facts
-    @Published var energy: FieldValue = .energy()
-    @Published var carb: FieldValue = .macro(FieldValue.MacroValue(macro: .carb))
-    @Published var fat: FieldValue = .macro(FieldValue.MacroValue(macro: .fat))
-    @Published var protein: FieldValue = .macro(FieldValue.MacroValue(macro: .protein))
+    @Published var energyViewModel: FieldValueViewModel = .init(fieldValue: .energy())
+    @Published var carbViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
+    @Published var fatViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
+    @Published var proteinViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
     
-    @Published var micronutrients: [(group: NutrientTypeGroup, fieldValues: [FieldValue])] = [
+    @Published var micronutrients: [(group: NutrientTypeGroup, fieldValueViewModels: [FieldValueViewModel])] = [
         (NutrientTypeGroup.fats, [
-            FieldValue(micronutrient: .saturatedFat),
-            FieldValue(micronutrient: .monounsaturatedFat),
-            FieldValue(micronutrient: .polyunsaturatedFat),
-            FieldValue(micronutrient: .transFat),
-            FieldValue(micronutrient: .cholesterol),
+            .init(fieldValue: FieldValue(micronutrient: .saturatedFat)),
+            .init(fieldValue: FieldValue(micronutrient: .monounsaturatedFat)),
+            .init(fieldValue: FieldValue(micronutrient: .polyunsaturatedFat)),
+            .init(fieldValue: FieldValue(micronutrient: .transFat)),
+            .init(fieldValue: FieldValue(micronutrient: .cholesterol)),
         ]),
         (NutrientTypeGroup.fibers, [
-            FieldValue(micronutrient: .dietaryFiber),
-            FieldValue(micronutrient: .solubleFiber),
-            FieldValue(micronutrient: .insolubleFiber),
+            .init(fieldValue: FieldValue(micronutrient: .dietaryFiber)),
+            .init(fieldValue: FieldValue(micronutrient: .solubleFiber)),
+            .init(fieldValue: FieldValue(micronutrient: .insolubleFiber)),
         ]),
         (NutrientTypeGroup.sugars, [
-            FieldValue(micronutrient: .sugars),
-            FieldValue(micronutrient: .addedSugars),
-            FieldValue(micronutrient: .sugarAlcohols),
+            .init(fieldValue: FieldValue(micronutrient: .sugars)),
+            .init(fieldValue: FieldValue(micronutrient: .addedSugars)),
+            .init(fieldValue: FieldValue(micronutrient: .sugarAlcohols)),
         ]),
         (NutrientTypeGroup.minerals, [
-            FieldValue(micronutrient: .calcium),
-            FieldValue(micronutrient: .chloride),
-            FieldValue(micronutrient: .chromium),
-            FieldValue(micronutrient: .copper),
-            FieldValue(micronutrient: .iodine),
-            FieldValue(micronutrient: .iron),
-            FieldValue(micronutrient: .magnesium),
-            FieldValue(micronutrient: .manganese),
-            FieldValue(micronutrient: .molybdenum),
-            FieldValue(micronutrient: .phosphorus),
-            FieldValue(micronutrient: .potassium),
-            FieldValue(micronutrient: .selenium),
-            FieldValue(micronutrient: .sodium),
-            FieldValue(micronutrient: .zinc),
+            .init(fieldValue: FieldValue(micronutrient: .calcium)),
+            .init(fieldValue: FieldValue(micronutrient: .chloride)),
+            .init(fieldValue: FieldValue(micronutrient: .chromium)),
+            .init(fieldValue: FieldValue(micronutrient: .copper)),
+            .init(fieldValue: FieldValue(micronutrient: .iodine)),
+            .init(fieldValue: FieldValue(micronutrient: .iron)),
+            .init(fieldValue: FieldValue(micronutrient: .magnesium)),
+            .init(fieldValue: FieldValue(micronutrient: .manganese)),
+            .init(fieldValue: FieldValue(micronutrient: .molybdenum)),
+            .init(fieldValue: FieldValue(micronutrient: .phosphorus)),
+            .init(fieldValue: FieldValue(micronutrient: .potassium)),
+            .init(fieldValue: FieldValue(micronutrient: .selenium)),
+            .init(fieldValue: FieldValue(micronutrient: .sodium)),
+            .init(fieldValue: FieldValue(micronutrient: .zinc)),
         ]),
         (NutrientTypeGroup.vitamins, [
-            FieldValue(micronutrient: .vitaminA),
-            FieldValue(micronutrient: .vitaminB6),
-            FieldValue(micronutrient: .vitaminB12),
-            FieldValue(micronutrient: .vitaminC),
-            FieldValue(micronutrient: .vitaminD),
-            FieldValue(micronutrient: .vitaminE),
-            FieldValue(micronutrient: .vitaminK),
-            FieldValue(micronutrient: .biotin),
-            FieldValue(micronutrient: .choline),
-            FieldValue(micronutrient: .folate),
-            FieldValue(micronutrient: .niacin),
-            FieldValue(micronutrient: .pantothenicAcid),
-            FieldValue(micronutrient: .riboflavin),
-            FieldValue(micronutrient: .thiamin),
-            FieldValue(micronutrient: .vitaminB2),
-            FieldValue(micronutrient: .cobalamin),
-            FieldValue(micronutrient: .folicAcid),
-            FieldValue(micronutrient: .vitaminB1),
-            FieldValue(micronutrient: .vitaminB3),
-            FieldValue(micronutrient: .vitaminK2),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminA)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminB6)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminB12)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminC)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminD)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminE)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminK)),
+            .init(fieldValue: FieldValue(micronutrient: .biotin)),
+            .init(fieldValue: FieldValue(micronutrient: .choline)),
+            .init(fieldValue: FieldValue(micronutrient: .folate)),
+            .init(fieldValue: FieldValue(micronutrient: .niacin)),
+            .init(fieldValue: FieldValue(micronutrient: .pantothenicAcid)),
+            .init(fieldValue: FieldValue(micronutrient: .riboflavin)),
+            .init(fieldValue: FieldValue(micronutrient: .thiamin)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminB2)),
+            .init(fieldValue: FieldValue(micronutrient: .cobalamin)),
+            .init(fieldValue: FieldValue(micronutrient: .folicAcid)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminB1)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminB3)),
+            .init(fieldValue: FieldValue(micronutrient: .vitaminK2)),
         ]),
         (NutrientTypeGroup.misc, [
-            FieldValue(micronutrient: .caffeine),
-            FieldValue(micronutrient: .ethanol),
-            FieldValue(micronutrient: .taurine),
-            FieldValue(micronutrient: .polyols),
-            FieldValue(micronutrient: .gluten),
-            FieldValue(micronutrient: .starch),
-            FieldValue(micronutrient: .salt),
+            .init(fieldValue: FieldValue(micronutrient: .caffeine)),
+            .init(fieldValue: FieldValue(micronutrient: .ethanol)),
+            .init(fieldValue: FieldValue(micronutrient: .taurine)),
+            .init(fieldValue: FieldValue(micronutrient: .polyols)),
+            .init(fieldValue: FieldValue(micronutrient: .gluten)),
+            .init(fieldValue: FieldValue(micronutrient: .starch)),
+            .init(fieldValue: FieldValue(micronutrient: .salt)),
         ]),
     ]
+
+    var autofillFieldValues: [FieldValue] = []
     
     //MARK: - Source
     @Published var sourceType: SourceType = .manualEntry
@@ -179,19 +179,27 @@ public class FoodFormViewModel: ObservableObject {
 
 extension FoodFormViewModel {
     
-    var allMicronutrientFields: [FieldValue] {
-        micronutrients.reduce([FieldValue]()) { partialResult, tuple in
-            partialResult + tuple.fieldValues
+    var allMicronutrientFieldValues: [FieldValue] {
+        allMicronutrientFieldValueViewModels.map { $0.fieldValue }
+    }
+
+    var allMicronutrientFieldValueViewModels: [FieldValueViewModel] {
+        micronutrients.reduce([FieldValueViewModel]()) { partialResult, tuple in
+            partialResult + tuple.fieldValueViewModels
         }
     }
     
-    var allFields: [FieldValue] {
+    var allFieldValues: [FieldValue] {
+        allFieldValueViewModels.map { $0.fieldValue }
+    }
+    
+    var allFieldValueViewModels: [FieldValueViewModel] {
         [
-            name, emoji, detail, brand, barcode,
-            amount, serving, density,
-            energy, carb, fat, protein,
+            nameViewModel, emojiViewModel, detailViewModel, brandViewModel, barcodeViewModel,
+            amountViewModel, servingViewModel, densityViewModel,
+            carbViewModel, fatViewModel, proteinViewModel,
         ]
-        + allMicronutrientFields
+        + allMicronutrientFieldValueViewModels
     }
     
     var allSizes: [Size] {
@@ -199,7 +207,7 @@ extension FoodFormViewModel {
     }
     
     var hasNonUserInputFills: Bool {
-        for field in allFields {
+        for field in allFieldValues {
             if field.fillType != .userInput {
                 return true
             }

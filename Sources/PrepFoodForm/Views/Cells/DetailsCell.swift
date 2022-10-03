@@ -29,7 +29,7 @@ extension FoodForm.DetailsCell {
         Button {
             viewModel.showingEmojiPicker = true
         } label: {
-            Text(viewModel.emoji.stringValue.string)
+            Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
                 .font(.system(size: 50))
         }
         .buttonStyle(.borderless)
@@ -39,8 +39,8 @@ extension FoodForm.DetailsCell {
         
         @ViewBuilder
         var name: some View {
-            if !viewModel.name.isEmpty {
-                Text(viewModel.name.stringValue.string)
+            if !viewModel.nameViewModel.fieldValue.isEmpty {
+                Text(viewModel.nameViewModel.fieldValue.stringValue.string)
                     .bold()
             } else {
                 Text("Required")
@@ -50,22 +50,22 @@ extension FoodForm.DetailsCell {
         
         @ViewBuilder
         var detail: some View {
-            if !viewModel.detail.isEmpty {
-                Text(viewModel.detail.stringValue.string)
+            if !viewModel.detailViewModel.fieldValue.isEmpty {
+                Text(viewModel.detailViewModel.fieldValue.stringValue.string)
             }
         }
 
         @ViewBuilder
         var brand: some View {
-            if !viewModel.brand.isEmpty {
-                Text(viewModel.brand.stringValue.string)
+            if !viewModel.brandViewModel.fieldValue.isEmpty {
+                Text(viewModel.brandViewModel.fieldValue.stringValue.string)
             }
         }
         
         @ViewBuilder
         var barcode: some View {
-            if !viewModel.barcode.isEmpty {
-                barcodeView(for: viewModel.barcode.stringValue.string)
+            if !viewModel.barcodeViewModel.fieldValue.isEmpty {
+                barcodeView(for: viewModel.barcodeViewModel.fieldValue.stringValue.string)
             }
         }
 
@@ -104,10 +104,10 @@ extension FoodForm.DetailsCell {
 
 extension FoodFormViewModel {
     var hasDetails: Bool {
-        !name.isEmpty
-        || !emoji.isEmpty
-        || !detail.isEmpty
-        || !brand.isEmpty
+        !nameViewModel.fieldValue.isEmpty
+        || !emojiViewModel.fieldValue.isEmpty
+        || !detailViewModel.fieldValue.isEmpty
+        || !brandViewModel.fieldValue.isEmpty
     }
 }
 
@@ -136,11 +136,11 @@ struct DetailsCellPreview: View {
     }
     
     func populateData() {
-        viewModel.emoji = FieldValue.emoji(FieldValue.StringValue(string: "🧈"))
-        viewModel.name = FieldValue.name(FieldValue.StringValue(string: "Butter"))
-        viewModel.detail = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
-        viewModel.brand = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
-        viewModel.barcode = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
+        viewModel.emojiViewModel.fieldValue = FieldValue.emoji(FieldValue.StringValue(string: "🧈"))
+        viewModel.nameViewModel.fieldValue = FieldValue.name(FieldValue.StringValue(string: "Butter"))
+        viewModel.detailViewModel.fieldValue = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
+        viewModel.brandViewModel.fieldValue = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
+        viewModel.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
 //        viewModel.barcode = "2166529V"
     }
 }

@@ -82,13 +82,16 @@ extension FoodFormViewModel {
     
     func prefillDetails(from food: MFPProcessedFood) {
         if !food.name.isEmpty {
-            name = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(prefillFields: [.name])))
+            let fieldValue = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(prefillFields: [.name])))
+            nameViewModel = .init(fieldValue: fieldValue)
         }
         if let detail = food.detail, !detail.isEmpty {
-            self.detail = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(prefillFields: [.detail])))
+            let fieldValue = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(prefillFields: [.detail])))
+            detailViewModel = .init(fieldValue: fieldValue)
         }
         if let brand = food.brand, !brand.isEmpty {
-            self.brand = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(prefillFields: [.brand])))
+            let fieldValue = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(prefillFields: [.brand])))
+            brandViewModel = .init(fieldValue: fieldValue)
         }
     }
 
@@ -113,12 +116,13 @@ extension FoodFormViewModel {
             size = nil
         }
         
-        self.amount = FieldValue.amount(FieldValue.DoubleValue(
+        let fieldValue = FieldValue.amount(FieldValue.DoubleValue(
             double: food.amount,
             string: food.amount.cleanAmount,
             unit: food.amountUnit.formUnit(withSize: size),
             fillType: .prefill())
         )
+        self.amountViewModel = .init(fieldValue: fieldValue)
     }
     
     func prefillDensity(from food: MFPProcessedFood) {
@@ -128,10 +132,10 @@ extension FoodFormViewModel {
     }
     
     func prefillNutrients(from food: MFPProcessedFood) {
-        self.energy = food.energyFieldValue
-        self.carb = food.carbFieldValue
-        self.fat = food.fatFieldValue
-        self.protein = food.proteinFieldValue
+        self.energyViewModel = .init(fieldValue: food.energyFieldValue)
+        self.carbViewModel = .init(fieldValue: food.carbFieldValue)
+        self.fatViewModel = .init(fieldValue: food.fatFieldValue)
+        self.proteinViewModel = .init(fieldValue: food.proteinFieldValue)
     }
 }
 

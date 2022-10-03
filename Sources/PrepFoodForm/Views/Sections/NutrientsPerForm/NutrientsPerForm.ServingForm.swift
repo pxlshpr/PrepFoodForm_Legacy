@@ -45,7 +45,7 @@ extension FoodForm.NutrientsPerForm.ServingForm {
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.serving.doubleValue.unit,
+                pickedUnit: viewModel.servingViewModel.fieldValue.doubleValue.unit,
                 includeServing: false)
             {
                 showingSizeForm = true
@@ -54,14 +54,14 @@ extension FoodForm.NutrientsPerForm.ServingForm {
                     if unit.isServingBased {
                         viewModel.modifyServingAmount(for: unit)
                     }
-                    viewModel.serving.doubleValue.unit = unit
+                    viewModel.servingViewModel.fieldValue.doubleValue.unit = unit
                 }
             }
             .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: true, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.serving.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.servingViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -76,10 +76,10 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     }
     
     var textField: some View {
-        TextField("", text: $viewModel.serving.doubleValue.string)
+        TextField("", text: $viewModel.servingViewModel.fieldValue.doubleValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
-            .placeholder(when: viewModel.serving.isEmpty) {
+            .placeholder(when: viewModel.servingViewModel.fieldValue.isEmpty) {
                 Text("Optional").foregroundColor(Color(.quaternaryLabel))
             }
             .focused($isFocused)
@@ -105,6 +105,6 @@ extension FoodForm.NutrientsPerForm.ServingForm {
     @ViewBuilder
     var footer: some View {
         Text(viewModel.servingSizeFooterString)
-            .foregroundColor(viewModel.serving.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+            .foregroundColor(viewModel.servingViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 }

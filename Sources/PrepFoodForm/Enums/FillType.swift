@@ -14,8 +14,8 @@ enum FillType: Hashable {
     
     /// `value` is used to identify the specific `Value` for each of these that the user picked (for instances where alternative's may have been suggested and the user picked one of those instead)—so that we can later mark it as selected
     /// `supplementaryTexts` are used for string based fields such as `name` and `detail` where multile texts may be selected and joined together to form the filled value
-    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: Value? = nil, croppedImage: UIImage? = nil)
-    case imageAutofill(valueText: ValueText, scanResultId: UUID, value: Value? = nil, croppedImage: UIImage? = nil)
+    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: Value? = nil)
+    case imageAutofill(valueText: ValueText, scanResultId: UUID, value: Value? = nil)
     
     case calculated
     
@@ -133,7 +133,7 @@ enum FillType: Hashable {
     
     var valueText: ValueText? {
         switch self {
-        case .imageAutofill(let valueText, _, _, _):
+        case .imageAutofill(let valueText, _, _):
             return valueText
         default:
             return nil
@@ -142,9 +142,9 @@ enum FillType: Hashable {
 
     var text: RecognizedText? {
         switch self {
-        case .imageAutofill(let valueText, _, _, _):
+        case .imageAutofill(let valueText, _, _):
             return valueText.text
-        case .imageSelection(let recognizedText, _, _, _, _):
+        case .imageSelection(let recognizedText, _, _, _):
             return recognizedText
         default:
             return nil
@@ -153,13 +153,13 @@ enum FillType: Hashable {
     
     var boundingBoxToCrop: CGRect? {
         switch self {
-        case .imageAutofill(let valueText, _, _, _):
+        case .imageAutofill(let valueText, _, _):
             if let attributeText = valueText.attributeText, attributeText != valueText.text {
                 return attributeText.boundingBox.union(valueText.text.boundingBox)
             } else {
                 return valueText.text.boundingBox
             }
-        case .imageSelection(let recognizedText, _, _, _, _):
+        case .imageSelection(let recognizedText, _, _, _):
             return recognizedText.boundingBox
         default:
             return nil
@@ -168,9 +168,9 @@ enum FillType: Hashable {
 
     var scanResultId: UUID? {
         switch self {
-        case .imageSelection(_, let scanResultId, _, _, _):
+        case .imageSelection(_, let scanResultId, _, _):
             return scanResultId
-        case .imageAutofill(_, let scanResultId, _, _):
+        case .imageAutofill(_, let scanResultId, _):
             return scanResultId
         default:
             return nil

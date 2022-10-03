@@ -5,7 +5,7 @@ struct FillOptionsBar: View {
     
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @EnvironmentObject var fieldFormViewModel: FieldFormViewModel
+    @EnvironmentObject var fieldFormViewModel: FieldValueViewModel
 
     @Binding var fieldValue: FieldValue
 //    @Binding var showingImageTextPicker: Bool

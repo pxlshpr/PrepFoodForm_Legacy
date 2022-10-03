@@ -10,22 +10,27 @@ struct EnergyForm: View {
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
-    @StateObject var fieldFormViewModel = FieldFormViewModel()
-    @Binding var fieldValue: FieldValue
+    @Binding var fieldValueViewModel: FieldValueViewModel
+//    @Binding var fieldValue: FieldValue
     
     @State var string: String
     @State var energyUnit: EnergyUnit
 
     @State var showingFilledText = false
     
-    init(fieldValue: Binding<FieldValue>) {
-        _fieldValue = fieldValue
-        _string = State(initialValue: fieldValue.wrappedValue.energyValue.string)
-        _energyUnit = State(initialValue: fieldValue.wrappedValue.energyValue.unit)
+    init(fieldValueViewModel: Binding<FieldValueViewModel>) {
+        _fieldValueViewModel = fieldValueViewModel
+//        _fieldValue = fieldValue
+        _string = State(initialValue: fieldValueViewModel.wrappedValue.fieldValue.energyValue.string)
+        _energyUnit = State(initialValue: fieldValueViewModel.wrappedValue.fieldValue.energyValue.unit)
     }
 }
 
 extension EnergyForm {
+    
+    var fieldValue: FieldValue {
+        fieldValueViewModel.fieldValue
+    }
     
     var body: some View {
         content
@@ -33,7 +38,7 @@ extension EnergyForm {
             .navigationTitle(fieldValue.description)
             .onChange(of: string) { newValue in
                 withAnimation {
-                    viewModel.energy.energyValue.fillType = .userInput
+                    fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
                 }
             }
         
@@ -49,23 +54,23 @@ extension EnergyForm {
             }
             .onAppear {
                 isFocused = true
-                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+                fieldValueViewModel.getCroppedImage(for: fieldValue.fillType)
             }
             .onChange(of: fieldValue.fillType) { newValue in
-                fieldFormViewModel.getCroppedImage(for: newValue)
+                fieldValueViewModel.getCroppedImage(for: newValue)
             }
-            .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
+            .sheet(isPresented: $fieldValueViewModel.showingImageTextPicker) {
                 imageTextPicker
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
             }
             .onChange(of: fieldValue) { newValue in
-                guard !fieldFormViewModel.ignoreNextChange else {
-                    fieldFormViewModel.ignoreNextChange = false
+                guard !fieldValueViewModel.ignoreNextChange else {
+                    fieldValueViewModel.ignoreNextChange = false
                     return
                 }
                 withAnimation {
-                    fieldValue.fillType = .userInput
+                    fieldValueViewModel.fieldValue.fillType = .userInput
                 }
             }
 
@@ -83,7 +88,7 @@ extension EnergyForm {
                     unitLabel
                 }
             }
-            FillOptionSections(fieldValue: $viewModel.energy)
+            FillOptionSections(fieldValue: $fieldValueViewModel.fieldValue)
                 .environmentObject(viewModel)
         }
     }
@@ -111,7 +116,7 @@ extension EnergyForm {
     var filledImageSection: some View {
         Section("Filled Text") {
             CroppedImageButton()
-                .environmentObject(fieldFormViewModel)
+                .environmentObject(fieldValueViewModel)
         }
     }
     
@@ -147,8 +152,8 @@ extension EnergyForm {
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             HStack(spacing: 0) {
-                FillOptionsBar(fieldValue: $fieldValue)
-                    .environmentObject(fieldFormViewModel)
+                FillOptionsBar(fieldValue: $fieldValueViewModel.fieldValue)
+                    .environmentObject(fieldValueViewModel)
                     .environmentObject(viewModel)
                     .frame(maxWidth: .infinity)
                 Spacer()
@@ -162,15 +167,15 @@ extension EnergyForm {
     var imageTextPicker: some View {
         ImageTextPicker(fillType: fieldValue.fillType) { text, scanResultId in
             
-            fieldFormViewModel.showingImageTextPicker = false
+            fieldValueViewModel.showingImageTextPicker = false
             
             var newFieldValue = fieldValue
             newFieldValue.energyValue.double = text.string.double
             newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
 
-            fieldFormViewModel.ignoreNextChange = true
+            fieldValueViewModel.ignoreNextChange = true
             withAnimation {
-                fieldValue = newFieldValue
+                fieldValueViewModel.fieldValue = newFieldValue
             }
         }
         .environmentObject(viewModel)
@@ -189,7 +194,7 @@ struct EnergyFormPreview: View {
     }
     
     var body: some View {
-        EnergyForm(fieldValue: $viewModel.energy)
+        EnergyForm(fieldValueViewModel: $viewModel.energyViewModel)
             .environmentObject(viewModel)
     }
 }
@@ -201,33 +206,6 @@ struct EnergyForm_Previews: PreviewProvider {
 }
 
 //MARK: - FieldFormViewModel
-
-class FieldFormViewModel: ObservableObject {
-    @Published var showingImageTextPicker: Bool = false
-    @Published var ignoreNextChange: Bool = false
-    @Published var imageToDisplay: UIImage? = nil
-    @Published var shouldShowImage: Bool = false
-
-    func getCroppedImage(for fillType: FillType) {
-        guard fillType.usesImage else {
-            withAnimation {
-                imageToDisplay = nil
-                shouldShowImage = false
-            }
-            return
-        }
-        Task {
-            let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fillType)
-
-            await MainActor.run {
-                withAnimation {
-                    self.imageToDisplay = croppedImage
-                    self.shouldShowImage = true
-                }
-            }
-        }
-    }
-}
 
 //MARK: - String + Double
 

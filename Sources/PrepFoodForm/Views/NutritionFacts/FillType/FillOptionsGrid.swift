@@ -57,10 +57,10 @@ struct FillOptionsGrid: View {
                 withAnimation {
                     fieldValue.fillType = fillType
                     switch fillType {
-                    case .imageSelection(let text, _, _, _, _):
+                    case .imageSelection(let text, _, _, _):
                         //TODO: Attach a value to the nonAlt selections too—we need to get a Value from the recognizedText and store it in the FillOption to set it here
                         break
-                    case .imageAutofill(let valueText, _, _, _):
+                    case .imageAutofill(let valueText, _, _):
                         fieldValue.double = valueText.value.amount
                         //TODO; Change unit too
                         fieldValue.nutritionUnit = valueText.value.unit
@@ -85,7 +85,7 @@ public struct FillOptionsGridPreview: View {
     public init() {
         let viewModel = FoodFormViewModel.mock
         _viewModel = StateObject(wrappedValue: viewModel)
-        _string = State(initialValue: viewModel.energy.energyValue.string)
+        _string = State(initialValue: viewModel.energyViewModel.fieldValue.energyValue.string)
     }
     
     public var body: some View {
@@ -101,7 +101,7 @@ public struct FillOptionsGridPreview: View {
                     navigationTrailingToolbar
                 }
                 .onAppear {
-                    fillOptions = viewModel.fillOptions(for: viewModel.energy)
+                    fillOptions = viewModel.fillOptions(for: viewModel.energyViewModel.fieldValue)
                 }
         }
     }
@@ -114,7 +114,7 @@ public struct FillOptionsGridPreview: View {
     
     var grid: some View {
 //        FillOptionsGrid(fieldValue: $viewModel.energy, fillOptions: $fillOptions)
-        FillOptionsGrid(fieldValue: $viewModel.energy)
+        FillOptionsGrid(fieldValue: $viewModel.energyViewModel.fieldValue)
             .environmentObject(viewModel)
     }
     

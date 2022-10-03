@@ -11,11 +11,11 @@ extension FoodForm.NutritionFacts {
 
 extension FoodFormViewModel {
     func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldValues.contains(where: { $0.isEmpty })
+        micronutrients[index].fieldValueViewModels.contains(where: { $0.fieldValue.isEmpty })
     }
     
     func hasNonEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldValues.contains(where: { !$0.isEmpty })
+        micronutrients[index].fieldValueViewModels.contains(where: { !$0.fieldValue.isEmpty })
     }
 }
 extension FoodForm.NutritionFacts.MicronutrientPicker {
@@ -40,9 +40,9 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
             ForEach(viewModel.micronutrients.indices, id: \.self) { g in
                 if viewModel.hasEmptyFieldValuesInMicronutrientsGroup(at: g) {
                     Section(viewModel.micronutrients[g].group.description) {
-                        ForEach(viewModel.micronutrients[g].fieldValues.indices, id: \.self) { f in
-                            if viewModel.micronutrients[g].fieldValues[f].isEmpty {
-                                nutrientButton(for: $viewModel.micronutrients[g].fieldValues[f])
+                        ForEach(viewModel.micronutrients[g].fieldValueViewModels.indices, id: \.self) { f in
+                            if viewModel.micronutrients[g].fieldValueViewModels[f].fieldValue.isEmpty {
+                                nutrientButton(for: $viewModel.micronutrients[g].fieldValueViewModels[f])
                             }
                         }
                     }
@@ -51,19 +51,19 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
         }
     }
     
-    func nutrientButton(for fieldValue: Binding<FieldValue>) -> some View {
+    func nutrientButton(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
         NavigationLink {
-            MicronutrientForm(fieldValue: fieldValue) { fieldValueCopy in
+            MicronutrientForm(fieldValueViewModel: fieldValueViewModel) { fieldValueCopy in
                 /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
                 withAnimation {
-                    fieldValue.wrappedValue.microValue.string = fieldValueCopy.microValue.string
-                    fieldValue.wrappedValue.microValue.unit = fieldValueCopy.microValue.unit
-                    fieldValue.wrappedValue.fillType = fieldValueCopy.fillType
+                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
+                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
+                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
                 }
             }
             .environmentObject(viewModel)
         } label: {
-            Text(fieldValue.wrappedValue.description)
+            Text(fieldValueViewModel.wrappedValue.fieldValue.description)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())

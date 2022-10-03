@@ -56,7 +56,7 @@ public struct FoodForm: View {
                 .sheet(isPresented: $viewModel.showingEmojiPicker) {
                     EmojiPicker(categories: [.foodAndDrink, .animalsAndNature]) { emoji in
                         Haptics.feedback(style: .rigid)
-                        viewModel.emoji.stringValue.string = emoji
+                        viewModel.emojiViewModel.fieldValue.stringValue.string = emoji
                         viewModel.showingEmojiPicker = false
                     }
                 }

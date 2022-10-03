@@ -51,7 +51,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                 Haptics.feedback(style: .soft)
                 showingSheet = true
             } label: {
-                Image(systemName: viewModel.amount.doubleValue.fillType.buttonSystemImage)
+                Image(systemName: viewModel.amountViewModel.fieldValue.doubleValue.fillType.buttonSystemImage)
                     .imageScale(.large)
             }
             .buttonStyle(.borderless)
@@ -113,24 +113,24 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                 }
             }
         }
-        .onChange(of: viewModel.amount) { newValue in
+        .onChange(of: viewModel.amountViewModel.fieldValue) { newValue in
 //            fieldSourceType = "pencil.circle.fill"
         }
         .sheet(isPresented: $showingUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.amount.doubleValue.unit
+                pickedUnit: viewModel.amountViewModel.fieldValue.doubleValue.unit
             ) {
                 showingSizeForm = true
             } didPickUnit: { unit in
                 withAnimation {
-                    viewModel.amount.doubleValue.unit = unit
+                    viewModel.amountViewModel.fieldValue.doubleValue.unit = unit
                 }
             }
             .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
                 SizeForm(includeServing: false, allowAddSize: false) { size in
                     withAnimation {
-                        viewModel.amount.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                        viewModel.amountViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                             Haptics.feedback(style: .rigid)
                             showingUnitPicker = false
@@ -145,7 +145,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $viewModel.amount.doubleValue.string)
+        TextField("Required", text: $viewModel.amountViewModel.fieldValue.doubleValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -173,7 +173,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     @ViewBuilder
     var footer: some View {
         Text("This is how much of this food the nutrition facts are for. You'll be able to log this food using the unit you choose.")
-            .foregroundColor(viewModel.amount.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+            .foregroundColor(viewModel.amountViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 }
 

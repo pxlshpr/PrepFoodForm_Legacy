@@ -8,27 +8,27 @@ extension FoodFormViewModel {
     }
     
     var hasData: Bool {
-        !name.isEmpty
-        || !emoji.isEmpty
-        || !detail.isEmpty
-        || !brand.isEmpty
-        || !barcode.isEmpty
-        || !amount.isEmpty
-        || !serving.isEmpty
+        !nameViewModel.fieldValue.isEmpty
+        || !emojiViewModel.fieldValue.isEmpty
+        || !detailViewModel.fieldValue.isEmpty
+        || !brandViewModel.fieldValue.isEmpty
+        || !barcodeViewModel.fieldValue.isEmpty
+        || !amountViewModel.fieldValue.isEmpty
+        || !servingViewModel.fieldValue.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty
-        || !density.isEmpty
-        || !energy.isEmpty
-        || !carb.isEmpty
-        || !fat.isEmpty
-        || !protein.isEmpty
+        || !densityViewModel.fieldValue.isEmpty
+        || !energyViewModel.fieldValue.isEmpty
+        || !carbViewModel.fieldValue.isEmpty
+        || !fatViewModel.fieldValue.isEmpty
+        || !proteinViewModel.fieldValue.isEmpty
         || !micronutrientsIsEmpty
     }
     
     var micronutrientsIsEmpty: Bool {
-        for (_, fieldValues) in micronutrients {
-            for fieldValue in fieldValues {
-                if !fieldValue.isEmpty {
+        for (_, fieldValueViewModels) in micronutrients {
+            for fieldValueViewModel in fieldValueViewModels {
+                if !fieldValueViewModel.fieldValue.isEmpty {
                     return false
                 }
             }
@@ -50,19 +50,19 @@ extension FoodFormViewModel {
             
             self.standardSizes = sizes
 
-            self.amount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
-            self.serving = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
+            self.amountViewModel.fieldValue = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
+            self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
         } else {
-            self.name =  FieldValue.name(FieldValue.StringValue(string: "Carrot"))
-            self.emoji = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
-            self.detail = FieldValue.detail(FieldValue.StringValue(string: "Baby"))
-            self.brand = FieldValue.brand(FieldValue.StringValue(string: "Woolworths"))
-            self.barcode = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
+            self.nameViewModel.fieldValue =  FieldValue.name(FieldValue.StringValue(string: "Carrot"))
+            self.emojiViewModel.fieldValue = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
+            self.detailViewModel.fieldValue = FieldValue.detail(FieldValue.StringValue(string: "Baby"))
+            self.brandViewModel.fieldValue = FieldValue.brand(FieldValue.StringValue(string: "Woolworths"))
+            self.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
             
-            self.amount = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
-            self.serving = FieldValue.serving(FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))
+            self.amountViewModel.fieldValue = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
+            self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))
             
-            self.density = FieldValue.density(FieldValue.DensityValue(
+            self.densityViewModel.fieldValue = FieldValue.density(FieldValue.DensityValue(
                 weight: FieldValue.DoubleValue(double: 20, string: "20", unit: .weight(.g)),
                 volume: FieldValue.DoubleValue(double: 25, string: "25", unit: .volume(.mL)))
             )
@@ -70,32 +70,32 @@ extension FoodFormViewModel {
             self.standardSizes = mockStandardSizes
             self.volumePrefixedSizes = mockVolumePrefixedSizes
             
-            self.energy = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
-            self.carb = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
-            self.fat = FieldValue.macro(FieldValue.MacroValue(macro: .fat, double: 8, string: "8"))
-            self.protein = FieldValue.macro(FieldValue.MacroValue(macro: .protein, double: 3, string: "3"))
+            self.energyViewModel.fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
+            self.carbViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
+            self.fatViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .fat, double: 8, string: "8"))
+            self.proteinViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .protein, double: 3, string: "3"))
             
             //TODO: Micronutrients
             if includeAllMicronutrients {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldValues.indices {
-                        micronutrients[g].fieldValues[f].microValue.double = Double.random(in: 1...300)
+                    for f in micronutrients[g].fieldValueViewModels.indices {
+                        micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = Double.random(in: 1...300)
                     }
                 }
             } else {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldValues.indices {
-                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .saturatedFat {
-                            micronutrients[g].fieldValues[f].microValue.double = 25
+                    for f in micronutrients[g].fieldValueViewModels.indices {
+                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .saturatedFat {
+                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 25
                         }
-                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .biotin {
-                            micronutrients[g].fieldValues[f].microValue.double = 5
+                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .biotin {
+                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 5
                         }
-                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .caffeine {
-                            micronutrients[g].fieldValues[f].microValue.double = 250
+                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .caffeine {
+                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 250
                         }
-                        if micronutrients[g].fieldValues[f].microValue.nutrientType == .addedSugars {
-                            micronutrients[g].fieldValues[f].microValue.double = 35
+                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .addedSugars {
+                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 35
                         }
                     }
                 }
@@ -105,10 +105,10 @@ extension FoodFormViewModel {
     
     var hasNutritionFacts: Bool {
         !micronutrientsIsEmpty
-        || !energy.isEmpty
-        || !carb.isEmpty
-        || !fat.isEmpty
-        || !protein.isEmpty
+        || !energyViewModel.fieldValue.isEmpty
+        || !carbViewModel.fieldValue.isEmpty
+        || !fatViewModel.fieldValue.isEmpty
+        || !proteinViewModel.fieldValue.isEmpty
     }    
 }
 
@@ -119,32 +119,32 @@ extension FoodFormViewModel {
     }
     
     var shouldShowServingInField: Bool {
-        !amount.isEmpty && amountIsServing
+        !amountViewModel.fieldValue.isEmpty && amountIsServing
     }
     
     func updateShouldShowDensitiesSection() {
         withAnimation {
             shouldShowDensitiesSection =
-            (amount.doubleValue.unit.isMeasurementBased && (amount.doubleValue.double ?? 0) > 0)
+            (amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (amountViewModel.fieldValue.doubleValue.double ?? 0) > 0)
             ||
-            (amount.doubleValue.unit.isMeasurementBased && (serving.doubleValue.double ?? 0) > 0)
+            (amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (servingViewModel.fieldValue.doubleValue.double ?? 0) > 0)
         }
     }
 
     var amountIsServing: Bool {
-        amount.doubleValue.unit == .serving
+        amountViewModel.fieldValue.doubleValue.unit == .serving
     }
 
     var isWeightBased: Bool {
-        amount.doubleValue.unit.isWeightBased || serving.doubleValue.unit.isWeightBased
+        amountViewModel.fieldValue.doubleValue.unit.isWeightBased || servingViewModel.fieldValue.doubleValue.unit.isWeightBased
     }
 
     var isVolumeBased: Bool {
-        amount.doubleValue.unit.isVolumeBased || serving.doubleValue.unit.isVolumeBased
+        amountViewModel.fieldValue.doubleValue.unit.isVolumeBased || servingViewModel.fieldValue.doubleValue.unit.isVolumeBased
     }
     
     var shouldShowSizesSection: Bool {
-        !amount.isEmpty
+        !amountViewModel.fieldValue.isEmpty
     }
 
     func modifyServingAmount(for newUnit: FormUnit) {
@@ -158,15 +158,15 @@ extension FoodFormViewModel {
             newServingAmount = 0
         }
         
-        serving.doubleValue.string = "\(newServingAmount.clean)"
+        servingViewModel.fieldValue.doubleValue.string = "\(newServingAmount.clean)"
     }
 
     func modifyServingUnitIfServingBased() {
-        guard serving.doubleValue.unit.isServingBased, case .size(let size, _) = serving.doubleValue.unit else {
+        guard servingViewModel.fieldValue.doubleValue.unit.isServingBased, case .size(let size, _) = servingViewModel.fieldValue.doubleValue.unit else {
             return
         }
         let newAmount: Double
-        if let quantity = size.quantity, let servingAmount = serving.doubleValue.double, servingAmount > 0 {
+        if let quantity = size.quantity, let servingAmount = servingViewModel.fieldValue.doubleValue.double, servingAmount > 0 {
             newAmount = quantity / servingAmount
         } else {
             newAmount = 0
@@ -208,30 +208,30 @@ extension FoodFormViewModel {
     }
     
     var isMeasurementBased: Bool {
-        amount.doubleValue.unit.isMeasurementBased || serving.doubleValue.unit.isMeasurementBased
+        amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased || servingViewModel.fieldValue.doubleValue.unit.isMeasurementBased
     }
     
     var hasNutrientsPerContent: Bool {
-        !amount.isEmpty
+        !amountViewModel.fieldValue.isEmpty
     }
     
     var hasNutrientsPerServingContent: Bool {
-        !serving.isEmpty
+        !servingViewModel.fieldValue.isEmpty
     }
     
     var hasServing: Bool {
-        amount.doubleValue.unit == .serving
+        amountViewModel.fieldValue.doubleValue.unit == .serving
     }
     
     var amountDescription: String {
-        guard !amount.isEmpty else {
+        guard !amountViewModel.fieldValue.isEmpty else {
             return ""
         }
-        return "\(amount.doubleValue.string) \(amount.doubleValue.unitDescription)"
+        return "\(amountViewModel.fieldValue.doubleValue.string) \(amountViewModel.fieldValue.doubleValue.unitDescription)"
     }
     
     var amountFormHeaderString: String {
-        switch amount.doubleValue.unit {
+        switch amountViewModel.fieldValue.doubleValue.unit {
         case .serving:
             return "Servings"
         case .weight:
@@ -244,7 +244,7 @@ extension FoodFormViewModel {
     }
 
     var servingFormHeaderString: String {
-        switch serving.doubleValue.unit {
+        switch servingViewModel.fieldValue.doubleValue.unit {
         case .weight:
             return "Weight"
         case .volume:
@@ -257,41 +257,41 @@ extension FoodFormViewModel {
     }
 
     var servingUnitDescription: String {
-        serving.doubleValue.unit.description
+        servingViewModel.fieldValue.doubleValue.unit.description
     }
     
     var servingUnitShortString: String {
-        serving.doubleValue.unit.shortDescription
+        servingViewModel.fieldValue.doubleValue.unit.shortDescription
     }
     
     var servingDescription: String {
-        guard !serving.isEmpty else {
+        guard !servingViewModel.fieldValue.isEmpty else {
             return ""
         }
-        return "\(serving.doubleValue.string) \(serving.doubleValue.unitDescription)"
+        return "\(servingViewModel.fieldValue.doubleValue.string) \(servingViewModel.fieldValue.doubleValue.unitDescription)"
     }
     
     var amountUnitString: String {
-        amount.doubleValue.unit.description
+        amountViewModel.fieldValue.doubleValue.unit.description
     }
     
     var amountUnitShortString: String {
-        amount.doubleValue.unit.shortDescription
+        amountViewModel.fieldValue.doubleValue.unit.shortDescription
     }
 
     var densityWeightAmount: Double {
-        density.weight.double ?? 0
+        densityViewModel.fieldValue.weight.double ?? 0
     }
 
     var densityVolumeAmount: Double {
-        density.volume.double ?? 0
+        densityViewModel.fieldValue.volume.double ?? 0
     }
     
     var hasValidDensity: Bool {
         densityWeightAmount > 0
         && densityVolumeAmount > 0
-        && density.weight.unit.unitType == .weight
-        && density.volume.unit.unitType == .volume
+        && densityViewModel.fieldValue.weight.unit.unitType == .weight
+        && densityViewModel.fieldValue.volume.unit.unitType == .volume
     }
 
     var densityDescription: String? {
@@ -299,8 +299,8 @@ extension FoodFormViewModel {
             return nil
         }
                 
-        let weight = "\(densityWeightAmount.cleanAmount) \(density.weight.unitDescription)"
-        let volume = "\(densityVolumeAmount.cleanAmount) \(density.volume.unitDescription)"
+        let weight = "\(densityWeightAmount.cleanAmount) \(densityViewModel.fieldValue.weight.unitDescription)"
+        let volume = "\(densityVolumeAmount.cleanAmount) \(densityViewModel.fieldValue.volume.unitDescription)"
         
         if isWeightBased {
             return "\(weight) = \(volume)"
@@ -327,22 +327,22 @@ extension FoodFormViewModel {
 
     var lhsDensityUnitString: String {
         if isWeightBased {
-            return density.weight.unitDescription
+            return densityViewModel.fieldValue.weight.unitDescription
         } else {
-            return density.volume.unitDescription
+            return densityViewModel.fieldValue.volume.unitDescription
         }
     }
     
     var rhsDensityUnitString: String {
         if isWeightBased {
-            return density.volume.unitDescription
+            return densityViewModel.fieldValue.volume.unitDescription
         } else {
-            return density.weight.unitDescription
+            return densityViewModel.fieldValue.weight.unitDescription
         }
     }
     
     var servingSizeFooterString: String {
-        switch serving.doubleValue.unit {
+        switch servingViewModel.fieldValue.doubleValue.unit {
         case .weight:
             return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
         case .volume:

@@ -104,20 +104,20 @@ extension FoodForm.NutrientsPerForm.DensityForm {
         }
         .sheet(isPresented: $showingWeightUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.density.weight.unit,
+                pickedUnit: viewModel.densityViewModel.fieldValue.weight.unit,
                 filteredType: .weight)
             { unit in
-                viewModel.density.weight.unit = unit
+                viewModel.densityViewModel.fieldValue.weight.unit = unit
 //                viewModel.densityWeightUnit = unit
             }
             .environmentObject(viewModel)
         }
         .sheet(isPresented: $showingVolumeUnitPicker) {
             UnitPicker(
-                pickedUnit: viewModel.density.volume.unit,
+                pickedUnit: viewModel.densityViewModel.fieldValue.volume.unit,
                 filteredType: .volume)
             { unit in
-                viewModel.density.volume.unit = unit
+                viewModel.densityViewModel.fieldValue.volume.unit = unit
             }
             .environmentObject(viewModel)
         }
@@ -126,7 +126,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     var weightSection: some View {
         Section("Weight") {
             HStack {
-                TextField("Required", text: $viewModel.density.weight.string)
+                TextField("Required", text: $viewModel.densityViewModel.fieldValue.weight.string)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .weight)
@@ -134,7 +134,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
                     showingWeightUnitPicker = true
                 } label: {
                     HStack(spacing: 5) {
-                        Text(viewModel.density.weight.unitDescription)
+                        Text(viewModel.densityViewModel.fieldValue.weight.unitDescription)
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
@@ -147,7 +147,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     var volumeSection: some View {
         Section("Volume") {
             HStack {
-                TextField("Required", text: $viewModel.density.volume.string)
+                TextField("Required", text: $viewModel.densityViewModel.fieldValue.volume.string)
                     .multilineTextAlignment(.leading)
                     .keyboardType(.decimalPad)
                     .focused($focusedField, equals: .volume)
@@ -155,7 +155,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
                     showingVolumeUnitPicker = true
                 } label: {
                     HStack(spacing: 5) {
-                        Text(viewModel.density.volume.unitDescription)
+                        Text(viewModel.densityViewModel.fieldValue.volume.unitDescription)
                         Image(systemName: "chevron.up.chevron.down")
                             .imageScale(.small)
                     }
