@@ -89,15 +89,21 @@ struct FillOptionSections: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingAutofillInfo = false
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
+    
+    var didTapFillOption: (FillOption) -> ()
 
     var body: some View {
         Group {
             if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
                 FormStyledSection(header: autofillHeader) {
-                    FillOptionsGrid(fieldValue: $fieldValueViewModel.fieldValue)
+                    FillOptionsGrid(fieldValueViewModel: fieldValueViewModel) { fillOption in
+                        didTapFillOption(fillOption)
+                    }
                 }
-                FormStyledSection {
-                    croppedImageButton
+                if let image = fieldValueViewModel.imageToDisplay {
+                    FormStyledSection {
+                        croppedImageButton(for: image)
+                    }
                 }
             }
         }
@@ -122,28 +128,20 @@ struct FillOptionSections: View {
         }
     }
     
-    var croppedImageButton: some View {
+    func croppedImageButton(for image: UIImage) -> some View {
         Button {
 //            fieldFormViewModel.showingImageTextPicker = true
         } label: {
             VStack {
                 HStack {
                     Spacer()
-                    imageView
+                    imageView(for: image)
                         .frame(maxWidth: 350, maxHeight: 150, alignment: .bottom)
                     Spacer()
                 }
             }
         }
         .buttonStyle(.borderless)
-    }
-    
-    @ViewBuilder
-    var imageView: some View {
-//        imageView(for: sampleImage!)
-        if let image = fieldValueViewModel.imageToDisplay {
-            imageView(for: image)
-        }
     }
     
     func imageView(for image: UIImage) -> some View {
@@ -203,59 +201,6 @@ extension Value: CustomStringConvertible {
             return "\(amount.cleanAmount) \(unit.description)"
         } else {
             return "\(amount.cleanAmount)"
-        }
-    }
-}
-
-extension FieldValue.EnergyValue {
-    var altValues: [Value] {
-        guard let double else { return [] }
-        var values: [Value] = []
-        switch unit {
-        case .kJ:
-            values.append(Value(amount: double, unit: .kcal))
-            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kj))
-            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kcal))
-            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kj))
-            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kcal))
-        case .kcal:
-            values.append(Value(amount: double, unit: .kj))
-            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kj))
-            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kcal))
-            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kj))
-            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kcal))
-        }
-        return values
-    }
-}
-
-extension FieldValue {
-    var altValues: [Value] {
-        switch self {
-        case .energy(let energyValue):
-            return energyValue.altValues
-//        case .macro(let macroValue):
-//            <#code#>
-//        case .micro(let microValue):
-//            <#code#>
-//        case .name(let stringValue):
-//            <#code#>
-//        case .emoji(let stringValue):
-//            <#code#>
-//        case .brand(let stringValue):
-//            <#code#>
-//        case .barcode(let stringValue):
-//            <#code#>
-//        case .detail(let stringValue):
-//            <#code#>
-//        case .amount(let doubleValue):
-//            <#code#>
-//        case .serving(let doubleValue):
-//            <#code#>
-//        case .density(let densityValue):
-//            <#code#>
-        default:
-            return []
         }
     }
 }
@@ -452,7 +397,18 @@ extension FoodFormViewModel {
         }
         return texts
     }
-    
+
+    func texts(for fieldValue: FieldValue) -> [RecognizedText] {
+        var texts: [RecognizedText] = []
+        for scanResult in scanResults {
+            let filtered = scanResult.texts.filter {
+                $0.isFillOptionFor(fieldValue)
+            }
+            texts.append(contentsOf: filtered)
+        }
+        return texts
+    }
+
     func isNotUsingText(_ text: RecognizedText) -> Bool {
         fieldValueUsing(text: text) == nil
     }
@@ -526,7 +482,9 @@ public struct FillOptionSectionsPreview: View {
     }
     
     var optionsSections: some View {
-        FillOptionSections(fieldValueViewModel: viewModel.energyViewModel)
+        FillOptionSections(fieldValueViewModel: viewModel.energyViewModel) { fillOption in
+            
+        }
             .environmentObject(viewModel)
     }
     

@@ -17,6 +17,7 @@ struct EnergyForm: View {
     @State var energyUnit: EnergyUnit
 
     @State var showingFilledText = false
+    @State var showingTextPicker = false
     
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
@@ -29,48 +30,37 @@ struct EnergyForm: View {
         fieldValueViewModel.fieldValue
     }
     
+    @State var isFilling: Bool = false
     var body: some View {
         content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
             .onChange(of: string) { newValue in
+                guard !isFilling else {
+                    print("🔘 isFilling so not registering this 'string' change as .userInput")
+                    return
+                }
+                print("🔘 !isFilling so registering this 'string' change as .userInput")
                 withAnimation {
                     fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
                 }
             }
-        
-//            .onChange(of: viewModel.energy.energyValue.double) { newValue in
-//                string = newValue?.cleanAmount ?? ""
-//            }
-
-            .onChange(of: fieldValue.energyValue.unit) { newValue in
+            .onChange(of: energyUnit) { newValue in
+                guard !isFilling else {
+                    print("🔘 isFilling so not registering this 'energyUnit' change as .userInput")
+                    return
+                }
+                print("🔘 !isFilling so registering this 'energyUnit' change as .userInput")
                 withAnimation {
-                    showingFilledText.toggle()
-
+                    fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
                 }
             }
             .onAppear {
                 isFocused = true
             }
-            .onChange(of: fieldValue.fillType) { newValue in
-                //TODO: Set fieldValueViewModel.fieldValue.fillType which should in turn crop the image again
-//                fieldValueViewModel.getCroppedImage(for: newValue)
-            }
-            .sheet(isPresented: $fieldValueViewModel.showingImageTextPicker) {
+            .sheet(isPresented: $showingTextPicker) {
                 imageTextPicker
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
             }
-            .onChange(of: fieldValue) { newValue in
-                guard !fieldValueViewModel.ignoreNextChange else {
-                    fieldValueViewModel.ignoreNextChange = false
-                    return
-                }
-                withAnimation {
-                    fieldValueViewModel.fieldValue.fillType = .userInput
-                }
-            }
-
     }
 
     var header: some View {
@@ -85,11 +75,66 @@ struct EnergyForm: View {
                     unitLabel
                 }
             }
-            FillOptionSections(fieldValueViewModel: fieldValueViewModel)
+            FillOptionSections(fieldValueViewModel: fieldValueViewModel) { fillOption in
+                didTapFillOption(fillOption)
+            }
                 .environmentObject(viewModel)
         }
     }
     
+    func didTapFillOption(_ fillOption: FillOption) {
+        switch fillOption.type {
+        case .chooseText:
+            didTapChooseButton()
+        case .fillType(let fillType):
+            Haptics.feedback(style: .rigid)
+            didTapFillTypeButton(for: fillType)
+        }
+    }
+    
+    func didTapChooseButton() {
+        Haptics.feedback(style: .soft)
+        showingTextPicker = true
+    }
+    
+    func didTapFillTypeButton(for fillType: FillType) {
+        Haptics.feedback(style: .rigid)
+        withAnimation {
+            changeFillType(to: fillType)
+        }
+    }
+    
+    func changeFillType(to fillType: FillType) {
+        isFilling = true
+        fieldValueViewModel.fieldValue.fillType = fillType
+        switch fillType {
+        case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
+            break
+        case .imageAutofill(let valueText, scanResultId: _, value: let value):
+            changeFillTypeToAutofill(of: valueText, withAltValue: value)
+        default:
+            break
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            isFilling = false
+        }
+    }
+    
+    func setNewValue(_ value: Value) {
+        fieldValueViewModel.fieldValue.double = value.amount
+        fieldValueViewModel.fieldValue.nutritionUnit = value.unit
+        string = value.amount.cleanAmount
+        energyUnit = value.unit?.energyUnit ?? .kcal
+    }
+    
+    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
+        guard let altValue else {
+            setNewValue(valueText.value)
+            return
+        }
+        setNewValue(altValue)
+    }
+
     var form: some View {
         Form {
             textFieldSection
@@ -162,7 +207,10 @@ struct EnergyForm: View {
     }
     
     var imageTextPicker: some View {
-        ImageTextPicker(fillType: fieldValue.fillType) { text, scanResultId in
+        TextPicker(
+            texts: viewModel.texts(for: fieldValueViewModel.fieldValue),
+            selectedText: fieldValue.fillType.text
+        ) { text, scanResultId in
             
             fieldValueViewModel.showingImageTextPicker = false
             

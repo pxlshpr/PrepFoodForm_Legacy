@@ -8,38 +8,21 @@ struct FillOptionsGrid: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingImagePicker: Bool = false
     
-    @Binding var fieldValue: FieldValue
+    @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
-//    @Binding var fillOptions: [FillOption]
-//    init(fieldValue: Binding<FieldValue>, fillOptions: Binding<[FillOption]>) {
-//        _fieldValue = fieldValue
-//        _fillOptions = fillOptions
-//    }
+    var didTapFillOption: (FillOption) -> ()
 
     var body: some View {
-        //        gridLayout
         flowLayout
             .sheet(isPresented: $showingImagePicker) {
                 Text("Image picker")
             }
     }
     
-    var gridLayout: some View {
-        LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 100))],
-            alignment: .center,
-            spacing: 16
-        ) {
-            ForEach(viewModel.fillOptions(for: fieldValue), id: \.self) {
-                fillOptionButton(for: $0)
-            }
-        }
-    }
-    
     var flowLayout: some View {
         FlowLayout(
             mode: .scrollable,
-            items: viewModel.fillOptions(for: fieldValue),
+            items: viewModel.fillOptions(for: fieldValueViewModel.fieldValue),
             itemSpacing: 4
         ) { fillOption in
             fillOptionButton(for: fillOption)
@@ -48,31 +31,10 @@ struct FillOptionsGrid: View {
     
     func fillOptionButton(for fillOption: FillOption) -> some View {
         FillOptionButton(fillOption: fillOption) {
-            switch fillOption.type {
-            case .chooseText:
-                Haptics.feedback(style: .soft)
-            case .fillType(let fillType):
-                Haptics.feedback(style: .rigid)
-                //TODO: DOn't show animation if we're not changing grid contents—or at least don't let image flicker
-                withAnimation {
-                    fieldValue.fillType = fillType
-                    switch fillType {
-                    case .imageSelection(let text, _, _, _):
-                        //TODO: Attach a value to the nonAlt selections too—we need to get a Value from the recognizedText and store it in the FillOption to set it here
-                        break
-                    case .imageAutofill(let valueText, _, _):
-                        fieldValue.double = valueText.value.amount
-                        //TODO; Change unit too
-                        fieldValue.nutritionUnit = valueText.value.unit
-                        break
-                    default:
-                        break
-                    }
-                }
-            }
+            didTapFillOption(fillOption)
         }
         .buttonStyle(.borderless)
-    }
+    }    
 }
 
 public struct FillOptionsGridPreview: View {
@@ -114,7 +76,9 @@ public struct FillOptionsGridPreview: View {
     
     var grid: some View {
 //        FillOptionsGrid(fieldValue: $viewModel.energy, fillOptions: $fillOptions)
-        FillOptionsGrid(fieldValue: $viewModel.energyViewModel.fieldValue)
+        FillOptionsGrid(fieldValueViewModel: viewModel.energyViewModel) { fillOption in
+            
+        }
             .environmentObject(viewModel)
     }
     
