@@ -30,7 +30,6 @@ extension FoodFormViewModel {
     }
 
     func processScanResults() {
-        //TODO: Decide which column we're going to be using
         extractEnergy()
         extractMacro(.carb)
         extractMacro(.protein)
@@ -39,7 +38,7 @@ extension FoodFormViewModel {
             extractNutrient(nutrient)
         }
     }
-
+    
     func extractEnergy() {
         guard let fieldValue = fieldValueFromScanResults(for: .energy) else {
             return
@@ -95,7 +94,11 @@ extension FoodFormViewModel {
     }
 
     func fieldValueFromScanResults(for attribute: Attribute? = nil) -> FieldValue? {
-        fieldValueFromScanResults(for: attribute, orNutrientType: nil)
+        guard let fieldValue = fieldValueFromScanResults(for: attribute, orNutrientType: nil) else {
+            return nil
+        }
+        fieldValue.getCroppedImage()
+        return fieldValue
     }
 
     func fieldValueFromScanResults(for nutrientType: NutrientType? = nil) -> FieldValue? {
@@ -376,3 +379,51 @@ extension NutrientType {
 }
 
 let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+
+extension FieldValue {
+    func getCroppedImage() {
+        guard fillType.usesImage else { return }
+        Task {
+            let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fillType)
+
+            await MainActor.run {
+                withAnimation {
+//                    self.image = croppedImage
+                }
+            }
+        }
+    }
+    
+    var image: UIImage? {
+        get {
+            fillType.image
+        }
+        set {
+            self.fillType.image = newValue
+        }
+    }
+}
+extension FillType {
+    var image: UIImage? {
+        get {
+            switch self {
+            case .imageSelection(_, _, _, _, let croppedImage):
+                return croppedImage
+            case .imageAutofill(_, _, _, let croppedImage):
+                return croppedImage
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, let value, _):
+                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value, croppedImage: newValue)
+            case .imageAutofill(let valueText, let scanResultId, let value, _):
+                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: value, croppedImage: newValue)
+            default:
+                break
+            }
+        }
+    }
+}

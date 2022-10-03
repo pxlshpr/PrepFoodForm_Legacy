@@ -22,11 +22,11 @@ struct ImageTextPicker: View {
     init(fillType: FillType, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
         
         switch fillType {
-        case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
+        case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _, _):
             //TODO: Support showing multiple selected texts here by using supplementaryTexts
             self.selectedTextId = recognizedText.id
             self.selectedImageScanResultId = scanResultId
-        case .imageAutofill(let valueText, let scanResultId, _):
+        case .imageAutofill(let valueText, let scanResultId, _, _):
             self.selectedTextId = valueText.text.id
             self.selectedImageScanResultId = scanResultId
         default:

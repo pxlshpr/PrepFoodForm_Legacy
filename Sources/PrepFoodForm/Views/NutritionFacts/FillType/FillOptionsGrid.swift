@@ -57,10 +57,10 @@ struct FillOptionsGrid: View {
                 withAnimation {
                     fieldValue.fillType = fillType
                     switch fillType {
-                    case .imageSelection(let text, _, _, _):
+                    case .imageSelection(let text, _, _, _, _):
                         //TODO: Attach a value to the nonAlt selections too—we need to get a Value from the recognizedText and store it in the FillOption to set it here
                         break
-                    case .imageAutofill(let valueText, _, _):
+                    case .imageAutofill(let valueText, _, _, _):
                         fieldValue.double = valueText.value.amount
                         //TODO; Change unit too
                         fieldValue.nutritionUnit = valueText.value.unit

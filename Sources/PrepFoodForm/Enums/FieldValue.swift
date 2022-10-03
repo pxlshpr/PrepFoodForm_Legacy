@@ -702,7 +702,6 @@ extension FieldValue {
             }
         }
     }
-
 }
 
 func randomFoodEmoji() -> String {

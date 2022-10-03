@@ -264,9 +264,9 @@ extension FillType {
     var value: Value? {
         get {
             switch self {
-            case .imageSelection(_, _, _, let value):
+            case .imageSelection(_, _, _, let value, _):
                 return value
-            case .imageAutofill(_, _, let value):
+            case .imageAutofill(_, _, let value, _):
                 return value
             default:
                 return nil
@@ -274,9 +274,9 @@ extension FillType {
         }
         set {
             switch self {
-            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
+            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _, _):
                 self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
-            case .imageAutofill(let valueText, let scanResultId, _):
+            case .imageAutofill(let valueText, let scanResultId, _, _):
                 self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
             default:
                 break
@@ -493,9 +493,9 @@ extension RecognizedText {
 extension FillType {
     func uses(text: RecognizedText) -> Bool {
         switch self {
-        case .imageSelection(let recognizedText, _, _, _):
+        case .imageSelection(let recognizedText, _, _, _, _):
             return recognizedText.id == text.id
-        case .imageAutofill(let valueText, _, _):
+        case .imageAutofill(let valueText, _, _, _):
             return valueText.text.id == text.id || valueText.attributeText?.id == text.id
         default:
             return false
