@@ -6,7 +6,6 @@ extension FoodForm.NutritionFacts {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
         @Binding var fieldValueViewModel: FieldValueViewModel
-        @State var imageToDisplay: UIImage? = nil
     }
 }
 
@@ -51,7 +50,7 @@ extension FoodForm.NutritionFacts.Cell {
     
     @ViewBuilder
     var croppedImage: some View {
-        if let image = imageToDisplay {
+        if let image = fieldValueViewModel.imageToDisplay {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -110,27 +109,6 @@ extension FoodForm.NutritionFacts.Cell {
 //            croppedImage
 //        }
     }
-    
-    func getCroppedImage(for fillType: FillType) {
-        guard fillType.usesImage else {
-            withAnimation {
-                imageToDisplay = nil
-//                shouldShowImage = false
-            }
-            return
-        }
-        Task {
-            let croppedImage = await viewModel.croppedImage(for: fillType)
-
-            await MainActor.run {
-                withAnimation {
-                    self.imageToDisplay = croppedImage
-//                    self.shouldShowImage = true
-                }
-            }
-        }
-    }
-
     
     @ViewBuilder
     var fillTypeIcon: some View {

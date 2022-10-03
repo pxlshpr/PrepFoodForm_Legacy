@@ -37,6 +37,12 @@ extension FoodFormViewModel {
         for nutrient in NutrientType.allCases {
             extractNutrient(nutrient)
         }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            for fieldValueViewModel in self.allFieldValueViewModels {
+                fieldValueViewModel.cropFilledImage()
+            }
+        }
     }
     
     func extractEnergy() {

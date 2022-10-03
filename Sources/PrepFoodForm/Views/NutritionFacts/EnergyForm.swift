@@ -10,7 +10,7 @@ struct EnergyForm: View {
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
-    @Binding var fieldValueViewModel: FieldValueViewModel
+    @ObservedObject var fieldValueViewModel: FieldValueViewModel
 //    @Binding var fieldValue: FieldValue
     
     @State var string: String
@@ -18,15 +18,12 @@ struct EnergyForm: View {
 
     @State var showingFilledText = false
     
-    init(fieldValueViewModel: Binding<FieldValueViewModel>) {
-        _fieldValueViewModel = fieldValueViewModel
+    init(fieldValueViewModel: FieldValueViewModel) {
+        self.fieldValueViewModel = fieldValueViewModel
 //        _fieldValue = fieldValue
-        _string = State(initialValue: fieldValueViewModel.wrappedValue.fieldValue.energyValue.string)
-        _energyUnit = State(initialValue: fieldValueViewModel.wrappedValue.fieldValue.energyValue.unit)
+        _string = State(initialValue: fieldValueViewModel.fieldValue.energyValue.string)
+        _energyUnit = State(initialValue: fieldValueViewModel.fieldValue.energyValue.unit)
     }
-}
-
-extension EnergyForm {
     
     var fieldValue: FieldValue {
         fieldValueViewModel.fieldValue
@@ -54,10 +51,10 @@ extension EnergyForm {
             }
             .onAppear {
                 isFocused = true
-                fieldValueViewModel.getCroppedImage(for: fieldValue.fillType)
             }
             .onChange(of: fieldValue.fillType) { newValue in
-                fieldValueViewModel.getCroppedImage(for: newValue)
+                //TODO: Set fieldValueViewModel.fieldValue.fillType which should in turn crop the image again
+//                fieldValueViewModel.getCroppedImage(for: newValue)
             }
             .sheet(isPresented: $fieldValueViewModel.showingImageTextPicker) {
                 imageTextPicker
@@ -88,7 +85,7 @@ extension EnergyForm {
                     unitLabel
                 }
             }
-            FillOptionSections(fieldValue: $fieldValueViewModel.fieldValue)
+            FillOptionSections(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -194,7 +191,7 @@ struct EnergyFormPreview: View {
     }
     
     var body: some View {
-        EnergyForm(fieldValueViewModel: $viewModel.energyViewModel)
+        EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
             .environmentObject(viewModel)
     }
 }

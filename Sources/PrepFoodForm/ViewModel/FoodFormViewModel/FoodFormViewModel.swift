@@ -197,7 +197,7 @@ extension FoodFormViewModel {
         [
             nameViewModel, emojiViewModel, detailViewModel, brandViewModel, barcodeViewModel,
             amountViewModel, servingViewModel, densityViewModel,
-            carbViewModel, fatViewModel, proteinViewModel,
+            energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
         ]
         + allMicronutrientFieldValueViewModels
     }

@@ -12,8 +12,8 @@ class FieldValueViewModel: ObservableObject {
         self.fieldValue = fieldValue
     }
     
-    func getCroppedImage(for fillType: FillType) {
-        guard fillType.usesImage else {
+    func cropFilledImage() {
+        guard fieldValue.fillType.usesImage else {
             withAnimation {
                 imageToDisplay = nil
                 shouldShowImage = false
@@ -21,10 +21,14 @@ class FieldValueViewModel: ObservableObject {
             return
         }
         Task {
-            let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fillType)
+            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fieldValue.fillType) else {
+                print("⚠️ Couldn't get cropped image for: \(self.fieldValue.description)")
+                return
+            }
 
             await MainActor.run {
                 withAnimation {
+                    print("✂️ Got cropped image for: \(self.fieldValue.description)")
                     self.imageToDisplay = croppedImage
                     self.shouldShowImage = true
                 }

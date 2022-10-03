@@ -88,13 +88,13 @@ struct FillOptionSections: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingAutofillInfo = false
-    @Binding var fieldValue: FieldValue
+    @ObservedObject var fieldValueViewModel: FieldValueViewModel
 
     var body: some View {
         Group {
-            if viewModel.shouldShowFillOptions(for: fieldValue) {
+            if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
                 FormStyledSection(header: autofillHeader) {
-                    FillOptionsGrid(fieldValue: $fieldValue)
+                    FillOptionsGrid(fieldValue: $fieldValueViewModel.fieldValue)
                 }
                 FormStyledSection {
                     croppedImageButton
@@ -140,10 +140,10 @@ struct FillOptionSections: View {
     
     @ViewBuilder
     var imageView: some View {
-//        if showingImage {
-//        if let image = sampleImage {
-            imageView(for: sampleImage!)
-//        }
+//        imageView(for: sampleImage!)
+        if let image = fieldValueViewModel.imageToDisplay {
+            imageView(for: image)
+        }
     }
     
     func imageView(for image: UIImage) -> some View {
@@ -526,7 +526,7 @@ public struct FillOptionSectionsPreview: View {
     }
     
     var optionsSections: some View {
-        FillOptionSections(fieldValue: $viewModel.energyViewModel.fieldValue)
+        FillOptionSections(fieldValueViewModel: viewModel.energyViewModel)
             .environmentObject(viewModel)
     }
     
