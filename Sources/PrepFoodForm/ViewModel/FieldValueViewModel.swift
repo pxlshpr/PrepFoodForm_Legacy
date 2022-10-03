@@ -4,6 +4,7 @@ import FoodLabelScanner
 class FieldValueViewModel: ObservableObject {
     @Published var fieldValue: FieldValue
     @Published var imageToDisplay: UIImage? = nil
+    @Published var cropImageOnTextPickerDismissal: Bool = false
 
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
@@ -33,6 +34,7 @@ class FieldValueViewModel: ObservableObject {
                 withAnimation {
                     print("✂️ Got cropped image for: \(self.fieldValue.description)")
                     self.imageToDisplay = croppedImage
+                    self.cropImageOnTextPickerDismissal = false
                 }
             }
         }

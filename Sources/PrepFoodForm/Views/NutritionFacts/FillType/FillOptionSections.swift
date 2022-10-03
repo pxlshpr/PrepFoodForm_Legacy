@@ -101,7 +101,7 @@ struct FillOptionSections: View {
                         didTapFillOption(fillOption)
                     }
                 }
-                if let image = fieldValueViewModel.imageToDisplay {
+                if let image = fieldValueViewModel.imageToDisplay, !fieldValueViewModel.cropImageOnTextPickerDismissal {
                     FormStyledSection {
                         croppedImageButton(for: image)
                     }

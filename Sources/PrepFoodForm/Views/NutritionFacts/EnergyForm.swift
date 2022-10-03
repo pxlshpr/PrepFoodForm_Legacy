@@ -119,7 +119,7 @@ struct EnergyForm: View {
         fieldValueViewModel.fieldValue.fillType = fillType
         switch fillType {
         case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
-            break
+            changeFillTypeToSelection(of: text, withAltValue: value)
         case .imageAutofill(let valueText, scanResultId: _, value: let value):
             changeFillTypeToAutofill(of: valueText, withAltValue: value)
         default:
@@ -146,13 +146,17 @@ struct EnergyForm: View {
     }
     
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
-        guard let altValue else {
-            setNewValue(valueText.value)
+        let value = altValue ?? valueText.value
+        setNewValue(value)
+    }
+
+    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: Value?) {
+        guard let value = altValue ?? text.string.values.first else {
             return
         }
-        setNewValue(altValue)
+        setNewValue(value)
     }
-    
+
     var form: some View {
         Form {
             textFieldSection
@@ -211,12 +215,10 @@ struct EnergyForm: View {
             
         ) { text, scanResultId in
             
-            guard let amount = text.string.double else {
+            guard let value = text.string.values.first else {
                 print("Couldn't get a double from the tapped string")
                 return
             }
-            //            var newFieldValue = fieldValue
-            //            newFieldValue.energyValue.double = double
             let newFillType: FillType = .imageSelection(
                 recognizedText: text,
                 scanResultId: scanResultId
@@ -224,17 +226,23 @@ struct EnergyForm: View {
             
             isFilling = true
             withAnimation {
-                setNew(amount: amount, unit: .kcal)
+                setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
                 fieldValueViewModel.fieldValue.fillType = newFillType
             }
             
-            fieldValueViewModel.cropFilledImage()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                isFilling = false
+            withAnimation {
+                fieldValueViewModel.cropImageOnTextPickerDismissal = true
             }
         }
         .environmentObject(viewModel)
+        .onDisappear {
+            guard fieldValueViewModel.cropImageOnTextPickerDismissal else {
+                return
+            }
+            fieldValueViewModel.cropFilledImage()
+            isFilling = false
+//            fieldValueViewModel.cropImageOnTextPickerDismissal = false
+        }
     }
 }
 
@@ -266,11 +274,9 @@ struct EnergyForm_Previews: PreviewProvider {
 //MARK: - String + Double
 
 extension String {
-    var double: Double? {
-        guard let doubleString = capturedGroups(using: #"(?:^|[ ]+)([0-9.,]+)"#, allowCapturingEntireString: true).last else {
-            return nil
-        }
-        return Double(doubleString)
+    
+    var values: [Value] {
+        Value.detect(in: self)
     }
 }
 
