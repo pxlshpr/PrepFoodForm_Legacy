@@ -1,5 +1,4 @@
 import SwiftUI
-import CameraImagePicker
 import SwiftHaptics
 import PrepUnits
 import PhotosUI

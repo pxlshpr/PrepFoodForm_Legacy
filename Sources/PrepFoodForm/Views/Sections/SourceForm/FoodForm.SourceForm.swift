@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftHaptics
-import CameraImagePicker
 
 extension FoodForm {
     struct SourceForm: View {

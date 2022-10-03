@@ -1,7 +1,6 @@
 import SwiftUI
-import CameraImagePicker
 
-extension FoodFormViewModel: CameraImagePickerDelegate {
+extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
         sourceType = .images
         

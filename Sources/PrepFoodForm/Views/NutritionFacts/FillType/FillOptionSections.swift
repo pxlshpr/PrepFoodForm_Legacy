@@ -257,6 +257,18 @@ enum FillOptionType: Hashable {
     case chooseText
 }
 
+extension FillType {
+    var energyValue: Value? {
+        switch self {
+        case .imageSelection(let recognizedText, _, _, let altValue):
+            return altValue ?? recognizedText.string.energyValue
+        case .imageAutofill(let valueText, _, let altValue):
+            return altValue ?? valueText.value
+        default:
+            return nil
+        }
+    }
+}
 extension String {
     var energyValue: Value? {
         let values = Value.detect(in: self)
@@ -271,7 +283,7 @@ extension String {
         if energyValue.unit?.isEnergy == true {
             return energyValue.description
         } else {
-            return energyValue.amount.cleanAmount
+            return "\(energyValue.amount.cleanAmount) kcal"
         }
     }
 }

@@ -57,16 +57,10 @@ struct EnergyForm: View {
     }
     
     var unitChangeShouldRegisterAsUserInput: Bool {
-        if case .imageSelection(let text, _, _, let altValue) = fieldValue.fillType,
-           let value = altValue ?? text.string.energyValue /// Look at either the altValue or the value extracted from the text to determine if there is a unit
-        {
-            
-            if value.unit?.isEnergy == true {
-                return true
-            } else {
-                /// If it does not have an energy unit, then a unit change should not register as user input
-                return false
-            }
+        
+        if let energyValue = fieldValue.fillType.energyValue {
+            /// If it does not have an energy unit, then a unit change should not register as user input
+            return energyValue.unit?.isEnergy == true
         }
         return true
     }

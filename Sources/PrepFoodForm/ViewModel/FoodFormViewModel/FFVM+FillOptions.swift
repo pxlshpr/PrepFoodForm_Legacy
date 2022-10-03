@@ -1,4 +1,4 @@
-import Foundation
+import FoodLabelScanner
 
 //MARK: - FFVM + FillOptions
 extension FoodFormViewModel {
@@ -33,8 +33,6 @@ extension FoodFormViewModel {
             )
         )
 
-        //TODO: Also add any additional values detected in the string as alt values for that same text (even if not selected)
-
         /// Show alts if selected (only check the text because it might have a different value attached to it)
         for alternateValue in autofillFieldValue.altValues {
             guard let valueText = autofillFieldValue.fillType.valueText, let scanResultId = autofillFieldValue.fillType.scanResultId else {
@@ -56,7 +54,7 @@ extension FoodFormViewModel {
     //MARK: Image Selection
     func selectionOptions(for fieldValue: FieldValue) -> [FillOption] {
         /// Selected text option (if its available) + its alts
-        guard case .imageSelection(let primaryText, _, supplementaryTexts: let supplementaryTexts, value: let value) = fieldValue.fillType else {
+        guard case .imageSelection(let primaryText, let scanResultId, supplementaryTexts: let supplementaryTexts, value: let value) = fieldValue.fillType else {
             return []
         }
 
@@ -74,20 +72,16 @@ extension FoodFormViewModel {
         }
         //TODO: If we have a `value` set—and `altValues` doesn't contain it anymore—(if our code that generates it changes for example); create an option to show that it is selected here anyway.
         
-        //TODO: Also show any `altValues` for the text if we have them—these should include misread alts and any additional values detected int he selected string
-//        for alternateValue in fieldValue.altValues {
-//            guard let valueText = fieldValue.fillType.valueText, let scanResultId = fieldValue.fillType.scanResultId else {
-//                continue
-//            }
-//            fillOptions.append(
-//                FillOption(
-//                    string: alternateValue.fillOptionString,
-//                    systemImage: FillType.SystemImage.imageAutofill,
-//                    isSelected: autofillFieldValue.matchesFieldValue(fieldValue, withValue: alternateValue),
-//                    type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
-//                )
-//            )
-//        }
+        for altValue in fieldValue.altValues {
+            fillOptions.append(
+                FillOption(
+                    string: altValue.fillOptionString,
+                    systemImage: FillType.SystemImage.imageSelection,
+                    isSelected: fieldValue.fillType.value == altValue,
+                    type: .fillType(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: altValue))
+                )
+            )
+        }
         return fillOptions
     }
     

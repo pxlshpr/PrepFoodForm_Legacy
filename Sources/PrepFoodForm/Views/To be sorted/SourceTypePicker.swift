@@ -1,5 +1,4 @@
 import SwiftUI
-import CameraImagePicker
 
 struct SourceTypePicker: View {
     
@@ -25,7 +24,7 @@ struct SourceTypePicker: View {
                 navigationDestination(for: route)
             }
             .sheet(isPresented: $showingCamera) {
-                CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
+                Text("Camera")
                     .onDisappear {
                         dismiss()
                     }
@@ -37,7 +36,7 @@ struct SourceTypePicker: View {
     func navigationDestination(for route: Route) -> some View {
         switch route {
         case .camera:
-            CameraImagePicker(maxSelectionCount: 5, delegate: viewModel)
+            Text("Camera")
         case .search:
             Text("Search")
         case .linkForm:

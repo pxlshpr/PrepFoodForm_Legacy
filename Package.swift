@@ -16,9 +16,8 @@ let package = Package(
     ],
     dependencies: [
          // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.17"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.20"),
-        .package(url: "https://github.com/pxlshpr/CameraImagePicker", from: "0.0.24"),
+        .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.18"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.21"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.7"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.5"),
@@ -42,7 +41,6 @@ let package = Package(
                 .product(name: "NamePicker", package: "namepicker"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),
                 .product(name: "MFPScraper", package: "mfpscraper"),
-                .product(name: "CameraImagePicker", package: "cameraimagepicker"),
                 .product(name: "PrepUnits", package: "prepunits"),
                 .product(name: "VisionSugar", package: "visionsugar"),
                 .product(name: "FoodLabel", package: "foodlabel"),
