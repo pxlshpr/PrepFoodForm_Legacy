@@ -5,6 +5,7 @@ import VisionSugar
 import MFPScraper
 import PrepUnits
 import SwiftUISugar
+import ActivityIndicatorView
 
 //MARK: Button
 
@@ -101,9 +102,20 @@ struct FillOptionSections: View {
                         didTapFillOption(fillOption)
                     }
                 }
-                if let image = fieldValueViewModel.imageToDisplay, !fieldValueViewModel.cropImageOnTextPickerDismissal {
+                if let image = fieldValueViewModel.imageToDisplay {
                     FormStyledSection {
-                        croppedImageButton(for: image)
+                        ZStack {
+                            if fieldValueViewModel.isCroppingNextImage {
+                                ZStack {
+                                    ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                                        .frame(width: 50, height: 50)
+                                        .foregroundColor(Color(.tertiaryLabel))
+                                }
+                                .frame(maxWidth: .infinity)
+                            } else {
+                                croppedImageButton(for: image)
+                            }
+                        }
                     }
                 }
             }

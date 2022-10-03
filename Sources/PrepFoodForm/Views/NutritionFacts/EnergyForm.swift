@@ -231,17 +231,17 @@ struct EnergyForm: View {
             }
             
             withAnimation {
-                fieldValueViewModel.cropImageOnTextPickerDismissal = true
+                fieldValueViewModel.isCroppingNextImage = true
             }
         }
         .environmentObject(viewModel)
         .onDisappear {
-            guard fieldValueViewModel.cropImageOnTextPickerDismissal else {
+            guard fieldValueViewModel.isCroppingNextImage else {
                 return
             }
             fieldValueViewModel.cropFilledImage()
             isFilling = false
-//            fieldValueViewModel.cropImageOnTextPickerDismissal = false
+//            fieldValueViewModel.isCroppingNextImage = false
         }
     }
 }

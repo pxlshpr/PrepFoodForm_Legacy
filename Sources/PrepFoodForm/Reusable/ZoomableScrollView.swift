@@ -113,17 +113,34 @@ public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
                 newBox.origin.y += paddingTop
             }
             print("newBox: \(newBox)")
+            
+            let minimumPadding: CGFloat = 5
+            let zoomOutPaddingRatio: CGFloat = min(newImageSize.width / (newBox.size.width * 5), 3.5)
+            print("zoomOutPaddingRatio: \(zoomOutPaddingRatio)")
+
             /// If the box is longer than it is tall
             if newBox.size.widthToHeightRatio > 1 {
-                /// Add 10% padding to its horizontal side
-                let padding = newBox.size.width * 0.1
+                /// Add 100% padding to its horizontal side
+                let padding = newBox.size.width * zoomOutPaddingRatio
                 newBox.origin.x -= (padding / 2.0)
                 newBox.size.width += padding
+                
+                /// Now correct the values in case they're out of bounds
+                newBox.origin.x = max(minimumPadding, newBox.origin.x)
+                if newBox.maxX > newImageSize.width {
+                    newBox.size.width = newImageSize.width - newBox.origin.x - minimumPadding
+                }
             } else {
-                /// Add 10% padding to its vertical side
-                let padding = newBox.size.height * 0.1
+                /// Add 100% padding to its vertical side
+                let padding = newBox.size.height * zoomOutPaddingRatio
                 newBox.origin.y -= (padding / 2.0)
                 newBox.size.height += padding
+                
+                /// Now correct the values in case they're out of bounds
+                newBox.origin.y = max(minimumPadding, newBox.origin.y)
+                if newBox.maxY > newImageSize.height {
+                    newBox.size.height = newImageSize.height - newBox.origin.y - minimumPadding
+                }
             }
             print("newBox (padded): \(newBox)")
             
@@ -132,6 +149,29 @@ public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
 
         return scrollView
     }
+    
+//    func userDoubleTappedScrollview(recognizer:  UITapGestureRecognizer) {
+//        if (zoomScale > minimumZoomScale) {
+//            setZoomScale(minimumZoomScale, animated: true)
+//        }
+//        else {
+//            //(I divide by 3.0 since I don't wan't to zoom to the max upon the double tap)
+//            let zoomRect = zoomRectForScale(scale: maximumZoomScale / 3.0, center: recognizer.location(in: recognizer.view))
+//            zoom(to: zoomRect, animated: true)
+//        }
+//    }
+//
+//    func zoomRectForScale(scale : CGFloat, center : CGPoint) -> CGRect {
+//        var zoomRect = CGRect.zero
+//        if let imageV = self.viewForZooming {
+//            zoomRect.size.height = imageV.frame.size.height / scale;
+//            zoomRect.size.width  = imageV.frame.size.width  / scale;
+//            let newCenter = imageV.convert(center, from: self)
+//            zoomRect.origin.x = newCenter.x - ((zoomRect.size.width / 2.0));
+//            zoomRect.origin.y = newCenter.y - ((zoomRect.size.height / 2.0));
+//        }
+//        return zoomRect;
+//    }
     
     public func makeCoordinator() -> Coordinator {
         return Coordinator(hostingController: UIHostingController(rootView: self.content))
