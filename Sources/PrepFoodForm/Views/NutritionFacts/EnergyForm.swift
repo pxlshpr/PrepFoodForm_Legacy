@@ -11,17 +11,17 @@ struct EnergyForm: View {
     @FocusState var isFocused: Bool
     
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
-//    @Binding var fieldValue: FieldValue
+    //    @Binding var fieldValue: FieldValue
     
     @State var string: String
     @State var energyUnit: EnergyUnit
-
+    
     @State var showingFilledText = false
     @State var showingTextPicker = false
     
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
-//        _fieldValue = fieldValue
+        //        _fieldValue = fieldValue
         _string = State(initialValue: fieldValueViewModel.fieldValue.energyValue.string)
         _energyUnit = State(initialValue: fieldValueViewModel.fieldValue.energyValue.unit)
     }
@@ -36,33 +36,41 @@ struct EnergyForm: View {
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
             .onChange(of: string) { newValue in
-                guard !isFilling else {
-                    print("🔘 isFilling so not registering this 'string' change as .userInput")
-                    return
-                }
-                print("🔘 !isFilling so registering this 'string' change as .userInput")
+                guard !isFilling else { return }
                 withAnimation {
                     fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
                 }
             }
             .onChange(of: energyUnit) { newValue in
-                guard !isFilling else {
-                    print("🔘 isFilling so not registering this 'energyUnit' change as .userInput")
-                    return
-                }
-                print("🔘 !isFilling so registering this 'energyUnit' change as .userInput")
+                guard !isFilling, unitChangeShouldRegisterAsUserInput else { return }
+                /// This will only trigger a change of the fillType to `.userInput`, if the `energyValue` of the text has an energy unit
                 withAnimation {
-                    fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
+                    fieldValueViewModel.registerUserInput()
                 }
             }
             .onAppear {
                 isFocused = true
             }
             .sheet(isPresented: $showingTextPicker) {
-                imageTextPicker
+                textPicker
             }
     }
-
+    
+    var unitChangeShouldRegisterAsUserInput: Bool {
+        if case .imageSelection(let text, _, _, let altValue) = fieldValue.fillType,
+           let value = altValue ?? text.string.energyValue /// Look at either the altValue or the value extracted from the text to determine if there is a unit
+        {
+            
+            if value.unit?.isEnergy == true {
+                return true
+            } else {
+                /// If it does not have an energy unit, then a unit change should not register as user input
+                return false
+            }
+        }
+        return true
+    }
+    
     var header: some View {
         Text("Enter or auto-fill a value")
     }
@@ -75,10 +83,12 @@ struct EnergyForm: View {
                     unitLabel
                 }
             }
-            FillOptionSections(fieldValueViewModel: fieldValueViewModel) { fillOption in
+            FillOptionSections(fieldValueViewModel: fieldValueViewModel, didTapImage: {
+                showingTextPicker = true
+            }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)
-            }
-                .environmentObject(viewModel)
+            })
+            .environmentObject(viewModel)
         }
     }
     
@@ -120,11 +130,19 @@ struct EnergyForm: View {
         }
     }
     
+    func setNew(amount: Double, unit: EnergyUnit) {
+        fieldValueViewModel.fieldValue.double = amount
+        fieldValueViewModel.fieldValue.energyValue.unit = unit
+        string = amount.cleanAmount
+        energyUnit = unit
+    }
+    
     func setNewValue(_ value: Value) {
-        fieldValueViewModel.fieldValue.double = value.amount
-        fieldValueViewModel.fieldValue.nutritionUnit = value.unit
-        string = value.amount.cleanAmount
-        energyUnit = value.unit?.energyUnit ?? .kcal
+        setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
+        //        fieldValueViewModel.fieldValue.double = value.amount
+        //        fieldValueViewModel.fieldValue.nutritionUnit = value.unit
+        //        string = value.amount.cleanAmount
+        //        energyUnit = value.unit?.energyUnit ?? .kcal
     }
     
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
@@ -134,11 +152,10 @@ struct EnergyForm: View {
         }
         setNewValue(altValue)
     }
-
+    
     var form: some View {
         Form {
             textFieldSection
-//            filledImageSection
             fillOptionsSection
         }
         .safeAreaInset(edge: .bottom) {
@@ -148,17 +165,10 @@ struct EnergyForm: View {
     
     var fillOptionsSection: some View {
         Section {
-//            FillOptionsGrid()
+            //            FillOptionsGrid()
             if showingFilledText {
                 Text("Hello")
             }
-        }
-    }
-    
-    var filledImageSection: some View {
-        Section("Filled Text") {
-            CroppedImageButton()
-                .environmentObject(fieldValueViewModel)
         }
     }
     
@@ -182,45 +192,46 @@ struct EnergyForm: View {
     
     var unitLabel: some View {
         Picker("", selection: $energyUnit) {
-            ForEach(EnergyUnit.allCases, id: \.self) { 
+            ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
             }
         }
         .pickerStyle(.segmented)
-
+        
     }
     
-    var keyboardToolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            HStack(spacing: 0) {
-                FillOptionsBar(fieldValue: $fieldValueViewModel.fieldValue)
-                    .environmentObject(fieldValueViewModel)
-                    .environmentObject(viewModel)
-                    .frame(maxWidth: .infinity)
-                Spacer()
-                Button("Done") {
-                    dismiss()
-                }
-            }
-        }
-    }
+    //MARK: TextPicker
     
-    var imageTextPicker: some View {
+    var textPicker: some View {
         TextPicker(
             texts: viewModel.texts(for: fieldValueViewModel.fieldValue),
-            selectedText: fieldValue.fillType.text
+            selectedText: fieldValue.fillType.text,
+            selectedBoundingBox: fieldValue.fillType.boundingBoxForImagePicker
+            
         ) { text, scanResultId in
             
-            fieldValueViewModel.showingImageTextPicker = false
+            guard let amount = text.string.double else {
+                print("Couldn't get a double from the tapped string")
+                return
+            }
+            //            var newFieldValue = fieldValue
+            //            newFieldValue.energyValue.double = double
+            let newFillType: FillType = .imageSelection(
+                recognizedText: text,
+                scanResultId: scanResultId
+            )
             
-            var newFieldValue = fieldValue
-            newFieldValue.energyValue.double = text.string.double
-            newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
-
-            fieldValueViewModel.ignoreNextChange = true
+            isFilling = true
             withAnimation {
-                fieldValueViewModel.fieldValue = newFieldValue
+                setNew(amount: amount, unit: .kcal)
+                fieldValueViewModel.fieldValue.fillType = newFillType
+            }
+            
+            fieldValueViewModel.cropFilledImage()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                isFilling = false
             }
         }
         .environmentObject(viewModel)
@@ -232,7 +243,7 @@ struct EnergyForm: View {
 struct EnergyFormPreview: View {
     
     @StateObject var viewModel = FoodFormViewModel()
-
+    
     public init() {
         let viewModel = FoodFormViewModel.mock
         _viewModel = StateObject(wrappedValue: viewModel)

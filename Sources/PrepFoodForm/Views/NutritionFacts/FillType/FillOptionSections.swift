@@ -90,6 +90,7 @@ struct FillOptionSections: View {
     @State var showingAutofillInfo = false
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
+    var didTapImage: () -> ()
     var didTapFillOption: (FillOption) -> ()
 
     var body: some View {
@@ -131,6 +132,7 @@ struct FillOptionSections: View {
     func croppedImageButton(for image: UIImage) -> some View {
         Button {
 //            fieldFormViewModel.showingImageTextPicker = true
+            didTapImage()
         } label: {
             VStack {
                 HStack {
@@ -258,7 +260,7 @@ extension FoodFormViewModel {
             fillOptions.append(
                 FillOption(
                     string: fieldValue.fillButtonString,
-                    systemImage: fieldValue.fillType.iconSystemImage,
+                    systemImage: FillType.SystemImage.imageAutofill,
                     isSelected: fieldValue == autofillFieldValue,
                     type: .fillType(autofillFieldValue.fillType)
                 )
@@ -272,7 +274,7 @@ extension FoodFormViewModel {
                     fillOptions.append(
                         FillOption(
                             string: alternateValue.fillOptionString,
-                            systemImage: fieldValue.fillType.iconSystemImage,
+                            systemImage: FillType.SystemImage.imageAutofill,
                             isSelected: autofillFieldValue.matchesFieldValue(fieldValue, withValue: alternateValue),
                             type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                         )
@@ -282,6 +284,36 @@ extension FoodFormViewModel {
         }
             
         /// Selected text option (if its available) + its alts
+        if case .imageSelection(let primaryText, _, supplementaryTexts: let supplementaryTexts, value: let value) = fieldValue.fillType {
+            
+            /// Add options for the text and each of the supplementary texts here (in case of string values where we have multiple texts attached with our image selection fill type
+            for text in ([primaryText] + supplementaryTexts) {
+                fillOptions.append(
+                    FillOption(
+                        string: text.fillButtonString(for: fieldValue),
+                        systemImage: FillType.SystemImage.imageSelection,
+                        isSelected: value == nil, /// only shows as selected if we haven't selected one of the altValue's generated for this text
+                        type: .fillType(fieldValue.fillType)
+                    )
+                )
+            }
+            /// If we have a `value` and `altValues` doesn't contain it anymore (if our code that generates it changes for example)—create an option to show that it is selected here anyway
+            
+            /// Also show any `altValues` for the text if we have them
+//            for alternateValue in fieldValue.altValues {
+//                guard let valueText = fieldValue.fillType.valueText, let scanResultId = fieldValue.fillType.scanResultId else {
+//                    continue
+//                }
+//                fillOptions.append(
+//                    FillOption(
+//                        string: alternateValue.fillOptionString,
+//                        systemImage: FillType.SystemImage.imageAutofill,
+//                        isSelected: autofillFieldValue.matchesFieldValue(fieldValue, withValue: alternateValue),
+//                        type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+//                    )
+//                )
+//            }
+        }
         
         /// Prefill Options
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
@@ -299,7 +331,7 @@ extension FoodFormViewModel {
             let option = FillOption(
                 string: "Choose",
                 systemImage: FillType.SystemImage.imageSelection,
-                isSelected: fieldValue.fillType.isImageSelection,
+                isSelected: false, /// never selected as we only use this to pop up the `TextPicker`
                 type: .chooseText
             )
             fillOptions.append(option)
@@ -307,7 +339,46 @@ extension FoodFormViewModel {
         
         return fillOptions
     }
+}
+
+extension String {
+    var energyValue: Value? {
+        let values = Value.detect(in: self)
+        /// Returns the first energy value detected, otherwise the first value regardless of the unit
+        return values.first(where: { $0.unit?.isEnergy == true }) ?? values.first
+    }
     
+    var energyValueDescription: String {
+        guard let energyValue else { return "" }
+        
+        /// If the found `energyValue` actually has an energy unit—return its entire description, otherwise only return the number
+        if energyValue.unit?.isEnergy == true {
+            return energyValue.description
+        } else {
+            return energyValue.amount.cleanAmount
+        }
+    }
+}
+
+extension RecognizedText {
+    func fillButtonString(for fieldValue: FieldValue) -> String {
+        switch fieldValue {
+        case .energy:
+            return string.energyValueDescription
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .density(let densityValue):
+//            <#code#>
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+        default:
+            return string
+        }
+    }
 }
 extension MFPProcessedFood {
     var detailStrings: [String] {
@@ -482,10 +553,12 @@ public struct FillOptionSectionsPreview: View {
     }
     
     var optionsSections: some View {
-        FillOptionSections(fieldValueViewModel: viewModel.energyViewModel) { fillOption in
+        FillOptionSections(fieldValueViewModel: viewModel.energyViewModel, didTapImage: {
             
-        }
-            .environmentObject(viewModel)
+        }, didTapFillOption: { fillOption in
+            
+        })
+        .environmentObject(viewModel)
     }
     
     public var scrollView: some View {

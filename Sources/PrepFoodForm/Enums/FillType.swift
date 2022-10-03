@@ -188,10 +188,24 @@ enum FillType: Hashable {
     }
 
     var boundingBox: CGRect? {
-//        return CGRect(x: 0.1, y: 0.1, width: 0.3, height: 0.3)
         switch self {
         case .imageSelection, .imageAutofill:
             return text?.boundingBox
+        default:
+            return nil
+        }
+    }
+
+    var boundingBoxForImagePicker: CGRect? {
+        switch self {
+        case .imageSelection(let recognizedText, _, _, _):
+            return recognizedText.boundingBox
+        case .imageAutofill(let valueText, _, _):
+            if let attributeText = valueText.attributeText {
+                return attributeText.boundingBox.union(valueText.text.boundingBox)
+            } else {
+                return valueText.text.boundingBox
+            }
         default:
             return nil
         }

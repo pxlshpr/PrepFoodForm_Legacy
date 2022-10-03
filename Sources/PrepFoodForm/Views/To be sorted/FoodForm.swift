@@ -29,8 +29,10 @@ public struct FoodForm: View {
                 .navigationTitle("New Food")
                 .interactiveDismissDisabled(viewModel.hasData)
                 .onAppear {
-                    DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
-                        Haptics.transientHaptic()
+                    if viewModel.shouldShowWizard {
+                        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
+                            Haptics.transientHaptic()
+                        }
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                         withAnimation(WizardAnimation) {

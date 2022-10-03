@@ -15,12 +15,18 @@ struct TextPicker: View {
 
     @State var selectedViewModelIndex: Int = 0
 
+    let selectedBoundingBox: CGRect?
     let selectedText: RecognizedText?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
     
-    init(texts: [RecognizedText] = [], selectedText: RecognizedText? = nil, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
+    init(texts: [RecognizedText] = [], selectedText: RecognizedText? = nil, selectedBoundingBox: CGRect? = nil, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
         _texts = State(initialValue: texts)
         self.selectedText = selectedText
+        if let selectedBoundingBox {
+            self.selectedBoundingBox = selectedBoundingBox
+        } else {
+            self.selectedBoundingBox = selectedText?.boundingBox
+        }
         self.didSelectRecognizedText = didSelectRecognizedText
     }
     
@@ -121,51 +127,70 @@ extension TextPicker {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 ForEach(texts, id: \.self) { text in
-                    boxLayer(for: text, inSize: geometry.size)
-                    .offset(x: text.boundingBox.rectForSize(geometry.size).minX,
-                            y: text.boundingBox.rectForSize(geometry.size).minY)
+                    if selectedText?.id != text.id {
+                        boxLayer(for: text, inSize: geometry.size)
+                    }
                 }
+                boxLayerForSelectedText(inSize: geometry.size)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
+    @ViewBuilder
+    func boxLayerForSelectedText(inSize size: CGSize) -> some View {
+        if let selectedBoundingBox {
+            boxLayer(boundingBox: selectedBoundingBox, inSize: size, color: .accentColor) {
+                dismiss()
+            }
+        }
+    }
+    
     func boxLayer(for text: RecognizedText, inSize size: CGSize) -> some View {
-        var color: Color {
-            text.id == selectedText?.id ? Color.accentColor : Color(.label)
+        boxLayer(boundingBox: text.boundingBox, inSize: size, color: .primary) {
+            didSelectRecognizedText(text, currentScanResultId ?? UUID())
+            dismiss()
+        }
+    }
+    
+    func boxLayer(boundingBox: CGRect, inSize size: CGSize, color: Color, didTap: @escaping () -> ()) -> some View {
+        var box: some View {
+            RoundedRectangle(cornerRadius: 3)
+                .foregroundStyle(
+                    color.gradient.shadow(
+                        .inner(color: .black, radius: 3)
+                    )
+                )
+                .opacity(0.3)
+                .frame(width: boundingBox.rectForSize(size).width,
+                       height: boundingBox.rectForSize(size).height)
+            
+                .overlay(
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(color, lineWidth: 1)
+                        .opacity(0.8)
+                )
+                .shadow(radius: 3, x: 0, y: 2)
         }
         
-        var boxView: some View {
+        var button: some View {
             Button {
                 Haptics.feedback(style: .rigid)
-                didSelectRecognizedText(text, currentScanResultId ?? UUID())
+                didTap()
             } label: {
-                RoundedRectangle(cornerRadius: 3)
-                    .foregroundStyle(
-                        color.gradient.shadow(
-                            .inner(color: .black, radius: 3)
-                        )
-                    )
-                    .opacity(0.3)
-                    .frame(width: text.boundingBox.rectForSize(size).width,
-                           height: text.boundingBox.rectForSize(size).height)
-                
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .stroke(color, lineWidth: 1)
-                            .opacity(0.8)
-                    )
-                    .shadow(radius: 3, x: 0, y: 2)
+                box
             }
         }
         
         return HStack {
             VStack(alignment: .leading) {
-                boxView
+                button
                 Spacer()
             }
             Spacer()
         }
+        .offset(x: boundingBox.rectForSize(size).minX,
+                y: boundingBox.rectForSize(size).minY)
     }
     
     
@@ -190,21 +215,14 @@ extension TextPicker {
         }
     }
     
-    var currentImage: UIImage? {
-        viewModel.imageViewModels[selectedViewModelIndex].image
-    }
-    var currentImageSize: CGSize? {
-        currentImage?.size
-    }
-    
     func appeared() {
         /// If we have a pre-selected text—zoom into it
-        if let selectedText, let currentImageSize {
+        if let selectedBoundingBox, let currentImageSize {
             let userInfo: [String: Any] = [
-                Notification.Keys.boundingBox: selectedText.boundingBox,
+                Notification.Keys.boundingBox: selectedBoundingBox,
                 Notification.Keys.imageSize: currentImageSize,
             ]
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 NotificationCenter.default.post(name: .scrollZoomableScrollViewToRect, object: nil, userInfo: userInfo)
             }
         }
@@ -213,6 +231,13 @@ extension TextPicker {
     //MARK: - Helpers
     var currentScanResultId: UUID? {
         viewModel.imageViewModels[selectedViewModelIndex].scanResult?.id
+    }
+    
+    var currentImage: UIImage? {
+        viewModel.imageViewModels[selectedViewModelIndex].image
+    }
+    var currentImageSize: CGSize? {
+        currentImage?.size
     }
 }
 

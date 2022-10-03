@@ -2,27 +2,24 @@ import SwiftUI
 import FoodLabelScanner
 
 class FieldValueViewModel: ObservableObject {
-    @Published var showingImageTextPicker: Bool = false
-    @Published var imageToDisplay: UIImage? = nil
-    @Published var shouldShowImage: Bool = false
-
     @Published var fieldValue: FieldValue
-
-    /** Indicates that the `fieldValue` is being filled behind-the-scenes and any changes shouldn't be registered as a `FillType.userInput` while this is set to `true`.*/
-    @Published var isFilling: Bool = false
-    
-    //TODO: Remove this
-    @Published var ignoreNextChange: Bool = false
+    @Published var imageToDisplay: UIImage? = nil
 
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
     }
     
+    func registerUserInput() {
+        fieldValue.energyValue.fillType = .userInput
+        imageToDisplay = nil
+    }
+    
     func cropFilledImage() {
+//        imageToDisplay = nil
+        
         guard fieldValue.fillType.usesImage else {
             withAnimation {
                 imageToDisplay = nil
-                shouldShowImage = false
             }
             return
         }
@@ -36,7 +33,6 @@ class FieldValueViewModel: ObservableObject {
                 withAnimation {
                     print("✂️ Got cropped image for: \(self.fieldValue.description)")
                     self.imageToDisplay = croppedImage
-                    self.shouldShowImage = true
                 }
             }
         }
