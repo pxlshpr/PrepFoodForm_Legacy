@@ -46,6 +46,7 @@ extension FoodFormViewModel {
         }
         //TODO: Only do this if user hasn't already got a value in there
         energy = fieldValue
+        autofillFieldValues.append(fieldValue)
     }
     
     func extractMacro(_ macro: Macro) {
@@ -61,6 +62,7 @@ extension FoodFormViewModel {
         case .protein:
             protein = fieldValue
         }
+        autofillFieldValues.append(fieldValue)
     }
     
     func extractNutrient(_ nutrientType: NutrientType) {
@@ -79,6 +81,7 @@ extension FoodFormViewModel {
             return
         }
         micronutrients[indexes.groupIndex].fieldValues[indexes.fieldIndex] = fieldValue
+        autofillFieldValues.append(fieldValue)
     }
     
     func micronutrientIndexes(for nutrientType: NutrientType) -> (groupIndex: Int, fieldIndex: Int)? {

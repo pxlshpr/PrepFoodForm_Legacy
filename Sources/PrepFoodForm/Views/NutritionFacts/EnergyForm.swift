@@ -3,6 +3,7 @@ import PrepUnits
 import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
+import SwiftUISugar
 
 struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -12,7 +13,16 @@ struct EnergyForm: View {
     @StateObject var fieldFormViewModel = FieldFormViewModel()
     @Binding var fieldValue: FieldValue
     
+    @State var string: String
+    @State var energyUnit: EnergyUnit
+
     @State var showingFilledText = false
+    
+    init(fieldValue: Binding<FieldValue>) {
+        _fieldValue = fieldValue
+        _string = State(initialValue: fieldValue.wrappedValue.energyValue.string)
+        _energyUnit = State(initialValue: fieldValue.wrappedValue.energyValue.unit)
+    }
 }
 
 extension EnergyForm {
@@ -21,7 +31,16 @@ extension EnergyForm {
         content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
-//            .toolbar { keyboardToolbarContents }
+            .onChange(of: string) { newValue in
+                withAnimation {
+                    viewModel.energy.energyValue.fillType = .userInput
+                }
+            }
+        
+//            .onChange(of: viewModel.energy.energyValue.double) { newValue in
+//                string = newValue?.cleanAmount ?? ""
+//            }
+
             .onChange(of: fieldValue.energyValue.unit) { newValue in
                 withAnimation {
                     showingFilledText.toggle()
@@ -51,15 +70,21 @@ extension EnergyForm {
             }
 
     }
+
+    var header: some View {
+        Text("Enter or auto-fill a value")
+    }
     
     var content: some View {
-        ZStack {
-            form
-//            VStack {
-//                Spacer()
-//                CroppedImageButton()
-//                    .environmentObject(fieldFormViewModel)
-//            }
+        FormStyledScrollView {
+            FormStyledSection(header: header) {
+                HStack {
+                    textField
+                    unitLabel
+                }
+            }
+            FillOptionSections(fieldValue: $viewModel.energy)
+                .environmentObject(viewModel)
         }
     }
     
@@ -100,7 +125,7 @@ extension EnergyForm {
     }
     
     var textField: some View {
-        TextField("Required", text: $fieldValue.energyValue.string)
+        TextField("Required", text: $string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -109,7 +134,7 @@ extension EnergyForm {
     }
     
     var unitLabel: some View {
-        Picker("", selection: $fieldValue.energyValue.unit) {
+        Picker("", selection: $energyUnit) {
             ForEach(EnergyUnit.allCases, id: \.self) { 
                 unit in
                 Text(unit.shortDescription).tag(unit)
@@ -152,13 +177,19 @@ extension EnergyForm {
     }
 }
 
+//MARK: - Preview
+
 struct EnergyFormPreview: View {
     
-    @State var fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 105, string: "105", unit: .kcal, fillType: .prefill()))
-    
     @StateObject var viewModel = FoodFormViewModel()
+
+    public init() {
+        let viewModel = FoodFormViewModel.mock
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
     var body: some View {
-        EnergyForm(fieldValue: $fieldValue)
+        EnergyForm(fieldValue: $viewModel.energy)
             .environmentObject(viewModel)
     }
 }
@@ -169,6 +200,7 @@ struct EnergyForm_Previews: PreviewProvider {
     }
 }
 
+//MARK: - FieldFormViewModel
 
 class FieldFormViewModel: ObservableObject {
     @Published var showingImageTextPicker: Bool = false
@@ -196,6 +228,8 @@ class FieldFormViewModel: ObservableObject {
         }
     }
 }
+
+//MARK: - String + Double
 
 extension String {
     var double: Double? {

@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepUnits
+import FoodLabelScanner
 
 enum FieldValue: Hashable {
     
@@ -256,6 +257,15 @@ enum FieldValue: Hashable {
 }
 
 extension FieldValue {
+    var isEnergy: Bool {
+        if case .energy = self {
+            return true
+        }
+        return false
+    }
+}
+
+extension FieldValue {
     init(micronutrient: NutrientType, fillType: FillType = .userInput) {
         let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
         self = .micro(microValue)
@@ -349,18 +359,84 @@ extension FieldValue {
         }
     }
     
-    var double: Double? {
-        switch self {
-        case .energy(let energyValue):
-            return energyValue.double
-        case .macro(let macroValue):
-            return macroValue.double
-        case .micro(let microValue):
-            return microValue.double
-        case .amount(let doubleValue), .serving(let doubleValue):
-            return doubleValue.double
-        default:
+    var nutritionUnit: NutritionUnit? {
+        get {
+            //TODO: Do this
             return nil
+        }
+        set {
+            switch self {
+            case .energy(let energyValue):
+                self = .energy(EnergyValue(double: energyValue.double, string: energyValue.string, unit: newValue?.energyUnit ?? .kcal, fillType: energyValue.fillType))
+            default:
+                break
+//            case .macro(let macroValue):
+//                <#code#>
+//            case .micro(let microValue):
+//                <#code#>
+//            case .name(let stringValue):
+//                <#code#>
+//            case .emoji(let stringValue):
+//                <#code#>
+//            case .brand(let stringValue):
+//                <#code#>
+//            case .barcode(let stringValue):
+//                <#code#>
+//            case .detail(let stringValue):
+//                <#code#>
+//            case .amount(let doubleValue):
+//                <#code#>
+//            case .serving(let doubleValue):
+//                <#code#>
+//            case .density(let densityValue):
+//                <#code#>
+
+            }
+        }
+    }
+    
+    var double: Double? {
+        get {
+            switch self {
+            case .energy(let energyValue):
+                return energyValue.double
+            case .macro(let macroValue):
+                return macroValue.double
+            case .micro(let microValue):
+                return microValue.double
+            case .amount(let doubleValue), .serving(let doubleValue):
+                return doubleValue.double
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .energy(let energyValue):
+                self = .energy(EnergyValue(double: newValue, string: energyValue.string, unit: energyValue.unit, fillType: energyValue.fillType))
+            default:
+                break
+//            case .macro(let macroValue):
+//                <#code#>
+//            case .micro(let microValue):
+//                <#code#>
+//            case .name(let stringValue):
+//                <#code#>
+//            case .emoji(let stringValue):
+//                <#code#>
+//            case .brand(let stringValue):
+//                <#code#>
+//            case .barcode(let stringValue):
+//                <#code#>
+//            case .detail(let stringValue):
+//                <#code#>
+//            case .amount(let doubleValue):
+//                <#code#>
+//            case .serving(let doubleValue):
+//                <#code#>
+//            case .density(let densityValue):
+//                <#code#>
+            }
         }
     }
 

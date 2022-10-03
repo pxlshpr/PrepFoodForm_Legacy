@@ -131,6 +131,15 @@ enum FillType: Hashable {
         }
     }
     
+    var valueText: ValueText? {
+        switch self {
+        case .imageAutofill(let valueText, _, _):
+            return valueText
+        default:
+            return nil
+        }
+    }
+
     var text: RecognizedText? {
         switch self {
         case .imageAutofill(let valueText, _, _):

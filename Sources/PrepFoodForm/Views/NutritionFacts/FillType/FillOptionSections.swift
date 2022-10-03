@@ -1,9 +1,10 @@
 import SwiftUI
 import SwiftHaptics
-import SwiftUIFlowLayout
 import FoodLabelScanner
 import VisionSugar
 import MFPScraper
+import PrepUnits
+import SwiftUISugar
 
 //MARK: Button
 
@@ -65,44 +66,19 @@ struct FillOptionButton: View {
 
 //MARK: - FillOption
 
-struct FillOption {
+struct FillOption: Hashable {
     let string: String
     let systemImage: String
     let isSelected: Bool
     let disableWhenSelected: Bool
-    let fillType: FillType?
+    let type: FillOptionType
     
-    init(string: String, systemImage: String, isSelected: Bool, disableWhenSelected: Bool = true, fillType: FillType? = nil) {
+    init(string: String, systemImage: String, isSelected: Bool, disableWhenSelected: Bool = true, type: FillOptionType) {
         self.string = string
         self.systemImage = systemImage
         self.isSelected = isSelected
         self.disableWhenSelected = disableWhenSelected
-        self.fillType = fillType
-    }
-}
-
-
-//MARK: Grid
-struct FillOptionsGrid: View {
-    
-    @EnvironmentObject var viewModel: FoodFormViewModel
-    @Binding var fieldValue: FieldValue
-    
-    var body: some View {
-        flowLayout
-    }
-    
-    var flowLayout: some View {
-        FlowLayout(
-            mode: .scrollable,
-            items: viewModel.fillOptions(for: fieldValue),
-            itemSpacing: 4
-        ) { fillOption in
-            FillOptionButton(fillOption: fillOption) {
-                
-            }
-            .buttonStyle(.borderless)
-        }
+        self.type = type
     }
 }
 
@@ -117,14 +93,11 @@ struct FillOptionSections: View {
     var body: some View {
         Group {
             if viewModel.shouldShowFillOptions(for: fieldValue) {
-                Section(header: autofillHeader) {
+                FormStyledSection(header: autofillHeader) {
                     FillOptionsGrid(fieldValue: $fieldValue)
-                        .environmentObject(viewModel)
                 }
-                Section {
-                    if true {
-                        croppedImageButton
-                    }
+                FormStyledSection {
+                    croppedImageButton
                 }
             }
         }
@@ -142,12 +115,10 @@ struct FillOptionSections: View {
         } label: {
             HStack {
                 Text("Auto-fill")
-                    .foregroundColor(Color(.secondaryLabel))
-                    .font(.footnote)
                 Image(systemName: "info.circle")
                     .foregroundColor(.accentColor)
-                    .font(.footnote)
             }
+//            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
     
@@ -194,37 +165,6 @@ struct FillOptionSections: View {
     }
 }
 
-//MARK: - Preview
-
-public struct FillOptionSectionsPreview: View {
-    
-    @StateObject var viewModel: FoodFormViewModel
-    
-    public init() {
-        _viewModel = StateObject(wrappedValue: FoodFormViewModel.mock)
-    }
-    
-    public var body: some View {
-        NavigationView {
-            Form {
-                Section("Enter or auto-fill a value") {
-                    HStack {
-                        TextField("Required", text: $viewModel.energy.energyValue.string)
-                    }
-                }
-                FillOptionSections(fieldValue: $viewModel.name)
-                    .environmentObject(viewModel)
-            }
-        }
-    }
-}
-
-struct FillOptionSections_Previews: PreviewProvider {
-    static var previews: some View {
-        FillOptionSectionsPreview()
-    }
-}
-
 struct AutofillInfo: View {
     var body: some View {
         Text("Talk about autofill here")
@@ -234,7 +174,7 @@ struct AutofillInfo: View {
 //MARK: - FFVM
 
 extension FoodFormViewModel {
-    static var mock: FoodFormViewModel {
+    public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
         guard let image = sampleImage(10),
@@ -243,6 +183,8 @@ extension FoodFormViewModel {
         else {
             fatalError("Couldn't load mock files")
         }
+        
+        viewModel.shouldShowWizard = false
         
         viewModel.prefilledFood = mfpProcessedFood
         
@@ -255,6 +197,107 @@ extension FoodFormViewModel {
     }
 }
 
+extension Value: CustomStringConvertible {
+    public var fillOptionString: String {
+        if let unit = unit {
+            return "\(amount.cleanAmount) \(unit.description)"
+        } else {
+            return "\(amount.cleanAmount)"
+        }
+    }
+}
+
+extension FieldValue.EnergyValue {
+    var altValues: [Value] {
+        guard let double else { return [] }
+        var values: [Value] = []
+        switch unit {
+        case .kJ:
+            values.append(Value(amount: double, unit: .kcal))
+            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kj))
+            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kcal))
+            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kj))
+            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kcal))
+        case .kcal:
+            values.append(Value(amount: double, unit: .kj))
+            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kj))
+            values.append(Value(amount: Double(Int(double/KcalsPerKilojule)), unit: .kcal))
+            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kj))
+            values.append(Value(amount: Double(Int(double*KcalsPerKilojule)), unit: .kcal))
+        }
+        return values
+    }
+}
+
+extension FieldValue {
+    var altValues: [Value] {
+        switch self {
+        case .energy(let energyValue):
+            return energyValue.altValues
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .name(let stringValue):
+//            <#code#>
+//        case .emoji(let stringValue):
+//            <#code#>
+//        case .brand(let stringValue):
+//            <#code#>
+//        case .barcode(let stringValue):
+//            <#code#>
+//        case .detail(let stringValue):
+//            <#code#>
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+//        case .density(let densityValue):
+//            <#code#>
+        default:
+            return []
+        }
+    }
+}
+
+extension FillType {
+    var value: Value? {
+        get {
+            switch self {
+            case .imageSelection(_, _, _, let value):
+                return value
+            case .imageAutofill(_, _, let value):
+                return value
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
+                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
+            case .imageAutofill(let valueText, let scanResultId, _):
+                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
+            default:
+                break
+            }
+        }
+    }
+}
+
+extension FieldValue {
+    func matchesFieldValue(_ fieldValue: FieldValue, withValue value: Value?) -> Bool {
+        var selfWithValue = self
+        selfWithValue.fillType.value = value
+        return selfWithValue == fieldValue
+    }
+}
+
+enum FillOptionType: Hashable {
+    case fillType(FillType)
+    case chooseText
+}
+
 //MARK: - FFVM + FillOptions
 extension FoodFormViewModel {
 
@@ -264,21 +307,55 @@ extension FoodFormViewModel {
 
     func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []
-
-        for prefillFieldValue in prefillFieldValues(for: fieldValue) {
+        
+        /// Detected text option (if its available) + its alts
+        if let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) {
+            fillOptions.append(
+                FillOption(
+                    string: fieldValue.fillButtonString,
+                    systemImage: fieldValue.fillType.iconSystemImage,
+                    isSelected: fieldValue == autofillFieldValue,
+                    type: .fillType(autofillFieldValue.fillType)
+                )
+            )
+            /// Show alts if selected (only check the text because it might have a different value attached to it)
+            if fieldValue.fillType.text == autofillFieldValue.fillType.text {
+                for alternateValue in fieldValue.altValues {
+                    guard let valueText = fieldValue.fillType.valueText, let scanResultId = fieldValue.fillType.scanResultId else {
+                        continue
+                    }
+                    fillOptions.append(
+                        FillOption(
+                            string: alternateValue.fillOptionString,
+                            systemImage: fieldValue.fillType.iconSystemImage,
+                            isSelected: autofillFieldValue.matchesFieldValue(fieldValue, withValue: alternateValue),
+                            type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+                        )
+                    )
+                }
+            }
+        }
+            
+        /// Selected text option (if its available) + its alts
+        
+        /// Prefill Options
+        for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
             let option = FillOption(
                 string: prefillFieldValue.stringValue.string,
                 systemImage: FillType.SystemImage.prefill,
-                isSelected: fieldValue.fillType.isThirdPartyFoodPrefill
+                isSelected: fieldValue.fillType.isThirdPartyFoodPrefill,
+                type: .fillType(.prefill())
             )
             fillOptions.append(option)
         }
         
+        /// Choose Option
         if hasAvailableTexts(for: fieldValue) {
             let option = FillOption(
                 string: "Choose",
                 systemImage: FillType.SystemImage.imageSelection,
-                isSelected: fieldValue.fillType.isImageSelection
+                isSelected: fieldValue.fillType.isImageSelection,
+                type: .chooseText
             )
             fillOptions.append(option)
         }
@@ -303,10 +380,29 @@ extension FieldValue {
 
 //MARK: FFVM + FillOptions Helpers
 extension FoodFormViewModel {
-    func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
-        !prefillFieldValues(for: fieldValue).isEmpty
+    
+    func autofillOptionFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+        
+        switch fieldValue {
+        case .energy:
+            return autofillFieldValues.first(where: { $0.isEnergy })
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+        default:
+            return nil
+        }
     }
-    func prefillFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+    func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
+        !prefillOptionFieldValues(for: fieldValue).isEmpty
+    }
+    
+    func prefillOptionFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
         guard let food = prefilledFood else {
             return []
         }
@@ -337,7 +433,6 @@ extension FoodFormViewModel {
         default:
             return []
         }
-        return []
     }
 
     /**
@@ -405,5 +500,65 @@ extension FillType {
         default:
             return false
         }
+    }
+}
+
+//MARK: - Preview
+
+public struct FillOptionSectionsPreview: View {
+    
+    @StateObject var viewModel: FoodFormViewModel
+    
+    @State var string: String
+    
+    public init() {
+        let viewModel = FoodFormViewModel.mock
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _string = State(initialValue: viewModel.energy.energyValue.string)
+    }
+    
+    var fieldSection: some View {
+        Section("Enter or auto-fill a value") {
+            HStack {
+                TextField("Required", text: $string)
+            }
+        }
+    }
+    
+    var optionsSections: some View {
+        FillOptionSections(fieldValue: $viewModel.energy)
+            .environmentObject(viewModel)
+    }
+    
+    public var scrollView: some View {
+        FormStyledScrollView {
+            fieldSection
+                .padding(20)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+            optionsSections
+        }
+    }
+    public var body: some View {
+        NavigationView {
+//            form
+            scrollView
+        }
+        .onChange(of: viewModel.energy.energyValue.double) { newValue in
+            string = newValue?.cleanAmount ?? ""
+        }
+        .onChange(of: string) { newValue in
+            withAnimation {
+                viewModel.energy.energyValue.fillType = .userInput
+            }
+        }
+    }
+}
+
+struct FillOptionSections_Previews: PreviewProvider {
+    static var previews: some View {
+        FillOptionSectionsPreview()
     }
 }

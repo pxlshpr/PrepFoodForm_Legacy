@@ -43,6 +43,8 @@ public class FoodFormViewModel: ObservableObject {
         }
     }
     
+    var autofillFieldValues: [FieldValue] = []
+    
     //MARK: Sizes
     @Published var standardSizes: [Size] = []
     @Published var volumePrefixedSizes: [Size] = []
