@@ -267,11 +267,12 @@ extension FoodFormViewModel {
     func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []
         
+        //TODO: Split this up and clean this out!
         /// Detected text option (if its available) + its alts
         if let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) {
             fillOptions.append(
                 FillOption(
-                    string: fieldValue.fillButtonString,
+                    string: autofillFieldValue.fillButtonString,
                     systemImage: FillType.SystemImage.imageAutofill,
                     isSelected: fieldValue == autofillFieldValue,
                     type: .fillType(autofillFieldValue.fillType)
@@ -279,19 +280,21 @@ extension FoodFormViewModel {
             )
             /// Show alts if selected (only check the text because it might have a different value attached to it)
             if fieldValue.fillType.text == autofillFieldValue.fillType.text {
-                for alternateValue in fieldValue.altValues {
-                    guard let valueText = fieldValue.fillType.valueText, let scanResultId = fieldValue.fillType.scanResultId else {
+                for alternateValue in autofillFieldValue.altValues {
+                    guard let valueText = autofillFieldValue.fillType.valueText, let scanResultId = autofillFieldValue.fillType.scanResultId else {
                         continue
                     }
                     fillOptions.append(
                         FillOption(
                             string: alternateValue.fillOptionString,
                             systemImage: FillType.SystemImage.imageAutofill,
-                            isSelected: autofillFieldValue.matchesFieldValue(fieldValue, withValue: alternateValue),
+                            isSelected: fieldValue.fillType.value == alternateValue,
                             type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                         )
                     )
                 }
+                
+                //TODO: Also add any additional values detected in the string as alt values
             }
         }
             
@@ -309,9 +312,9 @@ extension FoodFormViewModel {
                     )
                 )
             }
-            /// If we have a `value` and `altValues` doesn't contain it anymore (if our code that generates it changes for example)—create an option to show that it is selected here anyway
+            //TODO: If we have a `value` set—and `altValues` doesn't contain it anymore—(if our code that generates it changes for example); create an option to show that it is selected here anyway.
             
-            /// Also show any `altValues` for the text if we have them
+            //TODO: Also show any `altValues` for the text if we have them—these should include misread alts and any additional values detected int he selected string
 //            for alternateValue in fieldValue.altValues {
 //                guard let valueText = fieldValue.fillType.valueText, let scanResultId = fieldValue.fillType.scanResultId else {
 //                    continue
@@ -327,6 +330,7 @@ extension FoodFormViewModel {
 //            }
         }
         
+        //TODO: Check this again
         /// Prefill Options
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
             let option = FillOption(
@@ -337,6 +341,8 @@ extension FoodFormViewModel {
             )
             fillOptions.append(option)
         }
+        
+        //TODO: Add calculated option here for case where we have all other 3 values in the energy equation and the current value in the field isn't within the threshold
         
         /// Choose Option
         if hasAvailableTexts(for: fieldValue) {

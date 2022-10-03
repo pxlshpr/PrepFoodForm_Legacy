@@ -116,7 +116,6 @@ struct EnergyForm: View {
     
     func changeFillType(to fillType: FillType) {
         isFilling = true
-        fieldValueViewModel.fieldValue.fillType = fillType
         switch fillType {
         case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
             changeFillTypeToSelection(of: text, withAltValue: value)
@@ -125,6 +124,10 @@ struct EnergyForm: View {
         default:
             break
         }
+
+        fieldValueViewModel.fieldValue.fillType = fillType
+
+        /// This delay is crucial—because otherwise `isFilling` gets set to `false` too soon (before the `onChange` triggers for `string` and `energyUnit` are called—thus registering them incorrectly as `.userInput` fillTypes
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             isFilling = false
         }
@@ -148,6 +151,11 @@ struct EnergyForm: View {
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
         let value = altValue ?? valueText.value
         setNewValue(value)
+
+        if fieldValueViewModel.fieldValue.fillType.text?.id != valueText.text.id {
+            fieldValueViewModel.isCroppingNextImage = true
+            fieldValueViewModel.cropFilledImage()
+        }
     }
 
     func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: Value?) {
@@ -155,6 +163,9 @@ struct EnergyForm: View {
             return
         }
         setNewValue(value)
+        /// No need to recrop images here because this only occurs when altValues of a selection value are tapped (new selections can only be made through the `TextPicker`, and the cropping is handled there)
+//        fieldValueViewModel.isCroppingNextImage = true
+//        fieldValueViewModel.cropFilledImage()
     }
 
     var form: some View {
@@ -241,7 +252,6 @@ struct EnergyForm: View {
             }
             fieldValueViewModel.cropFilledImage()
             isFilling = false
-//            fieldValueViewModel.isCroppingNextImage = false
         }
     }
 }
