@@ -1,20 +1,5 @@
 import FoodLabelScanner
 
-extension FillType {
-    var isAltValue: Bool {
-        altValue != nil
-    }
-    var altValue: Value? {
-        switch self {
-        case .imageSelection(_, _, _, let value):
-            return value
-        case .imageAutofill(_, _, let value):
-            return value
-        default:
-            return nil
-        }
-    }
-}
 extension FieldValue {
     var altValues: [Value] {
 //        guard !fillType.isAltValue else { return [] }
@@ -67,12 +52,5 @@ extension FieldValue.EnergyValue {
         }
         
         return values
-    }
-}
-
-
-extension FillType {
-    var detectedValues: [Value] {
-        text?.string.values ?? []
     }
 }

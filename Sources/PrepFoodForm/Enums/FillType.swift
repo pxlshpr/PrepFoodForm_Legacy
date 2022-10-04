@@ -212,3 +212,76 @@ enum FillType: Hashable {
     }
 
 }
+
+extension FillType {
+    var isAltValue: Bool {
+        altValue != nil
+    }
+    var altValue: Value? {
+        switch self {
+        case .imageSelection(_, _, _, let value):
+            return value
+        case .imageAutofill(_, _, let value):
+            return value
+        default:
+            return nil
+        }
+    }
+}
+
+extension FillType {
+    var detectedValues: [Value] {
+        text?.string.values ?? []
+    }
+}
+
+extension FillType {
+    var value: Value? {
+        get {
+            switch self {
+            case .imageSelection(_, _, _, let value):
+                return value
+            case .imageAutofill(_, _, let value):
+                return value
+            default:
+                return nil
+            }
+        }
+        set {
+            switch self {
+            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
+                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
+            case .imageAutofill(let valueText, let scanResultId, _):
+                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
+            default:
+                break
+            }
+        }
+    }
+}
+
+extension FillType {
+    var energyValue: Value? {
+        switch self {
+        case .imageSelection(let recognizedText, _, _, let altValue):
+            return altValue ?? recognizedText.string.energyValue
+        case .imageAutofill(let valueText, _, let altValue):
+            return altValue ?? valueText.value
+        default:
+            return nil
+        }
+    }
+}
+
+extension FillType {
+    func uses(text: RecognizedText) -> Bool {
+        switch self {
+        case .imageSelection(let recognizedText, _, _, _):
+            return recognizedText.id == text.id
+        case .imageAutofill(let valueText, _, _):
+            return valueText.text.id == text.id || valueText.attributeText?.id == text.id
+        default:
+            return false
+        }
+    }
+}

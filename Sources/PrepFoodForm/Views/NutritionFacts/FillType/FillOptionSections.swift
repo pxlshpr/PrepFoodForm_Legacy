@@ -219,31 +219,6 @@ extension Value: CustomStringConvertible {
     }
 }
 
-extension FillType {
-    var value: Value? {
-        get {
-            switch self {
-            case .imageSelection(_, _, _, let value):
-                return value
-            case .imageAutofill(_, _, let value):
-                return value
-            default:
-                return nil
-            }
-        }
-        set {
-            switch self {
-            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
-                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
-            case .imageAutofill(let valueText, let scanResultId, _):
-                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
-            default:
-                break
-            }
-        }
-    }
-}
-
 extension FieldValue {
     func matchesFieldValue(_ fieldValue: FieldValue, withValue value: Value?) -> Bool {
         var selfWithValue = self
@@ -257,18 +232,6 @@ enum FillOptionType: Hashable {
     case chooseText
 }
 
-extension FillType {
-    var energyValue: Value? {
-        switch self {
-        case .imageSelection(let recognizedText, _, _, let altValue):
-            return altValue ?? recognizedText.string.energyValue
-        case .imageAutofill(let valueText, _, let altValue):
-            return altValue ?? valueText.value
-        default:
-            return nil
-        }
-    }
-}
 extension String {
     var energyValue: Value? {
         let values = Value.detect(in: self)
@@ -442,19 +405,6 @@ extension RecognizedText {
     
     var containsNumber: Bool {
         string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
-    }
-}
-
-extension FillType {
-    func uses(text: RecognizedText) -> Bool {
-        switch self {
-        case .imageSelection(let recognizedText, _, _, _):
-            return recognizedText.id == text.id
-        case .imageAutofill(let valueText, _, _):
-            return valueText.text.id == text.id || valueText.attributeText?.id == text.id
-        default:
-            return false
-        }
     }
 }
 
