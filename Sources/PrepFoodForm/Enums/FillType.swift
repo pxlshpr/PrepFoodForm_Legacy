@@ -90,12 +90,13 @@ enum FillType: Hashable {
         static let calculated = "equal.square"
         static let imageAutofill = "text.viewfinder"
         static let barcodeScan = "barcode.viewfinder"
+        static let userInput = "keyboard"
     }
     
     var iconSystemImage: String {
         switch self {
         case .userInput:
-            return ""
+            return SystemImage.userInput
         case .imageSelection:
             return SystemImage.imageSelection
         case .calculated:
