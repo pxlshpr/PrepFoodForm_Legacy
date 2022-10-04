@@ -10,8 +10,6 @@ class ImageViewModel: ObservableObject {
     @Published var image: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
     
-    @Published var focusedArea: FocusedArea?
-
     var scanResult: ScanResult? = nil
     var texts: [RecognizedText] = []
     var textsWithValues: [RecognizedText] = []

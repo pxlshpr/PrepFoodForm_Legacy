@@ -16,8 +16,7 @@ struct TextPicker: View {
     @State var page: Page = .first()
 //    @State var texts: [RecognizedText]
 
-    @State var focusedAreas: [FocusedArea?] = []
-    @State var savedFocusAreas: [FocusedArea?] = []
+    @State var focusMessages: [FocusOnAreaMessage?] = []
 
     @State var selectedViewModelIndex: Int = 0
 
@@ -35,7 +34,7 @@ struct TextPicker: View {
          didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void
     ) {
         self.imageViewModels = imageViewModels
-        _focusedAreas = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
+        _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.selectedImageIndex = selectedImageIndex
         self.selectedText = selectedText
@@ -93,28 +92,20 @@ extension TextPicker {
         .pagingPriority(.high)
 //        .interactive(scale: 0.7)
 //        .interactive(opacity: 0.99)
-        .onPageWillChange(pageWillChange(to:))
+//        .onPageWillChange(pageWillChange(to:))
         .onPageChanged(pageChanged(to:))
     }
     
     @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = imageViewModels.firstIndex(of: imageViewModel) {
-            ZoomableScrollView(focusedArea: $focusedAreas[index]) {
+            ZoomableScrollView(focusOnAreaMessage: $focusMessages[index]) {
                 imageView(for: imageViewModel)
             }
         }
     }
     
     //MARK: Thumbnail
-    func pageToImage(at index: Int) {
-        let increment = index - selectedViewModelIndex
-        withAnimation {
-            page.update(.move(increment: increment))
-        }
-        selectedViewModelIndex = index
-    }
-    
     func thumbnail(at index: Int) -> some View {
         var isSelected: Bool {
             selectedViewModelIndex == index
@@ -146,6 +137,10 @@ extension TextPicker {
 
     //MARK: - Boxes
     
+    func texts(at index: Int) -> [RecognizedText] {
+        texts(for: imageViewModels[index])
+    }
+    
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
         if onlyShowTextsWithValues {
             return imageViewModel.textsWithValues
@@ -161,15 +156,20 @@ extension TextPicker {
                         boxLayer(for: text, inSize: geometry.size)
                     }
                 }
-                boxLayerForSelectedText(inSize: geometry.size)
+                boxLayerForSelectedText(inSize: geometry.size, for: imageViewModel)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
     
     @ViewBuilder
-    func boxLayerForSelectedText(inSize size: CGSize) -> some View {
-        if let selectedBoundingBox, let selectedImageIndex, selectedImageIndex == selectedViewModelIndex {
+    func boxLayerForSelectedText(inSize size: CGSize, for imageViewModel: ImageViewModel) -> some View {
+        
+        if let selectedBoundingBox,
+           let imageViewIndex = imageViewModels.firstIndex(of: imageViewModel),
+           let selectedImageIndex,
+           selectedImageIndex == imageViewIndex
+        {
             boxLayer(boundingBox: selectedBoundingBox, inSize: size, color: .accentColor) {
                 dismiss()
             }
@@ -240,39 +240,61 @@ extension TextPicker {
 
     //MARK: - Actions
     func pageWillChange(to pageIndex: Int) {
-//        resetZoom()
-        withAnimation {
-            selectedViewModelIndex = pageIndex
-        }
+//        withAnimation {
+//            selectedViewModelIndex = pageIndex
+//        }
+//        zoomIfApplicable()
     }
     
     func pageChanged(to pageIndex: Int) {
-        zoomIfApplicable()
+//        withAnimation {
+//            selectedViewModelIndex = pageIndex
+//        }
+//        zoomIfApplicable()
+    }
+    
+    func pageToImage(at index: Int) {
+        let increment = index - selectedViewModelIndex
+        withAnimation {
+            page.update(.move(increment: increment))
+        }
+        selectedViewModelIndex = index
+        
+        /// Reset the focusedAreas of the other images (after waiting for half a second for the paging animation to complete)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            for i in 0..<imageViewModels.count {
+//                guard i != index else { continue }
+//                focusMessages[i] = nil
+//                sendZoomMessage(to: i)
+//            }
+//            sendZoomMessageToCurrentImage()
+//        }
     }
     
     func appeared() {
         if let selectedImageIndex {
             pageToImage(at: selectedImageIndex)
         }
-        
-        zoomIfApplicable()
+
+        sendZoomMessage(to: selectedImageIndex ?? 0, animated: true)
     }
     
-    func zoomIfApplicable() {
+    func sendZoomMessage(to index: Int, animated: Bool) {
         /// Make sure we're not already focused on an area of this image
-        guard let currentImageSize, focusedAreas[selectedViewModelIndex] == nil else {
+        guard let imageSize = imageSize(at: index), focusMessages[index] == nil else {
             return
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.5 : 0.0)) {
             /// If we have a pre-selected text—zoom into it
-            if let selectedBoundingBox {
-                focusedAreas[selectedViewModelIndex] = FocusedArea(boundingBox: selectedBoundingBox, imageSize: currentImageSize)
+            if let selectedBoundingBox, index == selectedImageIndex {
+                focusMessages[index] = FocusOnAreaMessage(boundingBox: selectedBoundingBox, imageSize: imageSize)
             } else {
-                focusedAreas[selectedViewModelIndex] = FocusedArea(
-                    boundingBox: textsForCurrentImage.boundingBox,
+                focusMessages[index] = FocusOnAreaMessage(
+                    boundingBox: texts(at: index).boundingBox,
+                    animated: animated,
                     padded: false,
-                    imageSize: currentImageSize
+                    imageSize: imageSize
                 )
             }
         }
@@ -289,6 +311,10 @@ extension TextPicker {
     //MARK: - Helpers
     var currentScanResultId: UUID? {
         imageViewModels[selectedViewModelIndex].scanResult?.id
+    }
+    
+    func imageSize(at index: Int) -> CGSize? {
+        imageViewModels[index].image?.size
     }
     
     var currentImage: UIImage? {
