@@ -17,7 +17,8 @@ struct TextPicker: View {
 //    @State var texts: [RecognizedText]
 
     @State var focusedAreas: [FocusedArea?] = []
-    
+    @State var savedFocusAreas: [FocusedArea?] = []
+
     @State var selectedViewModelIndex: Int = 0
 
     let selectedBoundingBox: CGRect?
