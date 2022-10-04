@@ -17,8 +17,9 @@ struct TextPicker: View {
 //    @State var texts: [RecognizedText]
 
     @State var focusMessages: [FocusOnAreaMessage?] = []
+    @State var didSendAnimatedFocusMessage: [Bool] = []
 
-    @State var selectedViewModelIndex: Int = 0
+    @State var currentIndex: Int = 0
 
     let selectedBoundingBox: CGRect?
     let onlyShowTextsWithValues: Bool
@@ -35,6 +36,7 @@ struct TextPicker: View {
     ) {
         self.imageViewModels = imageViewModels
         _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
+        _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.selectedImageIndex = selectedImageIndex
         self.selectedText = selectedText
@@ -108,14 +110,13 @@ extension TextPicker {
     //MARK: Thumbnail
     func thumbnail(at index: Int) -> some View {
         var isSelected: Bool {
-            selectedViewModelIndex == index
+            currentIndex == index
         }
         
         return Group {
             if let image = imageViewModels[index].image {
                 Button {
-                    pageToImage(at: index)
-                    Haptics.feedback(style: .rigid)
+                    didTapThumbnail(at: index)
                 } label: {
                     Image(uiImage: image)
                         .interpolation(.none)
@@ -254,21 +255,38 @@ extension TextPicker {
     }
     
     func pageToImage(at index: Int) {
-        let increment = index - selectedViewModelIndex
+        let increment = index - currentIndex
         withAnimation {
             page.update(.move(increment: increment))
         }
-        selectedViewModelIndex = index
+        currentIndex = index
         
         /// Reset the focusedAreas of the other images (after waiting for half a second for the paging animation to complete)
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            for i in 0..<imageViewModels.count {
-//                guard i != index else { continue }
-//                focusMessages[i] = nil
-//                sendZoomMessage(to: i)
-//            }
-//            sendZoomMessageToCurrentImage()
-//        }
+    }
+    
+    func didTapThumbnail(at index: Int) {
+        Haptics.feedback(style: .rigid)
+        pageToImage(at: index)
+        
+        /// wait till the page animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            
+            /// send the focus message to this page if we haven't sent the animated one yet
+            if !didSendAnimatedFocusMessage[index] {
+                sendFocusMessage(to: index, animated: true)
+            }
+            
+            /// send a (non-animated) focus message to all *other* pages that have already received an animated focus message
+            for i in 0..<imageViewModels.count {
+                guard i != index,
+                      didSendAnimatedFocusMessage[index]
+                else {
+                    continue
+                }
+                
+                sendFocusMessage(to: i, animated: false)
+            }
+        }
     }
     
     func appeared() {
@@ -276,10 +294,10 @@ extension TextPicker {
             pageToImage(at: selectedImageIndex)
         }
 
-        sendZoomMessage(to: selectedImageIndex ?? 0, animated: true)
+        sendFocusMessage(to: selectedImageIndex ?? 0, animated: true)
     }
     
-    func sendZoomMessage(to index: Int, animated: Bool) {
+    func sendFocusMessage(to index: Int, animated: Bool) {
         /// Make sure we're not already focused on an area of this image
         guard let imageSize = imageSize(at: index), focusMessages[index] == nil else {
             return
@@ -302,15 +320,15 @@ extension TextPicker {
     
     var textsForCurrentImage: [RecognizedText] {
         if onlyShowTextsWithValues {
-            return imageViewModels[selectedViewModelIndex].textsWithValues
+            return imageViewModels[currentIndex].textsWithValues
         } else {
-            return imageViewModels[selectedViewModelIndex].texts
+            return imageViewModels[currentIndex].texts
         }
     }
     
     //MARK: - Helpers
     var currentScanResultId: UUID? {
-        imageViewModels[selectedViewModelIndex].scanResult?.id
+        imageViewModels[currentIndex].scanResult?.id
     }
     
     func imageSize(at index: Int) -> CGSize? {
@@ -318,7 +336,7 @@ extension TextPicker {
     }
     
     var currentImage: UIImage? {
-        imageViewModels[selectedViewModelIndex].image
+        imageViewModels[currentIndex].image
     }
     var currentImageSize: CGSize? {
         currentImage?.size
