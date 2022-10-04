@@ -70,7 +70,13 @@ struct EnergyForm: View {
     }
     
     var header: some View {
-        Text("Enter or auto-fill a value")
+        let string: String
+        if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
+            string = "Enter or auto-fill a value"
+        } else {
+            string = ""
+        }
+        return Text(string)
     }
     
     var content: some View {
@@ -195,13 +201,13 @@ struct EnergyForm: View {
     }
     
     var textField: some View {
-//        TextField("Required", text: $string)
         TextField("Required", text: $fieldValueViewModel.fieldValue.energyValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
             .interactiveDismissDisabled()
-            .font(.largeTitle)
+            .font(fieldValueViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
+            .frame(minHeight: 50)
     }
     
     var unitLabel: some View {
