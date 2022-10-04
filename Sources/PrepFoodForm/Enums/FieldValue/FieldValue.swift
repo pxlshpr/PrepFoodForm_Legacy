@@ -3,7 +3,21 @@ import PrepUnits
 import FoodLabelScanner
 
 enum FieldValue: Hashable {
-    
+    case name(StringValue = StringValue())
+    case emoji(StringValue = StringValue(string: randomFoodEmoji()))
+    case brand(StringValue = StringValue())
+    case barcode(StringValue = StringValue())
+    case detail(StringValue = StringValue())
+    case amount(DoubleValue = DoubleValue(unit: .serving))
+    case serving(DoubleValue = DoubleValue(unit: .weight(.g)))
+    case density(DensityValue? = nil)
+    case energy(EnergyValue = EnergyValue())
+    case macro(MacroValue)
+    case micro(MicroValue)
+}
+
+//MARK: - MicroValue
+extension FieldValue {
     struct MicroValue: Hashable {
         var nutrientType: NutrientType
         var internalDouble: Double?
@@ -66,6 +80,11 @@ enum FieldValue: Hashable {
         }
     }
 
+
+}
+
+//MARK: MacroValue
+extension FieldValue {
     struct MacroValue: Hashable {
         var macro: Macro
         var internalDouble: Double?
@@ -121,6 +140,11 @@ enum FieldValue: Hashable {
         }
     }
     
+
+}
+
+//MARK: EnergyValue
+extension FieldValue {
     struct EnergyValue: Hashable {
         var internalDouble: Double?
         var internalString: String
@@ -141,6 +165,22 @@ enum FieldValue: Hashable {
             set {
                 internalDouble = newValue
                 internalString = newValue?.cleanAmount ?? ""
+            }
+        }
+        
+        /**
+         Returns the original energy `FoodLabelValue` that's associated with the image (ignoring any `altValue` that may have been filled that was generated from this.
+         
+         This is used when generating altValues for this value.
+        */
+        var originalImageValue: FoodLabelValue? {
+            switch fillType {
+            case .imageSelection(let recognizedText, _, _, _):
+                return recognizedText.string.energyValue
+            case .imageAutofill(let valueText, _, _):
+                return valueText.value
+            default:
+                return nil
             }
         }
         
@@ -175,7 +215,10 @@ enum FieldValue: Hashable {
         }
         
     }
-    
+}
+
+//MARK: DoubleValue
+extension FieldValue {
     struct DoubleValue: Hashable {
         var internalDouble: Double? = nil
         var internalString: String = ""
@@ -225,15 +268,10 @@ enum FieldValue: Hashable {
             double == nil
         }
     }
-    
-    struct DensityValue: Hashable {
-        static let DefaultWeight = DoubleValue(unit: .weight(.g))
-        static let DefaultVolume = DoubleValue(unit: .volume(.cup))
-        var weight = DefaultWeight
-        var volume = DefaultVolume
-        var fillType: FillType = .userInput
-    }
+}
 
+//MARK: StringValue
+extension FieldValue {
     struct StringValue: Hashable {
         var string: String = ""
         var fillType: FillType = .userInput
@@ -242,18 +280,27 @@ enum FieldValue: Hashable {
             string.isEmpty
         }
     }
-    
-    case name(StringValue = StringValue())
-    case emoji(StringValue = StringValue(string: randomFoodEmoji()))
-    case brand(StringValue = StringValue())
-    case barcode(StringValue = StringValue())
-    case detail(StringValue = StringValue())
-    case amount(DoubleValue = DoubleValue(unit: .serving))
-    case serving(DoubleValue = DoubleValue(unit: .weight(.g)))
-    case density(DensityValue? = nil)
-    case energy(EnergyValue = EnergyValue())
-    case macro(MacroValue)
-    case micro(MicroValue)
+}
+
+//MARK: DensityValue
+extension FieldValue {
+    struct DensityValue: Hashable {
+        static let DefaultWeight = DoubleValue(unit: .weight(.g))
+        static let DefaultVolume = DoubleValue(unit: .volume(.cup))
+        var weight = DefaultWeight
+        var volume = DefaultVolume
+        var fillType: FillType = .userInput
+    }
+}
+
+
+//MARK: - Helpers
+
+extension FieldValue {
+    init(micronutrient: NutrientType, fillType: FillType = .userInput) {
+        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
+        self = .micro(microValue)
+    }
 }
 
 extension FieldValue {
@@ -262,13 +309,6 @@ extension FieldValue {
             return true
         }
         return false
-    }
-}
-
-extension FieldValue {
-    init(micronutrient: NutrientType, fillType: FillType = .userInput) {
-        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
-        self = .micro(microValue)
     }
 }
 
@@ -359,10 +399,18 @@ extension FieldValue {
         }
     }
     
-    var nutritionUnit: NutritionUnit? {
+    var foodLabelUnit: FoodLabelUnit? {
         get {
-            //TODO: Do this
-            return nil
+            switch self {
+            case .energy:
+                return self.energyValue.unit.foodLabelUnit
+            case .macro:
+                return .g
+            case .micro:
+                return self.microValue.unit.foodLabelUnit
+            default:
+                return nil
+            }
         }
         set {
             switch self {
@@ -395,6 +443,16 @@ extension FieldValue {
         }
     }
     
+    var value: FoodLabelValue? {
+        switch self {
+        case .energy, .macro, .micro:
+            guard let amount = double else { return nil }
+            return FoodLabelValue(amount: amount, unit: foodLabelUnit)
+        default:
+            return nil
+        }
+    }
+    
     var double: Double? {
         get {
             switch self {
@@ -413,7 +471,7 @@ extension FieldValue {
         set {
             switch self {
             case .energy(let energyValue):
-                self = .energy(EnergyValue(double: newValue, string: energyValue.string, unit: energyValue.unit, fillType: energyValue.fillType))
+                self = .energy(EnergyValue(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyValue.unit, fillType: energyValue.fillType))
             default:
                 break
 //            case .macro(let macroValue):
@@ -710,4 +768,30 @@ func randomFoodEmoji() -> String {
         return "🥕"
     }
     return String(character)
+}
+
+extension NutrientUnit {
+    var foodLabelUnit: FoodLabelUnit? {
+        switch self {
+        case .g:
+            return .g
+        case .mcg, .mcgDFE, .mcgRAE:
+            return .mcg
+        case .mg, .mgAT, .mgNE:
+            return .mg
+        default:
+            return nil
+        }
+    }
+}
+
+extension EnergyUnit {
+    var foodLabelUnit: FoodLabelUnit? {
+        switch self {
+        case .kcal:
+            return .kcal
+        case .kJ:
+            return .kj
+        }
+    }
 }

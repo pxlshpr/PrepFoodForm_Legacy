@@ -2,14 +2,20 @@ import SwiftUI
 import PhotosUI
 import FoodLabelScanner
 import VisionSugar
+import ZoomableScrollView
 
 class ImageViewModel: ObservableObject {
     
     @Published var status: ImageStatus
     @Published var image: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
-    var scanResult: ScanResult? = nil
     
+    @Published var focusedArea: FocusedArea?
+
+    var scanResult: ScanResult? = nil
+    var texts: [RecognizedText] = []
+    var textsWithValues: [RecognizedText] = []
+
     init(_ image: UIImage) {
         self.image = image
         self.status = .notClassified
@@ -44,9 +50,10 @@ class ImageViewModel: ObservableObject {
             
             
             Task {
-                let results = try await FoodLabelScanner(image: image).scan()
+                let result = try await FoodLabelScanner(image: image).scan()
                 
-                self.scanResult = results
+                self.scanResult = result
+                self.textsWithValues = result.texts.filter({ !$0.string.values.isEmpty })
                 
                 await MainActor.run {
                     self.status = .classified

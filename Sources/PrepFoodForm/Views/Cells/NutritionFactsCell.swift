@@ -34,50 +34,6 @@ extension FoodForm.NutritionFactsCell {
     }
 }
 
-extension FoodFormViewModel: FoodLabelDataSource {
-    
-    public var nutrients: [NutrientType : Double] {
-        var nutrients: [NutrientType : Double] = [:]
-        for (_, fieldValueViewModels) in micronutrients {
-            for fieldValueViewModel in fieldValueViewModels {
-                guard case .micro = fieldValueViewModel.fieldValue else {
-                    continue
-                }
-                nutrients[fieldValueViewModel.fieldValue.microValue.nutrientType] = fieldValueViewModel.fieldValue.double
-            }
-        }
-        return nutrients
-    }
-    
-    public var showFooterText: Bool {
-        false
-    }
-    
-    public var showRDAValues: Bool {
-        false
-    }
-    
-    public var amountPerString: String {
-        amountDescription
-    }
-    
-    public var carbAmount: Double {
-        carbViewModel.fieldValue.double ?? 0
-    }
-    
-    public var proteinAmount: Double {
-        proteinViewModel.fieldValue.double ?? 0
-    }
-    
-    public var fatAmount: Double {
-        fatViewModel.fieldValue.double ?? 0
-    }
-    
-    public var energyAmount: Double {
-        energyViewModel.fieldValue.double ?? 0
-    }
-}
-
 //MARK: - Preview
 
 public struct NutritionFactsCellPreview: View {

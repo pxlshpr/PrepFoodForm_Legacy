@@ -61,6 +61,10 @@ public struct FoodForm: View {
                         viewModel.showingEmojiPicker = false
                     }
                 }
+                /// These are requird to update the `FoodLabel` as a view update isn't triggered otherwise
+                .onReceive(viewModel.energyViewModel.$fieldValue) { publisher in
+                    viewModel.energyValue = viewModel.energyViewModel.fieldValue.value ?? .zero
+                }
         }
     }
     
@@ -74,16 +78,16 @@ public struct FoodForm: View {
                 .overlay(
                     Color(.quaternarySystemFill)
                         .opacity(viewModel.showingWizard ? 0.3 : 0)
-//                        .onTapGesture {
-//                            Haptics.successFeedback()
-//                            withAnimation(wizardAnimation) {
-//                                showingWizard = false
-//                            }
-//                        }
+                    //                        .onTapGesture {
+                    //                            Haptics.successFeedback()
+                    //                            withAnimation(wizardAnimation) {
+                    //                                showingWizard = false
+                    //                            }
+                    //                        }
                 )
                 .blur(radius: viewModel.showingWizard ? 5 : 0)
                 .disabled(viewModel.showingWizard)
-//            dismissTapGesture
+            //            dismissTapGesture
             wizard
             VStack {
                 Spacer()
@@ -108,18 +112,18 @@ public struct FoodForm: View {
                 Form {
                     manualEntrySection
                     imageSection
-//                    simulateSection
+                    //                    simulateSection
                     thirdPartyFoodSection
                 }
-//                .scrollContentBackground(.hidden)
-//                .background(Color(.secondarySystemGroupedBackground))
+                //                .scrollContentBackground(.hidden)
+                //                .background(Color(.secondarySystemGroupedBackground))
                 .cornerRadius(20)
                 .frame(height: 400)
                 .frame(maxWidth: 350)
                 .padding(.horizontal, 30)
                 .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
                 .opacity(viewModel.showingWizard ? 1 : 0)
-    //            .padding(.bottom)
+                //            .padding(.bottom)
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
@@ -153,11 +157,11 @@ public struct FoodForm: View {
                     }
                 }
             }
-//            .background(Color(.systemGroupedBackground))
+            //            .background(Color(.systemGroupedBackground))
             .background(.thinMaterial)
         }
     }
-
+    
     @ViewBuilder
     var form: some View {
         Form {
@@ -208,7 +212,7 @@ public struct FoodForm: View {
                 .onDisappear {
                     if viewModel.isScanning {
                         //TODO: Change this to new navigation layout
-//                        viewModel.path.append(.foodForm)
+                        //                        viewModel.path.append(.foodForm)
                     }
                 }
         }
@@ -224,7 +228,7 @@ public struct FoodForm: View {
         }
         .buttonStyle(.borderless)
     }
-
+    
     var simulateSection: some View {
         Section {
             simulateButton
@@ -233,7 +237,7 @@ public struct FoodForm: View {
     
     var simulateButton: some View {
         Button {
-//            viewModel.simulateImageSelection()
+            //            viewModel.simulateImageSelection()
             viewModel.simulateImageClassification([9])
         } label: {
             Label("Mock Photos", systemImage: "wand.and.rays")
@@ -242,7 +246,7 @@ public struct FoodForm: View {
         }
         .buttonStyle(.borderless)
     }
-
+    
     var photosPickerButton: some View {
         PhotosPicker(selection: $selectedPhotos,
                      maxSelectionCount: 5,
@@ -274,7 +278,7 @@ public struct FoodForm: View {
         return Section(header: header, footer: footer) {
             Button {
                 viewModel.showingThirdPartySearch = true
-//                viewModel.simulateThirdPartyImport()
+                //                viewModel.simulateThirdPartyImport()
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
                     .foregroundColor(.primary)
@@ -359,7 +363,7 @@ public struct FoodForm: View {
     }
     
     var foodLabelScanCell: some View {
-//        Label("Scan food label", systemImage: "text.viewfinder")
+        //        Label("Scan food label", systemImage: "text.viewfinder")
         HStack {
             Text("Scan food label")
             Spacer()

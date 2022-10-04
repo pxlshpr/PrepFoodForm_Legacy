@@ -1,5 +1,6 @@
 import SwiftUI
 import ActivityIndicatorView
+import ZoomableScrollView
 
 struct SourceImageView: View {
     

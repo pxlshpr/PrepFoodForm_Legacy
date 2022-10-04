@@ -1,7 +1,8 @@
 import FoodLabelScanner
+import PrepUnits
 
 extension FieldValue {
-    var altValues: [Value] {
+    var altValues: [FoodLabelValue] {
 //        guard !fillType.isAltValue else { return [] }
         switch self {
         case .energy(let energyValue):
@@ -33,22 +34,23 @@ extension FieldValue {
 }
 
 extension FieldValue.EnergyValue {
-    var altValues: [Value] {
-        guard let double else { return [] }
+    var altValues: [FoodLabelValue] {
+        guard let originalImageValue else { return [] }
         
         /// First add the opposite unit
-        var values: [Value] = []
+        var values: [FoodLabelValue] = []
+        let unit = originalImageValue.unit?.energyUnit ?? .kcal
         switch unit {
         case .kJ:
-            values.append(Value(amount: double, unit: .kcal))
+            values.append(FoodLabelValue(amount: originalImageValue.amount, unit: .kcal))
         case .kcal:
-            values.append(Value(amount: double, unit: .kj))
+            values.append(FoodLabelValue(amount: originalImageValue.amount, unit: .kj))
         }
         
         /// Add any other values that were found
         for value in fillType.detectedValues {
             guard value.amount != double else { continue }
-            values.append(Value(amount: value.amount, unit: value.unit?.isEnergy == true ? value.unit : nil))
+            values.append(FoodLabelValue(amount: value.amount, unit: value.unit?.isEnergy == true ? value.unit : nil))
         }
         
         return values

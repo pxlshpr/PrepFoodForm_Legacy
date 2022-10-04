@@ -4,6 +4,7 @@ import SwiftUISugar
 import MFPScraper
 import SwiftHaptics
 import FoodLabelScanner
+import FoodLabel
 
 public class FoodFormViewModel: ObservableObject {
     
@@ -49,7 +50,10 @@ public class FoodFormViewModel: ObservableObject {
 
     //MARK: Density
     @Published var densityViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: FieldValue.density())
-    
+
+    /// These are used for the FoodLabel
+    @Published public var energyValue: FoodLabelValue = .zero
+
     //MARK: Nutrition Facts
     @Published var energyViewModel: FieldValueViewModel = .init(fieldValue: .energy())
     @Published var carbViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
@@ -292,4 +296,53 @@ extension MFPProcessedFood {
             print(error)
         }
     }
+}
+
+
+extension FoodFormViewModel: FoodLabelDataSource {
+    
+    public var allowTapToChangeEnergyUnit: Bool {
+        false
+    }
+    
+    public var nutrients: [NutrientType : Double] {
+        var nutrients: [NutrientType : Double] = [:]
+        for (_, fieldValueViewModels) in micronutrients {
+            for fieldValueViewModel in fieldValueViewModels {
+                guard case .micro = fieldValueViewModel.fieldValue else {
+                    continue
+                }
+                nutrients[fieldValueViewModel.fieldValue.microValue.nutrientType] = fieldValueViewModel.fieldValue.double
+            }
+        }
+        return nutrients
+    }
+    
+    public var showFooterText: Bool {
+        false
+    }
+    
+    public var showRDAValues: Bool {
+        false
+    }
+    
+    public var amountPerString: String {
+        amountDescription
+    }
+    
+    public var carbAmount: Double {
+        carbViewModel.fieldValue.double ?? 0
+    }
+    
+    public var proteinAmount: Double {
+        proteinViewModel.fieldValue.double ?? 0
+    }
+    
+    public var fatAmount: Double {
+        fatViewModel.fieldValue.double ?? 0
+    }
+    
+//    public var energyAmount: Double {
+//        energyViewModel.fieldValue.double ?? 0
+//    }
 }

@@ -54,8 +54,8 @@ extension MFPFoodView.ViewModel: FoodLabelDataSource {
         }
     }
     
-    var energyAmount: Double {
-        processedFood?.energy ?? 0
+    var energyValue: FoodLabelValue {
+        FoodLabelValue(amount: processedFood?.energy ?? 0, unit: .kcal)
     }
     
     var carbAmount: Double {

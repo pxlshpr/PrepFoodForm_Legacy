@@ -230,7 +230,7 @@ extension ScanResult {
     }
 }
 
-extension NutritionUnit {
+extension FoodLabelUnit {
     var nutrientUnit: NutrientUnit? {
         switch self {
         case .mcg:

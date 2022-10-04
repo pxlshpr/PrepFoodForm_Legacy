@@ -13,8 +13,8 @@ struct EnergyForm: View {
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     //    @Binding var fieldValue: FieldValue
     
-    @State var string: String
-    @State var energyUnit: EnergyUnit
+//    @State var string: String
+//    @State var energyUnit: EnergyUnit
     
     @State var showingFilledText = false
     @State var showingTextPicker = false
@@ -22,8 +22,8 @@ struct EnergyForm: View {
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
         //        _fieldValue = fieldValue
-        _string = State(initialValue: fieldValueViewModel.fieldValue.energyValue.string)
-        _energyUnit = State(initialValue: fieldValueViewModel.fieldValue.energyValue.unit)
+//        _string = State(initialValue: fieldValueViewModel.fieldValue.energyValue.string)
+//        _energyUnit = State(initialValue: fieldValueViewModel.fieldValue.energyValue.unit)
     }
     
     var fieldValue: FieldValue {
@@ -35,13 +35,16 @@ struct EnergyForm: View {
         content
             .scrollDismissesKeyboard(.never)
             .navigationTitle(fieldValue.description)
-            .onChange(of: string) { newValue in
+//            .onChange(of: string) { newValue in
+            .onChange(of: fieldValue.energyValue.string) { newValue in
                 guard !isFilling else { return }
+                
                 withAnimation {
-                    fieldValueViewModel.fieldValue.energyValue.fillType = .userInput
+                    fieldValueViewModel.registerUserInput()
                 }
             }
-            .onChange(of: energyUnit) { newValue in
+//            .onChange(of: energyUnit) { newValue in
+            .onChange(of: fieldValue.energyValue.unit) { newValue in
                 guard !isFilling, unitChangeShouldRegisterAsUserInput else { return }
                 /// This will only trigger a change of the fillType to `.userInput`, if the `energyValue` of the text has an energy unit
                 withAnimation {
@@ -57,8 +60,9 @@ struct EnergyForm: View {
     }
     
     var unitChangeShouldRegisterAsUserInput: Bool {
-        
+
         if let energyValue = fieldValue.fillType.energyValue {
+//        if let energyValue = fieldValue.fillType.energyValue {
             /// If it does not have an energy unit, then a unit change should not register as user input
             return energyValue.unit?.isEnergy == true
         }
@@ -111,9 +115,9 @@ struct EnergyForm: View {
     func changeFillType(to fillType: FillType) {
         isFilling = true
         switch fillType {
-        case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
+        case .imageSelection(let text, _, _, let value):
             changeFillTypeToSelection(of: text, withAltValue: value)
-        case .imageAutofill(let valueText, scanResultId: _, value: let value):
+        case .imageAutofill(let valueText, _, value: let value):
             changeFillTypeToAutofill(of: valueText, withAltValue: value)
         default:
             break
@@ -130,11 +134,11 @@ struct EnergyForm: View {
     func setNew(amount: Double, unit: EnergyUnit) {
         fieldValueViewModel.fieldValue.double = amount
         fieldValueViewModel.fieldValue.energyValue.unit = unit
-        string = amount.cleanAmount
-        energyUnit = unit
+//        string = amount.cleanAmount
+//        energyUnit = unit
     }
     
-    func setNewValue(_ value: Value) {
+    func setNewValue(_ value: FoodLabelValue) {
         setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
         //        fieldValueViewModel.fieldValue.double = value.amount
         //        fieldValueViewModel.fieldValue.nutritionUnit = value.unit
@@ -142,7 +146,7 @@ struct EnergyForm: View {
         //        energyUnit = value.unit?.energyUnit ?? .kcal
     }
     
-    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
+    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
         let value = altValue ?? valueText.value
         setNewValue(value)
 
@@ -152,7 +156,7 @@ struct EnergyForm: View {
         }
     }
 
-    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: Value?) {
+    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
         guard let value = altValue ?? text.string.values.first else {
             return
         }
@@ -191,7 +195,8 @@ struct EnergyForm: View {
     }
     
     var textField: some View {
-        TextField("Required", text: $string)
+//        TextField("Required", text: $string)
+        TextField("Required", text: $fieldValueViewModel.fieldValue.energyValue.string)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -200,7 +205,7 @@ struct EnergyForm: View {
     }
     
     var unitLabel: some View {
-        Picker("", selection: $energyUnit) {
+        Picker("", selection: $fieldValueViewModel.fieldValue.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
@@ -212,12 +217,17 @@ struct EnergyForm: View {
     
     //MARK: TextPicker
     
+    var selectedImageIndex: Int? {
+        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
+    }
+    
     var textPicker: some View {
         TextPicker(
-            texts: viewModel.texts(for: fieldValueViewModel.fieldValue),
+            imageViewModels: viewModel.imageViewModels,
             selectedText: fieldValue.fillType.text,
-            selectedBoundingBox: fieldValue.fillType.boundingBoxForImagePicker
-            
+            selectedImageIndex: selectedImageIndex,
+            selectedBoundingBox: fieldValue.fillType.boundingBoxForImagePicker,
+            onlyShowTextsWithValues: true
         ) { text, scanResultId in
             
             guard let value = text.string.values.first else {
@@ -239,7 +249,6 @@ struct EnergyForm: View {
                 fieldValueViewModel.isCroppingNextImage = true
             }
         }
-        .environmentObject(viewModel)
         .onDisappear {
             guard fieldValueViewModel.isCroppingNextImage else {
                 return
@@ -279,8 +288,8 @@ struct EnergyForm_Previews: PreviewProvider {
 
 extension String {
     
-    var values: [Value] {
-        Value.detect(in: self)
+    var values: [FoodLabelValue] {
+        FoodLabelValue.detect(in: self)
     }
 }
 

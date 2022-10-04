@@ -121,7 +121,7 @@ struct FillOptionSections: View {
             }
         }
         .sheet(isPresented: $showingAutofillInfo) {
-            AutofillInfo()
+            AutofillInfoSheet()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
         }
@@ -177,7 +177,7 @@ struct FillOptionSections: View {
     }
 }
 
-struct AutofillInfo: View {
+struct AutofillInfoSheet: View {
     var body: some View {
         Text("Talk about autofill here")
     }
@@ -209,7 +209,7 @@ extension FoodFormViewModel {
     }
 }
 
-extension Value: CustomStringConvertible {
+extension FoodLabelValue: CustomStringConvertible {
     public var fillOptionString: String {
         if let unit = unit {
             return "\(amount.cleanAmount) \(unit.description)"
@@ -220,7 +220,7 @@ extension Value: CustomStringConvertible {
 }
 
 extension FieldValue {
-    func matchesFieldValue(_ fieldValue: FieldValue, withValue value: Value?) -> Bool {
+    func matchesFieldValue(_ fieldValue: FieldValue, withValue value: FoodLabelValue?) -> Bool {
         var selfWithValue = self
         selfWithValue.fillType.value = value
         return selfWithValue == fieldValue
@@ -233,10 +233,18 @@ enum FillOptionType: Hashable {
 }
 
 extension String {
-    var energyValue: Value? {
-        let values = Value.detect(in: self)
+    var energyValue: FoodLabelValue? {
+        let values = FoodLabelValue.detect(in: self)
         /// Returns the first energy value detected, otherwise the first value regardless of the unit
-        return values.first(where: { $0.unit?.isEnergy == true }) ?? values.first
+        let value = values.first(where: { $0.unit?.isEnergy == true }) ?? values.first
+        
+        if let value, value.unit != .kj {
+            ///  Always set the unit to kcal as a fallback for energy values
+            return FoodLabelValue(amount: value.amount, unit: .kcal)
+        }
+        
+        /// This would either be `nil` for `FoodLabelValue` with an energy unit
+        return value
     }
     
     var energyValueDescription: String {
@@ -283,7 +291,7 @@ extension FieldValue {
     }
 }
 
-//TODO: Write an extension on FieldValue or RecognizedText that provides alternative `Value`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
+//TODO: Write an extension on FieldValue or RecognizedText that provides alternative `FoodLabelValue`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
 
 //MARK: FFVM + FillOptions Helpers
 extension FoodFormViewModel {
@@ -350,26 +358,25 @@ extension FoodFormViewModel {
     }
     
     func availableTexts(for fieldValue: FieldValue) -> [RecognizedText] {
-        var texts: [RecognizedText] = []
-        for scanResult in scanResults {
-            let filtered = scanResult.texts.filter {
-                isNotUsingText($0) && $0.isFillOptionFor(fieldValue)
-            }
-            texts.append(contentsOf: filtered)
+        var availableTexts: [RecognizedText] = []
+        for imageViewModel in imageViewModels {
+            let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithValues : imageViewModel.texts
+            let filtered = texts.filter { isNotUsingText($0) }
+            availableTexts.append(contentsOf: filtered)
         }
-        return texts
+        return availableTexts
     }
 
-    func texts(for fieldValue: FieldValue) -> [RecognizedText] {
-        var texts: [RecognizedText] = []
-        for scanResult in scanResults {
-            let filtered = scanResult.texts.filter {
-                $0.isFillOptionFor(fieldValue)
-            }
-            texts.append(contentsOf: filtered)
-        }
-        return texts
-    }
+//    func texts(for fieldValue: FieldValue) -> [RecognizedText] {
+//        var texts: [RecognizedText] = []
+//        for scanResult in scanResults {
+//            let filtered = scanResult.texts.filter {
+//                $0.isFillOptionFor(fieldValue)
+//            }
+//            texts.append(contentsOf: filtered)
+//        }
+//        return texts
+//    }
 
     func isNotUsingText(_ text: RecognizedText) -> Bool {
         fieldValueUsing(text: text) == nil
@@ -384,28 +391,39 @@ extension FoodFormViewModel {
     }
 }
 
-extension RecognizedText {
-    /// Returns true ift his recognized text is a possible `FillOption` for the provided `FieldValue`
-    func isFillOptionFor(_ fieldValue: FieldValue) -> Bool {
-        switch fieldValue {
-        case .energy, .macro, .micro:
-            return containsNumber
-        case .amount:
-            //TODO: Revisit this
+extension FieldValue {
+    var usesValueBasedTexts: Bool {
+        switch self {
+        case .amount, .serving, .density, .energy, .macro, .micro:
             return true
-        case .serving:
-            //TODO: Revisit this
-            return true
-        case .density:
-            return false
         default:
-            return true
+            return false
         }
     }
-    
-    var containsNumber: Bool {
-        string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
-    }
+}
+
+extension RecognizedText {
+//    /// Returns true ift his recognized text is a possible `FillOption` for the provided `FieldValue`
+//    func isFillOptionFor(_ fieldValue: FieldValue) -> Bool {
+//        switch fieldValue {
+//        case .energy, .macro, .micro:
+//            return containsNumber
+//        case .amount:
+//            //TODO: Revisit this
+//            return true
+//        case .serving:
+//            //TODO: Revisit this
+//            return true
+//        case .density:
+//            return false
+//        default:
+//            return true
+//        }
+//    }
+//    
+//    var containsNumber: Bool {
+//        string.matchesRegex(#"(^|[ ]+)[0-9]+"#)
+//    }
 }
 
 //MARK: - Preview

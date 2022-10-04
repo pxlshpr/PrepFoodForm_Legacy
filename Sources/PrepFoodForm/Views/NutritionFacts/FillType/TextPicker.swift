@@ -3,24 +3,40 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
+import ZoomableScrollView
 
 struct TextPicker: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var viewModel: FoodFormViewModel
+//    @EnvironmentObject var viewModel: FoodFormViewModel
+    
+    var imageViewModels: [ImageViewModel]
     
     @State var tappedText: RecognizedText? = nil
     
     @State var page: Page = .first()
-    @State var texts: [RecognizedText]
+//    @State var texts: [RecognizedText]
 
+    @State var focusedAreas: [FocusedArea?] = []
+    
     @State var selectedViewModelIndex: Int = 0
 
     let selectedBoundingBox: CGRect?
+    let onlyShowTextsWithValues: Bool
+    let selectedImageIndex: Int?
     let selectedText: RecognizedText?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
     
-    init(texts: [RecognizedText] = [], selectedText: RecognizedText? = nil, selectedBoundingBox: CGRect? = nil, didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void) {
-        _texts = State(initialValue: texts)
+    init(imageViewModels: [ImageViewModel],
+         selectedText: RecognizedText? = nil,
+         selectedImageIndex: Int? = nil,
+         selectedBoundingBox: CGRect? = nil,
+         onlyShowTextsWithValues: Bool = false,
+         didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void
+    ) {
+        self.imageViewModels = imageViewModels
+        _focusedAreas = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
+        self.onlyShowTextsWithValues = onlyShowTextsWithValues
+        self.selectedImageIndex = selectedImageIndex
         self.selectedText = selectedText
         if let selectedBoundingBox {
             self.selectedBoundingBox = selectedBoundingBox
@@ -55,7 +71,7 @@ extension TextPicker {
         ToolbarItemGroup(placement: .bottomBar) {
             Spacer()
             HStack {
-                ForEach(viewModel.imageViewModels.indices, id: \.self) { index in
+                ForEach(imageViewModels.indices, id: \.self) { index in
                     thumbnail(at: index)
                 }
             }
@@ -67,7 +83,7 @@ extension TextPicker {
     //MARK: Pager
     var pager: some View {
         Pager(page: page,
-              data: viewModel.imageViewModels,
+              data: imageViewModels,
               id: \.hashValue,
               content: { imageViewModel in
             zoomableScrollView(for: imageViewModel)
@@ -77,16 +93,26 @@ extension TextPicker {
 //        .interactive(scale: 0.7)
 //        .interactive(opacity: 0.99)
         .onPageWillChange(pageWillChange(to:))
-//        .onPageChanged(controller.pageChanged(to:)) //TODO: Remove this if it is not needed anymore
+        .onPageChanged(pageChanged(to:))
     }
     
+    @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
-        ZoomableScrollView {
-            imageView(for: imageViewModel)
+        if let index = imageViewModels.firstIndex(of: imageViewModel) {
+            ZoomableScrollView(focusedArea: $focusedAreas[index]) {
+                imageView(for: imageViewModel)
+            }
         }
     }
     
     //MARK: Thumbnail
+    func pageToImage(at index: Int) {
+        let increment = index - selectedViewModelIndex
+        withAnimation {
+            page.update(.move(increment: increment))
+        }
+        selectedViewModelIndex = index
+    }
     
     func thumbnail(at index: Int) -> some View {
         var isSelected: Bool {
@@ -94,14 +120,10 @@ extension TextPicker {
         }
         
         return Group {
-            if let image = viewModel.imageViewModels[index].image {
+            if let image = imageViewModels[index].image {
                 Button {
-                    let increment = index - selectedViewModelIndex
-                    withAnimation {
-                        page.update(.move(increment: increment))
-                    }
+                    pageToImage(at: index)
                     Haptics.feedback(style: .rigid)
-                    selectedViewModelIndex = index
                 } label: {
                     Image(uiImage: image)
                         .interpolation(.none)
@@ -123,10 +145,17 @@ extension TextPicker {
 
     //MARK: - Boxes
     
+    func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
+        if onlyShowTextsWithValues {
+            return imageViewModel.textsWithValues
+        } else {
+            return imageViewModel.texts
+        }
+    }
     func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
-                ForEach(texts, id: \.self) { text in
+                ForEach(texts(for: imageViewModel), id: \.self) { text in
                     if selectedText?.id != text.id {
                         boxLayer(for: text, inSize: geometry.size)
                     }
@@ -139,7 +168,7 @@ extension TextPicker {
     
     @ViewBuilder
     func boxLayerForSelectedText(inSize size: CGSize) -> some View {
-        if let selectedBoundingBox {
+        if let selectedBoundingBox, let selectedImageIndex, selectedImageIndex == selectedViewModelIndex {
             boxLayer(boundingBox: selectedBoundingBox, inSize: size, color: .accentColor) {
                 dismiss()
             }
@@ -210,31 +239,59 @@ extension TextPicker {
 
     //MARK: - Actions
     func pageWillChange(to pageIndex: Int) {
+//        resetZoom()
         withAnimation {
             selectedViewModelIndex = pageIndex
         }
     }
     
+    func pageChanged(to pageIndex: Int) {
+        zoomIfApplicable()
+    }
+    
     func appeared() {
-        /// If we have a pre-selected text—zoom into it
-        if let selectedBoundingBox, let currentImageSize {
-            let userInfo: [String: Any] = [
-                Notification.Keys.boundingBox: selectedBoundingBox,
-                Notification.Keys.imageSize: currentImageSize,
-            ]
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                NotificationCenter.default.post(name: .scrollZoomableScrollViewToRect, object: nil, userInfo: userInfo)
+        if let selectedImageIndex {
+            pageToImage(at: selectedImageIndex)
+        }
+        
+        zoomIfApplicable()
+    }
+    
+    func zoomIfApplicable() {
+        /// Make sure we're not already focused on an area of this image
+        guard let currentImageSize, focusedAreas[selectedViewModelIndex] == nil else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            /// If we have a pre-selected text—zoom into it
+            if let selectedBoundingBox {
+                focusedAreas[selectedViewModelIndex] = FocusedArea(boundingBox: selectedBoundingBox, imageSize: currentImageSize)
+            } else {
+                focusedAreas[selectedViewModelIndex] = FocusedArea(
+                    boundingBox: textsForCurrentImage.boundingBox,
+                    padded: false,
+                    imageSize: currentImageSize
+                )
             }
+        }
+    }
+    
+    var textsForCurrentImage: [RecognizedText] {
+        if onlyShowTextsWithValues {
+            return imageViewModels[selectedViewModelIndex].textsWithValues
+        } else {
+            return imageViewModels[selectedViewModelIndex].texts
         }
     }
     
     //MARK: - Helpers
     var currentScanResultId: UUID? {
-        viewModel.imageViewModels[selectedViewModelIndex].scanResult?.id
+        imageViewModels[selectedViewModelIndex].scanResult?.id
     }
     
     var currentImage: UIImage? {
-        viewModel.imageViewModels[selectedViewModelIndex].image
+        imageViewModels[selectedViewModelIndex].image
     }
     var currentImageSize: CGSize? {
         currentImage?.size
@@ -255,7 +312,7 @@ public struct ImageTextPickerPreview: View {
         let fieldValue = FieldValue.energy()
         _fieldValue = State(initialValue: fieldValue)
         
-        let text = viewModel.texts(for: fieldValue).first(where: { $0.id == UUID(uuidString: "AC10E3D9-E7D6-4510-B555-8A3F52F7B8F2")!})!
+        let text = viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "AC10E3D9-E7D6-4510-B555-8A3F52F7B8F2")!})!
         _selectedText = State(initialValue: text)
     }
     
@@ -274,8 +331,7 @@ public struct ImageTextPickerPreview: View {
     @State var selectedText: RecognizedText
     
     var imageTextPicker: some View {
-        TextPicker(texts: viewModel.texts(for: fieldValue), selectedText: selectedText)
-        { text, ouputId in
+        TextPicker(imageViewModels: viewModel.imageViewModels, selectedText: selectedText) { text, ouputId in
         }
         .environmentObject(viewModel)
     }
@@ -302,4 +358,25 @@ extension FoodFormViewModel {
         imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
     }
     
+}
+
+extension Array where Element == RecognizedText {
+    var boundingBox: CGRect {
+        guard !isEmpty else { return .zero }
+        return reduce(.null) { partialResult, text in
+            partialResult.union(text.boundingBox)
+        }
+    }
+    
+//    var boundingBoxUsingReduction: CGRect {
+//
+//    }
+//
+//    var boundingBoxUsingCorners: CGRect {
+//
+//    }
+//
+//    var topLeft: CGRect {
+//        self.so
+//    }
 }

@@ -8,7 +8,7 @@ extension FoodFormViewModel {
         
         /// Detected text option (if its available) + its alts
         fillOptions.append(contentsOf: autofillOptions(for: fieldValue))
-        fillOptions.append(contentsOf: selectionOptions(for: fieldValue))
+        fillOptions.append(contentsOf: fieldValue.selectionFillOptions)
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
         fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
         if let chooseOption = chooseOption(for: fieldValue) {
@@ -51,40 +51,6 @@ extension FoodFormViewModel {
         return fillOptions
     }
 
-    //MARK: Image Selection
-    func selectionOptions(for fieldValue: FieldValue) -> [FillOption] {
-        /// Selected text option (if its available) + its alts
-        guard case .imageSelection(let primaryText, let scanResultId, supplementaryTexts: let supplementaryTexts, value: let value) = fieldValue.fillType else {
-            return []
-        }
-
-        var fillOptions: [FillOption] = []
-        /// Add options for the text and each of the supplementary texts here (in case of string values where we have multiple texts attached with our image selection fill type
-        for text in ([primaryText] + supplementaryTexts) {
-            fillOptions.append(
-                FillOption(
-                    string: text.fillButtonString(for: fieldValue),
-                    systemImage: FillType.SystemImage.imageSelection,
-                    isSelected: value == nil, /// only shows as selected if we haven't selected one of the altValue's generated for this text
-                    type: .fillType(fieldValue.fillType)
-                )
-            )
-        }
-        //TODO: If we have a `value` set—and `altValues` doesn't contain it anymore—(if our code that generates it changes for example); create an option to show that it is selected here anyway.
-        
-        for altValue in fieldValue.altValues {
-            fillOptions.append(
-                FillOption(
-                    string: altValue.fillOptionString,
-                    systemImage: FillType.SystemImage.imageSelection,
-                    isSelected: fieldValue.fillType.value == altValue,
-                    type: .fillType(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: altValue))
-                )
-            )
-        }
-        return fillOptions
-    }
-    
     //MARK: Prefill
     
     func prefillOptions(for fieldValue: FieldValue) -> [FillOption] {
