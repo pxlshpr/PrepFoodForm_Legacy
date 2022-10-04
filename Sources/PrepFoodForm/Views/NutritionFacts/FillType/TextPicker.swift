@@ -304,6 +304,10 @@ extension TextPicker {
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.5 : 0.0)) {
+            if animated {
+                didSendAnimatedFocusMessage[index] = true
+            }
+            
             /// If we have a pre-selected text—zoom into it
             if let selectedBoundingBox, index == selectedImageIndex {
                 focusMessages[index] = FocusOnAreaMessage(boundingBox: selectedBoundingBox, imageSize: imageSize)
