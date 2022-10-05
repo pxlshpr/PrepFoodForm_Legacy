@@ -46,7 +46,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
     
     @ViewBuilder
     var fillButton: some View {
-        if viewModel.shouldShowFillButton {
+        if viewModel.hasNonUserInputFills {
             Button {
                 Haptics.feedback(style: .soft)
                 showingSheet = true

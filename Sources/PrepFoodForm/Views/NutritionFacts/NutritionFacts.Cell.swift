@@ -92,13 +92,17 @@ extension FoodForm.NutritionFacts.Cell {
         .foregroundColor(fieldValue.labelColor(for: colorScheme))
     }
     
+    var isEmpty: Bool {
+        fieldValue.double == nil
+    }
+    
     var bottomRow: some View {
 //        HStack(alignment: .bottom) {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(fieldValue.amountString)
                     .foregroundColor(fieldValue.amountColor)
                     .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-                if fieldValue.double != nil {
+                if !isEmpty {
                     Text(fieldValue.unitString)
                         .font(.system(size: 17, weight: .semibold, design: .rounded))
                         .bold()
@@ -112,7 +116,7 @@ extension FoodForm.NutritionFacts.Cell {
     
     @ViewBuilder
     var fillTypeIcon: some View {
-        if viewModel.shouldShowFillButton {
+        if viewModel.hasNonUserInputFills, !isEmpty {
             Image(systemName: fieldValue.fillType.iconSystemImage)
 //        Image(systemName: "text.viewfinder")
                 .foregroundColor(Color(.secondaryLabel))

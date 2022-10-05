@@ -4,6 +4,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUISugar
+import Introspect
 
 struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -13,43 +14,64 @@ struct EnergyForm: View {
     @FocusState var isFocused: Bool
     @State var showingFilledText = false
     @State var showingTextPicker = false
-    @State var isFilling: Bool
-    
+    @State var doNotRegisterUserInput: Bool
+
+    @State var uiTextField: UITextField? = nil
+    @State var hasBecomeFirstResponder: Bool = false
     @State var resetIsFillingTask: Task<(), any Error>? = nil
     
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
-        _isFilling = State(initialValue: !fieldValueViewModel.fieldValue.energyValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.energyValue.string.isEmpty)
     }
 }
 
 //MARK: - Views
 extension EnergyForm {
     var body: some View {
-        content
-            .scrollDismissesKeyboard(.never)
-            .navigationTitle(fieldValue.description)
-//            .onChange(of: fieldValue.energyValue.string) { newValue in
-//                guard !isFilling else { return }
-//
-//                withAnimation {
-//                    fieldValueViewModel.registerUserInput()
+        NavigationView {
+            content
+                .navigationTitle(fieldValue.description)
+//                .toolbar {
+//                    ToolbarItemGroup(placement: .navigationBarTrailing) {
+//                        Button("Done") {
+//                            doNotRegisterUserInput = true
+//                            dismiss()
+//                        }
+//                    }
 //                }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") {
+                            doNotRegisterUserInput = true
+                            dismiss()
+                        }
+                    }
+                }
+        }
+//        .onChange(of: fieldValue.energyValue.string) { newValue in
+//            guard !isFilling else { return }
+//
+//            withAnimation {
+//                fieldValueViewModel.registerUserInput()
 //            }
+//        }
         //TODO: Use a custom binding for unit as well just like we are for textfield—also store the StackOverflow answer from where we're getting it and add it to KB in obsidian under obscure SwiftUI intricacy where .onChange might be called a bit after actually setting a value so this way is more accurate to register user input as it gets called immediately after the keystrokes and the value changes. https://stackoverflow.com/a/59040171
+        
             .onChange(of: fieldValue.energyValue.unit) { newValue in
-                guard !isFilling, unitChangeShouldRegisterAsUserInput else { return }
+                guard !doNotRegisterUserInput, unitChangeShouldRegisterAsUserInput else { return }
                 /// This will only trigger a change of the fillType to `.userInput`, if the `energyValue` of the text has an energy unit
                 withAnimation {
 //                    fieldValueViewModel.registerUserInput()
                 }
             }
             .onAppear {
-                isFocused = true
-                /// Wait a while before unlocking the isFilling flag in case it was set (due to a value already being present)
+//                isFocused = true
+                /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     print("🔥")
-                    isFilling = false
+                    doNotRegisterUserInput = false
                 }
             }
             .sheet(isPresented: $showingTextPicker) {
@@ -57,7 +79,29 @@ extension EnergyForm {
             }
     }
 
-    var content: some View {
+    var scrollView: some View {
+        ScrollView(showsIndicators: false) {
+            HStack {
+                textField
+                unitLabel
+            }
+        }
+        .background(
+            Color(.systemGroupedBackground)
+                .edgesIgnoringSafeArea(.all)
+        )
+    }
+    
+    var form: some View {
+        Form {
+            HStack {
+                textField
+                unitLabel
+            }
+        }
+    }
+    
+    var formStyledScrollView: some View {
         FormStyledScrollView {
             FormStyledSection(header: header) {
                 HStack {
@@ -72,6 +116,11 @@ extension EnergyForm {
             })
             .environmentObject(viewModel)
         }
+    }
+    var content: some View {
+//        form
+//        scrollView
+        formStyledScrollView
     }
     
     var header: some View {
@@ -89,7 +138,7 @@ extension EnergyForm {
             get: { self.fieldValue.energyValue.string },
             set: {
                 self.fieldValueViewModel.fieldValue.energyValue.string = $0
-                if !isFilling {
+                if !doNotRegisterUserInput && isFocused {
                     withAnimation {
                         fieldValueViewModel.registerUserInput()
                     }
@@ -102,9 +151,19 @@ extension EnergyForm {
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .interactiveDismissDisabled()
+//            .interactiveDismissDisabled()
             .font(fieldValueViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
+            .introspectTextField { textField in
+                if self.uiTextField == nil, !hasBecomeFirstResponder {
+                    self.uiTextField = uiTextField
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                        textField.becomeFirstResponder()
+                        /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
+                        hasBecomeFirstResponder = true
+                    }
+                }
+            }
     }
     
     var unitLabel: some View {
@@ -136,7 +195,7 @@ extension EnergyForm {
                 scanResultId: scanResultId
             )
             
-            isFilling = true
+            doNotRegisterUserInput = true
             withAnimation {
                 setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
                 fieldValueViewModel.fieldValue.fillType = newFillType
@@ -151,7 +210,7 @@ extension EnergyForm {
                 return
             }
             fieldValueViewModel.cropFilledImage()
-            isFilling = false
+            doNotRegisterUserInput = false
         }
     }
 }
@@ -200,7 +259,7 @@ extension EnergyForm {
     }
     
     func changeFillType(to fillType: FillType) {
-        isFilling = true
+        doNotRegisterUserInput = true
         switch fillType {
         case .imageSelection(let text, _, _, let value):
             changeFillTypeToSelection(of: text, withAltValue: value)
@@ -218,7 +277,7 @@ extension EnergyForm {
         }
 
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            isFilling = false
+            doNotRegisterUserInput = false
 //        }
         
 //        resetIsFillingTask?.cancel()
@@ -241,7 +300,7 @@ extension EnergyForm {
                 print("🧵 Checking for cancellation")
                 try Task.checkCancellation()
                 print("🧵 Setting isFilling to false")
-                isFilling = false
+                doNotRegisterUserInput = false
             } catch {
                 print("🧵 Error in getResetIsFillingTask task: \(error)")
             }

@@ -224,10 +224,6 @@ extension FoodFormViewModel {
         return false
     }
     
-    var shouldShowFillButton: Bool {
-        hasNonUserInputFills
-    }
-    
     func imageDidFinishClassifying(_ imageViewModel: ImageViewModel) {
         guard imageSetStatus != .classified else {
             return

@@ -34,6 +34,8 @@ class ImageViewModel: ObservableObject {
         self.status = .classified
         self.photosPickerItem = nil
         self.scanResult = scanResult
+        self.texts = scanResult.texts
+        self.textsWithValues = scanResult.texts.filter({ !$0.string.values.isEmpty })
     }
     
     func startClassifyTask(with image: UIImage) {
@@ -51,6 +53,7 @@ class ImageViewModel: ObservableObject {
                 let result = try await FoodLabelScanner(image: image).scan()
                 
                 self.scanResult = result
+                self.texts = result.texts
                 self.textsWithValues = result.texts.filter({ !$0.string.values.isEmpty })
                 
                 await MainActor.run {

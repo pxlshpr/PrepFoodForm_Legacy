@@ -201,7 +201,12 @@ extension FoodFormViewModel {
         viewModel.prefilledFood = mfpProcessedFood
         
         viewModel.sourceType = .images
-        viewModel.imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
+        viewModel.imageViewModels.append(
+            ImageViewModel(image: image,
+                           scanResult: scanResult
+                           
+                          )
+        )
         viewModel.processScanResults()
         viewModel.imageSetStatus = .classified
         

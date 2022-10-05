@@ -5,6 +5,7 @@ extension FoodForm {
     public struct NutritionFacts: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
+        @State var showingEnergyForm = false
     }
 }
 
@@ -20,6 +21,19 @@ extension FoodForm.NutritionFacts {
             }
     }
 
+    var scrollView: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+//                energyCell_navigationLink
+                energyCell
+                macronutrientsGroup
+                micronutrientsGroup
+            }
+            .padding(.horizontal, 20)
+        }
+        .background(formBackgroundColor)
+    }
+    
     func macronutrientForm(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
         NavigationLink {
             MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
@@ -46,7 +60,7 @@ extension FoodForm.NutritionFacts {
         }
     }
 
-    var energyForm: some View {
+    var energyCell_navigationLink: some View {
         NavigationLink {
             EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
@@ -55,19 +69,20 @@ extension FoodForm.NutritionFacts {
                 .environmentObject(viewModel)
         }
     }
-
-    var scrollView: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                energyForm
-                macronutrientsGroup
-                micronutrientsGroup
-            }
-            .padding(.horizontal, 20)
-        }
-        .background(formBackgroundColor)
-    }
     
+    var energyCell: some View {
+        Button {
+            showingEnergyForm = true
+        } label: {
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: $viewModel.energyViewModel)
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $showingEnergyForm) {
+            EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
+                .environmentObject(viewModel)
+        }
+    }
+
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
