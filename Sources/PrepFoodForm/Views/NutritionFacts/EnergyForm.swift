@@ -20,6 +20,8 @@ struct EnergyForm: View {
     @State var hasBecomeFirstResponder: Bool = false
     @State var resetIsFillingTask: Task<(), any Error>? = nil
     
+    @State var shouldAnimateOptions = false
+    
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
         _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.energyValue.string.isEmpty)
@@ -71,6 +73,7 @@ extension EnergyForm {
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                     print("🔥")
+                    shouldAnimateOptions = true
                     doNotRegisterUserInput = false
                 }
             }
@@ -109,7 +112,10 @@ extension EnergyForm {
                     unitLabel
                 }
             }
-            FillOptionSections(fieldValueViewModel: fieldValueViewModel, didTapImage: {
+            FillOptionSections(
+                fieldValueViewModel: fieldValueViewModel,
+                shouldAnimate: $shouldAnimateOptions,
+                didTapImage: {
                 showingTextPicker = true
             }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)

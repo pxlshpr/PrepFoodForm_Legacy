@@ -9,6 +9,7 @@ struct FillOptionsGrid: View {
     @State var showingImagePicker: Bool = false
     
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
+    @Binding var shouldAnimate: Bool
     
     var didTapFillOption: (FillOption) -> ()
 
@@ -23,7 +24,8 @@ struct FillOptionsGrid: View {
         FlowLayout(
             mode: .scrollable,
             items: viewModel.fillOptions(for: fieldValueViewModel.fieldValue),
-            itemSpacing: 4
+            itemSpacing: 4,
+            shouldAnimateHeight: $shouldAnimate
         ) { fillOption in
             fillOptionButton(for: fillOption)
         }
@@ -43,6 +45,7 @@ public struct FillOptionsGridPreview: View {
     @State var string: String
     @State var fillOptions: [FillOption] = []
     @State var height: CGFloat = 200
+    @State var shouldAnimate: Bool = true
     
     public init() {
         let viewModel = FoodFormViewModel.mock
@@ -76,7 +79,10 @@ public struct FillOptionsGridPreview: View {
     
     var grid: some View {
 //        FillOptionsGrid(fieldValue: $viewModel.energy, fillOptions: $fillOptions)
-        FillOptionsGrid(fieldValueViewModel: viewModel.energyViewModel) { fillOption in
+        FillOptionsGrid(
+            fieldValueViewModel: viewModel.energyViewModel,
+            shouldAnimate: $shouldAnimate
+        ) { fillOption in
             
         }
             .environmentObject(viewModel)
