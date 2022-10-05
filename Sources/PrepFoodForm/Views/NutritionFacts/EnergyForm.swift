@@ -87,12 +87,20 @@ extension EnergyForm {
     
     var header: some View {
         let string: String
-        if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
-            string = "Enter or auto-fill a value"
+        let autofillString = viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) ? "or autofill " : ""
+        if !fieldValue.stringValue.isEmpty {
+            string = "Enter \(autofillString)a value"
         } else {
             string = ""
         }
         return Text(string)
+//        let string: String
+//        if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
+//            string = "Enter or auto-fill a value"
+//        } else {
+//            string = ""
+//        }
+//        return Text(string)
     }
     
     var textField: some View {

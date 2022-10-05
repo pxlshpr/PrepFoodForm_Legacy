@@ -1,7 +1,8 @@
 import SwiftUI
 import FoodLabelScanner
 
-class FieldValueViewModel: ObservableObject {
+class FieldValueViewModel: ObservableObject, Identifiable {
+    let id = UUID()
     @Published var fieldValue: FieldValue
     @Published var imageToDisplay: UIImage? = nil
     @Published var isCroppingNextImage: Bool = false

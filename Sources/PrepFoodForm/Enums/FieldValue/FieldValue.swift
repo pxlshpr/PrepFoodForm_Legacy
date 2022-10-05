@@ -294,6 +294,13 @@ extension FieldValue {
         }
         return false
     }
+    
+    var isMacro: Bool {
+        if case .macro = self {
+            return true
+        }
+        return false
+    }
 }
 
 extension FieldValue: CustomStringConvertible {

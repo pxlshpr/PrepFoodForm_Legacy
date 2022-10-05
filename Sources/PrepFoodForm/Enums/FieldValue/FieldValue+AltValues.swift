@@ -58,7 +58,7 @@ extension FoodLabelValue {
      
      This is used when presenting fill options for the energy value for the user—when reading in values from a food label that may have been misread or read without a unit.
      */
-    var asEnergyValue: FoodLabelValue {
+    var withEnergyUnit: FoodLabelValue {
         switch unit {
         case .kj:
             return self
@@ -66,6 +66,14 @@ extension FoodLabelValue {
             return FoodLabelValue(amount: amount, unit: .kcal)
         }
     }
+    
+    /**
+     Returns this value forced as macro value—returned with a 'g' unit.
+     */
+    var withMacroUnit: FoodLabelValue {
+        FoodLabelValue(amount: amount, unit: .g)
+    }
+
 }
 extension FieldValue.EnergyValue {
     /**

@@ -68,8 +68,8 @@ extension FoodFormViewModel {
         switch fieldValue {
         case .energy:
             return autofillFieldValues.first(where: { $0.isEnergy })
-//        case .macro(let macroValue):
-//            <#code#>
+        case .macro(let macroValue):
+            return autofillFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
 //        case .micro(let microValue):
 //            <#code#>
 //        case .amount(let doubleValue):

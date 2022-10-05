@@ -58,7 +58,7 @@ struct FillOptionsSections: View {
             showingAutofillInfo = true
         } label: {
             HStack {
-                Text("Auto-fill")
+                Text("Autofill")
                 Image(systemName: "info.circle")
                     .foregroundColor(.accentColor)
             }

@@ -5,7 +5,9 @@ extension FoodForm {
     public struct NutritionFacts: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
+        
         @State var showingEnergyForm = false
+        @State var showingMacroFieldValueViewModel: FieldValueViewModel?
     }
 }
 
@@ -35,11 +37,14 @@ extension FoodForm.NutritionFacts {
     }
     
     func macronutrientForm(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
-        NavigationLink {
-            MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
-                .environmentObject(viewModel)
+        Button {
+            showingMacroFieldValueViewModel = fieldValueViewModel.wrappedValue
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
+                .environmentObject(viewModel)
+        }
+        .sheet(item: $showingMacroFieldValueViewModel) { fieldValueViewModel in
+            MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
     }
