@@ -12,6 +12,8 @@ extension FoodForm.NutrientsPerForm {
         @State var showingSheet = false
         @State var fieldSourceType = "viewfinder.circle.fill"
         
+        @State var previousValue: FieldValue?
+        
         public init() { }
     }
 }
@@ -24,12 +26,28 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             .navigationTitle("Amount Per")
 //            .navigationBarTitleDisplayMode(.inline)
             .onAppear {
+                previousValue = viewModel.amountViewModel.fieldValue
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isFocused = true
                 }
             }
             .toolbar { keyboardToolbarContents }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        if let previousValue {
+                            viewModel.amountViewModel.fieldValue = previousValue
+                        }
+                        dismiss()
+                    }
+                }
+            }
+            .interactiveDismissDisabled(!haveValue)
         }
+    }
+    
+    var haveValue: Bool {
+        !viewModel.amountViewModel.fieldValue.doubleValue.string.isEmpty
     }
     
     var keyboardToolbarContents: some ToolbarContent {
@@ -41,6 +59,7 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             Button("Done") {
                 dismiss()
             }
+            .disabled(!haveValue)
         }
     }
     

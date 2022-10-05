@@ -22,7 +22,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingCameraImagePicker: Bool = false
     
     //MARK: Amount Per
-    @Published var amountViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .amount()) {
+    @Published var amountViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput))) {
         didSet {
             updateShouldShowDensitiesSection()
             if amountViewModel.fieldValue.doubleValue.unit != .serving {

@@ -14,18 +14,15 @@ extension FoodForm {
 
 extension FoodForm.NutrientsPerForm {
     public var body: some View {
-        form
-//        .onChange(of: viewModel.standardSizes) { newValue in
-//            viewModel.updateSummary()
-//        }
-//        .onChange(of: viewModel.volumePrefixedSizes) { newValue in
-//            viewModel.updateSummary()
-//        }
-        .toolbar { bottomToolbarContent }
-        .navigationTitle("Amount Per")
-        .navigationBarTitleDisplayMode(.inline)
-        .scrollDismissesKeyboard(.interactively)
-        .interactiveDismissDisabled()
+        NavigationView {
+            form
+//            .toolbar { bottomToolbarContent }
+            .navigationTitle("Amount Per")
+//            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+//            .scrollDismissesKeyboard(.interactively)
+//            .interactiveDismissDisabled()
+        }
         .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
             FoodForm.NutrientsPerForm.AmountForm()
                 .environmentObject(viewModel)
@@ -38,9 +35,9 @@ extension FoodForm.NutrientsPerForm {
         }
         .onAppear {
             /// If it's present the amount form as the empty form is redundant to display
-            if !viewModel.hasNutrientsPerContent {
-                viewModel.showingNutrientsPerAmountForm = true
-            }
+//            if !viewModel.hasNutrientsPerContent {
+//                viewModel.showingNutrientsPerAmountForm = true
+//            }
         }
     }
     

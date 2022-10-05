@@ -7,13 +7,13 @@ extension FoodFormViewModel {
         isScanning = false
     }
     
-    var hasData: Bool {
+    var hasEnoughData: Bool {
         !nameViewModel.fieldValue.isEmpty
-        || !emojiViewModel.fieldValue.isEmpty
+//        || !emojiViewModel.fieldValue.isEmpty
         || !detailViewModel.fieldValue.isEmpty
         || !brandViewModel.fieldValue.isEmpty
         || !barcodeViewModel.fieldValue.isEmpty
-        || !amountViewModel.fieldValue.isEmpty
+//        || !amountViewModel.fieldValue.isEmpty
         || !servingViewModel.fieldValue.isEmpty
         || !standardSizes.isEmpty
         || !volumePrefixedSizes.isEmpty

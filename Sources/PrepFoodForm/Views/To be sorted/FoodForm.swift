@@ -14,6 +14,7 @@ public struct FoodForm: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
+    @State var showingAmountPer = false
     
     @State var showingPhotosPicker = true
     @State var selectedPhotos: [PhotosPickerItem] = []
@@ -26,7 +27,7 @@ public struct FoodForm: View {
         NavigationView {
             content
                 .navigationTitle("New Food")
-                .interactiveDismissDisabled(viewModel.hasData)
+                .interactiveDismissDisabled(viewModel.hasEnoughData)
                 .onAppear {
                     if viewModel.shouldShowWizard {
                         DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
@@ -137,7 +138,7 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var saveButtons: some View {
-        if viewModel.hasData {
+        if viewModel.hasEnoughData {
             VStack(spacing: 0) {
                 Divider()
                 VStack {
@@ -304,12 +305,23 @@ public struct FoodForm: View {
     
     var servingSection: some View {
         Section("Amount Per") {
-            NavigationLink {
-                NutrientsPerForm()
-                    .environmentObject(viewModel)
+//            NavigationLink {
+//                NutrientsPerForm()
+//                    .environmentObject(viewModel)
+//            } label: {
+//                NutrientsPerCell()
+//                    .environmentObject(viewModel)
+//            }
+            Button {
+                showingAmountPer = true
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
+            }
+            .sheet(isPresented: $showingAmountPer) {
+                NutrientsPerForm()
+                    .environmentObject(viewModel)
+                    .presentationDetents([.height(400)])
             }
         }
     }
