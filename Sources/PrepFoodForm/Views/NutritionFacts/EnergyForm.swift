@@ -161,7 +161,7 @@ extension EnergyForm {
     //MARK: - Actions
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
-        guard let value = text.string.values.first else {
+        guard let value = text.firstFoodLabelValue else {
             print("Couldn't get a double from the tapped string")
             return
         }

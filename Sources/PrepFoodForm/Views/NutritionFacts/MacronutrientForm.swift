@@ -152,8 +152,8 @@ extension MacronutrientForm {
     //MARK: - Actions
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
-        guard let value = text.string.values.first else {
-            print("Couldn't get a double from the tapped string")
+        guard let value = text.firstFoodLabelValue else {
+            print("Couldn't get a foodLabelValue from the tapped string")
             return
         }
         

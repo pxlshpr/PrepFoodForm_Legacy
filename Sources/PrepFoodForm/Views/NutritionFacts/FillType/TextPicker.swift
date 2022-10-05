@@ -152,12 +152,12 @@ extension TextPicker {
     func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
+                boxLayerForSelectedText(inSize: geometry.size, for: imageViewModel)
                 ForEach(texts(for: imageViewModel), id: \.self) { text in
                     if selectedText?.id != text.id {
                         boxLayer(for: text, inSize: geometry.size)
                     }
                 }
-                boxLayerForSelectedText(inSize: geometry.size, for: imageViewModel)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

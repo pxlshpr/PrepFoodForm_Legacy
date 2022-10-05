@@ -3,7 +3,25 @@ import PhotosUI
 import FoodLabelScanner
 import VisionSugar
 import ZoomableScrollView
+import PrepUnits
 
+extension RecognizedText {
+    
+    /**
+     Returns the first detected `FoodLabelValue` in the string and all its candidates, if present.
+     */
+    var firstFoodLabelValue: FoodLabelValue? {
+        string.values.first ?? (candidates.first(where: { !$0.values.isEmpty }))?.values.first
+    }
+    
+    /**
+     Returns true if the string or any of the other candidates contains `FoodLabelValues` in them.
+     */
+    var hasFoodLabelValues: Bool {
+        !string.values.isEmpty
+        || candidates.contains(where: { !$0.values.isEmpty })
+    }
+}
 class ImageViewModel: ObservableObject {
     
     @Published var status: ImageStatus
@@ -35,7 +53,7 @@ class ImageViewModel: ObservableObject {
         self.photosPickerItem = nil
         self.scanResult = scanResult
         self.texts = scanResult.texts
-        self.textsWithValues = scanResult.texts.filter({ !$0.string.values.isEmpty })
+        self.textsWithValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
     }
     
     func startClassifyTask(with image: UIImage) {
