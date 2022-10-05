@@ -88,14 +88,10 @@ extension MacronutrientForm {
     }
     
     var header: some View {
-        let string: String
         let autofillString = viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) ? "or autofill " : ""
-        if !fieldValue.stringValue.isEmpty {
-            string = "Enter \(autofillString)a value"
-        } else {
-            string = ""
-        }
+        let string = "Enter \(autofillString)a value"
         return Text(string)
+            .opacity(fieldValue.macroValue.string.isEmpty ? 1 : 0)
     }
     
     var textField: some View {

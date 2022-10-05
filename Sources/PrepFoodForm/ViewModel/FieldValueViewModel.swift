@@ -12,7 +12,7 @@ class FieldValueViewModel: ObservableObject, Identifiable {
     }
     
     func registerUserInput() {
-        fieldValue.energyValue.fillType = .userInput
+        fieldValue.fillType = .userInput
         imageToDisplay = nil
     }
     
