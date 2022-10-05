@@ -39,6 +39,8 @@ struct FillOptionsGrid: View {
     }    
 }
 
+//MARK: - Preview
+
 public struct FillOptionsGridPreview: View {
     
     @StateObject var viewModel: FoodFormViewModel

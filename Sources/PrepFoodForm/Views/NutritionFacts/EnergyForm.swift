@@ -112,7 +112,7 @@ extension EnergyForm {
                     unitLabel
                 }
             }
-            FillOptionSections(
+            FillOptionsSections(
                 fieldValueViewModel: fieldValueViewModel,
                 shouldAnimate: $shouldAnimateOptions,
                 didTapImage: {

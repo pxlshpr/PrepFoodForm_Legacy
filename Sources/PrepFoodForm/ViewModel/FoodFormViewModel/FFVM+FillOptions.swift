@@ -1,6 +1,5 @@
 import FoodLabelScanner
 
-//MARK: - FFVM + FillOptions
 extension FoodFormViewModel {
 
     func fillOptions(for fieldValue: FieldValue) -> [FillOption] {

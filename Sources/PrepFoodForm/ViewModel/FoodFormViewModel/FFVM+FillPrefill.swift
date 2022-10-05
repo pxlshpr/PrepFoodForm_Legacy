@@ -1,6 +1,7 @@
 import MFPScraper
 import SwiftUI
 import PrepUnits
+import VisionSugar
 
 extension FoodFormViewModel {
     func fieldValueFromPrefilledFood(for fieldValue: FieldValue) -> FieldValue? {
@@ -176,5 +177,111 @@ extension AmountUnit {
             }
             return .size(size, nil)
         }
+    }
+}
+
+extension FieldValue {
+    static func prefillOptionForName(with string: String) -> FieldValue {
+        FieldValue.name(StringValue(string: string, fillType: .prefill(prefillFields: [.name])))
+    }
+}
+
+//TODO: Write an extension on FieldValue or RecognizedText that provides alternative `FoodLabelValue`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
+
+//MARK: FFVM + FillOptions Helpers
+extension FoodFormViewModel {
+    
+    func autofillOptionFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+        
+        switch fieldValue {
+        case .energy:
+            return autofillFieldValues.first(where: { $0.isEnergy })
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+        default:
+            return nil
+        }
+    }
+    func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
+        !prefillOptionFieldValues(for: fieldValue).isEmpty
+    }
+    
+    func prefillOptionFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+        guard let food = prefilledFood else {
+            return []
+        }
+        
+        switch fieldValue {
+        case .name:
+            return food.detailStrings.map { FieldValue.prefillOptionForName(with: $0) }
+//            return FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill))
+//        case .brand(let stringValue):
+//            return FieldValue.brand(FieldValue.StringValue(string: detail, fillType: .prefill))
+//            return food.detail
+//        case .barcode(let stringValue):
+//            return nil
+//        case .detail(let stringValue):
+//
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+//        case .density(let densityValue):
+//            <#code#>
+//        case .energy(let energyValue):
+//            <#code#>
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+        default:
+            return []
+        }
+    }
+
+    /**
+     Returns true if there is at least one available (unused`RecognizedText` in all the `ScanResult`s that is compatible with the `fieldValue`
+     */
+    func hasAvailableTexts(for fieldValue: FieldValue) -> Bool {
+        !availableTexts(for: fieldValue).isEmpty
+    }
+    
+    func availableTexts(for fieldValue: FieldValue) -> [RecognizedText] {
+        var availableTexts: [RecognizedText] = []
+        for imageViewModel in imageViewModels {
+            let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithValues : imageViewModel.texts
+            let filtered = texts.filter { isNotUsingText($0) }
+            availableTexts.append(contentsOf: filtered)
+        }
+        return availableTexts
+    }
+
+//    func texts(for fieldValue: FieldValue) -> [RecognizedText] {
+//        var texts: [RecognizedText] = []
+//        for scanResult in scanResults {
+//            let filtered = scanResult.texts.filter {
+//                $0.isFillOptionFor(fieldValue)
+//            }
+//            texts.append(contentsOf: filtered)
+//        }
+//        return texts
+//    }
+
+    func isNotUsingText(_ text: RecognizedText) -> Bool {
+        fieldValueUsing(text: text) == nil
+    }
+    /**
+     Returns the `fieldValue` (if any) that is using the `RecognizedText`
+     */
+    func fieldValueUsing(text: RecognizedText) -> FieldValue? {
+        allFieldValues.first(where: {
+            $0.fillType.uses(text: text)
+        })
     }
 }

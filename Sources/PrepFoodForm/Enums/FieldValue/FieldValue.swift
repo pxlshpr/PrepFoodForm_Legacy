@@ -168,22 +168,6 @@ extension FieldValue {
             }
         }
         
-        /**
-         Returns the original energy `FoodLabelValue` that's associated with the image (ignoring any `altValue` that may have been filled that was generated from this.
-         
-         This is used when generating altValues for this value.
-        */
-        var originalImageValue: FoodLabelValue? {
-            switch fillType {
-            case .imageSelection(let recognizedText, _, _, _):
-                return recognizedText.string.energyValue
-            case .imageAutofill(let valueText, _, _):
-                return valueText.value
-            default:
-                return nil
-            }
-        }
-        
         var string: String {
             get {
                 return internalString
@@ -601,19 +585,6 @@ extension FieldValue {
             }
         }
     }
-    
-    var fillButtonString: String {
-        switch self {
-        case .energy(let energyValue):
-            return "\(energyValue.string) \(energyValue.unitDescription)"
-        case .macro(let macroValue):
-            return "\(macroValue.string) \(macroValue.unitDescription)"
-        case .micro(let microValue):
-            return "\(microValue.string) \(microValue.unitDescription)"
-        default:
-            return ""
-        }
-    }
 }
 
 
@@ -762,6 +733,25 @@ extension FieldValue {
     }
 }
 
+//MARK: - Helpers
+extension FieldValue {
+    var usesValueBasedTexts: Bool {
+        switch self {
+        case .amount, .serving, .density, .energy, .macro, .micro:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    func matchesFieldValue(_ fieldValue: FieldValue, withValue value: FoodLabelValue?) -> Bool {
+        var selfWithValue = self
+        selfWithValue.fillType.value = value
+        return selfWithValue == fieldValue
+    }
+}
+
+//MARK: - To be moved
 func randomFoodEmoji() -> String {
     let foodEmojis = "🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🫒🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🫘🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🦪🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🫗🥤🧋🧃🧉🧊🥢🍽️🍴🥄"
     guard let character = foodEmojis.randomElement() else {
