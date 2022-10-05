@@ -12,14 +12,11 @@ struct EnergyForm: View {
     
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
-    @State var showingFilledText = false
     @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool
-
     @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
-    @State var resetIsFillingTask: Task<(), any Error>? = nil
-    
+    /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
     
     init(fieldValueViewModel: FieldValueViewModel) {
@@ -34,99 +31,58 @@ extension EnergyForm {
         NavigationView {
             content
                 .navigationTitle(fieldValue.description)
-//                .toolbar {
-//                    ToolbarItemGroup(placement: .navigationBarTrailing) {
-//                        Button("Done") {
-//                            doNotRegisterUserInput = true
-//                            dismiss()
-//                        }
-//                    }
-//                }
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") {
-                            doNotRegisterUserInput = true
-                            dismiss()
-                        }
-                    }
-                }
+                .toolbar { keyboardToolbarContent }
         }
-//        .onChange(of: fieldValue.energyValue.string) { newValue in
-//            guard !isFilling else { return }
-//
-//            withAnimation {
-//                fieldValueViewModel.registerUserInput()
-//            }
-//        }
-        //TODO: Use a custom binding for unit as well just like we are for textfield—also store the StackOverflow answer from where we're getting it and add it to KB in obsidian under obscure SwiftUI intricacy where .onChange might be called a bit after actually setting a value so this way is more accurate to register user input as it gets called immediately after the keystrokes and the value changes. https://stackoverflow.com/a/59040171
-        
-            .onChange(of: fieldValue.energyValue.unit) { newValue in
-                guard !doNotRegisterUserInput, unitChangeShouldRegisterAsUserInput else { return }
-                /// This will only trigger a change of the fillType to `.userInput`, if the `energyValue` of the text has an energy unit
-                withAnimation {
-//                    fieldValueViewModel.registerUserInput()
-                }
-            }
-            .onAppear {
-//                isFocused = true
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                print("🔥")
+                shouldAnimateOptions = true
+                
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                    print("🔥")
-                    shouldAnimateOptions = true
-                    doNotRegisterUserInput = false
-                }
+                doNotRegisterUserInput = false
             }
-            .sheet(isPresented: $showingTextPicker) {
-                textPicker
-            }
+        }
+        .sheet(isPresented: $showingTextPicker) {
+            textPicker
+        }
+    }
+    
+    var content: some View {
+        FormStyledScrollView {
+            textFieldSection
+            fillOptionsSections
+        }
     }
 
-    var scrollView: some View {
-        ScrollView(showsIndicators: false) {
+    var textFieldSection: some View {
+        FormStyledSection(header: header) {
             HStack {
                 textField
-                unitLabel
-            }
-        }
-        .background(
-            Color(.systemGroupedBackground)
-                .edgesIgnoringSafeArea(.all)
-        )
-    }
-    
-    var form: some View {
-        Form {
-            HStack {
-                textField
-                unitLabel
+                unitPicker
             }
         }
     }
-    
-    var formStyledScrollView: some View {
-        FormStyledScrollView {
-            FormStyledSection(header: header) {
-                HStack {
-                    textField
-                    unitLabel
-                }
-            }
-            FillOptionsSections(
-                fieldValueViewModel: fieldValueViewModel,
-                shouldAnimate: $shouldAnimateOptions,
-                didTapImage: {
+
+    var fillOptionsSections: some View {
+        FillOptionsSections(
+            fieldValueViewModel: fieldValueViewModel,
+            shouldAnimate: $shouldAnimateOptions,
+            didTapImage: {
                 showingTextPicker = true
             }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)
             })
-            .environmentObject(viewModel)
-        }
+        .environmentObject(viewModel)
     }
-    var content: some View {
-//        form
-//        scrollView
-        formStyledScrollView
+
+    var keyboardToolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button("Done") {
+                doNotRegisterUserInput = true
+                dismiss()
+            }
+        }
     }
     
     var header: some View {
@@ -151,28 +107,31 @@ extension EnergyForm {
                 }
             }
         )
-
-//        return TextField("Required", text: $fieldValueViewModel.fieldValue.energyValue.string)
+        
         return TextField("Required", text: binding)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-//            .interactiveDismissDisabled()
             .font(fieldValueViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
-            .introspectTextField { textField in
-                if self.uiTextField == nil, !hasBecomeFirstResponder {
-                    self.uiTextField = uiTextField
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                        textField.becomeFirstResponder()
-                        /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
-                        hasBecomeFirstResponder = true
-                    }
-                }
-            }
+            .introspectTextField(customize: introspectTextField)
     }
     
-    var unitLabel: some View {
+    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
+    func introspectTextField(_ uiTextField: UITextField) {
+        guard self.uiTextField == nil, !hasBecomeFirstResponder else {
+            return
+        }
+        
+        self.uiTextField = uiTextField
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            uiTextField.becomeFirstResponder()
+            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
+            hasBecomeFirstResponder = true
+        }
+    }
+    
+    var unitPicker: some View {
         Picker("", selection: $fieldValueViewModel.fieldValue.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
@@ -201,28 +160,8 @@ extension EnergyForm {
             doNotRegisterUserInput = false
         }
     }
-}
- 
-//MARK: - Helpers
 
-extension EnergyForm {
-    var fieldValue: FieldValue {
-        fieldValueViewModel.fieldValue
-    }
-    
-    var unitChangeShouldRegisterAsUserInput: Bool {
-        
-        if let energyValue = fieldValue.fillType.energyValue {
-            /// If it does not have an energy unit, then a unit change should not register as user input
-            return energyValue.unit?.isEnergy == true
-        }
-        return true
-    }
-}
-
-//MARK: - Actions
-
-extension EnergyForm {
+    //MARK: - Actions
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
         guard let value = text.string.values.first else {
@@ -243,7 +182,6 @@ extension EnergyForm {
                 scanResultId: imageId
             )
         }
-        
         
         doNotRegisterUserInput = true
         withAnimation {
@@ -291,78 +229,44 @@ extension EnergyForm {
         default:
             break
         }
-
+        
         let previousFillType = fieldValue.fillType
         fieldValueViewModel.fieldValue.fillType = fillType
         if fillType.text?.id != previousFillType.text?.id {
             fieldValueViewModel.isCroppingNextImage = true
             fieldValueViewModel.cropFilledImage()
         }
-
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            doNotRegisterUserInput = false
-//        }
         
-//        resetIsFillingTask?.cancel()
-//        resetIsFillingTask = getResetIsFillingTask
-//        Task(priority: .medium) {
-//            do {
-//                let _ = try await resetIsFillingTask!.value
-//            } catch {
-//                print("🧵 Error in resetIsFillingTask: \(error)")
-//            }
-//        }
-    }
-    
-    var getResetIsFillingTask: Task<(), Error> {
-        Task(priority: .medium) {
-            do {
-                /// This delay is crucial—because otherwise `isFilling` gets set to `false` too soon (before the `onChange` triggers for `string` and `energyUnit` are called—thus registering them incorrectly as `.userInput` fillTypes
-                print("🧵 Runing resetisFillingTask, sleeping...")
-                try await sleepTask(2)
-                print("🧵 Checking for cancellation")
-                try Task.checkCancellation()
-                print("🧵 Setting isFilling to false")
-                doNotRegisterUserInput = false
-            } catch {
-                print("🧵 Error in getResetIsFillingTask task: \(error)")
-            }
-        }
+        doNotRegisterUserInput = false
     }
     
     func setNew(amount: Double, unit: EnergyUnit) {
         fieldValueViewModel.fieldValue.energyValue.string = amount.cleanAmount
-//        fieldValueViewModel.fieldValue.double = amount
         fieldValueViewModel.fieldValue.energyValue.unit = unit
-//        string = amount.cleanAmount
-//        energyUnit = unit
     }
     
     func setNewValue(_ value: FoodLabelValue) {
         setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
-        //        fieldValueViewModel.fieldValue.double = value.amount
-        //        fieldValueViewModel.fieldValue.nutritionUnit = value.unit
-        //        string = value.amount.cleanAmount
-        //        energyUnit = value.unit?.energyUnit ?? .kcal
     }
     
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
         let value = altValue ?? valueText.value
         setNewValue(value)
     }
-
+    
     func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
         guard let value = altValue ?? text.string.values.first else {
             return
         }
         setNewValue(value)
-        /// No need to recrop images here because this only occurs when altValues of a selection value are tapped (new selections can only be made through the `TextPicker`, and the cropping is handled there)
-//        fieldValueViewModel.isCroppingNextImage = true
-//        fieldValueViewModel.cropFilledImage()
+    }
+    
+    //MARK: - Helpers
+    
+    var fieldValue: FieldValue {
+        fieldValueViewModel.fieldValue
     }
 
-    //MARK: TextPicker
-    
     var selectedImageIndex: Int? {
         viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
     }
