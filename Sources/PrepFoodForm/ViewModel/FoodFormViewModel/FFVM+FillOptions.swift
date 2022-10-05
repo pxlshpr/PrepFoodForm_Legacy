@@ -1,4 +1,5 @@
 import FoodLabelScanner
+import VisionSugar
 
 extension FoodFormViewModel {
 
@@ -6,45 +7,12 @@ extension FoodFormViewModel {
         var fillOptions: [FillOption] = []
         
         /// Detected text option (if its available) + its alts
-        fillOptions.append(contentsOf: autofillOptions(for: fieldValue))
+        fillOptions.append(contentsOf: fieldValue.autofillOptions)
         fillOptions.append(contentsOf: fieldValue.selectionFillOptions)
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
         fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
         if let chooseOption = chooseOption(for: fieldValue) {
             fillOptions .append(chooseOption)
-        }
-        
-        return fillOptions
-    }
-    
-    //MARK: Image Autofill
-    func autofillOptions(for fieldValue: FieldValue) -> [FillOption] {
-        var fillOptions: [FillOption] = []
-        guard let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) else {
-            return []
-        }
-        fillOptions.append(
-            FillOption(
-                string: autofillFieldValue.fillButtonString,
-                systemImage: FillType.SystemImage.imageAutofill,
-                isSelected: fieldValue == autofillFieldValue,
-                type: .fillType(autofillFieldValue.fillType)
-            )
-        )
-
-        /// Show alts if selected (only check the text because it might have a different value attached to it)
-        for alternateValue in autofillFieldValue.altValues {
-            guard let valueText = autofillFieldValue.fillType.valueText, let scanResultId = autofillFieldValue.fillType.scanResultId else {
-                continue
-            }
-            fillOptions.append(
-                FillOption(
-                    string: alternateValue.fillOptionString,
-                    systemImage: FillType.SystemImage.imageAutofill,
-                    isSelected: fieldValue.fillType.value == alternateValue,
-                    type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
-                )
-            )
         }
         
         return fillOptions
@@ -93,6 +61,35 @@ extension FoodFormViewModel {
     
     func shouldShowFillOptions(for fieldValue: FieldValue) -> Bool {
         !fillOptions(for: fieldValue).isEmpty
+    }
+    
+    func autofillOptionFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+        
+        switch fieldValue {
+        case .energy:
+            return autofillFieldValues.first(where: { $0.isEnergy })
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .amount(let doubleValue):
+//            <#code#>
+//        case .serving(let doubleValue):
+//            <#code#>
+        default:
+            return nil
+        }
+    }
+
+    func autofillValueText(for fieldValue: FieldValue) -> ValueText? {
+        guard let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) else {
+            return nil
+        }
+        return autofillFieldValue.fillType.valueText
+    }
+    
+    func autofillText(for fieldValue: FieldValue) -> RecognizedText? {
+        autofillValueText(for: fieldValue)?.text
     }
 }
 

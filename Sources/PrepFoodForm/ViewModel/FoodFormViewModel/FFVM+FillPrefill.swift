@@ -188,26 +188,9 @@ extension FieldValue {
 
 //TODO: Write an extension on FieldValue or RecognizedText that provides alternative `FoodLabelValue`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
 
-//MARK: FFVM + FillOptions Helpers
+//MARK: FFVM + Prefill Helpers
 extension FoodFormViewModel {
     
-    func autofillOptionFieldValue(for fieldValue: FieldValue) -> FieldValue? {
-        
-        switch fieldValue {
-        case .energy:
-            return autofillFieldValues.first(where: { $0.isEnergy })
-//        case .macro(let macroValue):
-//            <#code#>
-//        case .micro(let microValue):
-//            <#code#>
-//        case .amount(let doubleValue):
-//            <#code#>
-//        case .serving(let doubleValue):
-//            <#code#>
-        default:
-            return nil
-        }
-    }
     func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
         !prefillOptionFieldValues(for: fieldValue).isEmpty
     }

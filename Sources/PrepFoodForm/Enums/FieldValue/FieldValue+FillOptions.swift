@@ -1,24 +1,74 @@
 import Foundation
 import PrepUnits
 
+extension FoodFormViewModel {
+    
+}
 extension FieldValue {
+    //MARK: Image Autofill
+    var autofillOptions: [FillOption] {
+        var fillOptions: [FillOption] = []
+        guard let autofillFieldValue = FoodFormViewModel.shared.autofillOptionFieldValue(for: self) else {
+            return []
+        }
+        fillOptions.append(
+            FillOption(
+                string: autofillFieldValue.fillButtonString,
+                systemImage: FillType.SystemImage.imageAutofill,
+                isSelected: self == autofillFieldValue,
+                type: .fillType(autofillFieldValue.fillType)
+            )
+        )
+
+        /// Show alts if selected (only check the text because it might have a different value attached to it)
+        for alternateValue in autofillFieldValue.altValues {
+            guard let valueText = autofillFieldValue.fillType.valueText, let scanResultId = autofillFieldValue.fillType.scanResultId else {
+                continue
+            }
+            fillOptions.append(
+                FillOption(
+                    string: alternateValue.fillOptionString,
+                    systemImage: FillType.SystemImage.imageAutofill,
+                    isSelected: self.fillType.value == alternateValue,
+                    type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+                )
+            )
+        }
+        
+        return fillOptions
+    }
+    
+    //MARK: Image Selection
     var selectionFillOptions: [FillOption] {
-        /// Selected text option (if its available) + its alts
-        guard case .imageSelection(let primaryText, let scanResultId, supplementaryTexts: let supplementaryTexts, value: let value) = fillType else {
+        guard
+            case .imageSelection(
+                let primaryText,
+                let scanResultId,
+                let supplementaryTexts,
+                value: _) = fillType
+                ,
+            primaryText != FoodFormViewModel.shared.autofillText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+        else {
             return []
         }
 
         /// This is **only valid for energy and needs to be rejigged for other types**
         var values: [FoodLabelValue] = []
         for text in ([primaryText] + supplementaryTexts) {
-            for value in text.string.values {
-                let energyValue = value.asEnergyValue
-                guard !values.contains(energyValue) else { continue }
-                values.append(energyValue)
-                
-                let oppositeValue = energyValue.withOppositeEnergyUnit
-                if !values.contains(oppositeValue) {
-                    values.append(oppositeValue)
+            /// Go through all the candidates provided by the Vision framework
+            for candidate in text.candidates {
+                for value in candidate.values {
+                    
+                    let energyValue = value.asEnergyValue
+                    
+                    /// Don't add duplicates
+                    guard !values.contains(energyValue) else { continue }
+                    values.append(energyValue)
+                    
+                    let oppositeValue = energyValue.withOppositeEnergyUnit
+                    if !values.contains(oppositeValue) {
+                        values.append(oppositeValue)
+                    }
                 }
             }
         }

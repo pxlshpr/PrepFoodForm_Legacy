@@ -191,25 +191,7 @@ extension EnergyForm {
             selectedBoundingBox: fieldValue.fillType.boundingBoxForImagePicker,
             onlyShowTextsWithValues: true
         ) { text, scanResultId in
-            
-            guard let value = text.string.values.first else {
-                print("Couldn't get a double from the tapped string")
-                return
-            }
-            let newFillType: FillType = .imageSelection(
-                recognizedText: text,
-                scanResultId: scanResultId
-            )
-            
-            doNotRegisterUserInput = true
-            withAnimation {
-                setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
-                fieldValueViewModel.fieldValue.fillType = newFillType
-            }
-            
-            withAnimation {
-                fieldValueViewModel.isCroppingNextImage = true
-            }
+            didTapText(text, onImageWithId: scanResultId)
         }
         .onDisappear {
             guard fieldValueViewModel.isCroppingNextImage else {
@@ -242,13 +224,46 @@ extension EnergyForm {
 
 extension EnergyForm {
     
+    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
+        guard let value = text.string.values.first else {
+            print("Couldn't get a double from the tapped string")
+            return
+        }
+        
+        let newFillType: FillType
+        if let autofillValueText = viewModel.autofillValueText(for: fieldValue),
+           autofillValueText.text == text
+        {
+            newFillType = .imageAutofill(
+                valueText: autofillValueText, scanResultId: imageId, value: nil
+            )
+        } else {
+            newFillType = .imageSelection(
+                recognizedText: text,
+                scanResultId: imageId
+            )
+        }
+        
+        
+        doNotRegisterUserInput = true
+        withAnimation {
+            setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
+            fieldValueViewModel.fieldValue.fillType = newFillType
+        }
+        
+        withAnimation {
+            fieldValueViewModel.isCroppingNextImage = true
+        }
+    }
+    
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
         case .chooseText:
             didTapChooseButton()
         case .fillType(let fillType):
-            Haptics.feedback(style: .rigid)
             didTapFillTypeButton(for: fillType)
+            doNotRegisterUserInput = true
+            dismiss()
         }
     }
     
@@ -265,7 +280,9 @@ extension EnergyForm {
     }
     
     func changeFillType(to fillType: FillType) {
+        
         doNotRegisterUserInput = true
+        
         switch fillType {
         case .imageSelection(let text, _, _, let value):
             changeFillTypeToSelection(of: text, withAltValue: value)
