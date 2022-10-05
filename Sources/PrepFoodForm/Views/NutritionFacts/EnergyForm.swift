@@ -10,6 +10,7 @@ struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
+    @Environment(\.presentationMode) var presentation
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     @State var showingTextPicker = false
@@ -32,6 +33,9 @@ extension EnergyForm {
             content
                 .navigationTitle(fieldValue.description)
                 .toolbar { keyboardToolbarContent }
+                .toolbar { bottomToolbarContent }
+                .toolbar { navigationLeadingContent }
+                .toolbar { navigationTrailingContent }
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -55,7 +59,7 @@ extension EnergyForm {
     }
 
     var textFieldSection: some View {
-        FormStyledSection(header: header) {
+        FormStyledSection(footer: header) {
             HStack {
                 textField
                 unitPicker
@@ -68,6 +72,7 @@ extension EnergyForm {
             fieldValueViewModel: fieldValueViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
+                isFocused = false
                 showingTextPicker = true
             }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)
@@ -75,13 +80,42 @@ extension EnergyForm {
         .environmentObject(viewModel)
     }
 
+    var saveButton: some View {
+        Button("Save") {
+            doNotRegisterUserInput = true
+            dismiss()
+        }
+    }
+    
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("Cancel") {
+                //TODO: revert value here
+                dismiss()
+            }
+        }
+    }
+    
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                
+            } label: {
+                Image(systemName: "info.circle")
+            }
+        }
+    }
+    var bottomToolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            saveButton
+        }
+    }
+    
     var keyboardToolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             Spacer()
-            Button("Done") {
-                doNotRegisterUserInput = true
-                dismiss()
-            }
+            saveButton
         }
     }
     
@@ -111,11 +145,16 @@ extension EnergyForm {
             .focused($isFocused)
             .font(fieldValueViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
+            .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
     }
     
     /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
     func introspectTextField(_ uiTextField: UITextField) {
+//        guard !viewModel.shouldShowFillOptions(for: fieldValue) else {
+//            return
+//        }
+        
         guard self.uiTextField == nil, !hasBecomeFirstResponder else {
             return
         }
@@ -155,12 +194,13 @@ extension EnergyForm {
             }
             fieldValueViewModel.cropFilledImage()
             doNotRegisterUserInput = false
-        }
+       }
     }
 
     //MARK: - Actions
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
+        
         guard let value = text.firstFoodLabelValue else {
             print("Couldn't get a double from the tapped string")
             return
@@ -179,16 +219,11 @@ extension EnergyForm {
                 scanResultId: imageId
             )
         }
-        
+
         doNotRegisterUserInput = true
-        withAnimation {
-            setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
-            fieldValueViewModel.fieldValue.fillType = newFillType
-        }
-        
-        withAnimation {
-            fieldValueViewModel.isCroppingNextImage = true
-        }
+        setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
+        fieldValueViewModel.fieldValue.fillType = newFillType
+        fieldValueViewModel.isCroppingNextImage = true
     }
     
     func didTapFillOption(_ fillOption: FillOption) {
