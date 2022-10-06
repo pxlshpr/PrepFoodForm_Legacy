@@ -54,6 +54,7 @@ struct MicronutrientForm: View {
         if formViewModel.fieldValue.microValue.unit == .p {
             return "% values will be converted and saved as their equivalent amounts."
         }
+        
         return nil
     }
 
