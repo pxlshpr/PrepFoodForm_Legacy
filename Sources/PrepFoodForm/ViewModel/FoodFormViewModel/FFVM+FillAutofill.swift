@@ -216,11 +216,13 @@ extension ScanResult {
             fillType = .imageAutofill(valueText: valueText, scanResultId: self.id)
         }
 
+        let unit = value.unit?.nutrientUnit(for: nutrientType) ?? nutrientType.defaultUnit
+        
         return FieldValue.micro(FieldValue.MicroValue(
             nutrientType: nutrientType,
             double: value.amount,
             string: value.amount.cleanAmount,
-            unit: value.unit?.nutrientUnit ?? attribute.defaultUnit?.nutrientUnit ?? .g,
+            unit: unit,
             fillType: fillType)
         )
     }
@@ -232,7 +234,7 @@ extension ScanResult {
 }
 
 extension FoodLabelUnit {
-    var nutrientUnit: NutrientUnit? {
+    func nutrientUnit(for nutrientType: NutrientType) -> NutrientUnit? {
         switch self {
         case .mcg:
             return .mcg
@@ -240,6 +242,8 @@ extension FoodLabelUnit {
             return .mg
         case .g:
             return .g
+        case .p:
+            return .p
         default:
             return nil
         }

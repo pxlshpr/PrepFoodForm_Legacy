@@ -92,7 +92,7 @@ extension NutrientType {
     }
     
     func supportsUnit(_ foodLabelUnit: FoodLabelUnit) -> Bool {
-        guard let nutrientUnit = foodLabelUnit.nutrientUnit else { return false }
+        guard let nutrientUnit = foodLabelUnit.nutrientUnit(for: self) else { return false }
         return supportsUnit(nutrientUnit)
     }
     

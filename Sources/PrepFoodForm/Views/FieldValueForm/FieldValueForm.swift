@@ -6,9 +6,12 @@ import VisionSugar
 import SwiftUISugar
 import Introspect
 
-struct FieldValueForm<UnitView: View>: View {
+struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     var unitView: UnitView?
-    
+    var supplementaryView: SupplementaryView?
+    var supplementaryViewFooterString: String?
+    var supplementaryViewHeaderString: String?
+
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
@@ -29,16 +32,50 @@ struct FieldValueForm<UnitView: View>: View {
     /// Bring this back if we're having issues with tap targets on buttons, as mentioned here: https://developer.apple.com/forums/thread/131404?answerId=612395022#612395022
 //    @Environment(\.presentationMode) var presentation
     
-//    init(fieldValueViewModel: FieldValueViewModel) {
-//        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
-//
-//        self.fieldValueViewModel = fieldValueViewModel
-//        let formViewModel = fieldValueViewModel.copy
-//        _formViewModel = StateObject(wrappedValue: formViewModel)
-//    }
-    
     let setNewValue: ((FoodLabelValue) -> ())?
     
+    init(formViewModel: FieldValueViewModel,
+         fieldValueViewModel: FieldValueViewModel,
+         unitView: UnitView,
+         supplementaryView: SupplementaryView,
+         supplementaryViewHeaderString: String?,
+         supplementaryViewFooterString: String?,
+         setNewValue: ((FoodLabelValue) -> ())? = nil
+    ) {
+        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        
+        self.fieldValueViewModel = fieldValueViewModel
+        self.formViewModel = formViewModel
+        self.unitView = unitView
+        self.supplementaryView = supplementaryView
+        self.supplementaryViewHeaderString = supplementaryViewHeaderString
+        self.supplementaryViewFooterString = supplementaryViewFooterString
+        self.setNewValue = setNewValue
+    }
+
+}
+
+extension FieldValueForm where UnitView == EmptyView {
+    init(formViewModel: FieldValueViewModel,
+         fieldValueViewModel: FieldValueViewModel,
+         supplementaryView: SupplementaryView,
+         supplementaryViewHeaderString: String?,
+         supplementaryViewFooterString: String?,
+         setNewValue: ((FoodLabelValue) -> ())? = nil
+    ) {
+        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        
+        self.fieldValueViewModel = fieldValueViewModel
+        self.formViewModel = formViewModel
+        self.unitView = nil
+        self.supplementaryView = supplementaryView
+        self.supplementaryViewHeaderString = supplementaryViewHeaderString
+        self.supplementaryViewFooterString = supplementaryViewFooterString
+        self.setNewValue = setNewValue
+    }
+}
+
+extension FieldValueForm where SupplementaryView == EmptyView {
     init(formViewModel: FieldValueViewModel,
          fieldValueViewModel: FieldValueViewModel,
          unitView: UnitView,
@@ -49,14 +86,14 @@ struct FieldValueForm<UnitView: View>: View {
         self.fieldValueViewModel = fieldValueViewModel
         self.formViewModel = formViewModel
         self.unitView = unitView
+        self.supplementaryView = nil
+        self.supplementaryViewHeaderString = nil
+        self.supplementaryViewFooterString = nil
         self.setNewValue = setNewValue
-//        let formViewModel = fieldValueViewModel.copy
-//        _formViewModel = StateObject(wrappedValue: formViewModel)
     }
-
 }
 
-extension FieldValueForm where UnitView == EmptyView {
+extension FieldValueForm where UnitView == EmptyView, SupplementaryView == EmptyView {
     init(formViewModel: FieldValueViewModel,
          fieldValueViewModel: FieldValueViewModel,
          setNewValue: ((FoodLabelValue) -> ())? = nil
@@ -66,9 +103,10 @@ extension FieldValueForm where UnitView == EmptyView {
         self.fieldValueViewModel = fieldValueViewModel
         self.formViewModel = formViewModel
         self.unitView = nil
+        self.supplementaryView = nil
+        self.supplementaryViewHeaderString = nil
+        self.supplementaryViewFooterString = nil
         self.setNewValue = setNewValue
-//        let formViewModel = fieldValueViewModel.copy
-//        _formViewModel = StateObject(wrappedValue: formViewModel)
     }
 }
 
@@ -106,7 +144,33 @@ extension FieldValueForm {
     var content: some View {
         FormStyledScrollView {
             textFieldSection
+            supplementaryViewSection
             fillOptionsSections
+        }
+    }
+    
+    var supplementaryViewSection: some View {
+        
+        @ViewBuilder
+        var footer: some View {
+            if supplementaryView != nil, let supplementaryViewFooterString {
+                Text(supplementaryViewFooterString)
+            }
+        }
+
+        @ViewBuilder
+        var header: some View {
+            if supplementaryView != nil, let supplementaryViewHeaderString {
+                Text(supplementaryViewHeaderString)
+            }
+        }
+
+        return Group {
+            if let supplementaryView {
+                FormStyledSection(header: header, footer: footer) {
+                    supplementaryView
+                }
+            }
         }
     }
 

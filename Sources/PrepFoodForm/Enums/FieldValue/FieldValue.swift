@@ -74,9 +74,14 @@ extension FieldValue {
         }
         
         var supportedNutrientUnits: [NutrientUnit] {
-            nutrientType.units.map {
+            var units = nutrientType.units.map {
                 $0
             }
+            /// Allow percentage values for `mineral`s and `vitamin`s
+            if nutrientType.group == .minerals || nutrientType.group == .vitamins {
+                units.append(.p)
+            }
+            return units
         }
     }
 
@@ -461,12 +466,18 @@ extension FieldValue {
         }
         set {
             switch self {
-            case .energy(var energyValue):
-                energyValue.string = newValue
-            case .macro(var macroValue):
-                macroValue.string = newValue
-            case .micro(var microValue):
-                microValue.string = newValue
+            case .energy(let energyValue):
+                var newEnergyValue = energyValue
+                newEnergyValue.string = newValue
+                self = .energy(newEnergyValue)
+            case .macro(let macroValue):
+                var newMacroValue = macroValue
+                newMacroValue.string = newValue
+                self = .macro(newMacroValue)
+            case .micro(let microValue):
+                var newMicrovalue = microValue
+                newMicrovalue.string = newValue
+                self = .micro(newMicrovalue)
 //            case .name(let stringValue):
 //                <#code#>
 //            case .emoji(let stringValue):

@@ -28,6 +28,71 @@ extension FoodForm.NutritionFacts.Cell {
 //        }
     }
     
+    var content: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 20) {
+                topRow
+                bottomRow
+            }
+        }
+    }
+    
+    //MARK: - Components
+    
+    var topRow: some View {
+        HStack {
+            Spacer().frame(width: 2)
+            HStack(spacing: 4) {
+                Image(systemName: fieldValue.iconImageName)
+                    .font(.system(size: 14))
+                Text(fieldValue.description)
+                    .font(.system(size: 16, weight: .semibold, design: .rounded))
+            }
+            Spacer()
+            fillTypeIcon
+            disclosureArrow
+        }
+        .foregroundColor(fieldValue.labelColor(for: colorScheme))
+    }
+    
+    var bottomRow: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 3) {
+            Text(fieldValue.amountString)
+                .foregroundColor(fieldValue.amountColor)
+                .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
+            if !isEmpty {
+                Text(fieldValue.unitString)
+                    .font(.system(size: 17, weight: .semibold, design: .rounded))
+                    .bold()
+                    .foregroundColor(Color(.secondaryLabel))
+            }
+            Spacer()
+        }
+    }
+    
+    @ViewBuilder
+    var fillTypeIcon: some View {
+        if viewModel.hasNonUserInputFills, !isEmpty {
+            Image(systemName: fieldValue.fillType.iconSystemImage)
+//        Image(systemName: "text.viewfinder")
+                .foregroundColor(Color(.secondaryLabel))
+        }
+    }
+    
+    var disclosureArrow: some View {
+        Image(systemName: "chevron.forward")
+            .font(.system(size: 14))
+            .foregroundColor(Color(.tertiaryLabel))
+            .fontWeight(.semibold)
+    }
+    
+    var cellBackgroundColor: Color {
+//        colorScheme == .dark ? Color(.systemGroupedBackground) : Color(.secondarySystemGroupedBackground)
+        Color(.secondarySystemGroupedBackground)
+    }
+    
+    //MARK: - Image
+    
     var imageLayer: some View {
         VStack {
             Spacer()
@@ -79,80 +144,18 @@ extension FoodForm.NutritionFacts.Cell {
         }
     }
     
-    var content: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 20) {
-                topRow
-                bottomRow
-            }
-        }
-    }
-    
+    //MARK: Helpers
     var fieldValue: FieldValue {
         fieldValueViewModel.fieldValue
-    }
-    
-    //MARK: - Components
-    
-    var topRow: some View {
-        HStack {
-            Spacer().frame(width: 2)
-            HStack(spacing: 4) {
-                Image(systemName: fieldValue.iconImageName)
-                    .font(.system(size: 14))
-                Text(fieldValue.description)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-            }
-            Spacer()
-            fillTypeIcon
-            disclosureArrow
-        }
-        .foregroundColor(fieldValue.labelColor(for: colorScheme))
     }
     
     var isEmpty: Bool {
         fieldValue.double == nil
     }
-    
-    var bottomRow: some View {
-//        HStack(alignment: .bottom) {
-            HStack(alignment: .firstTextBaseline, spacing: 3) {
-                Text(fieldValue.amountString)
-                    .foregroundColor(fieldValue.amountColor)
-                    .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
-                if !isEmpty {
-                    Text(fieldValue.unitString)
-                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-                        .bold()
-                        .foregroundColor(Color(.secondaryLabel))
-                }
-                Spacer()
-            }
-//            croppedImage
-//        }
-    }
-    
-    @ViewBuilder
-    var fillTypeIcon: some View {
-        if viewModel.hasNonUserInputFills, !isEmpty {
-            Image(systemName: fieldValue.fillType.iconSystemImage)
-//        Image(systemName: "text.viewfinder")
-                .foregroundColor(Color(.secondaryLabel))
-        }
-    }
-    
-    var disclosureArrow: some View {
-        Image(systemName: "chevron.forward")
-            .font(.system(size: 14))
-            .foregroundColor(Color(.tertiaryLabel))
-            .fontWeight(.semibold)
-    }
-    
-    var cellBackgroundColor: Color {
-//        colorScheme == .dark ? Color(.systemGroupedBackground) : Color(.secondarySystemGroupedBackground)
-        Color(.secondarySystemGroupedBackground)
-    }
 }
+
+
+//MARK: - Preview
 
 public struct NutritionFacts_CellPreview: View {
     
