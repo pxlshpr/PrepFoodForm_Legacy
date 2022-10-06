@@ -138,7 +138,7 @@ extension FoodForm.NutritionFacts.Cell {
                             .shadow(radius: 3, x: 0, y: 3)
                     }
                 }
-            } else {
+            } else if fieldValue.fillType.usesImage {
                 activityIndicator
             }
         }
