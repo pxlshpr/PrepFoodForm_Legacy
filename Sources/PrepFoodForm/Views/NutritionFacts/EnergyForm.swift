@@ -10,15 +10,25 @@ struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
-    @Environment(\.presentationMode) var presentation
+    //MARK: Internal
+    
+    /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
+//    @StateObject var formViewModel: FieldValueViewModel
+//    @State var string: String
+//    @State var unit: EnergyUnit
+    
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool
     @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
+    
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
+
+    /// Bring this back if we're having issues with tap targets on buttons, as mentioned here: https://developer.apple.com/forums/thread/131404?answerId=612395022#612395022
+    @Environment(\.presentationMode) var presentation
     
     init(fieldValueViewModel: FieldValueViewModel) {
         self.fieldValueViewModel = fieldValueViewModel
@@ -49,6 +59,12 @@ extension EnergyForm {
         .sheet(isPresented: $showingTextPicker) {
             textPicker
         }
+        .interactiveDismissDisabled(isDirty)
+    }
+    
+    /// Returns true if any of the fields have changed from what they initially were
+    var isDirty: Bool {
+        true
     }
     
     var content: some View {
@@ -72,8 +88,7 @@ extension EnergyForm {
             fieldValueViewModel: fieldValueViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
-                isFocused = false
-                showingTextPicker = true
+                showTextPicker()
             }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)
             })
@@ -238,7 +253,13 @@ extension EnergyForm {
     }
     
     func didTapChooseButton() {
+        showTextPicker()
+    }
+    
+    func showTextPicker() {
         Haptics.feedback(style: .soft)
+        doNotRegisterUserInput = true
+        isFocused = false
         showingTextPicker = true
     }
     

@@ -10,6 +10,7 @@ struct MacronutrientForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
+    @Environment(\.presentationMode) var presentation
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     @State var showingTextPicker = false
