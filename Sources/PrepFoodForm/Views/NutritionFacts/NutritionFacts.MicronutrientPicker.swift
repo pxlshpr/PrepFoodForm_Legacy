@@ -26,6 +26,10 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
                 .navigationTitle("Micronutrients")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { navigationLeadingContent }
+                .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
+                    MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
+                        .environmentObject(viewModel)
+                }
         }
     }
     

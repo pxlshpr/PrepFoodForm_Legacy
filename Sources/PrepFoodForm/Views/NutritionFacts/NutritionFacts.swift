@@ -22,6 +22,18 @@ extension FoodForm.NutritionFacts {
                 MicronutrientPicker()
                     .environmentObject(viewModel)
             }
+            .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
+                MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
+                    .environmentObject(viewModel)
+            }
+            .sheet(item: $showingMacroFieldValueViewModel) { fieldValueViewModel in
+                MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
+                    .environmentObject(viewModel)
+            }
+            .sheet(isPresented: $showingEnergyForm) {
+                EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
+                    .environmentObject(viewModel)
+            }
     }
 
     var scrollView: some View {
@@ -44,10 +56,6 @@ extension FoodForm.NutritionFacts {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
-        .sheet(item: $showingMacroFieldValueViewModel) { fieldValueViewModel in
-            MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
-                .environmentObject(viewModel)
-        }
     }
 
     func micronutrientCell(for fieldValueViewModel: FieldValueViewModel) -> some View {
@@ -57,20 +65,6 @@ extension FoodForm.NutritionFacts {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
-        .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
-            MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
-                .environmentObject(viewModel)
-        }
-    }
-
-    var energyCell_navigationLink: some View {
-        NavigationLink {
-            EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
-                .environmentObject(viewModel)
-        } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: viewModel.energyViewModel)
-                .environmentObject(viewModel)
-        }
     }
     
     var energyCell: some View {
@@ -78,10 +72,6 @@ extension FoodForm.NutritionFacts {
             showingEnergyForm = true
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: viewModel.energyViewModel)
-                .environmentObject(viewModel)
-        }
-        .sheet(isPresented: $showingEnergyForm) {
-            EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
     }
