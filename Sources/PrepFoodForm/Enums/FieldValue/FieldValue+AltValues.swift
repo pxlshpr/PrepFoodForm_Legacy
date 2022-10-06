@@ -88,7 +88,10 @@ extension FoodLabelValue {
 extension NutrientType {
     
     var defaultUnit: NutrientUnit {
-        units.first ?? .g
+        guard !supportsPercentages else {
+            return .p
+        }
+        return supportedNutrientUnits.first ?? .g
     }
     
     func supportsUnit(_ foodLabelUnit: FoodLabelUnit) -> Bool {

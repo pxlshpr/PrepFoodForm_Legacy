@@ -244,6 +244,8 @@ extension FoodLabelUnit {
             return .g
         case .p:
             return .p
+//        case .iu:
+//            return .IU
         default:
             return nil
         }

@@ -105,7 +105,7 @@ struct MicronutrientForm: View {
     }
 
     var supportedUnits: [NutrientUnit] {
-        fieldValueViewModel.fieldValue.microValue.supportedNutrientUnits
+        fieldValueViewModel.fieldValue.microValue.nutrientType.supportedNutrientUnits
     }
     
     var defaultUnit: NutrientUnit {

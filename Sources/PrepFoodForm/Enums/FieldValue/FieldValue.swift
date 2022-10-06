@@ -72,20 +72,30 @@ extension FieldValue {
         func textColor(for colorScheme: ColorScheme) -> Color {
             .gray
         }
-        
-        var supportedNutrientUnits: [NutrientUnit] {
-            var units = nutrientType.units.map {
-                $0
-            }
-            /// Allow percentage values for `mineral`s and `vitamin`s
-            if nutrientType.group == .minerals || nutrientType.group == .vitamins {
-                units.append(.p)
-            }
-            return units
+    }
+}
+
+extension NutrientType {
+    var supportedNutrientUnits: [NutrientUnit] {
+        var units = units.map {
+            $0
         }
+        /// Allow percentage values for `mineral`s and `vitamin`s
+        if supportsPercentages {
+            units.append(.p)
+        }
+        return units
     }
 
+    var supportsPercentages: Bool {
+        group.supportsPercentages
+    }
+}
 
+extension NutrientTypeGroup {
+    var supportsPercentages: Bool {
+        self == .vitamins || self == .minerals
+    }
 }
 
 //MARK: MacroValue
@@ -835,7 +845,10 @@ extension NutrientUnit {
             return .mcg
         case .mg, .mgAT, .mgNE:
             return .mg
-        default:
+        case .p:
+            return .p
+        case .IU:
+//            return .iu
             return nil
         }
     }
