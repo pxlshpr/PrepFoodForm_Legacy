@@ -197,8 +197,8 @@ extension EnergyForm_Legacy {
         TextPicker(
             imageViewModels: viewModel.imageViewModels,
             selectedText: fieldValue.fillType.text,
+            selectedAttributeText: fieldValue.fillType.attributeText,
             selectedImageIndex: selectedImageIndex,
-            selectedBoundingBox: fieldValue.fillType.boundingBoxForImagePicker,
             onlyShowTextsWithValues: true
         ) { text, scanResultId in
             didTapText(text, onImageWithId: scanResultId)

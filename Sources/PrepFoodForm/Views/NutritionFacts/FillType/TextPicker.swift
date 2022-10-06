@@ -21,16 +21,17 @@ struct TextPicker: View {
 
     @State var currentIndex: Int = 0
 
-    let selectedBoundingBox: CGRect?
     let onlyShowTextsWithValues: Bool
     let selectedImageIndex: Int?
     let selectedText: RecognizedText?
+    let selectedAttributeText: RecognizedText?
+    private let selectedBoundingBox: CGRect?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
     
     init(imageViewModels: [ImageViewModel],
          selectedText: RecognizedText? = nil,
+         selectedAttributeText: RecognizedText? = nil,
          selectedImageIndex: Int? = nil,
-         selectedBoundingBox: CGRect? = nil,
          onlyShowTextsWithValues: Bool = false,
          didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void
     ) {
@@ -40,8 +41,19 @@ struct TextPicker: View {
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.selectedImageIndex = selectedImageIndex
         self.selectedText = selectedText
-        if let selectedBoundingBox {
-            self.selectedBoundingBox = selectedBoundingBox
+        self.selectedAttributeText = selectedAttributeText
+        
+        if let selectedAttributeText, let selectedText, let selectedImageIndex {
+            let union = selectedAttributeText.boundingBox.union(selectedText.boundingBox)
+            let ivm = imageViewModels[selectedImageIndex]
+            let texts = onlyShowTextsWithValues ? ivm.textsWithValues : ivm.texts
+            
+            /// Only show the union of the attribute and selected texts if the union of them both does not entirely cover any other texts we will be displaying.
+            if !texts.contains(where: { union.contains($0.boundingBox )}) {
+                self.selectedBoundingBox = union
+            } else {
+                self.selectedBoundingBox = selectedText.boundingBox
+            }
         } else {
             self.selectedBoundingBox = selectedText?.boundingBox
         }
