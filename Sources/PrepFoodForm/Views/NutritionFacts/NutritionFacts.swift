@@ -8,6 +8,7 @@ extension FoodForm {
         
         @State var showingEnergyForm = false
         @State var showingMacroFieldValueViewModel: FieldValueViewModel?
+        @State var showingMicroFieldValueViewModel: FieldValueViewModel?
     }
 }
 
@@ -50,18 +51,14 @@ extension FoodForm.NutritionFacts {
     }
 
     func micronutrientCell(for fieldValueViewModel: FieldValueViewModel) -> some View {
-        NavigationLink {
-            Color.blue
-//            MicronutrientForm(fieldValueViewModel: fieldValueViewModel, isBeingEdited: true) { fieldValueCopy in
-//                withAnimation {
-//                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
-//                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
-//                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
-//                }
-//            }
-//            .environmentObject(viewModel)
+        Button {
+            showingMicroFieldValueViewModel = fieldValueViewModel
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
+                .environmentObject(viewModel)
+        }
+        .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
+            MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
         }
     }

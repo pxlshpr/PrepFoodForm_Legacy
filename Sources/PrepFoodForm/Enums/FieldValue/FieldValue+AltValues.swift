@@ -74,7 +74,33 @@ extension FoodLabelValue {
         FoodLabelValue(amount: amount, unit: .g)
     }
 
+    /**
+     Returns this value forced as micro value—if it doesn't have one of the supported units, then it is returned with the default unit for the provided nutrient type.
+     */
+    func withMicroUnit(for nutrientType: NutrientType) -> FoodLabelValue {
+        guard let unit, nutrientType.supportsUnit(unit) else {
+            return FoodLabelValue(amount: amount, unit: nutrientType.defaultUnit.foodLabelUnit)
+        }
+        return self
+    }
 }
+
+extension NutrientType {
+    
+    var defaultUnit: NutrientUnit {
+        units.first ?? .g
+    }
+    
+    func supportsUnit(_ foodLabelUnit: FoodLabelUnit) -> Bool {
+        guard let nutrientUnit = foodLabelUnit.nutrientUnit else { return false }
+        return supportsUnit(nutrientUnit)
+    }
+    
+    func supportsUnit(_ nutrientUnit: NutrientUnit) -> Bool {
+        units.contains(nutrientUnit)
+    }
+}
+
 extension FieldValue.EnergyValue {
     /**
      Returns the `FoodLabelValue` to generate alts for. This is either the `altValue` currently attached to this—or the first value that's detected in the string (which is initially assigned to this when the text is selected).

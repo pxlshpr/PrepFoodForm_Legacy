@@ -13,7 +13,8 @@ extension FieldValue {
             FillOption(
                 string: autofillFieldValue.fillButtonString,
                 systemImage: FillType.SystemImage.imageAutofill,
-                isSelected: self.value == autofillFieldValue.value,
+//                isSelected: self.value == autofillFieldValue.value,
+                isSelected: self == autofillFieldValue,
                 type: .fillType(autofillFieldValue.fillType)
             )
         )
@@ -27,7 +28,7 @@ extension FieldValue {
                 FillOption(
                     string: alternateValue.fillOptionString,
                     systemImage: FillType.SystemImage.imageAutofill,
-                    isSelected: self.value == alternateValue,
+                    isSelected: self.value == alternateValue && self.fillType.isImageAutofill,
                     type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                 )
             )
@@ -77,7 +78,25 @@ extension FieldValue {
         }
         return values
     }
-    
+
+    func selectionMicroValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText], nutrientType: NutrientType) -> [FoodLabelValue]
+    {
+        var values: [FoodLabelValue] = []
+        for text in ([primaryText] + supplementaryTexts) {
+            /// Go through all the candidates provided by the Vision framework
+            for candidate in text.candidates {
+                for value in candidate.values {
+                    
+                    let microValue = value.withMicroUnit(for: nutrientType)
+                    
+                    guard !values.contains(microValue) else { continue }
+                    values.append(microValue)
+                }
+            }
+        }
+        return values
+    }
+
     func selectionFillValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText]) -> [FoodLabelValue] {
         switch self {
 //        case .name(let stringValue):
@@ -100,8 +119,8 @@ extension FieldValue {
             return selectionEnergyValues(for: primaryText, and: supplementaryTexts)
         case .macro:
             return selectionMacroValues(for: primaryText, and: supplementaryTexts)
-//        case .micro(let microValue):
-//            <#code#>
+        case .micro(let microValue):
+            return selectionMicroValues(for: primaryText, and: supplementaryTexts, nutrientType: microValue.nutrientType)
         default:
             return []
         }
@@ -129,7 +148,7 @@ extension FieldValue {
                 FillOption(
                     string: value.description,
                     systemImage: FillType.SystemImage.imageSelection,
-                    isSelected: self.value == value,
+                    isSelected: self.value == value && self.fillType.isImageSelection,
                     type: .fillType(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )
                 )
@@ -163,8 +182,8 @@ extension FieldValue {
             return energyValue.description
         case .macro(let macroValue):
             return macroValue.description
-//        case .micro(let microValue):
-//            <#code#>
+        case .micro(let microValue):
+            return microValue.description
         default:
             return "(not implemented)"
         }
@@ -176,8 +195,14 @@ extension FieldValue.MacroValue {
         "\(internalString) \(unitDescription)"
     }
 }
+extension FieldValue.MicroValue {
+    var description: String {
+        "\(internalString) \(unitDescription)"
+    }
+}
 extension FieldValue.EnergyValue {
     var description: String {
         "\(internalString) \(unitDescription)"
     }
 }
+

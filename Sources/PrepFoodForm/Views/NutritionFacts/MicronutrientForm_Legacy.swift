@@ -1,5 +1,5 @@
 import SwiftUI
-struct MicronutrientForm: View {
+struct MicronutrientForm_Legacy: View {
     @Binding var fieldValueViewModel: FieldValueViewModel
     @State var isBeingEdited: Bool
     var didSubmit: ((FieldValue) -> ())

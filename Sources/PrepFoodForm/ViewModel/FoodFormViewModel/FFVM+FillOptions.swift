@@ -1,5 +1,32 @@
 import FoodLabelScanner
 import VisionSugar
+import PrepUnits
+
+extension FillOption {
+    var foodLabelValue: FoodLabelValue? {
+        switch self.type {
+        case .fillType(let fillType):
+            return fillType.value
+        default:
+            return nil
+        }
+    }
+}
+
+extension Array where Element == FillOption {
+    func removingFillOptionValueDuplicates() -> [Element] {
+        var uniqueDict = [FoodLabelValue: Bool]()
+
+        return filter {
+            guard let key = $0.foodLabelValue else { return true }
+            return uniqueDict.updateValue(true, forKey: key) == nil
+        }
+    }
+
+    mutating func removeFillOptionValueDuplicates() {
+        self = self.removingFillOptionValueDuplicates()
+    }
+}
 
 extension FoodFormViewModel {
 
@@ -11,6 +38,9 @@ extension FoodFormViewModel {
         fillOptions.append(contentsOf: fieldValue.selectionFillOptions)
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
         fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
+        
+//        fillOptions.removeFillOptionValueDuplicates()
+        
         if let chooseOption = chooseOption(for: fieldValue) {
             fillOptions .append(chooseOption)
         }
@@ -70,8 +100,8 @@ extension FoodFormViewModel {
             return autofillFieldValues.first(where: { $0.isEnergy })
         case .macro(let macroValue):
             return autofillFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
-//        case .micro(let microValue):
-//            <#code#>
+        case .micro(let microValue):
+            return autofillFieldValues.first(where: { $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
 //        case .amount(let doubleValue):
 //            <#code#>
 //        case .serving(let doubleValue):

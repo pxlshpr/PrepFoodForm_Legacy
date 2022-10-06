@@ -36,7 +36,11 @@ struct EnergyForm: View {
     
     func setNewValue(_ value: FoodLabelValue) {
         formViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
-        formViewModel.fieldValue.energyValue.unit = value.unit?.energyUnit ?? .kcal
+        if let unit = value.unit, unit.isEnergy {
+            formViewModel.fieldValue.energyValue.unit = unit.energyUnit
+        } else {
+            formViewModel.fieldValue.energyValue.unit = .kcal
+        }
     }
 }
 

@@ -6,6 +6,7 @@ extension FoodForm.NutritionFacts {
     public struct MicronutrientPicker: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.dismiss) var dismiss
+        @State var showingMicroFieldValueViewModel: FieldValueViewModel?
     }
 }
 
@@ -42,7 +43,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
                     Section(viewModel.micronutrients[g].group.description) {
                         ForEach(viewModel.micronutrients[g].fieldValueViewModels.indices, id: \.self) { f in
                             if viewModel.micronutrients[g].fieldValueViewModels[f].fieldValue.isEmpty {
-                                nutrientButton(for: $viewModel.micronutrients[g].fieldValueViewModels[f])
+                                nutrientButton(for: viewModel.micronutrients[g].fieldValueViewModels[f])
                             }
                         }
                     }
@@ -51,19 +52,11 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
         }
     }
     
-    func nutrientButton(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
-        NavigationLink {
-            MicronutrientForm(fieldValueViewModel: fieldValueViewModel) { fieldValueCopy in
-                /// Set the value here so the user sees the animation of the micronutrient disappearing, and then clear the `transientString` for the next addition
-                withAnimation {
-                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
-                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
-                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
-                }
-            }
-            .environmentObject(viewModel)
+    func nutrientButton(for fieldValueViewModel: FieldValueViewModel) -> some View {
+        Button {
+            showingMicroFieldValueViewModel = fieldValueViewModel
         } label: {
-            Text(fieldValueViewModel.wrappedValue.fieldValue.description)
+            Text(fieldValueViewModel.fieldValue.description)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())

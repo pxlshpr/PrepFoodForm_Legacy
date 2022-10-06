@@ -10,67 +10,6 @@ enum PrefillField {
     case brand
 }
 
-protocol FillInfo: Hashable, Equatable {
-    
-}
-
-struct UserInputFillInfo: FillInfo {
-    
-}
-
-struct BarcodeScanFillInfo: FillInfo {
-    
-}
-
-struct PrefillInfo: FillInfo {
-    /// `prefilledFields` is used for string based fields such as `name` and `detail` where multile prefill fields may be selected and joined together to form the filled value. For instance, if the user joins what the prefill food has as its `.name` and `.detail` into the name field, this would be `.prefill([.name, .detail])`
-    let prefilledFields: [PrefillField]
-}
-
-struct CalculatedFillInfo: FillInfo {
-    
-}
-
-protocol ImageFillInfo: FillInfo {
-    var textId: UUID { get }
-}
-
-struct AutofillInfo: ImageFillInfo {
-    let valueText: ValueText
-    let imageId: UUID
-    
-    /// `altValue` is used to identify the specific `FoodLabelValue` for each of these that the user picked (for instances where alternative's may have been suggested and the user picked one of those instead)—so that we can later mark it as selected
-    let altValue: FoodLabelValue?
-    
-    init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
-        self.valueText = valueText
-        self.imageId = imageId
-        self.altValue = altValue
-    }
-    
-    var textId: UUID {
-        valueText.text.id
-    }
-}
-
-struct SelectionInfo: ImageFillInfo {
-    let selectedText: RecognizedText
-    let imageId: UUID
-    let supplementaryTexts: [RecognizedText]
-    let altValue: FoodLabelValue?
-    
-    init(selectedText: RecognizedText, imageId: UUID, supplementaryTexts: [RecognizedText], altValue: FoodLabelValue? = nil) {
-        self.selectedText = selectedText
-        self.imageId = imageId
-        self.supplementaryTexts = supplementaryTexts
-        self.altValue = altValue
-    }
-    
-    var textId: UUID {
-        selectedText.id
-    }
-}
-
 enum FillType: Hashable {
     case userInput
     
@@ -275,29 +214,31 @@ enum FillType: Hashable {
 }
 
 extension FillType {
+    var detectedValues: [FoodLabelValue] {
+        text?.string.values ?? []
+    }
+    
     var isAltValue: Bool {
         altValue != nil
     }
-    var altValue: FoodLabelValue? {
+
+    /// Returns the `FoodLabelValue` represented by this fill type.
+    var value: FoodLabelValue? {
         switch self {
-        case .imageSelection(_, _, _, let value):
-            return value
-        case .imageAutofill(_, _, let value):
-            return value
+        case .imageSelection(let recognizedText, _, _, let value):
+            return value ?? recognizedText.firstFoodLabelValue
+        case .imageAutofill(let valueText, _, let value):
+            return value ?? valueText.value
+        case .calculated:
+            //TODO: Do this
+            return nil
         default:
             return nil
         }
     }
-}
-
-extension FillType {
-    var detectedValues: [FoodLabelValue] {
-        text?.string.values ?? []
-    }
-}
-
-extension FillType {
-    var value: FoodLabelValue? {
+    
+    /// Returns the `FoodLabelValue` associated with this fill type as an alt value. This does not return the actual `FoodLabelValue` that this fill type represents if it doesn't have an alt value.
+    var altValue: FoodLabelValue? {
         get {
             switch self {
             case .imageSelection(_, _, _, let value):

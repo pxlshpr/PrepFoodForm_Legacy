@@ -301,6 +301,14 @@ extension FieldValue {
         }
         return false
     }
+    
+    var isMicro: Bool {
+        if case .micro = self {
+            return true
+        }
+        return false
+    }
+
 }
 
 extension FieldValue: CustomStringConvertible {
@@ -795,13 +803,7 @@ extension FieldValue {
         default:
             return false
         }
-    }
-    
-    func matchesFieldValue(_ fieldValue: FieldValue, withValue value: FoodLabelValue?) -> Bool {
-        var selfWithValue = self
-        selfWithValue.fillType.value = value
-        return selfWithValue == fieldValue
-    }
+    }    
 }
 
 //MARK: - To be moved
@@ -838,3 +840,4 @@ extension EnergyUnit {
         }
     }
 }
+
