@@ -11,6 +11,18 @@ class FieldValueViewModel: ObservableObject, Identifiable {
         self.fieldValue = fieldValue
     }
     
+    var copy: FieldValueViewModel {
+        let new = FieldValueViewModel(fieldValue: fieldValue)
+        new.copyData(from: self)
+        return new
+    }
+    
+    func copyData(from fieldValueViewModel: FieldValueViewModel) {
+        fieldValue = fieldValueViewModel.fieldValue
+        imageToDisplay = fieldValueViewModel.imageToDisplay
+        isCroppingNextImage = fieldValueViewModel.isCroppingNextImage
+    }
+    
     func registerUserInput() {
         fieldValue.fillType = .userInput
         imageToDisplay = nil

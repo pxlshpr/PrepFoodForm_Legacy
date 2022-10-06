@@ -13,9 +13,7 @@ struct EnergyForm: View {
     //MARK: Internal
     
     /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-//    @StateObject var formViewModel: FieldValueViewModel
-//    @State var string: String
-//    @State var unit: EnergyUnit
+    @StateObject var formViewModel: FieldValueViewModel
     
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
@@ -31,8 +29,11 @@ struct EnergyForm: View {
     @Environment(\.presentationMode) var presentation
     
     init(fieldValueViewModel: FieldValueViewModel) {
-        self.fieldValueViewModel = fieldValueViewModel
         _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.energyValue.string.isEmpty)
+        
+        self.fieldValueViewModel = fieldValueViewModel
+        let formViewModel = fieldValueViewModel.copy
+        _formViewModel = StateObject(wrappedValue: formViewModel)
     }
 }
 
@@ -85,7 +86,7 @@ extension EnergyForm {
 
     var fillOptionsSections: some View {
         FillOptionsSections(
-            fieldValueViewModel: fieldValueViewModel,
+            fieldValueViewModel: formViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
                 showTextPicker()
@@ -97,15 +98,15 @@ extension EnergyForm {
 
     var saveButton: some View {
         Button("Save") {
-            doNotRegisterUserInput = true
-            dismiss()
+            saveAndDismiss()
         }
     }
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button("Cancel") {
-                //TODO: revert value here
+                /// Do nothing to revert the values as the original `FieldValueViewModel` is still untouched
+                doNotRegisterUserInput = true
                 dismiss()
             }
         }
@@ -135,7 +136,7 @@ extension EnergyForm {
     }
     
     var header: some View {
-        let autofillString = viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) ? "or autofill " : ""
+        let autofillString = viewModel.shouldShowFillOptions(for: formViewModel.fieldValue) ? "or autofill " : ""
         let string = "Enter \(autofillString)a value"
         return Text(string)
 //            .opacity(fieldValue.energyValue.string.isEmpty ? 1 : 0)
@@ -145,10 +146,10 @@ extension EnergyForm {
         let binding = Binding<String>(
             get: { self.fieldValue.energyValue.string },
             set: {
-                self.fieldValueViewModel.fieldValue.energyValue.string = $0
+                self.formViewModel.fieldValue.energyValue.string = $0
                 if !doNotRegisterUserInput && isFocused {
                     withAnimation {
-                        fieldValueViewModel.registerUserInput()
+                        formViewModel.registerUserInput()
                     }
                 }
             }
@@ -158,7 +159,7 @@ extension EnergyForm {
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .font(fieldValueViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
+            .font(formViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
@@ -183,7 +184,7 @@ extension EnergyForm {
     }
     
     var unitPicker: some View {
-        Picker("", selection: $fieldValueViewModel.fieldValue.energyValue.unit) {
+        Picker("", selection: $formViewModel.fieldValue.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
@@ -204,15 +205,22 @@ extension EnergyForm {
             didTapText(text, onImageWithId: scanResultId)
         }
         .onDisappear {
-            guard fieldValueViewModel.isCroppingNextImage else {
+            guard formViewModel.isCroppingNextImage else {
                 return
             }
-            fieldValueViewModel.cropFilledImage()
+            formViewModel.cropFilledImage()
             doNotRegisterUserInput = false
        }
     }
 
     //MARK: - Actions
+    
+    func saveAndDismiss() {
+        doNotRegisterUserInput = true
+        /// Copy the data across from the transient `FieldValueViewModel` we were using here to persist the data
+        fieldValueViewModel.copyData(from: formViewModel)
+        dismiss()
+    }
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
         
@@ -237,8 +245,8 @@ extension EnergyForm {
 
         doNotRegisterUserInput = true
         setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
-        fieldValueViewModel.fieldValue.fillType = newFillType
-        fieldValueViewModel.isCroppingNextImage = true
+        formViewModel.fieldValue.fillType = newFillType
+        formViewModel.isCroppingNextImage = true
     }
     
     func didTapFillOption(_ fillOption: FillOption) {
@@ -246,9 +254,10 @@ extension EnergyForm {
         case .chooseText:
             didTapChooseButton()
         case .fillType(let fillType):
+            Haptics.feedback(style: .rigid)
+            changeFillType(to: fillType)
             didTapFillTypeButton(for: fillType)
-            doNotRegisterUserInput = true
-            dismiss()
+            saveAndDismiss()
         }
     }
     
@@ -264,10 +273,6 @@ extension EnergyForm {
     }
     
     func didTapFillTypeButton(for fillType: FillType) {
-        Haptics.feedback(style: .rigid)
-        withAnimation {
-            changeFillType(to: fillType)
-        }
     }
     
     func changeFillType(to fillType: FillType) {
@@ -284,18 +289,18 @@ extension EnergyForm {
         }
         
         let previousFillType = fieldValue.fillType
-        fieldValueViewModel.fieldValue.fillType = fillType
+        formViewModel.fieldValue.fillType = fillType
         if fillType.text?.id != previousFillType.text?.id {
-            fieldValueViewModel.isCroppingNextImage = true
-            fieldValueViewModel.cropFilledImage()
+            formViewModel.isCroppingNextImage = true
+            formViewModel.cropFilledImage()
         }
         
         doNotRegisterUserInput = false
     }
     
     func setNew(amount: Double, unit: EnergyUnit) {
-        fieldValueViewModel.fieldValue.energyValue.string = amount.cleanAmount
-        fieldValueViewModel.fieldValue.energyValue.unit = unit
+        formViewModel.fieldValue.energyValue.string = amount.cleanAmount
+        formViewModel.fieldValue.energyValue.unit = unit
     }
     
     func setNewValue(_ value: FoodLabelValue) {
@@ -317,7 +322,7 @@ extension EnergyForm {
     //MARK: - Helpers
     
     var fieldValue: FieldValue {
-        fieldValueViewModel.fieldValue
+        formViewModel.fieldValue
     }
 
     var selectedImageIndex: Int? {
