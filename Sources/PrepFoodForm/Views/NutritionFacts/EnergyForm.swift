@@ -10,8 +10,6 @@ struct EnergyForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
-    //MARK: Internal
-    
     /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
     @StateObject var formViewModel: FieldValueViewModel
     
@@ -26,10 +24,10 @@ struct EnergyForm: View {
     @State var shouldAnimateOptions = false
 
     /// Bring this back if we're having issues with tap targets on buttons, as mentioned here: https://developer.apple.com/forums/thread/131404?answerId=612395022#612395022
-    @Environment(\.presentationMode) var presentation
+//    @Environment(\.presentationMode) var presentation
     
     init(fieldValueViewModel: FieldValueViewModel) {
-        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.energyValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
         
         self.fieldValueViewModel = fieldValueViewModel
         let formViewModel = fieldValueViewModel.copy
@@ -65,7 +63,7 @@ extension EnergyForm {
     
     /// Returns true if any of the fields have changed from what they initially were
     var isDirty: Bool {
-        true
+        formViewModel.fieldValue != fieldValueViewModel.fieldValue
     }
     
     var content: some View {
@@ -79,7 +77,7 @@ extension EnergyForm {
         FormStyledSection(footer: header) {
             HStack {
                 textField
-                unitPicker
+                energyUnitPicker
             }
         }
     }
@@ -96,10 +94,12 @@ extension EnergyForm {
         .environmentObject(viewModel)
     }
 
+    @ViewBuilder
     var saveButton: some View {
         Button("Save") {
             saveAndDismiss()
         }
+        .disabled(!isDirty)
     }
     
     var navigationLeadingContent: some ToolbarContent {
@@ -139,14 +139,13 @@ extension EnergyForm {
         let autofillString = viewModel.shouldShowFillOptions(for: formViewModel.fieldValue) ? "or autofill " : ""
         let string = "Enter \(autofillString)a value"
         return Text(string)
-//            .opacity(fieldValue.energyValue.string.isEmpty ? 1 : 0)
     }
     
     var textField: some View {
         let binding = Binding<String>(
-            get: { self.fieldValue.energyValue.string },
+            get: { self.fieldValue.string },
             set: {
-                self.formViewModel.fieldValue.energyValue.string = $0
+                self.formViewModel.fieldValue.string = $0
                 if !doNotRegisterUserInput && isFocused {
                     withAnimation {
                         formViewModel.registerUserInput()
@@ -159,7 +158,7 @@ extension EnergyForm {
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .font(formViewModel.fieldValue.energyValue.string.isEmpty ? .body : .largeTitle)
+            .font(formViewModel.fieldValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
@@ -183,7 +182,7 @@ extension EnergyForm {
         }
     }
     
-    var unitPicker: some View {
+    var energyUnitPicker: some View {
         Picker("", selection: $formViewModel.fieldValue.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
@@ -244,7 +243,7 @@ extension EnergyForm {
         }
 
         doNotRegisterUserInput = true
-        setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
+        setNewValue(value)
         formViewModel.fieldValue.fillType = newFillType
         formViewModel.isCroppingNextImage = true
     }
@@ -256,7 +255,6 @@ extension EnergyForm {
         case .fillType(let fillType):
             Haptics.feedback(style: .rigid)
             changeFillType(to: fillType)
-            didTapFillTypeButton(for: fillType)
             saveAndDismiss()
         }
     }
@@ -270,9 +268,6 @@ extension EnergyForm {
         doNotRegisterUserInput = true
         isFocused = false
         showingTextPicker = true
-    }
-    
-    func didTapFillTypeButton(for fillType: FillType) {
     }
     
     func changeFillType(to fillType: FillType) {
@@ -298,14 +293,6 @@ extension EnergyForm {
         doNotRegisterUserInput = false
     }
     
-    func setNew(amount: Double, unit: EnergyUnit) {
-        formViewModel.fieldValue.energyValue.string = amount.cleanAmount
-        formViewModel.fieldValue.energyValue.unit = unit
-    }
-    
-    func setNewValue(_ value: FoodLabelValue) {
-        setNew(amount: value.amount, unit: value.unit?.energyUnit ?? .kcal)
-    }
     
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
         let value = altValue ?? valueText.value
@@ -327,6 +314,12 @@ extension EnergyForm {
 
     var selectedImageIndex: Int? {
         viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
+    }
+    
+    //MARK: - Energy based
+    func setNewValue(_ value: FoodLabelValue) {
+        formViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
+        formViewModel.fieldValue.energyValue.unit = value.unit?.energyUnit ?? .kcal
     }
 }
 

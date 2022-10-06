@@ -434,6 +434,52 @@ extension FieldValue {
         }
     }
     
+    var string: String {
+        get {
+            switch self {
+            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+                return stringValue.string
+            case .amount(let doubleValue), .serving(let doubleValue):
+                return doubleValue.string
+            case .density(_):
+                return "(density description goes here)"
+            case .energy(let energyValue):
+                return energyValue.string
+            case .macro(let macroValue):
+                return macroValue.string
+            case .micro(let microValue):
+                return microValue.string
+            }
+        }
+        set {
+            switch self {
+            case .energy(var energyValue):
+                energyValue.string = newValue
+            case .macro(var macroValue):
+                macroValue.string = newValue
+            case .micro(var microValue):
+                microValue.string = newValue
+//            case .name(let stringValue):
+//                <#code#>
+//            case .emoji(let stringValue):
+//                <#code#>
+//            case .brand(let stringValue):
+//                <#code#>
+//            case .barcode(let stringValue):
+//                <#code#>
+//            case .detail(let stringValue):
+//                <#code#>
+//            case .amount(let doubleValue):
+//                <#code#>
+//            case .serving(let doubleValue):
+//                <#code#>
+//            case .density(let densityValue):
+//                <#code#>
+            default:
+                break
+            }
+        }
+    }
     var value: FoodLabelValue? {
         switch self {
         case .energy, .macro, .micro:
