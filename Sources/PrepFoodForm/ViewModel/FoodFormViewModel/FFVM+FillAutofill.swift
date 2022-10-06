@@ -38,6 +38,8 @@ extension FoodFormViewModel {
             extractNutrient(nutrient)
         }
         
+        extractServing()
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             for fieldValueViewModel in self.allFieldValueViewModels {
                 fieldValueViewModel.isCroppingNextImage = true
@@ -108,6 +110,26 @@ extension FoodFormViewModel {
         fieldValueFromScanResults(for: nil, orNutrientType: nutrientType)
     }
     
+    func extractServing() {
+        guard let fieldValue = fieldValueFromScanResultsForServing else {
+            return
+        }
+        //TODO: Only do this if user hasn't already got a value in there
+        servingViewModel = .init(fieldValue: fieldValue)
+        autofillFieldValues.append(fieldValue)
+    }
+    
+    var fieldValueFromScanResultsForServing: FieldValue? {
+        /// **We're current returning the first one we find amongst the images**
+        for scanResult in scanResults {
+            if let (fieldValue, sizesToAdd) = scanResult.fieldValueForServing {
+                standardSizes.append(contentsOf: sizesToAdd)
+                return fieldValue
+            }
+        }
+        return nil
+    }
+    
     func fieldValueFromScanResults(for attribute: Attribute? = nil, orNutrientType nutrientType: NutrientType? = nil) -> FieldValue? {
         
         guard attribute != nil || nutrientType != nil else {
@@ -143,7 +165,100 @@ extension FoodFormViewModel {
     }
 }
 
+extension FoodLabelUnit {
+    var formUnit: FormUnit? {
+        switch self {
+        case .cup:
+            return .volume(.cup)
+        case .mg:
+            return .weight(.mg)
+        case .kj:
+            return .weight(.kg)
+        case .g:
+            return .weight(.g)
+        case .oz:
+            return .weight(.oz)
+        case .ml:
+            return .volume(.mL)
+        case .tbsp:
+            return .volume(.tablespoon)
+        default:
+            return nil
+        }
+    }
+}
+
 extension ScanResult {
+    
+    var fieldValueForServing: (fieldValue: FieldValue, sizesToAdd: [Size])? {
+        guard let serving, let servingAmount = serving.amount, servingAmount > 0
+        else {
+            return nil
+        }
+        
+        var sizesToAdd: [Size] = []
+        let fieldValue: FieldValue
+        if let unitNameText = serving.unitNameText {
+            let size: Size
+            if let equivalentSize = serving.equivalentSize {
+                if let equivalentSizeUnitNameText = serving.equivalentSize?.unitNameText {
+                    let size2 = Size(
+                        name: equivalentSizeUnitNameText.string,
+                        amount: 1.0/servingAmount/equivalentSize.amount,
+                        unit: .serving)
+                    size = Size(
+                        name: unitNameText.string,
+                        amount: equivalentSize.amount,
+                        unit: .size(size2, nil))
+                    sizesToAdd = [size, size2]
+                } else {
+                    let unit = equivalentSize.unit?.formUnit ?? .weight(.g)
+                    size = Size(
+                        name: unitNameText.string,
+                        amount: equivalentSize.amount,
+                        unit: unit)
+                    sizesToAdd = [size]
+                }
+            } else {
+                size = Size(
+                    name: unitNameText.string,
+                    amount: 1.0/servingAmount,
+                    unit: .serving)
+                sizesToAdd = [size]
+            }
+            
+            /// We have a size now
+            fieldValue = FieldValue.serving(FieldValue.DoubleValue(
+                double: servingAmount,
+                string: servingAmount.cleanAmount,
+                unit: .size(size, nil),
+                fillType: .userInput
+            ))
+
+        } else {
+            let unit = serving.unit?.formUnit ?? .weight(.g)
+            fieldValue = FieldValue.serving(FieldValue.DoubleValue(
+                double: servingAmount,
+                string: servingAmount.cleanAmount,
+                unit: unit,
+                fillType: .userInput
+            ))
+        }
+        return (fieldValue, sizesToAdd)
+//        guard let row = row(for: .energy),
+//              let valueText = row.valueText1,
+//              let value = row.value1
+//        else {
+//            return nil
+//        }
+//        let fillType = .imageAutofill(valueText: valueText, scanResultId: self.id)
+//        return FieldValue.energy(FieldValue.EnergyValue(
+//            double: value.amount,
+//            string: value.amount.cleanAmount,
+//            unit: value.unit?.energyUnit ?? .kcal,
+//            fillType: fillType)
+//        )
+    }
     
     func fieldValue(for attribute: Attribute) -> FieldValue? {
         switch attribute {
