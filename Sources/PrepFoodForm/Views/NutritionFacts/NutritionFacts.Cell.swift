@@ -1,11 +1,12 @@
 import SwiftUI
 import PrepUnits
+import ActivityIndicatorView
 
 extension FoodForm.NutritionFacts {
     struct Cell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
-        @Binding var fieldValueViewModel: FieldValueViewModel
+        @ObservedObject var fieldValueViewModel: FieldValueViewModel
     }
 }
 
@@ -34,30 +35,47 @@ extension FoodForm.NutritionFacts.Cell {
                 Spacer()
                 VStack {
                     Spacer()
+                    
                     croppedImage
-//                    Color.blue
-                        .frame(maxWidth: 200, alignment: .trailing)
-                        .grayscale(1.0)
-//                        .opacity(0.5)
+                    .frame(maxWidth: 200, alignment: .trailing)
+                    .grayscale(1.0)
                 }
                 .frame(height: 40)
-//                .background(.green)
                 .padding(.trailing, 16)
                 .padding(.bottom, 6)
             }
         }
     }
     
-    @ViewBuilder
     var croppedImage: some View {
-        if let image = fieldValueViewModel.imageToDisplay {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .clipShape(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                )
-                .shadow(radius: 3, x: 0, y: 3)
+        
+        var activityIndicator: some View {
+            ZStack {
+                ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        
+        return Group {
+            if let image = fieldValueViewModel.imageToDisplay {
+                ZStack {
+                    if fieldValueViewModel.isCroppingNextImage {
+                        activityIndicator
+                    } else {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            )
+                            .shadow(radius: 3, x: 0, y: 3)
+                    }
+                }
+            } else {
+                activityIndicator
+            }
         }
     }
     

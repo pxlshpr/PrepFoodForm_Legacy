@@ -36,9 +36,9 @@ extension FoodForm.NutritionFacts {
         .background(formBackgroundColor)
     }
     
-    func macronutrientForm(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
+    func macronutrientForm(for fieldValueViewModel: FieldValueViewModel) -> some View {
         Button {
-            showingMacroFieldValueViewModel = fieldValueViewModel.wrappedValue
+            showingMacroFieldValueViewModel = fieldValueViewModel
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
@@ -49,16 +49,17 @@ extension FoodForm.NutritionFacts {
         }
     }
 
-    func micronutrientCell(for fieldValueViewModel: Binding<FieldValueViewModel>) -> some View {
+    func micronutrientCell(for fieldValueViewModel: FieldValueViewModel) -> some View {
         NavigationLink {
-            MicronutrientForm(fieldValueViewModel: fieldValueViewModel, isBeingEdited: true) { fieldValueCopy in
-                withAnimation {
-                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
-                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
-                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
-                }
-            }
-            .environmentObject(viewModel)
+            Color.blue
+//            MicronutrientForm(fieldValueViewModel: fieldValueViewModel, isBeingEdited: true) { fieldValueCopy in
+//                withAnimation {
+//                    fieldValueViewModel.wrappedValue.fieldValue.microValue.string = fieldValueCopy.microValue.string
+//                    fieldValueViewModel.wrappedValue.fieldValue.microValue.unit = fieldValueCopy.microValue.unit
+//                    fieldValueViewModel.wrappedValue.fieldValue.fillType = fieldValueCopy.microValue.fillType
+//                }
+//            }
+//            .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
                 .environmentObject(viewModel)
@@ -70,7 +71,7 @@ extension FoodForm.NutritionFacts {
             EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: $viewModel.energyViewModel)
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -79,7 +80,7 @@ extension FoodForm.NutritionFacts {
         Button {
             showingEnergyForm = true
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: $viewModel.energyViewModel)
+            FoodForm.NutritionFacts.Cell(fieldValueViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
         .sheet(isPresented: $showingEnergyForm) {
@@ -91,9 +92,9 @@ extension FoodForm.NutritionFacts {
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
-            macronutrientForm(for: $viewModel.carbViewModel)
-            macronutrientForm(for: $viewModel.fatViewModel)
-            macronutrientForm(for: $viewModel.proteinViewModel)
+            macronutrientForm(for: viewModel.carbViewModel)
+            macronutrientForm(for: viewModel.fatViewModel)
+            macronutrientForm(for: viewModel.proteinViewModel)
         }
     }
     
@@ -123,7 +124,7 @@ extension FoodForm.NutritionFacts {
                     subtitleCell(viewModel.micronutrients[g].group.description)
                     ForEach(viewModel.micronutrients[g].fieldValueViewModels.indices, id: \.self) { f in
                         if !viewModel.micronutrients[g].fieldValueViewModels[f].fieldValue.isEmpty {
-                            micronutrientCell(for: $viewModel.micronutrients[g].fieldValueViewModels[f])
+                            micronutrientCell(for: viewModel.micronutrients[g].fieldValueViewModels[f])
                         }
                     }
                 }

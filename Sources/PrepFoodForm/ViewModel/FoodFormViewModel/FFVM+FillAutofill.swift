@@ -40,6 +40,7 @@ extension FoodFormViewModel {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             for fieldValueViewModel in self.allFieldValueViewModels {
+                fieldValueViewModel.isCroppingNextImage = true
                 fieldValueViewModel.cropFilledImage()
             }
         }

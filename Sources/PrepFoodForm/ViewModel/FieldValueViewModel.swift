@@ -19,8 +19,15 @@ class FieldValueViewModel: ObservableObject, Identifiable {
     
     func copyData(from fieldValueViewModel: FieldValueViewModel) {
         fieldValue = fieldValueViewModel.fieldValue
-        imageToDisplay = fieldValueViewModel.imageToDisplay
-        isCroppingNextImage = fieldValueViewModel.isCroppingNextImage
+        
+        /// If the the image is still being cropped—do the crop ourselves instead of setting it here incorrectly
+        if fieldValueViewModel.isCroppingNextImage {
+            isCroppingNextImage = true
+            cropFilledImage()
+        } else {
+            imageToDisplay = fieldValueViewModel.imageToDisplay
+            isCroppingNextImage = false
+        }
     }
     
     func registerUserInput() {
@@ -29,8 +36,6 @@ class FieldValueViewModel: ObservableObject, Identifiable {
     }
     
     func cropFilledImage() {
-//        imageToDisplay = nil
-        
         guard fieldValue.fillType.usesImage else {
             withAnimation {
                 imageToDisplay = nil

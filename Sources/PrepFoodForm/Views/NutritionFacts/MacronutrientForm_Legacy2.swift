@@ -6,7 +6,7 @@ import VisionSugar
 import SwiftUISugar
 import Introspect
 
-struct MacronutrientForm: View {
+struct MacronutrientForm_Legacy2: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
@@ -27,7 +27,7 @@ struct MacronutrientForm: View {
 }
 
 //MARK: - Views
-extension MacronutrientForm {
+extension MacronutrientForm_Legacy2 {
     var body: some View {
         NavigationView {
             content

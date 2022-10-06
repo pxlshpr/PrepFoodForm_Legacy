@@ -6,12 +6,14 @@ import VisionSugar
 import SwiftUISugar
 import Introspect
 
-struct EnergyForm: View {
+struct FieldValueForm<UnitView: View>: View {
+    var unitView: UnitView?
+    
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var fieldValueViewModel: FieldValueViewModel
     
     /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-    @StateObject var formViewModel: FieldValueViewModel
+    @ObservedObject var formViewModel: FieldValueViewModel
     
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
@@ -19,6 +21,7 @@ struct EnergyForm: View {
     @State var doNotRegisterUserInput: Bool
     @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
+    @State var refreshBool = false
     
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
@@ -26,17 +29,51 @@ struct EnergyForm: View {
     /// Bring this back if we're having issues with tap targets on buttons, as mentioned here: https://developer.apple.com/forums/thread/131404?answerId=612395022#612395022
 //    @Environment(\.presentationMode) var presentation
     
-    init(fieldValueViewModel: FieldValueViewModel) {
+//    init(fieldValueViewModel: FieldValueViewModel) {
+//        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+//
+//        self.fieldValueViewModel = fieldValueViewModel
+//        let formViewModel = fieldValueViewModel.copy
+//        _formViewModel = StateObject(wrappedValue: formViewModel)
+//    }
+    
+    let setNewValue: ((FoodLabelValue) -> ())?
+    
+    init(formViewModel: FieldValueViewModel,
+         fieldValueViewModel: FieldValueViewModel,
+         unitView: UnitView,
+         setNewValue: ((FoodLabelValue) -> ())? = nil
+    ) {
         _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
         
         self.fieldValueViewModel = fieldValueViewModel
-        let formViewModel = fieldValueViewModel.copy
-        _formViewModel = StateObject(wrappedValue: formViewModel)
+        self.formViewModel = formViewModel
+        self.unitView = unitView
+        self.setNewValue = setNewValue
+//        let formViewModel = fieldValueViewModel.copy
+//        _formViewModel = StateObject(wrappedValue: formViewModel)
+    }
+
+}
+
+extension FieldValueForm where UnitView == EmptyView {
+    init(formViewModel: FieldValueViewModel,
+         fieldValueViewModel: FieldValueViewModel,
+         setNewValue: ((FoodLabelValue) -> ())? = nil
+    ) {
+        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        
+        self.fieldValueViewModel = fieldValueViewModel
+        self.formViewModel = formViewModel
+        self.unitView = nil
+        self.setNewValue = setNewValue
+//        let formViewModel = fieldValueViewModel.copy
+//        _formViewModel = StateObject(wrappedValue: formViewModel)
     }
 }
 
 //MARK: - Views
-extension EnergyForm {
+extension FieldValueForm {
     var body: some View {
         NavigationView {
             content
@@ -77,7 +114,7 @@ extension EnergyForm {
         FormStyledSection(footer: header) {
             HStack {
                 textField
-                energyUnitPicker
+                unitView
             }
         }
     }
@@ -100,6 +137,7 @@ extension EnergyForm {
             saveAndDismiss()
         }
         .disabled(!isDirty)
+        .id(refreshBool)
     }
     
     var navigationLeadingContent: some ToolbarContent {
@@ -182,17 +220,6 @@ extension EnergyForm {
         }
     }
     
-    var energyUnitPicker: some View {
-        Picker("", selection: $formViewModel.fieldValue.energyValue.unit) {
-            ForEach(EnergyUnit.allCases, id: \.self) {
-                unit in
-                Text(unit.shortDescription).tag(unit)
-            }
-        }
-        .pickerStyle(.segmented)
-        
-    }
-    
     var textPicker: some View {
         TextPicker(
             imageViewModels: viewModel.imageViewModels,
@@ -209,6 +236,7 @@ extension EnergyForm {
             }
             formViewModel.cropFilledImage()
             doNotRegisterUserInput = false
+            refreshBool.toggle()
        }
     }
 
@@ -219,33 +247,6 @@ extension EnergyForm {
         /// Copy the data across from the transient `FieldValueViewModel` we were using here to persist the data
         fieldValueViewModel.copyData(from: formViewModel)
         dismiss()
-    }
-    
-    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
-        
-        guard let value = text.firstFoodLabelValue else {
-            print("Couldn't get a double from the tapped string")
-            return
-        }
-        
-        let newFillType: FillType
-        if let autofillValueText = viewModel.autofillValueText(for: fieldValue),
-           autofillValueText.text == text
-        {
-            newFillType = .imageAutofill(
-                valueText: autofillValueText, scanResultId: imageId, value: nil
-            )
-        } else {
-            newFillType = .imageSelection(
-                recognizedText: text,
-                scanResultId: imageId
-            )
-        }
-
-        doNotRegisterUserInput = true
-        setNewValue(value)
-        formViewModel.fieldValue.fillType = newFillType
-        formViewModel.isCroppingNextImage = true
     }
     
     func didTapFillOption(_ fillOption: FillOption) {
@@ -293,19 +294,47 @@ extension EnergyForm {
         doNotRegisterUserInput = false
     }
     
+    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
+        if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
+            return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
+        } else {
+            return .imageSelection(recognizedText: text, scanResultId: imageId)
+        }
+    }
+    
+    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
+        
+        guard let value = text.firstFoodLabelValue else {
+            print("Couldn't get a double from the tapped string")
+            return
+        }
+        
+        let newFillType = fillType(for: text, onImageWithId: imageId)
+        doNotRegisterUserInput = true
+        
+        if let setNewValue {
+            setNewValue(value)
+            formViewModel.fieldValue.fillType = newFillType
+            formViewModel.isCroppingNextImage = true
+        }
+    }
     
     func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
         let value = altValue ?? valueText.value
-        setNewValue(value)
+        if let setNewValue {
+            setNewValue(value)
+        }
     }
     
     func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
         guard let value = altValue ?? text.string.values.first else {
             return
         }
-        setNewValue(value)
+        if let setNewValue {
+            setNewValue(value)
+        }
     }
-    
+
     //MARK: - Helpers
     
     var fieldValue: FieldValue {
@@ -314,46 +343,5 @@ extension EnergyForm {
 
     var selectedImageIndex: Int? {
         viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
-    }
-    
-    //MARK: - Energy based
-    func setNewValue(_ value: FoodLabelValue) {
-        formViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
-        formViewModel.fieldValue.energyValue.unit = value.unit?.energyUnit ?? .kcal
-    }
-}
-
-//MARK: - Preview
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel = FoodFormViewModel()
-    
-    public init() {
-        let viewModel = FoodFormViewModel.mock
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
-    var body: some View {
-        EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
-            .environmentObject(viewModel)
-    }
-}
-
-struct EnergyForm_Previews: PreviewProvider {
-    static var previews: some View {
-        EnergyFormPreview()
-    }
-}
-
-extension Binding {
-    func onChange(_ handler: @escaping (Value) -> Void) -> Binding<Value> {
-        Binding(
-            get: { self.wrappedValue },
-            set: { newValue in
-                self.wrappedValue = newValue
-                handler(newValue)
-            }
-        )
     }
 }
