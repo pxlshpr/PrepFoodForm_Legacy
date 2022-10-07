@@ -1,22 +1,32 @@
 import FoodLabelScanner
 
-extension ScanResult.Serving {
-    var sizeViewModels: [FieldValueViewModel] {
+extension ScanResult {
+    var servingSizeViewModels: [FieldValueViewModel] {
         [servingUnitSizeViewModel, equivalentUnitSizeViewModel].compactMap { $0 }
     }
     
     var servingUnitSizeViewModel: FieldValueViewModel? {
-        guard let servingUnitSize else { return nil }
-        //TODO: Change this to autofill and attach the `RecognizedText`
-        let fillType: FillType = .userInput
+        guard let servingUnitSize, let servingUnitSizeValueText else {
+            return nil
+        }
+        
+        let fillType: FillType = .imageAutofill(
+            valueText: servingUnitSizeValueText,
+            scanResultId: id,
+            value: nil)
         let fieldValue: FieldValue = .size(.init(size: servingUnitSize, fillType: fillType))
         return FieldValueViewModel(fieldValue: fieldValue)
     }
     
     var equivalentUnitSizeViewModel: FieldValueViewModel? {
-        guard let equivalentUnitSize else { return nil }
-        //TODO: Change this to autofill and attach the `RecognizedText`
-        let fillType: FillType = .userInput
+        guard let equivalentUnitSize, let equivalentUnitSizeValueText else {
+            return nil
+        }
+        
+        let fillType: FillType = .imageAutofill(
+            valueText: equivalentUnitSizeValueText,
+            scanResultId: id,
+            value: nil)
         let fieldValue: FieldValue = .size(.init(size: equivalentUnitSize, fillType: fillType))
         return FieldValueViewModel(fieldValue: fieldValue)
     }
@@ -24,8 +34,8 @@ extension ScanResult.Serving {
     //MARK: Units Sizes
     
     var servingUnitSize: Size? {
-        guard let unitNameText,
-              let amount, amount > 0
+        guard let servingUnitNameText,
+              let servingAmount, servingAmount > 0
         else {
             return nil
         }
@@ -40,25 +50,25 @@ extension ScanResult.Serving {
                     return nil
                 }
 //                sizeAmount = 1.0/amount/equivalentSize.amount
-                sizeAmount = equivalentSize.amount/amount
+                sizeAmount = equivalentSize.amount/servingAmount
                 sizeUnit = .size(equivalentSizeUnitSize, nil)
             } else {
                 sizeAmount = equivalentSize.amount
                 sizeUnit = equivalentSize.unit?.formUnit ?? .weight(.g)
             }
         } else {
-            sizeAmount = 1.0/amount
+            sizeAmount = 1.0/servingAmount
             sizeUnit = .serving
         }
         return Size(
-            name: unitNameText.string,
+            name: servingUnitNameText.string,
             amount: sizeAmount,
             unit: sizeUnit
         )
     }
 
     var equivalentUnitSize: Size? {
-        guard let amount, amount > 0,
+        guard let servingAmount, servingAmount > 0,
               let equivalentSize, equivalentSize.amount > 0,
               let unitNameText = equivalentSize.unitNameText
         else {
@@ -68,8 +78,34 @@ extension ScanResult.Serving {
         return Size(
             name: unitNameText.string,
 //            amount: 1.0/amount/equivalentSize.amount,
-            amount: amount/equivalentSize.amount,
-            unit: servingUnit
+            amount: servingAmount/equivalentSize.amount,
+            unit: servingFormUnit
         )
+    }
+    
+    var equivalentUnitSizeValueText: ValueText? {
+        equivalentSize?.unitNameText?.asValueText
+    }
+    
+    var servingUnitSizeValueText: ValueText? {
+        guard let servingUnitNameText else {
+            return nil
+        }
+        
+        if let equivalentSize {
+            if let equivalentUnitNameText = equivalentSize.unitNameText {
+                return equivalentUnitNameText.asValueText
+            } else {
+                return servingUnitNameText.asValueText
+            }
+        } else {
+            return servingUnitNameText.asValueText
+        }
+    }
+}
+
+extension StringText {
+    var asValueText: ValueText? {
+        ValueText(value: .zero, text: self.text, attributeText: self.attributeText)
     }
 }
