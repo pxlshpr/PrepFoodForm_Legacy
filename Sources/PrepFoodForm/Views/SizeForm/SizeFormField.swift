@@ -54,7 +54,7 @@ extension SizeFormField {
                 symbol("=")
                     .layoutPriority(3)
                 Spacer()
-                button(sizeViewModel.sizeAmountString, placeholder: "amount") {
+                button(sizeViewModel.sizeAmountDescription, placeholder: "amount") {
                     showingAmountForm = true
                 }
                 .layoutPriority(1)

@@ -20,20 +20,20 @@ extension FieldValueViewModel {
         size?.name ?? ""
     }
     
+    var sizeAmountDescription: String {
+        "\(size?.amount?.cleanAmount ?? "") \(sizeAmountUnitString)"
+    }
+    
     var sizeAmountString: String {
         get {
             size?.amountString ?? ""
         }
         set {
-            guard let size = self.size,
-                  !newValue.isEmpty,
-                  let double = Double(newValue)
-            else {
+            guard let size = self.size else {
                 return
             }
             var newSize = size
             newSize.amountString = newValue
-            newSize.amount = double
             self.fieldValue = .size(.init(size: newSize, fillType: fieldValue.fillType))
         }
     }
@@ -46,15 +46,11 @@ extension FieldValueViewModel {
             size?.quantityString ?? "1"
         }
         set {
-            guard let size = self.size,
-                  !newValue.isEmpty,
-                  let double = Double(newValue)
-            else {
+            guard let size = self.size else {
                 return
             }
             var newSize = size
             newSize.quantityString = newValue
-            newSize.quantity = double
             self.fieldValue = .size(.init(size: newSize, fillType: fieldValue.fillType))
         }
     }

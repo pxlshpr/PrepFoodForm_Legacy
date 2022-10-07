@@ -3,19 +3,96 @@ import PrepUnits
 
 struct Size: Hashable {
     
-    var quantity: Double? = 1
-
-    //TODO: Consider replacing these with computed get/set variables that directly manipulate the doubles
-    var quantityString: String = "1"
+    var volumePrefixUnit: FormUnit?
+    var name: String
+    var unit: FormUnit
     
-    var volumePrefixUnit: FormUnit? = nil
-    var name: String = ""
-    var amount: Double?
-
-    //TODO: Consider replacing these with computed get/set variables that directly manipulate the doubles
-    var amountString: String = ""
+    /**
+     These are required to support decimal places in textfields.
+     
+     For instance, if the user is in the midst of typing out `3.5`:
+        - as soon as they enter the text `3.`
+        - the value gets stored as the double `3.0`, losing the information of the decimal place
+        - this then gets reset to `3` by the getter of the `amountString` or `quantityString` helper, thus never being able to see the `.` being entered.
+     */
+    private var internalQuantityString = ""
+    private var internalAmountString = ""
     
-    var unit: FormUnit = .weight(.g)    
+    private var internalQuantity: Double?
+    private var internalAmount: Double?
+
+    init(quantity: Double = 1,
+         volumePrefixUnit: FormUnit? = nil,
+         name: String = "",
+         amount: Double? = nil,
+         unit: FormUnit = .weight(.g)
+    ) {
+        self.volumePrefixUnit = volumePrefixUnit
+        self.name = name
+        self.unit = unit
+        
+        self.amount = amount
+        self.quantity = quantity
+    }
+}
+
+extension Size {
+    
+    var quantity: Double? {
+        get {
+            return internalQuantity
+        }
+        set {
+            internalQuantity = newValue
+            internalQuantityString = newValue?.cleanAmount ?? ""
+        }
+    }
+
+    var amount: Double? {
+        get {
+            return internalAmount
+        }
+        set {
+            internalAmount = newValue
+            internalAmountString = newValue?.cleanAmount ?? ""
+        }
+    }
+
+    var amountString: String {
+        get {
+            internalAmountString
+        }
+        set {
+            guard !newValue.isEmpty else {
+                internalAmount = nil
+                internalAmountString = newValue /// empty string
+                return
+            }
+            guard let double = Double(newValue) else {
+                return
+            }
+            internalAmount = double
+            internalAmountString = newValue /// this is required to ensure strings such as "3." are captured while the user is typing them out
+        }
+    }
+    
+    var quantityString: String {
+        get {
+            internalQuantityString
+        }
+        set {
+            guard !newValue.isEmpty else {
+                internalQuantity = nil
+                internalQuantityString = newValue /// empty string
+                return
+            }
+            guard let double = Double(newValue) else {
+                return
+            }
+            internalQuantity = double
+            internalQuantityString = newValue /// this is required to ensure strings such as "3." are captured while the user is typing them out
+        }
+    }
 }
 
 extension Size: Identifiable {
@@ -28,11 +105,11 @@ extension Size {
     
     var isEmpty: Bool {
         quantity == 1
-        && quantityString == ""
+//        && quantityString == ""
         && volumePrefixUnit == nil
         && name == ""
         && amount == nil
-        && amountString == ""
+//        && amountString == ""
         && unit == .weight(.g)
     }
 

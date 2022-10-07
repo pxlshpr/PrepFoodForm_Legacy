@@ -44,7 +44,7 @@ extension FoodFormViewModel {
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         shouldShowWizard = false
         if onlyServing {
-            let size = Size(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
+            let size = Size(quantity: 1, name: "container", amount: 5, unit: .serving)
             let sizeViewModels: [FieldValueViewModel] = [
                 FieldValueViewModel(fieldValue: .size(.init(size: size, fillType: .userInput)))
             ]
