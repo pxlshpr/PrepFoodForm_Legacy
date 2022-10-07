@@ -122,11 +122,21 @@ extension FoodFormViewModel {
     var fieldValueFromScanResultsForServing: FieldValue? {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
-            if let (fieldValue, sizesToAdd) = scanResult.fieldValueForServing {
-                //TODO: SizeValue
-//                standardSizes.append(contentsOf: sizesToAdd)
+            
+            if let fieldValue = scanResult.serving?.fieldValue {
+                if let sizeViewModels = scanResult.serving?.sizeViewModels {
+                    for sizeViewModel in sizeViewModels {
+                        add(sizeViewModel: sizeViewModel)
+                    }
+                }
                 return fieldValue
             }
+            
+            //TODO: SizeValue
+//            if let (fieldValue, sizesToAdd) = scanResult.fieldValueForServing {
+//                standardSizes.append(contentsOf: sizesToAdd)
+//                return fieldValue
+//            }
         }
         return nil
     }
@@ -434,3 +444,9 @@ extension NutrientType {
 }
 
 let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+
+extension ScanResult {
+    static var mock: ScanResult {
+        ScanResul
+    }
+}
