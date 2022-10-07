@@ -114,12 +114,9 @@ extension Size {
     
     var isEmpty: Bool {
         quantity == 1
-//        && quantityString == ""
         && volumePrefixUnit == nil
         && name == ""
         && amount == nil
-//        && amountString == ""
-        && unit == .weight(.g)
     }
 
     var isVolumePrefixed: Bool {

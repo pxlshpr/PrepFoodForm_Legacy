@@ -321,7 +321,7 @@ public struct FoodForm: View {
             .sheet(isPresented: $showingAmountPer) {
                 NutrientsPerForm()
                     .environmentObject(viewModel)
-                    .presentationDetents([.height(600)])
+                    .presentationDetents([.height(400)])
             }
         }
     }

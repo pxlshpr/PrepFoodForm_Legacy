@@ -186,14 +186,19 @@ extension FoodForm.NutrientsPerForm {
                     addButton
                 }
             } else if viewModel.allSizeViewModels.count == 1 {
-                Button {
-                    if !viewModel.standardSizeViewModels.isEmpty {
-                        sizeToEdit = viewModel.standardSizeViewModels[0]
-                    } else {
-                        sizeToEdit = viewModel.volumePrefixedSizeViewModels[0]
+                Section(header: header) {
+                    Button {
+                        if !viewModel.standardSizeViewModels.isEmpty {
+                            sizeToEdit = viewModel.standardSizeViewModels[0]
+                        } else {
+                            sizeToEdit = viewModel.volumePrefixedSizeViewModels[0]
+                        }
+                    } label: {
+                        SizesCell()
                     }
-                } label: {
-                    SizesCell()
+                }
+                Section(footer: footer) {
+                    addButton
                 }
             } else {
                 Section(header: header) {

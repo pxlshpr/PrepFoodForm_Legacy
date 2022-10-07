@@ -14,7 +14,7 @@ struct SizeForm: View {
     @StateObject var sizeViewModel: FieldValueViewModel
     
     @StateObject var formViewModel: SizeFormViewModel
-    @State var showingVolumePrefixToggle: Bool = false
+    @State var showingVolumePrefixToggle: Bool
 
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
@@ -38,8 +38,10 @@ struct SizeForm: View {
         self.existingSizeViewModel = fieldValueViewModel
         
         if let fieldValueViewModel {
+            _showingVolumePrefixToggle = State(initialValue: fieldValueViewModel.size?.isVolumePrefixed ?? false)
             _sizeViewModel = StateObject(wrappedValue: fieldValueViewModel.copy)
         } else {
+            _showingVolumePrefixToggle = State(initialValue: false)
             _sizeViewModel = StateObject(wrappedValue: FieldValueViewModel.emptySize)
         }
         
@@ -65,10 +67,14 @@ struct SizeForm: View {
             withAnimation {
                 formViewModel.showingVolumePrefix = showingVolumePrefixToggle
                 /// If we've turned it on and there's no volume prefix for the size—set it to cup
-                if showingVolumePrefixToggle, sizeViewModel.fieldValue.size?.volumePrefixUnit == nil {
-                    sizeViewModel.fieldValue.size?.volumePrefixUnit = .volume(.cup)
+                if showingVolumePrefixToggle {
+                    if sizeViewModel.fieldValue.size?.volumePrefixUnit == nil {
+                        sizeViewModel.fieldValue.size?.volumePrefixUnit = .volume(.cup)
+                    }
+                } else {
+                    sizeViewModel.fieldValue.size?.volumePrefixUnit = nil
                 }
-                formViewModel.updateFormState(of: sizeViewModel, comparedToExisting: existingSizeViewModel)
+//                formViewModel.updateFormState(of: sizeViewModel, comparedToExisting: existingSizeViewModel)
             }
         }
         .onAppear {
@@ -80,9 +86,22 @@ struct SizeForm: View {
         .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
         .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
         .sheet(isPresented: $formViewModel.showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
-        .presentationDetents([.height(600), .large])
+        .presentationDetents([.height(detentHeight), .large])
         .presentationDragIndicator(.hidden)
-        .interactiveDismissDisabled(isDirty)
+        .interactiveDismissDisabled(isDirty && !isEmpty)
+        .onChange(of: sizeViewModel.sizeAmountUnit) { newValue in
+            if !sizeViewModel.sizeAmountIsValid || !newValue.isWeightBased {
+                sizeViewModel.fieldValue.size?.volumePrefixUnit = nil
+            }
+        }
+    }
+    
+    var detentHeight: CGFloat {
+        viewModel.shouldShowFillOptions(for: sizeViewModel.fieldValue) ? 600 : 400
+    }
+    
+    var isEmpty: Bool {
+        sizeViewModel.fieldValue.isEmpty
     }
     
     var navigationLeadingContent: some ToolbarContent {
@@ -123,7 +142,7 @@ struct SizeForm: View {
                 .environmentObject(viewModel)
                 .environmentObject(formViewModel)
             }
-            if sizeViewModel.sizeAmountUnit.unitType == .weight {
+            if sizeViewModel.sizeAmountUnit.unitType == .weight || !sizeViewModel.sizeAmountIsValid {
                 volumePrefixSection
             }
             fillOptionsSections
