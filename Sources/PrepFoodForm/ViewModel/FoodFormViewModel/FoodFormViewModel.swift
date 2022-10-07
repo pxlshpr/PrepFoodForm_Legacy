@@ -45,8 +45,8 @@ public class FoodFormViewModel: ObservableObject {
     }
     
     //MARK: Sizes
-    @Published var standardSizes: [Size] = []
-    @Published var volumePrefixedSizes: [Size] = []
+    @Published var standardSizeViewModels: [FieldValueViewModel] = []
+    @Published var volumePrefixedSizeViewModels: [FieldValueViewModel] = []
 
     //MARK: Density
     @Published var densityViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: FieldValue.density())
@@ -206,8 +206,8 @@ extension FoodFormViewModel {
         + allMicronutrientFieldValueViewModels
     }
     
-    var allSizes: [Size] {
-        standardSizes + volumePrefixedSizes
+    var allSizeViewModels: [FieldValueViewModel] {
+        standardSizeViewModels + volumePrefixedSizeViewModels
     }
     
     var hasNonUserInputFills: Bool {
@@ -217,12 +217,11 @@ extension FoodFormViewModel {
             }
         }
         
-        //TODO: SizeValue
-//        for size in allSizes {
-//            if size.fillType != .userInput {
-//                return true
-//            }
-//        }
+        for model in allSizeViewModels {
+            if model.fieldValue.fillType != .userInput {
+                return true
+            }
+        }
         return false
     }
     

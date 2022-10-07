@@ -1,8 +1,10 @@
 import SwiftUI
 
+//MARK: - SizesList.Cell
+
 extension SizesList {
     struct Cell: View {
-        @Binding var size: Size
+        @ObservedObject var fieldValueViewModel: FieldValueViewModel
     }
 }
 
@@ -10,40 +12,55 @@ extension SizesList.Cell {
     var body: some View {
         HStack {
             HStack(spacing: 0) {
-                if let volumePrefixString = size.volumePrefixString {
+                if let volumePrefixString {
                     Text(volumePrefixString)
                         .foregroundColor(Color(.secondaryLabel))
                     Text(", ")
                         .foregroundColor(Color(.quaternaryLabel))
                 }
-                Text(size.name)
+                Text(name)
                     .foregroundColor(.primary)
             }
             Spacer()
-            Text(size.scaledAmountString)
+            Text(amountString)
                 .foregroundColor(Color(.secondaryLabel))
-//            Button {
-//                
-//            } label: {
-//                Image(systemName: size.fillType.buttonSystemImage)
-//                    .imageScale(.large)
-//            }
-//            .buttonStyle(.borderless)
+            //            Button {
+            //
+            //            } label: {
+            //                Image(systemName: size.fillType.buttonSystemImage)
+            //                    .imageScale(.large)
+            //            }
+            //            .buttonStyle(.borderless)
         }
+    }
+    
+    var size: Size? {
+        fieldValueViewModel.fieldValue.size
+    }
+    
+    var volumePrefixString: String? {
+        size?.volumePrefixString
+    }
+    
+    var name: String {
+        size?.name ?? ""
+    }
+    
+    var amountString: String {
+        size?.scaledAmountString ?? ""
     }
 }
 
+//MARK: - SizesList
 
 struct SizesList: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @State var showingAddSizeForm = false
     
-    @State var sizeToEdit: Size? = nil
-    
-    @State var showingEditSizeForm = false
     @State var standardSizeIndexToEdit: Int? = nil
     @State var volumePrefixedSizeIndexToEdit: Int? = nil
+    @State var showingEditSizeForm: Bool = false
+    @State var showingAddSizeForm = false
 
     var body: some View {
         list
@@ -57,21 +74,14 @@ struct SizesList: View {
         }
         .navigationTitle("Sizes")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $sizeToEdit) { sizeToEdit in
-            SizeForm(existingSize: sizeToEdit) { newSize in
-                
-            }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.hidden)
-        }
         .sheet(isPresented: $showingEditSizeForm) {
-            if let standardSizeIndexToEdit {
-                Text("standard: \(standardSizeIndexToEdit)")
-            } else if let volumePrefixedSizeIndexToEdit {
-                Text("volume: \(volumePrefixedSizeIndexToEdit)")
-            } else {
-                EmptyView()
-            }
+            //TODO: SizeValue
+            Color.blue
+//            SizeForm(existingSize: sizeToEdit) { newSize in
+//
+//            }
+//            .presentationDetents([.medium, .large])
+//            .presentationDragIndicator(.hidden)
         }
     }
     
@@ -92,10 +102,10 @@ struct SizesList: View {
 
     var list: some View {
         List {
-            if !viewModel.standardSizes.isEmpty {
+            if !viewModel.standardSizeViewModels.isEmpty {
                 standardSizesSection
             }
-            if !viewModel.volumePrefixedSizes.isEmpty {
+            if !viewModel.volumePrefixedSizeViewModels.isEmpty {
                 volumePrefixedSizesSection
             }
         }
@@ -103,11 +113,13 @@ struct SizesList: View {
     
     var standardSizesSection: some View {
         Section {
-            ForEach(viewModel.standardSizes.indices, id: \.self) { index in
+            ForEach(viewModel.standardSizeViewModels.indices, id: \.self) { index in
                 Button {
-                    sizeToEdit = viewModel.standardSizes[index]
+                    standardSizeIndexToEdit = index
+                    volumePrefixedSizeIndexToEdit = nil
+                    showingEditSizeForm = true
                 } label: {
-                    Cell(size: $viewModel.standardSizes[index])
+                    Cell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
                 }
             }
             .onDelete(perform: deleteStandardSizes)
@@ -122,17 +134,17 @@ struct SizesList: View {
         
         var footer: some View {
             Text("These let you log this food in volumes of different densities or thicknesses.")
-                .foregroundColor(viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+                .foregroundColor(viewModel.volumePrefixedSizeViewModels.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
         return Section(header: header, footer: footer) {
-            ForEach(viewModel.volumePrefixedSizes.indices, id: \.self) { index in
+            ForEach(viewModel.volumePrefixedSizeViewModels.indices, id: \.self) { index in
                 Button {
                     volumePrefixedSizeIndexToEdit = index
                     standardSizeIndexToEdit = nil
                     showingEditSizeForm = true
                 } label: {
-                    Cell(size: $viewModel.volumePrefixedSizes[index])
+                    Cell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
                 }
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
@@ -151,19 +163,19 @@ struct SizesList: View {
     }
     
     func deleteStandardSizes(at offsets: IndexSet) {
-        viewModel.standardSizes.remove(atOffsets: offsets)
+        viewModel.standardSizeViewModels.remove(atOffsets: offsets)
     }
 
     func deleteVolumePrefixedSizes(at offsets: IndexSet) {
-        viewModel.volumePrefixedSizes.remove(atOffsets: offsets)
+        viewModel.volumePrefixedSizeViewModels.remove(atOffsets: offsets)
     }
 
     func moveStandardSizes(from source: IndexSet, to destination: Int) {
-        viewModel.standardSizes.move(fromOffsets: source, toOffset: destination)
+        viewModel.standardSizeViewModels.move(fromOffsets: source, toOffset: destination)
     }
 
     func moveVolumePrefixedSizes(from source: IndexSet, to destination: Int) {
-        viewModel.volumePrefixedSizes.move(fromOffsets: source, toOffset: destination)
+        viewModel.volumePrefixedSizeViewModels.move(fromOffsets: source, toOffset: destination)
     }
     
     enum SizesSection: String {
@@ -190,8 +202,8 @@ public struct SizesListPreview: View {
     }
     
     func populateData() {
-        viewModel.standardSizes = mockStandardSizes
-        viewModel.volumePrefixedSizes = mockVolumePrefixedSizes
+        viewModel.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
+        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
     }
 }
 

@@ -1,29 +1,43 @@
 import SwiftUI
 
-extension FoodForm.NutrientsPerForm {
-    struct SizesCell: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        let maxNumberOfSizes = 4
-    }
-}
-
+//MARK: - SizeCell
 extension FoodForm.NutrientsPerForm.SizesCell {
     struct SizeCell: View {
-        @Binding var size: Size
+        @ObservedObject var fieldValueViewModel: FieldValueViewModel
     }
 }
 
 extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     var body: some View {
         HStack {
-            Text(size.fullNameString)
+            Text(name)
                 .foregroundColor(.primary)
             Spacer()
             HStack {
-                Text(size.scaledAmountString)
+                Text(amountString)
                     .foregroundColor(Color(.secondaryLabel))
             }
         }
+    }
+    
+    var size: Size? {
+        fieldValueViewModel.fieldValue.size
+    }
+    
+    var name: String {
+        size?.fullNameString ?? ""
+    }
+    
+    var amountString: String {
+        size?.scaledAmountString ?? ""
+    }
+}
+
+//MARK: - SizesCell
+extension FoodForm.NutrientsPerForm {
+    struct SizesCell: View {
+        @EnvironmentObject var viewModel: FoodFormViewModel
+        let maxNumberOfSizes = 4
     }
 }
 
@@ -34,25 +48,25 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     }
     
     var numberOfStandardSizes: Int {
-        min(viewModel.standardSizes.count, maxNumberOfSizes)
+        min(viewModel.standardSizeViewModels.count, maxNumberOfSizes)
     }
 
     /// We're displaying standard sizes first, so these take the remaining availble slots
     var numberOfVolumePrefixedSizes: Int {
-        min(maxNumberOfSizes - numberOfStandardSizes, viewModel.volumePrefixedSizes.count)
+        min(maxNumberOfSizes - numberOfStandardSizes, viewModel.volumePrefixedSizeViewModels.count)
     }
     
     var numberOfExcessSizes: Int {
-        max((viewModel.standardSizes.count + viewModel.volumePrefixedSizes.count) - maxNumberOfSizes, 0)
+        max((viewModel.standardSizeViewModels.count + viewModel.volumePrefixedSizeViewModels.count) - maxNumberOfSizes, 0)
     }
 
     var content: some View {
         VStack(alignment: .leading, spacing: 5) {
             ForEach(0..<numberOfStandardSizes, id: \.self) { index in
-                SizeCell(size: $viewModel.standardSizes[index])
+                SizeCell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
             }
             ForEach(0..<numberOfVolumePrefixedSizes, id: \.self) { index in
-                SizeCell(size: $viewModel.volumePrefixedSizes[index])
+                SizeCell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
             }
             if numberOfExcessSizes > 0 {
                 HStack {
@@ -123,8 +137,8 @@ struct SizesCellPreview: View {
     }
     
     func populateData() {
-        viewModel.standardSizes = mockStandardSizes
-        viewModel.volumePrefixedSizes = mockVolumePrefixedSizes
+        viewModel.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
+        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
     }
 }
 
@@ -145,3 +159,11 @@ let mockVolumePrefixedSizes: [Size] = [
     Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, amountString: "110", unit: .weight(.g)),
     Size(quantity: 1, quantityString: "1", volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, amountString: "205", unit: .weight(.g)),
 ]
+
+extension Array where Element == Size {
+    var fieldValueViewModels: [FieldValueViewModel] {
+        map {
+            FieldValueViewModel(fieldValue: .size(.init(size: $0, fillType: .userInput)))
+        }
+    }
+}

@@ -1,6 +1,21 @@
 import SwiftUI
 import FoodLabelScanner
 
+extension FieldValueViewModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(fieldValue)
+        hasher.combine(imageToDisplay)
+        hasher.combine(isCroppingNextImage)
+    }
+}
+
+extension FieldValueViewModel: Equatable {
+    static func ==(lhs: FieldValueViewModel, rhs: FieldValueViewModel) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+}
+
 class FieldValueViewModel: ObservableObject, Identifiable {
     let id = UUID()
     @Published var fieldValue: FieldValue

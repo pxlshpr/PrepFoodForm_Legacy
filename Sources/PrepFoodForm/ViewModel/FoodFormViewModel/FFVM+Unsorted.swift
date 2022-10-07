@@ -15,8 +15,8 @@ extension FoodFormViewModel {
         || !barcodeViewModel.fieldValue.isEmpty
 //        || !amountViewModel.fieldValue.isEmpty
         || !servingViewModel.fieldValue.isEmpty
-        || !standardSizes.isEmpty
-        || !volumePrefixedSizes.isEmpty
+        || !standardSizeViewModels.isEmpty
+        || !volumePrefixedSizeViewModels.isEmpty
         || !densityViewModel.fieldValue.isEmpty
         || !energyViewModel.fieldValue.isEmpty
         || !carbViewModel.fieldValue.isEmpty
@@ -44,14 +44,15 @@ extension FoodFormViewModel {
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         shouldShowWizard = false
         if onlyServing {
-            let sizes: [Size] = [
-                Size(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
+            let size = Size(quantity: 1, quantityString: "1", name: "container", amount: 5, amountString: "5", unit: .serving)
+            let sizeViewModels: [FieldValueViewModel] = [
+                FieldValueViewModel(fieldValue: .size(.init(size: size, fillType: .userInput)))
             ]
             
-            self.standardSizes = sizes
+            self.standardSizeViewModels = sizeViewModels
 
             self.amountViewModel.fieldValue = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
-            self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(standardSizes.first!, nil)))
+            self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(size, nil)))
         } else {
             self.nameViewModel.fieldValue =  FieldValue.name(FieldValue.StringValue(string: "Carrot"))
             self.emojiViewModel.fieldValue = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
@@ -67,8 +68,8 @@ extension FoodFormViewModel {
                 volume: FieldValue.DoubleValue(double: 25, string: "25", unit: .volume(.mL)))
             )
             
-            self.standardSizes = mockStandardSizes
-            self.volumePrefixedSizes = mockVolumePrefixedSizes
+            self.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
+            self.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
             
             self.energyViewModel.fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
             self.carbViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
@@ -180,28 +181,31 @@ extension FoodFormViewModel {
     func add(size: Size) {
         withAnimation {
             if size.isVolumePrefixed {
-                volumePrefixedSizes.append(size)
+                volumePrefixedSizeViewModels.append(size.asFieldValueViewModelForUserInput)
             } else {
-                standardSizes.append(size)
+                standardSizeViewModels.append(size.asFieldValueViewModelForUserInput)
             }
         }
     }
     
     var numberOfSizes: Int {
-        standardSizes.count + volumePrefixedSizes.count
+        standardSizeViewModels.count + volumePrefixedSizeViewModels.count
+    }
+    
+    var allSizes: [Size] {
+        standardSizeViewModels.compactMap({ $0.fieldValue.size })
+        + volumePrefixedSizeViewModels.compactMap({ $0.fieldValue.size })
     }
     
     /// Checks that we don't already have a size with the same name (and volume prefix unit) as what was provided
     func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: Size?) -> Bool {
-        for sizes in [standardSizes, volumePrefixedSizes] {
-            for size in sizes {
-                guard size != sizeToIgnore else {
-                    continue
-                }
-                if size.name.lowercased() == name.lowercased(),
-                   size.volumePrefixUnit == volumePrefixUnit {
-                    return true
-                }
+        for size in allSizes {
+            guard size != sizeToIgnore else {
+                continue
+            }
+            if size.name.lowercased() == name.lowercased(),
+               size.volumePrefixUnit == volumePrefixUnit {
+                return true
             }
         }
         return false
@@ -386,5 +390,35 @@ extension FoodFormViewModel {
         viewModel.imageSetStatus = .classified
         
         return viewModel
+    }
+}
+
+extension Size {
+    var asFieldValueViewModelForUserInput: FieldValueViewModel {
+        FieldValueViewModel(fieldValue: .size(.init(size: self, fillType: .userInput)))
+    }
+}
+
+extension FieldValue {
+    var size: Size? {
+        get {
+            switch self {
+            case .size(let sizeValue):
+                return sizeValue.size
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else {
+                return
+            }
+            switch self {
+            case .size(let sizeValue):
+                self = .size(.init(size: newValue, fillType: sizeValue.fillType))
+            default:
+                break
+            }
+        }
     }
 }

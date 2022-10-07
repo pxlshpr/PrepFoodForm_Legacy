@@ -8,7 +8,9 @@ extension FoodForm.NutritionFacts {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
+        
         @State var showingMicroFieldValueViewModel: FieldValueViewModel?
+        
         @State private var searchText = ""
         @State var showingSearchLayer: Bool = false
         @FocusState var isFocused: Bool

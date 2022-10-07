@@ -123,7 +123,8 @@ extension FoodFormViewModel {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
             if let (fieldValue, sizesToAdd) = scanResult.fieldValueForServing {
-                standardSizes.append(contentsOf: sizesToAdd)
+                //TODO: SizeValue
+//                standardSizes.append(contentsOf: sizesToAdd)
                 return fieldValue
             }
         }

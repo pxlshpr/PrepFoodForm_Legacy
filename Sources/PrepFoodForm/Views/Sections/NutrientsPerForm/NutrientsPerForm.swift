@@ -154,7 +154,7 @@ extension FoodForm.NutrientsPerForm {
         @ViewBuilder
         var footer: some View {
             Text("Sizes give you additional named units to log this food in, such as – biscuit, bottle, container, etc.")
-                .foregroundColor(viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+                .foregroundColor(viewModel.standardSizeViewModels.isEmpty && viewModel.volumePrefixedSizeViewModels.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
         var addButton: some View {
@@ -176,7 +176,7 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Group {
-            if viewModel.standardSizes.isEmpty, viewModel.volumePrefixedSizes.isEmpty {
+            if viewModel.standardSizeViewModels.isEmpty, viewModel.volumePrefixedSizeViewModels.isEmpty {
                 Section(header: header, footer: footer) {
                     addButton
                 }

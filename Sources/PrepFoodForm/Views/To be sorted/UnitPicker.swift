@@ -64,7 +64,7 @@ extension UnitPicker {
     //MARK: - Components
     
     var shouldShowAddSizeButton: Bool {
-        allowAddSize && viewModel.standardSizes.isEmpty && viewModel.volumePrefixedSizes.isEmpty
+        allowAddSize && viewModel.standardSizeViewModels.isEmpty && viewModel.volumePrefixedSizeViewModels.isEmpty
     }
     
     var longList: some View {
@@ -74,12 +74,12 @@ extension UnitPicker {
                     filteredList(for: filteredType)
                 }
             } else {
-                if !viewModel.standardSizes.isEmpty {
+                if !viewModel.standardSizeViewModels.isEmpty {
                     Section("Sizes") {
                         standardSizeContents
                     }
                 }
-                if !viewModel.volumePrefixedSizes.isEmpty {
+                if !viewModel.volumePrefixedSizeViewModels.isEmpty {
                     Section("Volume Prefixed Sizes") {
                         volumePrefixedSizeContents
                     }
@@ -229,48 +229,44 @@ extension UnitPicker {
 //    }
 
     var standardSizeContents: some View {
-        ForEach(viewModel.standardSizes, id: \.self) { size in
-            Button {
-                pickedUnit(unit: .size(size, nil))
-            } label: {
-                HStack {
-                    Text(size.name)
-                        .foregroundColor(.primary)
-                    Spacer()
-                    HStack {
-                        Text(size.scaledAmountString)
-                            .foregroundColor(Color(.secondaryLabel))
-                    }
-                }
-            }
-            .buttonStyle(.borderless)
+        ForEach(viewModel.standardSizeViewModels, id: \.self) { size in
+            //TODO: SizeValue
+//            Color.blue
+//            Button {
+//                pickedUnit(unit: .size(size, nil))
+//            } label: {
+//                HStack {
+//                    Text(size.name)
+//                        .foregroundColor(.primary)
+//                    Spacer()
+//                    HStack {
+//                        Text(size.scaledAmountString)
+//                            .foregroundColor(Color(.secondaryLabel))
+//                    }
+//                }
+//            }
+//            .buttonStyle(.borderless)
         }
     }
     
     var volumePrefixedSizeContents: some View {
-        ForEach(viewModel.volumePrefixedSizes, id: \.self) { size in
-            DisclosureGroup(size.name) {
-                volumePrefixes(for: size)
-            }
-//            NavigationLinkButton {
-//                path.append(.volumePrefixes(sizeViewModel.size))
-//            } label: {
-//                HStack {
-//                    Text(sizeViewModel.nameString)
-//                        .foregroundColor(.primary)
-//                }
+        ForEach(viewModel.volumePrefixedSizeViewModels, id: \.self) { size in
+            //TODO: SizeValue
+            Color.blue
+//            DisclosureGroup(size.name) {
+//                volumePrefixes(for: size)
 //            }
         }
     }
     
     var sizesGroupContents: some View {
         Group {
-            if !viewModel.standardSizes.isEmpty {
+            if !viewModel.standardSizeViewModels.isEmpty {
                 Section {
                     standardSizeContents
                 }
             }
-            if !viewModel.volumePrefixedSizes.isEmpty {
+            if !viewModel.volumePrefixedSizeViewModels.isEmpty {
                 Section("Volume-prefixed") {
                     volumePrefixedSizeContents
                 }

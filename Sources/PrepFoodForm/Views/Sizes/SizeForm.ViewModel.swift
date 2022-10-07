@@ -3,8 +3,10 @@ import SwiftHaptics
 
 class SizeFormViewModel: ObservableObject {
 
+    //TODO: Remove this
     @Published var path: [Route] = []
 
+    //TODO: Use the FieldValueViewModel instead of these (having a copy of it for the form and keeping the original for when user's are editing or if we're cancelling the creation)
     @Published var name: String
     
     @Published var quantityString: String
@@ -23,6 +25,7 @@ class SizeFormViewModel: ObservableObject {
     //TODO: Why are we storing this?
     @Published var quantity: Double = 1
     
+    //TODO: Keep this here and use it as a SizeFormViewModel if need be
     @Published var includeServing: Bool
     @Published var allowAddSize: Bool
     @Published var formState: FormState
