@@ -195,7 +195,11 @@ struct SizeForm: View {
             if let didAddSizeViewModel = didAddSizeViewModel {
                 didAddSizeViewModel(sizeViewModel)
             }
-            viewModel.add(sizeViewModel: sizeViewModel)
+            if let existingSizeViewModel {
+                viewModel.edit(existingSizeViewModel, with: sizeViewModel)
+            } else {
+                viewModel.add(sizeViewModel: sizeViewModel)
+            }
             dismiss()
         }
     }

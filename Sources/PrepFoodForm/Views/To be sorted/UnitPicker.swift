@@ -229,33 +229,43 @@ extension UnitPicker {
 //    }
 
     var standardSizeContents: some View {
-        ForEach(viewModel.standardSizeViewModels, id: \.self) { size in
-            //TODO: SizeValue
-//            Color.blue
-//            Button {
-//                pickedUnit(unit: .size(size, nil))
-//            } label: {
-//                HStack {
-//                    Text(size.name)
-//                        .foregroundColor(.primary)
-//                    Spacer()
-//                    HStack {
-//                        Text(size.scaledAmountString)
-//                            .foregroundColor(Color(.secondaryLabel))
-//                    }
-//                }
-//            }
-//            .buttonStyle(.borderless)
+        ForEach(viewModel.standardSizeViewModels, id: \.self) { sizeViewModel in
+            sizeButton(for: sizeViewModel)
+        }
+    }
+    
+    @ViewBuilder
+    func sizeButton(for sizeViewModel: FieldValueViewModel) -> some View {
+        if let size = sizeViewModel.size {
+            Button {
+                pickedUnit(unit: .size(size, nil))
+            } label: {
+                HStack {
+                    Text(size.name)
+                        .foregroundColor(.primary)
+                    Spacer()
+                    HStack {
+                        Text(size.scaledAmountString)
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                }
+            }
+            .buttonStyle(.borderless)
         }
     }
     
     var volumePrefixedSizeContents: some View {
-        ForEach(viewModel.volumePrefixedSizeViewModels, id: \.self) { size in
-            //TODO: SizeValue
-            Color.blue
-//            DisclosureGroup(size.name) {
-//                volumePrefixes(for: size)
-//            }
+        ForEach(viewModel.volumePrefixedSizeViewModels, id: \.self) { sizeViewModel in
+            volumePrefixedSizeGroup(for: sizeViewModel)
+        }
+    }
+    
+    @ViewBuilder
+    func volumePrefixedSizeGroup(for sizeViewModel: FieldValueViewModel) -> some View {
+        if let size = sizeViewModel.size {
+            DisclosureGroup(size.name) {
+                volumePrefixes(for: size)
+            }
         }
     }
     

@@ -1,58 +1,5 @@
 import SwiftUI
 
-//MARK: - SizesList.Cell
-
-extension SizesList {
-    struct Cell: View {
-        @ObservedObject var fieldValueViewModel: FieldValueViewModel
-    }
-}
-
-extension SizesList.Cell {
-    var body: some View {
-        HStack {
-            HStack(spacing: 0) {
-                if let volumePrefixString {
-                    Text(volumePrefixString)
-                        .foregroundColor(Color(.secondaryLabel))
-                    Text(", ")
-                        .foregroundColor(Color(.quaternaryLabel))
-                }
-                Text(name)
-                    .foregroundColor(.primary)
-            }
-            Spacer()
-            Text(amountString)
-                .foregroundColor(Color(.secondaryLabel))
-            //            Button {
-            //
-            //            } label: {
-            //                Image(systemName: size.fillType.buttonSystemImage)
-            //                    .imageScale(.large)
-            //            }
-            //            .buttonStyle(.borderless)
-        }
-    }
-    
-    var size: Size? {
-        fieldValueViewModel.fieldValue.size
-    }
-    
-    var volumePrefixString: String? {
-        size?.volumePrefixString
-    }
-    
-    var name: String {
-        size?.name ?? ""
-    }
-    
-    var amountString: String {
-        size?.scaledAmountString ?? ""
-    }
-}
-
-//MARK: - SizesList
-
 struct SizesList: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -62,6 +9,8 @@ struct SizesList: View {
     @State var showingEditSizeForm: Bool = false
     @State var showingAddSizeForm = false
 
+    @State var sizeToEditTemp: FieldValueViewModel?
+    
     var body: some View {
         list
         .toolbar { navigationTrailingContent }
@@ -75,13 +24,34 @@ struct SizesList: View {
         .navigationTitle("Sizes")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingEditSizeForm) {
-            //TODO: SizeValue
-            Color.blue
-//            SizeForm(existingSize: sizeToEdit) { newSize in
-//
-//            }
-//            .presentationDetents([.medium, .large])
-//            .presentationDragIndicator(.hidden)
+            editSizeForm
+        }
+        .sheet(item: $sizeToEditTemp) { sizeViewModel in
+            SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
+                
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
+        }
+    }
+    
+    var sizeToEdit: FieldValueViewModel? {
+        if let standardSizeIndexToEdit {
+            return viewModel.standardSizeViewModels[standardSizeIndexToEdit]
+        } else if let volumePrefixedSizeIndexToEdit {
+            return viewModel.volumePrefixedSizeViewModels[volumePrefixedSizeIndexToEdit]
+        } else {
+            return nil
+        }
+    }
+    @ViewBuilder
+    var editSizeForm: some View {
+        if let sizeToEdit {
+            SizeForm(fieldValueViewModel: sizeToEdit) { sizeViewModel in
+                
+            }
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
         }
     }
     
@@ -115,9 +85,7 @@ struct SizesList: View {
         Section {
             ForEach(viewModel.standardSizeViewModels.indices, id: \.self) { index in
                 Button {
-                    standardSizeIndexToEdit = index
-                    volumePrefixedSizeIndexToEdit = nil
-                    showingEditSizeForm = true
+                    sizeToEditTemp = viewModel.standardSizeViewModels[index]
                 } label: {
                     Cell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
                 }
@@ -140,9 +108,7 @@ struct SizesList: View {
         return Section(header: header, footer: footer) {
             ForEach(viewModel.volumePrefixedSizeViewModels.indices, id: \.self) { index in
                 Button {
-                    volumePrefixedSizeIndexToEdit = index
-                    standardSizeIndexToEdit = nil
-                    showingEditSizeForm = true
+                    sizeToEditTemp = viewModel.volumePrefixedSizeViewModels[index]
                 } label: {
                     Cell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
                 }

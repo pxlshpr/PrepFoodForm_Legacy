@@ -199,6 +199,49 @@ extension FoodFormViewModel {
             }
         }
     }
+    
+    func editStandardSizeViewModel(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+        if newSizeViewModel.size?.isVolumePrefixed == true {
+            /// Remove it from the standard list
+            standardSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
+            
+            /// Append the new one to the volume based list
+            volumePrefixedSizeViewModels.append(newSizeViewModel)
+            //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
+        } else {
+            guard let index = standardSizeViewModels.firstIndex(where: { $0.id == sizeViewModel.id }) else {
+                return
+            }
+            standardSizeViewModels[index].copyData(from: newSizeViewModel)
+            //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
+        }
+    }
+    
+    func editVolumeBasedSizeViewModel(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+        if newSizeViewModel.size?.isVolumePrefixed == false {
+            /// Remove it from the standard list
+            volumePrefixedSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
+            
+            /// Append the new one to the volume based list
+            standardSizeViewModels.append(newSizeViewModel)
+            //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
+        } else {
+            guard let index = volumePrefixedSizeViewModels.firstIndex(where: { $0.id == sizeViewModel.id }) else {
+                return
+            }
+            volumePrefixedSizeViewModels[index].copyData(from: newSizeViewModel)
+            //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
+        }
+    }
+
+    func edit(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+        /// if this was a standard
+        if sizeViewModel.size?.isVolumePrefixed == false {
+            editStandardSizeViewModel(sizeViewModel, with: newSizeViewModel)
+        } else {
+            editVolumeBasedSizeViewModel(sizeViewModel, with: newSizeViewModel)
+        }
+    }
 
     var numberOfSizes: Int {
         standardSizeViewModels.count + volumePrefixedSizeViewModels.count
