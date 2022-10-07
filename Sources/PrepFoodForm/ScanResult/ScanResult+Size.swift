@@ -53,7 +53,7 @@ extension ScanResult {
                 sizeAmount = equivalentSize.amount/servingAmount
                 sizeUnit = .size(equivalentSizeUnitSize, nil)
             } else {
-                sizeAmount = equivalentSize.amount
+                sizeAmount = equivalentSize.amount / servingAmount
                 sizeUnit = equivalentSize.unit?.formUnit ?? .weight(.g)
             }
         } else {
