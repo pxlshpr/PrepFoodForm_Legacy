@@ -39,7 +39,8 @@ extension ScanResult.Serving {
                 guard equivalentSize.amount > 0 else {
                     return nil
                 }
-                sizeAmount = 1.0/amount/equivalentSize.amount
+//                sizeAmount = 1.0/amount/equivalentSize.amount
+                sizeAmount = equivalentSize.amount/amount
                 sizeUnit = .size(equivalentSizeUnitSize, nil)
             } else {
                 sizeAmount = equivalentSize.amount

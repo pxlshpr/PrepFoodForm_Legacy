@@ -122,9 +122,13 @@ extension FoodFormViewModel {
     var fieldValueFromScanResultsForServing: FieldValue? {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
-            
-            if let fieldValue = scanResult.serving?.fieldValue {
-                if let sizeViewModels = scanResult.serving?.sizeViewModels {
+
+            /// ** NOTE: MOCK—TO BE REMOVED**
+            if let fieldValue = ScanResult.mockServing.serving?.fieldValue {
+                if let sizeViewModels = ScanResult.mockServing.serving?.sizeViewModels {
+
+//            if let fieldValue = scanResult.serving?.fieldValue {
+//                if let sizeViewModels = scanResult.serving?.sizeViewModels {
                     for sizeViewModel in sizeViewModels {
                         add(sizeViewModel: sizeViewModel)
                     }
@@ -443,10 +447,35 @@ extension NutrientType {
     }
 }
 
+import VisionSugar
+
 let defaultUUID = UUID(uuidString: "00000000-0000-0000-0000-000000000000")!
+let defaulText = RecognizedText(id: defaultUUID, rectString: "", boundingBoxString: nil, candidates: [])
 
 extension ScanResult {
-    static var mock: ScanResult {
-        ScanResul
+    static var mockServing: ScanResult {
+        
+        let serving = ScanResult.Serving(
+            amountText: DoubleText(double: 1,
+                                   text: defaulText, attributeText: defaulText),
+            unitText: nil,
+            unitNameText: StringText(string: "pack",
+                                     text: defaulText, attributeText: defaulText),
+            equivalentSize: Serving.EquivalentSize(
+                amountText: DoubleText(
+                    double: 3,
+                    text: defaulText, attributeText: defaulText),
+                unitText: nil,
+                unitNameText: StringText(
+                    string: "pieces",
+                    text: defaulText, attributeText: defaulText)
+            ),
+            perContainer: nil
+        )
+        
+        return ScanResult(
+            serving: serving,
+            nutrients: Nutrients(headerText1: nil, headerText2: nil, rows: []),
+            texts: [])
     }
 }
