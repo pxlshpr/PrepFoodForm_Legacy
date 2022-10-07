@@ -9,7 +9,7 @@ struct SizeAmountForm: View {
     @Environment(\.dismiss) var dismiss
     @State var showingUnitPicker = false
     @State var showingSizeForm = false
-    @FocusState var isFocused: Bool
+    @State var hasBecomeFirstResponder: Bool = false
 }
 
 extension SizeAmountForm {
@@ -27,11 +27,22 @@ extension SizeAmountForm {
         .sheet(isPresented: $showingUnitPicker) {
             unitPickerForAmount
         }
-        .scrollDismissesKeyboard(.interactively)
-        .onAppear {
-            isFocused = true
-        }
+        .scrollDismissesKeyboard(.never)
+        .introspectTextField(customize: introspectTextField)
         .toolbar { keyboardToolbarContents }
+    }
+    
+    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
+    func introspectTextField(_ uiTextField: UITextField) {
+        guard !hasBecomeFirstResponder else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            uiTextField.becomeFirstResponder()
+            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
+            hasBecomeFirstResponder = true
+        }
     }
     
     //MARK: - Components
@@ -80,7 +91,6 @@ extension SizeAmountForm {
         TextField("Required", text: $sizeViewModel.sizeAmountString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
-            .focused($isFocused)
     }
     
     var unitButton: some View {

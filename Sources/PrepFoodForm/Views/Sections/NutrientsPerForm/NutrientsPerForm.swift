@@ -8,6 +8,8 @@ extension FoodForm {
         @State var showingAddSizeForm = false
         @State var showingDensityForm = false
         
+        @State var sizeToEdit: FieldValueViewModel?
+
         public init() { }
     }
 }
@@ -38,6 +40,11 @@ extension FoodForm.NutrientsPerForm {
 //            if !viewModel.hasNutrientsPerContent {
 //                viewModel.showingNutrientsPerAmountForm = true
 //            }
+        }
+        .sheet(item: $sizeToEdit) { sizeViewModel in
+            SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
+                
+            }
         }
     }
     
@@ -177,6 +184,16 @@ extension FoodForm.NutrientsPerForm {
             if viewModel.standardSizeViewModels.isEmpty, viewModel.volumePrefixedSizeViewModels.isEmpty {
                 Section(header: header, footer: footer) {
                     addButton
+                }
+            } else if viewModel.allSizeViewModels.count == 1 {
+                Button {
+                    if !viewModel.standardSizeViewModels.isEmpty {
+                        sizeToEdit = viewModel.standardSizeViewModels[0]
+                    } else {
+                        sizeToEdit = viewModel.volumePrefixedSizeViewModels[0]
+                    }
+                } label: {
+                    SizesCell()
                 }
             } else {
                 Section(header: header) {

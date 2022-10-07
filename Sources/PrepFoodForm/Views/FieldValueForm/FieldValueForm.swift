@@ -22,7 +22,6 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     @FocusState var isFocused: Bool
     @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool
-    @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
     @State var refreshBool = false
     
@@ -268,15 +267,10 @@ extension FieldValueForm {
     
     /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
     func introspectTextField(_ uiTextField: UITextField) {
-//        guard !viewModel.shouldShowFillOptions(for: fieldValue) else {
-//            return
-//        }
-        
-        guard self.uiTextField == nil, !hasBecomeFirstResponder else {
+        guard !hasBecomeFirstResponder else {
             return
         }
         
-        self.uiTextField = uiTextField
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             uiTextField.becomeFirstResponder()
             /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)

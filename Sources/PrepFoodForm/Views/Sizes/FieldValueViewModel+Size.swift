@@ -21,7 +21,10 @@ extension FieldValueViewModel {
     }
     
     var sizeAmountDescription: String {
-        "\(size?.amount?.cleanAmount ?? "") \(sizeAmountUnitString)"
+        guard let amount = size?.amount, amount > 0 else {
+            return ""
+        }
+        return "\(amount.cleanAmount) \(sizeAmountUnitString)"
     }
     
     var sizeAmountString: String {

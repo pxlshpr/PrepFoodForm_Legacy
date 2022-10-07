@@ -1,7 +1,10 @@
 import SwiftUI
 
 struct SizeQuantityForm: View {
-    @ObservedObject var formViewModel: FieldValueViewModel
+    @ObservedObject var sizeViewModel: FieldValueViewModel
+    
+    @Environment(\.dismiss) var dismiss
+    @State var hasBecomeFirstResponder: Bool = false
 }
 
 extension SizeQuantityForm {
@@ -16,19 +19,45 @@ extension SizeQuantityForm {
         }
         .navigationTitle("Quantity")
         .navigationBarTitleDisplayMode(.inline)
-        .scrollDismissesKeyboard(.interactively)
+        .scrollDismissesKeyboard(.never)
+        .introspectTextField(customize: introspectTextField)
+        .toolbar { keyboardToolbarContents }
+        .interactiveDismissDisabled(sizeViewModel.sizeQuantityString.isEmpty)
+    }
+    
+    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
+    func introspectTextField(_ uiTextField: UITextField) {
+        guard !hasBecomeFirstResponder else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            uiTextField.becomeFirstResponder()
+            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
+            hasBecomeFirstResponder = true
+        }
     }
     
     //MARK: - Components
     
+    var keyboardToolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button("Done") {
+                dismiss()
+            }
+            .disabled(sizeViewModel.sizeQuantityString.isEmpty)
+        }
+    }
+
     var textField: some View {
-        TextField("Enter the quantity", text: $formViewModel.sizeQuantityString)
+        TextField("Required", text: $sizeViewModel.sizeQuantityString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
     }
 
     var stepper: some View {
-        Stepper("", value: $formViewModel.sizeQuantity, in: 1...100000)
+        Stepper("", value: $sizeViewModel.sizeQuantity, in: 1...100000)
             .labelsHidden()
     }
 
@@ -44,7 +73,7 @@ This is used when nutritional labels display nutrients for more than a single se
 For e.g. when the serving size reads '5 cookies (57g)', you would enter 5 as the quantity here. This allows us determine the nutrients for a single cookie.
 """
         )
-        .foregroundColor(formViewModel.sizeQuantityString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+        .foregroundColor(sizeViewModel.sizeQuantityString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
 

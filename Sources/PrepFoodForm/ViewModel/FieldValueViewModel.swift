@@ -101,3 +101,14 @@ class FieldValueViewModel: ObservableObject, Identifiable {
 //        fieldValue.nutritionUnit = altValue.unit
 //    }
 }
+
+extension FieldValueViewModel {
+    var isValid: Bool {
+        switch fieldValue {
+        case .size(let sizeValue):
+            return sizeValue.size.isValid
+        default:
+            return false
+        }
+    }
+}

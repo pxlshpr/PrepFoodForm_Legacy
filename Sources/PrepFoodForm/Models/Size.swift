@@ -25,7 +25,7 @@ struct Size: Hashable {
          volumePrefixUnit: FormUnit? = nil,
          name: String = "",
          amount: Double? = nil,
-         unit: FormUnit = .weight(.g)
+         unit: FormUnit = .serving
     ) {
         self.volumePrefixUnit = volumePrefixUnit
         self.name = name
@@ -33,6 +33,15 @@ struct Size: Hashable {
         
         self.amount = amount
         self.quantity = quantity
+    }
+    
+    var isValid: Bool {
+        guard let quantity, quantity > 0,
+              let amount, amount > 0,
+              !name.isEmpty else {
+            return false
+        }
+        return true
     }
 }
 

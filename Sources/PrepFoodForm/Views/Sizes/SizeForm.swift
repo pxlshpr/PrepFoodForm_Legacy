@@ -19,6 +19,8 @@ struct SizeForm: View {
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
 
+    @State var refreshBool = false
+
     var didAddSizeViewModel: ((FieldValueViewModel) -> ())?
 
     init(fieldValueViewModel: FieldValueViewModel? = nil,
@@ -46,13 +48,12 @@ struct SizeForm: View {
 
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                form
-                bottomElements
-            }
+            form
             .edgesIgnoringSafeArea(.bottom)
-            .navigationTitle("\(isEditing ? "Edit" : "Add") Size")
+            .navigationTitle("\(isEditing ? "Edit" : "New") Size")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar { bottomToolbarContent }
+            .toolbar { navigationLeadingContent }
         }
 //        .onChange(of: sizeFormViewModel.quantityString) { newValue in
 //            sizeFormViewModel.quantity = Double(newValue) ?? 0
@@ -75,10 +76,46 @@ struct SizeForm: View {
                 shouldAnimateOptions = true
             }
         }
-        .presentationDetents([.height(560), .large])
+        .sheet(isPresented: $formViewModel.showingQuantityForm) { quantityForm }
+        .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
+        .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
+        .sheet(isPresented: $formViewModel.showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
+        .presentationDetents([.height(600), .large])
         .presentationDragIndicator(.hidden)
+        .interactiveDismissDisabled(isDirty)
     }
     
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button("Cancel") {
+                dismiss()
+            }
+        }
+    }
+
+    var bottomToolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            Button(isEditing ? "Save" : "Add") {
+                if let didAddSizeViewModel = didAddSizeViewModel {
+                    didAddSizeViewModel(sizeViewModel)
+                }
+                if let existingSizeViewModel {
+                    viewModel.edit(existingSizeViewModel, with: sizeViewModel)
+                } else {
+                    viewModel.add(sizeViewModel: sizeViewModel)
+                }
+                dismiss()
+            }
+            .disabled(!sizeViewModel.isValid || !isDirty)
+            .id(refreshBool)
+        }
+    }
+    
+    var isDirty: Bool {
+        existingSizeViewModel?.fieldValue != sizeViewModel.fieldValue
+    }
+
     var form: some View {
         FormStyledScrollView {
             FormStyledSection {
@@ -86,7 +123,7 @@ struct SizeForm: View {
                 .environmentObject(viewModel)
                 .environmentObject(formViewModel)
             }
-            if sizeViewModel.sizeAmountString.isEmpty || sizeViewModel.sizeAmountUnit.unitType == .weight {
+            if sizeViewModel.sizeAmountUnit.unitType == .weight {
                 volumePrefixSection
             }
             fillOptionsSections
@@ -123,10 +160,10 @@ struct SizeForm: View {
             switch formViewModel.formState {
             case .okToSave:
                 VStack {
-                    addButton
-                    if didAddSizeViewModel == nil && !isEditing {
-                        addAndAddAnotherButton
-                    }
+//                    addButton
+//                    if didAddSizeViewModel == nil && !isEditing {
+//                        addAndAddAnotherButton
+//                    }
                 }
                 .transition(.move(edge: .bottom))
             case .duplicate:
@@ -155,35 +192,59 @@ struct SizeForm: View {
         .fixedSize(horizontal: false, vertical: true)
     }
     
-    var addButtonTitle: String {
-        guard !isEditing else {
-            return "Save"
-        }
-        return didAddSizeViewModel == nil ? "Add" : "Add and Select"
-    }
-    
-    var addButton: some View {
-        return FormPrimaryButton(title: addButtonTitle) {
-            if let didAddSizeViewModel = didAddSizeViewModel {
-                didAddSizeViewModel(sizeViewModel)
-            }
-            if let existingSizeViewModel {
-                viewModel.edit(existingSizeViewModel, with: sizeViewModel)
-            } else {
-                viewModel.add(sizeViewModel: sizeViewModel)
-            }
-            dismiss()
-        }
-    }
-
-    var addAndAddAnotherButton: some View {
-        FormSecondaryButton(title: "Add and Add Another") {
-            
-        }
-    }
-
     var isEditing: Bool {
         existingSizeViewModel != nil
+    }
+    
+    //MARK: - Sheets
+    var quantityForm: some View {
+        NavigationView {
+            SizeQuantityForm(sizeViewModel: sizeViewModel)
+        }
+        .onDisappear {
+            refreshBool.toggle()
+        }
+    }
+    
+    var nameForm: some View {
+        NavigationView {
+            NamePicker(
+                name: $sizeViewModel.fieldValue.string,
+                showClearButton: true,
+                focusImmediately: true,
+                lowercased: true,
+                presetStrings: ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
+            )
+            .navigationTitle("Size Name")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .onDisappear {
+            refreshBool.toggle()
+        }
+    }
+    
+    var amountForm: some View {
+        NavigationView {
+            SizeAmountForm(sizeViewModel: sizeViewModel)
+                .environmentObject(viewModel)
+                .environmentObject(formViewModel)
+        }
+        .onDisappear {
+            refreshBool.toggle()
+        }
+    }
+    
+    var unitPickerForVolumePrefix: some View {
+        UnitPicker(
+            pickedUnit: sizeViewModel.sizeVolumePrefixUnit,
+            filteredType: .volume)
+        { unit in
+            sizeViewModel.fieldValue.size?.volumePrefixUnit = unit
+        }
+        .environmentObject(viewModel)
+        .onDisappear {
+            refreshBool.toggle()
+        }
     }
 }
 

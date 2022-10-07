@@ -4,42 +4,43 @@ struct SizesList: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     
-    @State var standardSizeIndexToEdit: Int? = nil
-    @State var volumePrefixedSizeIndexToEdit: Int? = nil
     @State var showingEditSizeForm: Bool = false
     @State var showingAddSizeForm = false
-
-    @State var sizeToEditTemp: FieldValueViewModel?
     
+    @State var sizeToEdit: FieldValueViewModel?
+//    @State var standardSizeIndexToEdit: Int? = nil
+//    @State var volumePrefixedSizeIndexToEdit: Int? = nil
+
     var body: some View {
         list
-        .toolbar { navigationTrailingContent }
-        .toolbar { bottomBar }
-        .sheet(isPresented: $showingAddSizeForm) {
-            SizeForm()
-                .environmentObject(viewModel)
-        }
-        .navigationTitle("Sizes")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingEditSizeForm) {
-            editSizeForm
-        }
-        .sheet(item: $sizeToEditTemp) { sizeViewModel in
-            SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
-                
+//            .toolbar { bottomBarContents }
+            .toolbar { navigationTrailingContent }
+            .sheet(isPresented: $showingAddSizeForm) {
+                SizeForm()
+                    .environmentObject(viewModel)
             }
-        }
+            .navigationTitle("Sizes")
+            .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showingEditSizeForm) {
+                editSizeForm
+            }
+            .sheet(item: $sizeToEdit) { sizeViewModel in
+                SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
+                    
+                }
+            }
     }
     
-    var sizeToEdit: FieldValueViewModel? {
-        if let standardSizeIndexToEdit {
-            return viewModel.standardSizeViewModels[standardSizeIndexToEdit]
-        } else if let volumePrefixedSizeIndexToEdit {
-            return viewModel.volumePrefixedSizeViewModels[volumePrefixedSizeIndexToEdit]
-        } else {
-            return nil
-        }
-    }
+//    var sizeToEdit: FieldValueViewModel? {
+//        if let standardSizeIndexToEdit {
+//            return viewModel.standardSizeViewModels[standardSizeIndexToEdit]
+//        } else if let volumePrefixedSizeIndexToEdit {
+//            return viewModel.volumePrefixedSizeViewModels[volumePrefixedSizeIndexToEdit]
+//        } else {
+//            return nil
+//        }
+//    }
+    
     @ViewBuilder
     var editSizeForm: some View {
         if let sizeToEdit {
@@ -54,16 +55,18 @@ struct SizesList: View {
             EditButton()
         }
     }
-
-    var bottomBar: some ToolbarContent {
+    
+    var bottomBarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            HStack {
-                addButton
-                Spacer()
+            Button {
+                showingAddSizeForm = true
+            } label: {
+                Image(systemName: "plus")
             }
+            Spacer()
         }
     }
-
+    
     var list: some View {
         List {
             if !viewModel.standardSizeViewModels.isEmpty {
@@ -72,14 +75,33 @@ struct SizesList: View {
             if !viewModel.volumePrefixedSizeViewModels.isEmpty {
                 volumePrefixedSizesSection
             }
+            addButtonSection
         }
     }
     
+    var addButtonSection: some View {
+        Section {
+            Button {
+                showingAddSizeForm = true
+            } label: {
+                Text("Add a size")
+                    .foregroundColor(.accentColor)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+//            .sheet(isPresented: $showingAddSizeForm) {
+//                SizeForm()
+//                    .environmentObject(viewModel)
+//            }
+        }
+    }
+
     var standardSizesSection: some View {
         Section {
             ForEach(viewModel.standardSizeViewModels.indices, id: \.self) { index in
                 Button {
-                    sizeToEditTemp = viewModel.standardSizeViewModels[index]
+                    sizeToEdit = viewModel.standardSizeViewModels[index]
                 } label: {
                     Cell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
                 }
@@ -102,7 +124,7 @@ struct SizesList: View {
         return Section(header: header, footer: footer) {
             ForEach(viewModel.volumePrefixedSizeViewModels.indices, id: \.self) { index in
                 Button {
-                    sizeToEditTemp = viewModel.volumePrefixedSizeViewModels[index]
+                    sizeToEdit = viewModel.volumePrefixedSizeViewModels[index]
                 } label: {
                     Cell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
                 }
@@ -112,28 +134,18 @@ struct SizesList: View {
         }
     }
     
-    var addButton: some View {
-        Section {
-            Button {
-                showingAddSizeForm = true
-            } label: {
-                Image(systemName: "plus")
-            }
-        }
-    }
-    
     func deleteStandardSizes(at offsets: IndexSet) {
         viewModel.standardSizeViewModels.remove(atOffsets: offsets)
     }
-
+    
     func deleteVolumePrefixedSizes(at offsets: IndexSet) {
         viewModel.volumePrefixedSizeViewModels.remove(atOffsets: offsets)
     }
-
+    
     func moveStandardSizes(from source: IndexSet, to destination: Int) {
         viewModel.standardSizeViewModels.move(fromOffsets: source, toOffset: destination)
     }
-
+    
     func moveVolumePrefixedSizes(from source: IndexSet, to destination: Int) {
         viewModel.volumePrefixedSizeViewModels.move(fromOffsets: source, toOffset: destination)
     }
