@@ -147,7 +147,8 @@ extension FoodForm.NutrientsPerForm.AmountForm {
             }
             .environmentObject(viewModel)
             .sheet(isPresented: $showingSizeForm) {
-                SizeForm(includeServing: false, allowAddSize: false) { size in
+                SizeForm(includeServing: false, allowAddSize: false) { sizeViewModel in
+                    guard let size = sizeViewModel.size else { return }
                     withAnimation {
                         viewModel.amountViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

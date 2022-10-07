@@ -67,7 +67,7 @@ struct SizesList: View {
         .toolbar { navigationTrailingContent }
         .toolbar { bottomBar }
         .sheet(isPresented: $showingAddSizeForm) {
-            SizeForm_New()
+            SizeForm()
                 .environmentObject(viewModel)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)

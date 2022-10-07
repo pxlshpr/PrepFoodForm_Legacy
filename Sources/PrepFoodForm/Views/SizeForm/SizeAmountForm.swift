@@ -3,7 +3,7 @@ import SwiftHaptics
 
 struct SizeAmountForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @EnvironmentObject var formViewModel: SizeFormViewModel_New
+    @EnvironmentObject var formViewModel: SizeFormViewModel
     @ObservedObject var sizeViewModel: FieldValueViewModel
     
     @Environment(\.dismiss) var dismiss
@@ -62,7 +62,7 @@ extension SizeAmountForm {
         .environmentObject(viewModel)
         .sheet(isPresented: $showingSizeForm) {
             Color.red
-            SizeForm_New(includeServing: viewModel.hasServing, allowAddSize: false) { sizeViewModel in
+            SizeForm(includeServing: viewModel.hasServing, allowAddSize: false) { sizeViewModel in
                 guard let size = sizeViewModel.size else { return }
                 withAnimation {
                     self.sizeViewModel.sizeAmountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)

@@ -9,7 +9,7 @@ extension FieldValueViewModel {
     }
 }
 
-class SizeFormViewModel_New: ObservableObject {
+class SizeFormViewModel: ObservableObject {
     @Published var includeServing: Bool
     @Published var allowAddSize: Bool
     @Published var showingVolumePrefix: Bool
@@ -54,7 +54,7 @@ class SizeFormViewModel_New: ObservableObject {
     }
 }
 
-struct SizeForm_New: View {
+struct SizeForm: View {
 
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -64,7 +64,7 @@ struct SizeForm_New: View {
     /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
     @StateObject var sizeViewModel: FieldValueViewModel
     
-    @StateObject var formViewModel: SizeFormViewModel_New
+    @StateObject var formViewModel: SizeFormViewModel
     @State var showingVolumePrefixToggle: Bool = false
 
     var didAddSizeViewModel: ((FieldValueViewModel) -> ())?
@@ -74,7 +74,7 @@ struct SizeForm_New: View {
          allowAddSize: Bool = true,
          didAddSizeViewModel: ((FieldValueViewModel) -> ())? = nil
     ) {
-        let formViewModel = SizeFormViewModel_New(
+        let formViewModel = SizeFormViewModel(
             includeServing: includeServing,
             allowAddSize: allowAddSize,
             formState: fieldValueViewModel == nil ? .empty : .noChange
@@ -123,7 +123,7 @@ struct SizeForm_New: View {
     var form: some View {
         FormStyledScrollView {
             FormStyledSection {
-                SizeField_New(sizeViewModel: sizeViewModel, existingSizeViewModel: existingSizeViewModel)
+                SizeFormField(sizeViewModel: sizeViewModel, existingSizeViewModel: existingSizeViewModel)
                 .environmentObject(viewModel)
                 .environmentObject(formViewModel)
             }
@@ -217,7 +217,7 @@ struct SizeForm_NewPreview: View {
         NavigationView {
             Color.clear
                 .sheet(isPresented: .constant(true)) {
-                    SizeForm_New()
+                    SizeForm()
                         .environmentObject(viewModel)
                         .presentationDetents([.medium])
                         .presentationDragIndicator(.hidden)

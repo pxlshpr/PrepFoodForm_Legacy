@@ -1,9 +1,9 @@
 import SwiftUI
 import NamePicker
 
-struct SizeField_New: View {
+struct SizeFormField: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @EnvironmentObject var formViewModel: SizeFormViewModel_New
+    @EnvironmentObject var formViewModel: SizeFormViewModel
     @ObservedObject var sizeViewModel: FieldValueViewModel
     let existingSizeViewModel: FieldValueViewModel?
 
@@ -13,7 +13,7 @@ struct SizeField_New: View {
     @State var showingAmountForm = false
 }
 
-extension SizeField_New {
+extension SizeFormField {
     
     var body: some View {
         content

@@ -168,7 +168,7 @@ extension FoodForm.NutrientsPerForm {
             }
             .buttonStyle(.borderless)
             .sheet(isPresented: $showingAddSizeForm) {
-                SizeForm_New()
+                SizeForm()
                     .environmentObject(viewModel)
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.hidden)
