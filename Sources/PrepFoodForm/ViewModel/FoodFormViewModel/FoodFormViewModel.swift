@@ -204,6 +204,8 @@ extension FoodFormViewModel {
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
         ]
         + allMicronutrientFieldValueViewModels
+        + standardSizeViewModels
+        + volumePrefixedSizeViewModels
     }
     
     var allSizeViewModels: [FieldValueViewModel] {

@@ -124,15 +124,14 @@ extension FoodFormViewModel {
         for scanResult in scanResults {
 
             /// ** NOTE: MOCK—TO BE REMOVED**
-            if let fieldValue = ScanResult.mockServing.servingFieldValue {
-                let sizeViewModels = ScanResult.mockServing.servingSizeViewModels
+//            if let fieldValue = ScanResult.mockServing.servingFieldValue {
+//                let sizeViewModels = ScanResult.mockServing.servingSizeViewModels
 
-//            if let fieldValue = scanResult.serving?.fieldValue {
-//                if let sizeViewModels = scanResult.serving?.sizeViewModels {
-                    for sizeViewModel in sizeViewModels {
-                        add(sizeViewModel: sizeViewModel)
-                    }
-//                }
+            if let fieldValue = scanResult.servingFieldValue {
+                let sizeViewModels = scanResult.servingSizeViewModels
+                for sizeViewModel in sizeViewModels {
+                    add(sizeViewModel: sizeViewModel)
+                }
                 return fieldValue
             }
             

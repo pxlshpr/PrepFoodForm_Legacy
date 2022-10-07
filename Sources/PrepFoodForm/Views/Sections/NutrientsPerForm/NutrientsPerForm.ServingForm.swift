@@ -70,8 +70,6 @@ extension FoodForm.NutrientsPerForm.ServingForm {
                     }
                 }
                 .environmentObject(viewModel)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
             }
         }
     }

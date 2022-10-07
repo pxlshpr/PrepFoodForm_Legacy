@@ -170,8 +170,6 @@ extension FoodForm.NutrientsPerForm {
             .sheet(isPresented: $showingAddSizeForm) {
                 SizeForm()
                     .environmentObject(viewModel)
-                    .presentationDetents([.medium, .large])
-                    .presentationDragIndicator(.hidden)
             }
         }
         

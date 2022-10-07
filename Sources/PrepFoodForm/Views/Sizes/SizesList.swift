@@ -18,8 +18,6 @@ struct SizesList: View {
         .sheet(isPresented: $showingAddSizeForm) {
             SizeForm()
                 .environmentObject(viewModel)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
         }
         .navigationTitle("Sizes")
         .navigationBarTitleDisplayMode(.inline)
@@ -30,8 +28,6 @@ struct SizesList: View {
             SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
                 
             }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.hidden)
         }
     }
     
@@ -50,8 +46,6 @@ struct SizesList: View {
             SizeForm(fieldValueViewModel: sizeToEdit) { sizeViewModel in
                 
             }
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.hidden)
         }
     }
     

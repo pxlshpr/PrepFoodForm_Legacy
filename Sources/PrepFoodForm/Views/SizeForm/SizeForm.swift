@@ -16,6 +16,9 @@ struct SizeForm: View {
     @StateObject var formViewModel: SizeFormViewModel
     @State var showingVolumePrefixToggle: Bool = false
 
+    /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
+    @State var shouldAnimateOptions = false
+
     var didAddSizeViewModel: ((FieldValueViewModel) -> ())?
 
     init(fieldValueViewModel: FieldValueViewModel? = nil,
@@ -67,6 +70,13 @@ struct SizeForm: View {
                 formViewModel.updateFormState(of: sizeViewModel, comparedToExisting: existingSizeViewModel)
             }
         }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                shouldAnimateOptions = true
+            }
+        }
+        .presentationDetents([.height(560), .large])
+        .presentationDragIndicator(.hidden)
     }
     
     var form: some View {
@@ -79,7 +89,20 @@ struct SizeForm: View {
             if sizeViewModel.sizeAmountString.isEmpty || sizeViewModel.sizeAmountUnit.unitType == .weight {
                 volumePrefixSection
             }
+            fillOptionsSections
         }
+    }
+
+    var fillOptionsSections: some View {
+        FillOptionsSections(
+            fieldValueViewModel: sizeViewModel,
+            shouldAnimate: $shouldAnimateOptions,
+            didTapImage: {
+//                showTextPicker()
+            }, didTapFillOption: { fillOption in
+//                didTapFillOption(fillOption)
+            })
+        .environmentObject(viewModel)
     }
 
     var volumePrefixSection: some View {
@@ -172,8 +195,6 @@ struct SizeForm_NewPreview: View {
                 .sheet(isPresented: .constant(true)) {
                     SizeForm()
                         .environmentObject(viewModel)
-                        .presentationDetents([.medium])
-                        .presentationDragIndicator(.hidden)
                 }
         }
     }

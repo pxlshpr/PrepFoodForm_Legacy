@@ -73,8 +73,6 @@ extension SizeAmountForm {
                 }
             }
             .environmentObject(viewModel)
-            .presentationDetents([.medium, .large])
-            .presentationDragIndicator(.hidden)
         }
     }
     

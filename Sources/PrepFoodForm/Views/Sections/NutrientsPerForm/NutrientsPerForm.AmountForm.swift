@@ -158,8 +158,6 @@ extension FoodForm.NutrientsPerForm.AmountForm {
                     }
                 }
                 .environmentObject(viewModel)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
             }
         }
     }
