@@ -364,16 +364,16 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let image = sampleImage(10),
-              let mfpProcessedFood = sampleMFPProcessedFood(10),
-              let scanResult = sampleScanResult(10)
+        guard let image = sampleImage(11),
+//              let mfpProcessedFood = sampleMFPProcessedFood(11),
+              let scanResult = sampleScanResult(11)
         else {
             fatalError("Couldn't load mock files")
         }
         
         viewModel.shouldShowWizard = false
         
-        viewModel.prefilledFood = mfpProcessedFood
+//        viewModel.prefilledFood = mfpProcessedFood
         
         viewModel.sourceType = .images
         viewModel.imageViewModels.append(
