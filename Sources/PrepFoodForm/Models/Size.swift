@@ -6,7 +6,7 @@ struct Size: Hashable {
     var quantity: Double? = 1
 
     //TODO: Consider replacing these with computed get/set variables that directly manipulate the doubles
-    var quantityString: String = ""
+    var quantityString: String = "1"
     
     var volumePrefixUnit: FormUnit? = nil
     var name: String = ""

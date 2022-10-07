@@ -206,7 +206,7 @@ extension FieldValue {
                 self.internalString = newValue
             }
         }
-        
+    
         var unitDescription: String {
             unit.shortDescription
         }
@@ -484,7 +484,7 @@ extension FieldValue {
             case .micro(let microValue):
                 return microValue.string
             case .size(let sizeValue):
-                return sizeValue.size.fullNameString
+                return sizeValue.size.name
             }
         }
         set {
@@ -501,9 +501,10 @@ extension FieldValue {
                 var newMicrovalue = microValue
                 newMicrovalue.string = newValue
                 self = .micro(newMicrovalue)
-            case .size:
-                /// Creating a size by setting a string isn't yet supported
-                break
+            case .size(let sizeValue):
+                var newSizeValue = sizeValue
+                newSizeValue.size.name = newValue
+                self = .size(newSizeValue)
 //            case .name(let stringValue):
 //                <#code#>
 //            case .emoji(let stringValue):

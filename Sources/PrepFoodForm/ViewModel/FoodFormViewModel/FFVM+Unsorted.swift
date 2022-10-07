@@ -187,7 +187,19 @@ extension FoodFormViewModel {
             }
         }
     }
-    
+
+    func add(sizeViewModel: FieldValueViewModel) {
+        /// Make sure it's actually got a size in it first
+        guard let size = sizeViewModel.size else { return }
+        withAnimation {
+            if size.isVolumePrefixed {
+                volumePrefixedSizeViewModels.append(sizeViewModel)
+            } else {
+                standardSizeViewModels.append(sizeViewModel)
+            }
+        }
+    }
+
     var numberOfSizes: Int {
         standardSizeViewModels.count + volumePrefixedSizeViewModels.count
     }

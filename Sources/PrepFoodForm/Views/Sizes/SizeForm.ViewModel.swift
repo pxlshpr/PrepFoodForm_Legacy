@@ -52,9 +52,7 @@ class SizeFormViewModel: ObservableObject {
             self.volumePrefixUnit = .volume(.cup)
         }
     }
-}
-
-extension SizeFormViewModel {
+    
     var size: Size? {
         guard let amount else {
             return nil
@@ -70,17 +68,6 @@ extension SizeFormViewModel {
             unit: amountUnit
         )
     }
-}
-
-enum FormState: Hashable {
-    case empty
-    case noChange
-    case duplicate
-    case invalid(message: String)
-    case okToSave
-}
-
-extension SizeFormViewModel {
     
     func updateFormState() {
         let newFormState = getFormState()
