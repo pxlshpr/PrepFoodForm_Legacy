@@ -14,9 +14,15 @@ enum FieldValue: Hashable {
     case energy(EnergyValue = EnergyValue())
     case macro(MacroValue)
     case micro(MicroValue)
+    case size(SizeValue)
 }
 
-//MARK: - MicroValue
+extension FieldValue {
+    struct SizeValue: Hashable {
+        var size: Size
+        var fillType: FillType
+    }
+}
 extension FieldValue {
     struct MicroValue: Hashable {
         var nutrientType: NutrientType
@@ -353,6 +359,8 @@ extension FieldValue: CustomStringConvertible {
             return macroValue.macro.description
         case .micro(let microValue):
             return microValue.nutrientType.description
+        case .size(let sizeValue):
+            return sizeValue.size.fullNameString
         }
     }
 }
@@ -376,6 +384,9 @@ extension FieldValue {
             return macroValue.isEmpty
         case .micro(let microValue):
             return microValue.isEmpty
+            
+        case .size(let sizeValue):
+            return sizeValue.size.isEmpty
         }
     }
 }
@@ -472,6 +483,8 @@ extension FieldValue {
                 return macroValue.string
             case .micro(let microValue):
                 return microValue.string
+            case .size(let sizeValue):
+                return sizeValue.size.fullNameString
             }
         }
         set {
@@ -488,6 +501,9 @@ extension FieldValue {
                 var newMicrovalue = microValue
                 newMicrovalue.string = newValue
                 self = .micro(newMicrovalue)
+            case .size:
+                /// Creating a size by setting a string isn't yet supported
+                break
 //            case .name(let stringValue):
 //                <#code#>
 //            case .emoji(let stringValue):
@@ -608,6 +624,8 @@ extension FieldValue {
                 return doubleValue.fillType
             case .density(let density):
                 return density?.fillType ?? .userInput
+            case .size(let sizeValue):
+                return sizeValue.fillType
             }
         }
         set {
@@ -664,6 +682,8 @@ extension FieldValue {
                     unit: microValue.unit,
                     fillType: newValue)
                 )
+            case .size(let sizeValue):
+                self = .size(SizeValue(size: sizeValue.size, fillType: newValue))
             }
         }
     }

@@ -216,11 +216,13 @@ extension FoodFormViewModel {
                 return true
             }
         }
-        for size in allSizes {
-            if size.fillType != .userInput {
-                return true
-            }
-        }
+        
+        //TODO: SizeValue
+//        for size in allSizes {
+//            if size.fillType != .userInput {
+//                return true
+//            }
+//        }
         return false
     }
     

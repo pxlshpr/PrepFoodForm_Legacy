@@ -4,14 +4,18 @@ import PrepUnits
 struct Size: Hashable {
     
     var quantity: Double? = 1
+
+    //TODO: Consider replacing these with computed get/set variables that directly manipulate the doubles
     var quantityString: String = ""
+    
     var volumePrefixUnit: FormUnit? = nil
     var name: String = ""
     var amount: Double?
+
+    //TODO: Consider replacing these with computed get/set variables that directly manipulate the doubles
     var amountString: String = ""
-    var unit: FormUnit = .weight(.g)
     
-    var fillType: FillType = .userInput
+    var unit: FormUnit = .weight(.g)    
 }
 
 extension Size: Identifiable {
@@ -21,6 +25,16 @@ extension Size: Identifiable {
 }
 
 extension Size {
+    
+    var isEmpty: Bool {
+        quantity == 1
+        && quantityString == ""
+        && volumePrefixUnit == nil
+        && name == ""
+        && amount == nil
+        && amountString == ""
+        && unit == .weight(.g)
+    }
 
     var isVolumePrefixed: Bool {
         volumePrefixUnit != nil

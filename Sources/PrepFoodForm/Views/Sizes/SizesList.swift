@@ -22,13 +22,13 @@ extension SizesList.Cell {
             Spacer()
             Text(size.scaledAmountString)
                 .foregroundColor(Color(.secondaryLabel))
-            Button {
-                
-            } label: {
-                Image(systemName: size.fillType.buttonSystemImage)
-                    .imageScale(.large)
-            }
-            .buttonStyle(.borderless)
+//            Button {
+//                
+//            } label: {
+//                Image(systemName: size.fillType.buttonSystemImage)
+//                    .imageScale(.large)
+//            }
+//            .buttonStyle(.borderless)
         }
     }
 }
