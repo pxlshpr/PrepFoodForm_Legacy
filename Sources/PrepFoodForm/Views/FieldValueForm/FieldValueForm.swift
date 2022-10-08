@@ -22,6 +22,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     @FocusState var isFocused: Bool
     @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool
+    @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
     @State var refreshBool = false
     

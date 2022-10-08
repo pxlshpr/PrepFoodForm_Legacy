@@ -334,10 +334,6 @@ extension FoodFormViewModel {
         amountViewModel.fieldValue.doubleValue.unit.description
     }
     
-    var amountUnitShortString: String {
-        amountViewModel.fieldValue.doubleValue.unit.shortDescription
-    }
-
     var densityWeightAmount: Double {
         densityViewModel.fieldValue.weight.double ?? 0
     }

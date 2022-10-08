@@ -131,10 +131,6 @@ struct SizeForm: View {
         }
     }
     
-    var isDirty: Bool {
-        existingSizeViewModel?.fieldValue != sizeViewModel.fieldValue
-    }
-
     var form: some View {
         FormStyledScrollView {
             FormStyledSection {
@@ -215,6 +211,10 @@ struct SizeForm: View {
         existingSizeViewModel != nil
     }
     
+    var isDirty: Bool {
+        existingSizeViewModel?.fieldValue != sizeViewModel.fieldValue
+    }
+
     //MARK: - Sheets
     var quantityForm: some View {
         NavigationView {

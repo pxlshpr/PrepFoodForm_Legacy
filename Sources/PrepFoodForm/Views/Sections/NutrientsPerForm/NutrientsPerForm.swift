@@ -26,7 +26,7 @@ extension FoodForm.NutrientsPerForm {
 //            .interactiveDismissDisabled()
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
-            AmountForm()
+            AmountForm(amountViewModel: viewModel.amountViewModel)
                 .environmentObject(viewModel)
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerServingForm) {
