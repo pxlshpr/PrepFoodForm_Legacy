@@ -447,8 +447,8 @@ extension FieldValue {
                 return .g
             case .micro:
                 return self.microValue.unit.foodLabelUnit
-            case .amount, .serving:
-                return self.doubleValue.unit.foodLabelUnit
+            case .amount(let doubleValue), .serving(let doubleValue):
+                return doubleValue.foodLabelUnit
             default:
                 return nil
             }
@@ -521,6 +521,14 @@ extension FieldValue {
                 var newSizeValue = sizeValue
                 newSizeValue.size.name = newValue
                 self = .size(newSizeValue)
+            case .amount(let doubleValue):
+                var newDoubleValue = doubleValue
+                newDoubleValue.string = newValue
+                self = .amount(newDoubleValue)
+            case .serving(let doubleValue):
+                var newDoubleValue = doubleValue
+                newDoubleValue.string = newValue
+                self = .serving(newDoubleValue)
 //            case .name(let stringValue):
 //                <#code#>
 //            case .emoji(let stringValue):
@@ -547,9 +555,8 @@ extension FieldValue {
         case .energy, .macro, .micro:
             guard let amount = double else { return nil }
             return FoodLabelValue(amount: amount, unit: foodLabelUnit)
-        case .amount, .serving:
-            guard let amount = double else { return nil }
-            return FoodLabelValue(amount: amount, unit: foodLabelUnit)
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.value
         default:
             return nil
         }

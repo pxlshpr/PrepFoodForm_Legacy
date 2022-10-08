@@ -12,7 +12,11 @@ extension ScanResult {
         
         return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
             size: perContainerSize,
-            fillType: autoFillType(for: perContainerSizeValueText))
+            fillType: autoFillType(
+                for: perContainerSizeValueText,
+                value: FoodLabelValue(amount: perContainerSize.amount ?? 0,
+                                      unit: perContainerSize.unit.foodLabelUnit)
+            ))
         ))
     }
     
@@ -34,7 +38,13 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: servingUnitSize,
-            fillType: autoFillType(for: servingUnitSizeValueText)
+            fillType: autoFillType(
+                for: servingUnitSizeValueText,
+                value: FoodLabelValue(
+                    amount: servingUnitSize.amount ?? 0,
+                    unit: servingUnitSize.unit.foodLabelUnit
+                )
+            )
         ))
         return FieldViewModel(fieldValue: fieldValue)
     }
@@ -46,7 +56,13 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: equivalentUnitSize,
-            fillType: autoFillType(for: equivalentUnitSizeValueText)
+            fillType: autoFillType(
+                for: equivalentUnitSizeValueText,
+                value: FoodLabelValue(
+                    amount: equivalentUnitSize.amount ?? 0,
+                    unit: equivalentUnitSize.unit.foodLabelUnit
+                )
+            )
         ))
         return FieldViewModel(fieldValue: fieldValue)
     }
@@ -135,17 +151,20 @@ extension ScanResult {
     }
     
     //MARK: - Helpers
-    func autoFillType(for valueText: ValueText) -> FillType {
+    func autoFillType(for valueText: ValueText, value: FoodLabelValue) -> FillType {
         .imageAutofill(
             valueText: valueText,
             scanResultId: id,
-            value: nil)
+            value: value)
     }
 }
+
+import PrepUnits
 
 extension DoubleText {
     var asValueText: ValueText? {
         ValueText(value: .zero, text: self.text, attributeText: self.attributeText)
+//        ValueText(value: FoodLabelValue(amount: double), text: self.text, attributeText: self.attributeText)
     }
 }
 
@@ -160,5 +179,18 @@ import VisionSugar
 extension RecognizedText {
     var asValueText: ValueText? {
         ValueText(value: .zero, text: self, attributeText: self)
-    }    
+//        asValueText(for: 1)
+    }
+
+//    func asValueText(for column: Int) -> ValueText? {
+//        let index = column - 1
+//        let values = string.values
+//        let value: FoodLabelValue
+//        if index >= 0, index < values.count {
+//            value = values[column]
+//        } else {
+//            value = .zero
+//        }
+//        return ValueText(value: value, text: self, attributeText: self)
+//    }
 }

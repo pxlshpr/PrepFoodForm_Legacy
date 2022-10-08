@@ -52,12 +52,32 @@ struct ServingForm: View {
             showingAddSizeForm = true
         } didPickUnit: { unit in
             if unit.isServingBased {
-                viewModel.modifyServingAmount(for: unit)
+                modifyServingAmount(for: unit)
             }
             fieldViewModel.fieldValue.doubleValue.unit = unit
         }
         .environmentObject(viewModel)
         .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
+    }
+    
+    func modifyServingAmount(for unit: FormUnit) {
+        guard fieldViewModel.fieldValue.doubleValue.unit.isServingBased,
+              case .size(let size, _) = fieldViewModel.fieldValue.doubleValue.unit
+        else {
+            return
+        }
+        let newAmount: Double
+        if let quantity = size.quantity,
+           let servingAmount = fieldViewModel.fieldValue.doubleValue.double, servingAmount > 0
+        {
+            newAmount = quantity / servingAmount
+        } else {
+            newAmount = 0
+        }
+        
+        //TODO-SIZE: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
+//        size.amountDouble = newAmount
+//        updateSummary()
     }
 
     var addSizeForm: some View {

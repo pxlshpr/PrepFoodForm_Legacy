@@ -7,6 +7,8 @@ extension FieldValue {
         switch self {
         case .energy(let energyValue):
             return energyValue.altValues
+        case .serving(let doubleValue), .amount(let doubleValue):
+            return doubleValue.altValues
 //        case .macro(let macroValue):
 //            <#code#>
 //        case .micro(let microValue):
@@ -30,6 +32,25 @@ extension FieldValue {
         default:
             return []
         }
+    }
+}
+
+extension FieldValue.DoubleValue {
+    /// Return all `FoodLabelValue`s detected in the recognized text of the `fillType` that isn't the value attached to this fieldValue
+    var altValues: [FoodLabelValue] {
+        guard let textString = self.fillType.valueText?.text.string else {
+            return []
+        }
+        return textString.values.filter({ $0 != self.value })
+    }
+    
+    var value: FoodLabelValue? {
+        guard let amount = double else { return nil }
+        return FoodLabelValue(amount: amount, unit: foodLabelUnit)
+    }
+    
+    var foodLabelUnit: FoodLabelUnit? {
+        unit.foodLabelUnit
     }
 }
 

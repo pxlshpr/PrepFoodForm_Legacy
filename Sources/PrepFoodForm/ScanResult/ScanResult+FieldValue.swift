@@ -21,7 +21,10 @@ extension ScanResult {
         } else {
             guard let valueText = amountValueText(for: column) else { return nil }
             return FieldValue.amount(FieldValue.DoubleValue(
-                double: 1, string: "1", unit: .serving, fillType: autoFillType(for: valueText))
+                double: 1, string: "1", unit: .serving, fillType: autoFillType(
+                    for: valueText,
+                    value: FoodLabelValue(amount: 1, unit: nil)
+                ))
             )
         }
     }
@@ -40,7 +43,13 @@ extension ScanResult {
                 double: servingAmount,
                 string: servingAmount.cleanAmount,
                 unit: servingFormUnit,
-                fillType: autoFillType(for: servingAmountValueText)
+                fillType: autoFillType(
+                    for: servingAmountValueText,
+                    value: FoodLabelValue(
+                        amount: servingAmount,
+                        unit: servingFormUnit.foodLabelUnit
+                    )
+                )
             ))
         }
         else if headerType(for: column) == .perServing {
@@ -60,7 +69,13 @@ extension ScanResult {
             double: headerAmount,
             string: headerAmount.cleanAmount,
             unit: headerFormUnit(for: column),
-            fillType: autoFillType(for: headerValueText)
+            fillType: autoFillType(
+                for: headerValueText,
+                value: FoodLabelValue(
+                    amount: headerAmount,
+                    unit: headerFormUnit(for: column).foodLabelUnit
+                )
+            )
         ))
     }
     
