@@ -1,6 +1,6 @@
 import Foundation
 
-extension FieldValueViewModel {
+extension FieldViewModel {
     var size: Size? {
         fieldValue.size
     }

@@ -6,7 +6,7 @@
 //    //TODO: Remove this
 //    @Published var path: [Route] = []
 //
-//    //TODO: Use the FieldValueViewModel instead of these (having a copy of it for the form and keeping the original for when user's are editing or if we're cancelling the creation)
+//    //TODO: Use the FieldViewModel instead of these (having a copy of it for the form and keeping the original for when user's are editing or if we're cancelling the creation)
 //    @Published var name: String
 //    
 //    @Published var quantityString: String

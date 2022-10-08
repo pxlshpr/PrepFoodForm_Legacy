@@ -13,10 +13,10 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     var supplementaryViewHeaderString: String?
 
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @ObservedObject var fieldValueViewModel: FieldValueViewModel
+    @ObservedObject var existingFieldViewModel: FieldViewModel
     
-    /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-    @ObservedObject var formViewModel: FieldValueViewModel
+    /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
+    @ObservedObject var fieldViewModel: FieldViewModel
     
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
@@ -34,18 +34,18 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     
     let setNewValue: ((FoodLabelValue) -> ())?
     
-    init(formViewModel: FieldValueViewModel,
-         fieldValueViewModel: FieldValueViewModel,
+    init(fieldViewModel: FieldViewModel,
+         existingFieldViewModel: FieldViewModel,
          unitView: UnitView,
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
-        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
         
-        self.fieldValueViewModel = fieldValueViewModel
-        self.formViewModel = formViewModel
+        self.existingFieldViewModel = existingFieldViewModel
+        self.fieldViewModel = fieldViewModel
         self.unitView = unitView
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
@@ -56,17 +56,17 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
 }
 
 extension FieldValueForm where UnitView == EmptyView {
-    init(formViewModel: FieldValueViewModel,
-         fieldValueViewModel: FieldValueViewModel,
+    init(fieldViewModel: FieldViewModel,
+         existingFieldViewModel: FieldViewModel,
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
-        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
         
-        self.fieldValueViewModel = fieldValueViewModel
-        self.formViewModel = formViewModel
+        self.existingFieldViewModel = existingFieldViewModel
+        self.fieldViewModel = fieldViewModel
         self.unitView = nil
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
@@ -76,15 +76,15 @@ extension FieldValueForm where UnitView == EmptyView {
 }
 
 extension FieldValueForm where SupplementaryView == EmptyView {
-    init(formViewModel: FieldValueViewModel,
-         fieldValueViewModel: FieldValueViewModel,
+    init(fieldViewModel: FieldViewModel,
+         existingFieldViewModel: FieldViewModel,
          unitView: UnitView,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
-        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
         
-        self.fieldValueViewModel = fieldValueViewModel
-        self.formViewModel = formViewModel
+        self.existingFieldViewModel = existingFieldViewModel
+        self.fieldViewModel = fieldViewModel
         self.unitView = unitView
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
@@ -94,14 +94,14 @@ extension FieldValueForm where SupplementaryView == EmptyView {
 }
 
 extension FieldValueForm where UnitView == EmptyView, SupplementaryView == EmptyView {
-    init(formViewModel: FieldValueViewModel,
-         fieldValueViewModel: FieldValueViewModel,
+    init(fieldViewModel: FieldViewModel,
+         existingFieldViewModel: FieldViewModel,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
-        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
         
-        self.fieldValueViewModel = fieldValueViewModel
-        self.formViewModel = formViewModel
+        self.existingFieldViewModel = existingFieldViewModel
+        self.fieldViewModel = fieldViewModel
         self.unitView = nil
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
@@ -138,7 +138,7 @@ extension FieldValueForm {
     
     /// Returns true if any of the fields have changed from what they initially were
     var isDirty: Bool {
-        formViewModel.fieldValue != fieldValueViewModel.fieldValue
+        fieldViewModel.fieldValue != existingFieldViewModel.fieldValue
     }
     
     var content: some View {
@@ -185,7 +185,7 @@ extension FieldValueForm {
 
     var fillOptionsSections: some View {
         FillOptionsSections(
-            fieldValueViewModel: formViewModel,
+            fieldViewModel: fieldViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
                 showTextPicker()
@@ -207,7 +207,7 @@ extension FieldValueForm {
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button("Cancel") {
-                /// Do nothing to revert the values as the original `FieldValueViewModel` is still untouched
+                /// Do nothing to revert the values as the original `FieldViewModel` is still untouched
                 doNotRegisterUserInput = true
                 dismiss()
             }
@@ -238,7 +238,7 @@ extension FieldValueForm {
     }
     
     var header: some View {
-        let autofillString = viewModel.shouldShowFillOptions(for: formViewModel.fieldValue) ? "or autofill " : ""
+        let autofillString = viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) ? "or autofill " : ""
         let string = "Enter \(autofillString)a value"
         return Text(string)
     }
@@ -247,10 +247,10 @@ extension FieldValueForm {
         let binding = Binding<String>(
             get: { self.fieldValue.string },
             set: {
-                self.formViewModel.fieldValue.string = $0
+                self.fieldViewModel.fieldValue.string = $0
                 if !doNotRegisterUserInput && isFocused {
                     withAnimation {
-                        formViewModel.registerUserInput()
+                        fieldViewModel.registerUserInput()
                     }
                 }
             }
@@ -260,7 +260,7 @@ extension FieldValueForm {
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .font(formViewModel.fieldValue.string.isEmpty ? .body : .largeTitle)
+            .font(fieldViewModel.fieldValue.string.isEmpty ? .body : .largeTitle)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
@@ -290,10 +290,10 @@ extension FieldValueForm {
             didTapText(text, onImageWithId: scanResultId)
         }
         .onDisappear {
-            guard formViewModel.isCroppingNextImage else {
+            guard fieldViewModel.isCroppingNextImage else {
                 return
             }
-            formViewModel.cropFilledImage()
+            fieldViewModel.cropFilledImage()
             doNotRegisterUserInput = false
             refreshBool.toggle()
        }
@@ -303,8 +303,8 @@ extension FieldValueForm {
     
     func saveAndDismiss() {
         doNotRegisterUserInput = true
-        /// Copy the data across from the transient `FieldValueViewModel` we were using here to persist the data
-        fieldValueViewModel.copyData(from: formViewModel)
+        /// Copy the data across from the transient `FieldViewModel` we were using here to persist the data
+        existingFieldViewModel.copyData(from: fieldViewModel)
         dismiss()
     }
     
@@ -344,10 +344,10 @@ extension FieldValueForm {
         }
         
         let previousFillType = fieldValue.fillType
-        formViewModel.fieldValue.fillType = fillType
+        fieldViewModel.fieldValue.fillType = fillType
         if fillType.text?.id != previousFillType.text?.id {
-            formViewModel.isCroppingNextImage = true
-            formViewModel.cropFilledImage()
+            fieldViewModel.isCroppingNextImage = true
+            fieldViewModel.cropFilledImage()
         }
         
         doNotRegisterUserInput = false
@@ -373,8 +373,8 @@ extension FieldValueForm {
         
         if let setNewValue {
             setNewValue(value)
-            formViewModel.fieldValue.fillType = newFillType
-            formViewModel.isCroppingNextImage = true
+            fieldViewModel.fieldValue.fillType = newFillType
+            fieldViewModel.isCroppingNextImage = true
         }
     }
     
@@ -397,7 +397,7 @@ extension FieldValueForm {
     //MARK: - Helpers
     
     var fieldValue: FieldValue {
-        formViewModel.fieldValue
+        fieldViewModel.fieldValue
     }
 
     var selectedImageIndex: Int? {

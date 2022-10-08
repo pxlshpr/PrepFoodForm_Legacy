@@ -1,35 +1,27 @@
 import SwiftUI
 import PrepUnits
 
-extension FieldValue.MicroValue {
-    var convertedFromPercentage: (amount: Double, unit: NutrientUnit)? {
-        guard let double, unit == .p else {
-            return nil
-        }
-        return nutrientType.convertRDApercentage(double)
-    }
-}
 struct MicronutrientForm: View {
     
-    @ObservedObject var fieldValueViewModel: FieldValueViewModel
-    @StateObject var formViewModel: FieldValueViewModel
+    @ObservedObject var existingFieldViewModel: FieldViewModel
+    @StateObject var fieldViewModel: FieldViewModel
     
     @State var unit: NutrientUnit
 
-    init(fieldValueViewModel: FieldValueViewModel) {
-        self.fieldValueViewModel = fieldValueViewModel
+    init(existingFieldViewModel: FieldViewModel) {
+        self.existingFieldViewModel = existingFieldViewModel
         
-        let formViewModel = fieldValueViewModel.copy
-        _formViewModel = StateObject(wrappedValue: formViewModel)
+        let fieldViewModel = existingFieldViewModel.copy
+        _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
         
-        _unit = State(initialValue: fieldValueViewModel.fieldValue.microValue.unit)
+        _unit = State(initialValue: existingFieldViewModel.fieldValue.microValue.unit)
     }
 
     
     var body: some View {
         FieldValueForm(
-            formViewModel: formViewModel,
-            fieldValueViewModel: fieldValueViewModel,
+            fieldViewModel: fieldViewModel,
+            existingFieldViewModel: existingFieldViewModel,
             unitView: unitPicker,
             supplementaryView: percentageInfoView,
             supplementaryViewHeaderString: supplementaryViewHeaderString,
@@ -38,20 +30,20 @@ struct MicronutrientForm: View {
         )
         .onChange(of: unit) { newValue in
             withAnimation {
-                formViewModel.fieldValue.microValue.unit = newValue
+                fieldViewModel.fieldValue.microValue.unit = newValue
             }
         }
     }
     
     var supplementaryViewHeaderString: String? {
-        if formViewModel.fieldValue.microValue.unit == .p {
+        if fieldViewModel.fieldValue.microValue.unit == .p {
             return "Equivalent Value"
         }
         return nil
     }
 
     var supplementaryViewFooterString: String? {
-        if formViewModel.fieldValue.microValue.unit == .p {
+        if fieldViewModel.fieldValue.microValue.unit == .p {
             return "% values will be converted and saved as their equivalent amounts."
         }
         
@@ -60,7 +52,7 @@ struct MicronutrientForm: View {
 
     @ViewBuilder
     var percentageInfoView: some View {
-        if let valueAndUnit = formViewModel.fieldValue.microValue.convertedFromPercentage {
+        if let valueAndUnit = fieldViewModel.fieldValue.microValue.convertedFromPercentage {
             HStack {
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
                     Text(valueAndUnit.amount.cleanAmount)
@@ -87,25 +79,25 @@ struct MicronutrientForm: View {
             }
             .pickerStyle(.menu)
         } else {
-            Text(formViewModel.fieldValue.microValue.unitDescription)
+            Text(fieldViewModel.fieldValue.microValue.unitDescription)
                 .foregroundColor(.secondary)
                 .font(.title3)
         }
     }
 
     func setNewValue(_ value: FoodLabelValue) {
-        formViewModel.fieldValue.microValue.string = value.amount.cleanAmount
-        if let unit = value.unit?.nutrientUnit(for: formViewModel.fieldValue.microValue.nutrientType),
+        fieldViewModel.fieldValue.microValue.string = value.amount.cleanAmount
+        if let unit = value.unit?.nutrientUnit(for: fieldViewModel.fieldValue.microValue.nutrientType),
            supportedUnits.contains(unit)
         {
-            formViewModel.fieldValue.microValue.unit = unit
+            fieldViewModel.fieldValue.microValue.unit = unit
         } else {
-            formViewModel.fieldValue.microValue.unit = defaultUnit
+            fieldViewModel.fieldValue.microValue.unit = defaultUnit
         }
     }
 
     var supportedUnits: [NutrientUnit] {
-        fieldValueViewModel.fieldValue.microValue.nutrientType.supportedNutrientUnits
+        existingFieldViewModel.fieldValue.microValue.nutrientType.supportedNutrientUnits
     }
     
     var defaultUnit: NutrientUnit {
@@ -125,23 +117,11 @@ struct MicronutrientFormPreview: View {
     }
     
     var body: some View {
-        MicronutrientForm(fieldValueViewModel: viewModel.micronutrientFieldValueViewModel(for: .vitaminC)!)
+        MicronutrientForm(existingFieldViewModel: viewModel.micronutrientFieldViewModel(for: .vitaminC)!)
             .environmentObject(viewModel)
     }
 }
 
-extension FoodFormViewModel {
-    func micronutrientFieldValueViewModel(for nutrientType: NutrientType) -> FieldValueViewModel? {
-        for group in micronutrients {
-            for fieldValueViewModel in group.fieldValueViewModels {
-                if case .micro(let microValue) = fieldValueViewModel.fieldValue, microValue.nutrientType == nutrientType {
-                    return fieldValueViewModel
-                }
-            }
-        }
-        return nil
-    }
-}
 struct MicronutrientFormForm_Previews: PreviewProvider {
     static var previews: some View {
         MicronutrientFormPreview()

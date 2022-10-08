@@ -26,9 +26,9 @@ extension FoodFormViewModel {
     }
     
     var micronutrientsIsEmpty: Bool {
-        for (_, fieldValueViewModels) in micronutrients {
-            for fieldValueViewModel in fieldValueViewModels {
-                if !fieldValueViewModel.fieldValue.isEmpty {
+        for (_, fieldViewModels) in micronutrients {
+            for fieldViewModel in fieldViewModels {
+                if !fieldViewModel.fieldValue.isEmpty {
                     return false
                 }
             }
@@ -45,8 +45,8 @@ extension FoodFormViewModel {
         shouldShowWizard = false
         if onlyServing {
             let size = Size(quantity: 1, name: "container", amount: 5, unit: .serving)
-            let sizeViewModels: [FieldValueViewModel] = [
-                FieldValueViewModel(fieldValue: .size(.init(size: size, fillType: .userInput)))
+            let sizeViewModels: [FieldViewModel] = [
+                FieldViewModel(fieldValue: .size(.init(size: size, fillType: .userInput)))
             ]
             
             self.standardSizeViewModels = sizeViewModels
@@ -68,8 +68,8 @@ extension FoodFormViewModel {
                 volume: FieldValue.DoubleValue(double: 25, string: "25", unit: .volume(.mL)))
             )
             
-            self.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
-            self.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
+            self.standardSizeViewModels = mockStandardSizes.fieldViewModels
+            self.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
             
             self.energyViewModel.fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
             self.carbViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
@@ -79,24 +79,24 @@ extension FoodFormViewModel {
             //TODO: Micronutrients
             if includeAllMicronutrients {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldValueViewModels.indices {
-                        micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = Double.random(in: 1...300)
+                    for f in micronutrients[g].fieldViewModels.indices {
+                        micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = Double.random(in: 1...300)
                     }
                 }
             } else {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldValueViewModels.indices {
-                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .saturatedFat {
-                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 25
+                    for f in micronutrients[g].fieldViewModels.indices {
+                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .saturatedFat {
+                            micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 25
                         }
-                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .biotin {
-                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 5
+                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .biotin {
+                            micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 5
                         }
-                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .caffeine {
-                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 250
+                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .caffeine {
+                            micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 250
                         }
-                        if micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.nutrientType == .addedSugars {
-                            micronutrients[g].fieldValueViewModels[f].fieldValue.microValue.double = 35
+                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .addedSugars {
+                            micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 35
                         }
                     }
                 }
@@ -181,14 +181,14 @@ extension FoodFormViewModel {
     func add(size: Size) {
         withAnimation {
             if size.isVolumePrefixed {
-                volumePrefixedSizeViewModels.append(size.asFieldValueViewModelForUserInput)
+                volumePrefixedSizeViewModels.append(size.asFieldViewModelForUserInput)
             } else {
-                standardSizeViewModels.append(size.asFieldValueViewModelForUserInput)
+                standardSizeViewModels.append(size.asFieldViewModelForUserInput)
             }
         }
     }
 
-    func add(sizeViewModel: FieldValueViewModel) {
+    func add(sizeViewModel: FieldViewModel) {
         /// Make sure it's actually got a size in it first
         guard let size = sizeViewModel.size else { return }
         withAnimation {
@@ -200,7 +200,7 @@ extension FoodFormViewModel {
         }
     }
     
-    func editStandardSizeViewModel(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+    func editStandardSizeViewModel(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
         if newSizeViewModel.size?.isVolumePrefixed == true {
             /// Remove it from the standard list
             standardSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
@@ -217,7 +217,7 @@ extension FoodFormViewModel {
         }
     }
     
-    func editVolumeBasedSizeViewModel(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+    func editVolumeBasedSizeViewModel(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
         if newSizeViewModel.size?.isVolumePrefixed == false {
             /// Remove it from the standard list
             volumePrefixedSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
@@ -234,7 +234,7 @@ extension FoodFormViewModel {
         }
     }
 
-    func edit(_ sizeViewModel: FieldValueViewModel, with newSizeViewModel: FieldValueViewModel) {
+    func edit(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
         /// if this was a standard
         if sizeViewModel.size?.isVolumePrefixed == false {
             editStandardSizeViewModel(sizeViewModel, with: newSizeViewModel)
@@ -432,8 +432,8 @@ extension FoodFormViewModel {
 }
 
 extension Size {
-    var asFieldValueViewModelForUserInput: FieldValueViewModel {
-        FieldValueViewModel(fieldValue: .size(.init(size: self, fillType: .userInput)))
+    var asFieldViewModelForUserInput: FieldViewModel {
+        FieldViewModel(fieldValue: .size(.init(size: self, fillType: .userInput)))
     }
 }
 
@@ -460,3 +460,26 @@ extension FieldValue {
         }
     }
 }
+
+extension FoodFormViewModel {
+    func micronutrientFieldViewModel(for nutrientType: NutrientType) -> FieldViewModel? {
+        for group in micronutrients {
+            for fieldViewModel in group.fieldViewModels {
+                if case .micro(let microValue) = fieldViewModel.fieldValue, microValue.nutrientType == nutrientType {
+                    return fieldViewModel
+                }
+            }
+        }
+        return nil
+    }
+}
+
+extension FieldValue.MicroValue {
+    var convertedFromPercentage: (amount: Double, unit: NutrientUnit)? {
+        guard let double, unit == .p else {
+            return nil
+        }
+        return nutrientType.convertRDApercentage(double)
+    }
+}
+

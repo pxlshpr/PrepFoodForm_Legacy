@@ -2,7 +2,7 @@ import SwiftUI
 
 extension SizesList {
     struct Cell: View {
-        @ObservedObject var fieldValueViewModel: FieldValueViewModel
+        @ObservedObject var fieldViewModel: FieldViewModel
     }
 }
 
@@ -33,7 +33,7 @@ extension SizesList.Cell {
     }
     
     var size: Size? {
-        fieldValueViewModel.fieldValue.size
+        fieldViewModel.fieldValue.size
     }
     
     var volumePrefixString: String? {

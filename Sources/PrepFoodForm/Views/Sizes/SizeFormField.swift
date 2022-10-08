@@ -4,8 +4,8 @@ import NamePicker
 struct SizeFormField: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @EnvironmentObject var formViewModel: SizeFormViewModel
-    @ObservedObject var sizeViewModel: FieldValueViewModel
-    let existingSizeViewModel: FieldValueViewModel?
+    @ObservedObject var sizeViewModel: FieldViewModel
+    let existingSizeViewModel: FieldViewModel?
 }
 
 extension SizeFormField {

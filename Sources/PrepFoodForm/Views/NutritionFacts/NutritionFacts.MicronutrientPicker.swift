@@ -9,7 +9,7 @@ extension FoodForm.NutritionFacts {
         @Environment(\.dismiss) var dismiss
         @Environment(\.colorScheme) var colorScheme
         
-        @State var showingMicroFieldValueViewModel: FieldValueViewModel?
+        @State var showingMicroFieldViewModel: FieldViewModel?
         
         @State private var searchText = ""
         @State var showingSearchLayer: Bool = false
@@ -32,8 +32,8 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
             .navigationTitle("Micronutrients")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { navigationLeadingContent }
-            .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
-                MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
+            .sheet(item: $showingMicroFieldViewModel) { fieldViewModel in
+                MicronutrientForm(existingFieldViewModel: fieldViewModel)
                     .environmentObject(viewModel)
             }
             .onAppear {
@@ -80,16 +80,16 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
 
     
     func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let fieldValueViewModel = viewModel.micronutrients[groupIndex].fieldValueViewModels[index]
+        let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
         var searchBool: Bool
         if !searchText.isEmpty {
-            searchBool = fieldValueViewModel.fieldValue.microValue.matchesSearchString(searchText)
+            searchBool = fieldViewModel.fieldValue.microValue.matchesSearchString(searchText)
         } else {
             searchBool = true
         }
         return Group {
-            if fieldValueViewModel.fieldValue.isEmpty, searchBool {
-                nutrientButton(for: fieldValueViewModel)
+            if fieldViewModel.fieldValue.isEmpty, searchBool {
+                nutrientButton(for: fieldViewModel)
             }
         }
     }
@@ -99,7 +99,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
         return Group {
             if viewModel.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
                 Section(groupTuple.group.description) {
-                    ForEach(groupTuple.fieldValueViewModels.indices, id: \.self) {
+                    ForEach(groupTuple.fieldViewModels.indices, id: \.self) {
                         micronutrientButton(atIndex: $0, forGroupAtIndex: index)
                     }
                 }
@@ -205,11 +205,11 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
         }
     }
     
-    func nutrientButton(for fieldValueViewModel: FieldValueViewModel) -> some View {
+    func nutrientButton(for fieldViewModel: FieldViewModel) -> some View {
         Button {
-            showingMicroFieldValueViewModel = fieldValueViewModel
+            showingMicroFieldViewModel = fieldViewModel
         } label: {
-            Text(fieldValueViewModel.fieldValue.description)
+            Text(fieldViewModel.fieldValue.description)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
@@ -243,7 +243,7 @@ extension FoodFormViewModel {
     }
     
     func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int, matching searchString: String = "") -> Bool {
-        micronutrients[index].fieldValueViewModels.contains(where: {
+        micronutrients[index].fieldViewModels.contains(where: {
             if !searchString.isEmpty {
                 return $0.fieldValue.isEmpty && $0.fieldValue.microValue.matchesSearchString(searchString)
             } else {
@@ -253,7 +253,7 @@ extension FoodFormViewModel {
     }
     
     func hasNonEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldValueViewModels.contains(where: { !$0.fieldValue.isEmpty })
+        micronutrients[index].fieldViewModels.contains(where: { !$0.fieldValue.isEmpty })
     }
 }
 

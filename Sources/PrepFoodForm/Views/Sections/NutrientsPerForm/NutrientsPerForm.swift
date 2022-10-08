@@ -8,7 +8,7 @@ extension FoodForm {
         @State var showingAddSizeForm = false
         @State var showingDensityForm = false
         
-        @State var sizeToEdit: FieldValueViewModel?
+        @State var sizeToEdit: FieldViewModel?
 
         public init() { }
     }
@@ -42,7 +42,7 @@ extension FoodForm.NutrientsPerForm {
 //            }
         }
         .sheet(item: $sizeToEdit) { sizeViewModel in
-            SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
+            SizeForm(fieldViewModel: sizeViewModel) { sizeViewModel in
                 
             }
         }

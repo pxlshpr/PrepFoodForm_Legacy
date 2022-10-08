@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepUnits
 
-struct MacronutrientForm: View {
+struct AmountFieldForm: View {
     
     @ObservedObject var existingFieldViewModel: FieldViewModel
     @StateObject var fieldViewModel: FieldViewModel
@@ -18,19 +18,28 @@ struct MacronutrientForm: View {
         FieldValueForm(
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
-            unitView: unit,
+            unitView: unitPicker,
             setNewValue: setNewValue
         )
     }
     
-    var unit: some View {
-        Text(fieldViewModel.fieldValue.macroValue.unitDescription)
-            .foregroundColor(.secondary)
-            .font(.title3)
+    var unitPicker: some View {
+        Picker("", selection: $fieldViewModel.fieldValue.energyValue.unit) {
+            ForEach(EnergyUnit.allCases, id: \.self) {
+                unit in
+                Text(unit.shortDescription).tag(unit)
+            }
+        }
+        .pickerStyle(.segmented)
         
     }
     
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.macroValue.string = value.amount.cleanAmount
+        fieldViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
+        if let unit = value.unit, unit.isEnergy {
+            fieldViewModel.fieldValue.energyValue.unit = unit.energyUnit
+        } else {
+            fieldViewModel.fieldValue.energyValue.unit = .kcal
+        }
     }
 }

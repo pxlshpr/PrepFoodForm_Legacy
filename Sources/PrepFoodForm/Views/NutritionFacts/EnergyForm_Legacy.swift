@@ -8,10 +8,10 @@
 //
 //struct EnergyForm_Legacy: View {
 //    @EnvironmentObject var viewModel: FoodFormViewModel
-//    @ObservedObject var fieldValueViewModel: FieldValueViewModel
+//    @ObservedObject var fieldViewModel: FieldViewModel
 //
-//    /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-//    @StateObject var formViewModel: FieldValueViewModel
+//    /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
+//    @StateObject var formViewModel: FieldViewModel
 //
 //    @Environment(\.dismiss) var dismiss
 //    @FocusState var isFocused: Bool
@@ -26,11 +26,11 @@
 //    /// Bring this back if we're having issues with tap targets on buttons, as mentioned here: https://developer.apple.com/forums/thread/131404?answerId=612395022#612395022
 ////    @Environment(\.presentationMode) var presentation
 //
-//    init(fieldValueViewModel: FieldValueViewModel) {
-//        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.string.isEmpty)
+//    init(fieldViewModel: FieldViewModel) {
+//        _doNotRegisterUserInput = State(initialValue: !fieldViewModel.fieldValue.string.isEmpty)
 //
-//        self.fieldValueViewModel = fieldValueViewModel
-//        let formViewModel = fieldValueViewModel.copy
+//        self.fieldViewModel = fieldViewModel
+//        let formViewModel = fieldViewModel.copy
 //        _formViewModel = StateObject(wrappedValue: formViewModel)
 //    }
 //}
@@ -63,7 +63,7 @@
 //
 //    /// Returns true if any of the fields have changed from what they initially were
 //    var isDirty: Bool {
-//        formViewModel.fieldValue != fieldValueViewModel.fieldValue
+//        formViewModel.fieldValue != fieldViewModel.fieldValue
 //    }
 //
 //    var content: some View {
@@ -84,7 +84,7 @@
 //
 //    var fillOptionsSections: some View {
 //        FillOptionsSections(
-//            fieldValueViewModel: formViewModel,
+//            fieldViewModel: formViewModel,
 //            shouldAnimate: $shouldAnimateOptions,
 //            didTapImage: {
 //                showTextPicker()
@@ -105,7 +105,7 @@
 //    var navigationLeadingContent: some ToolbarContent {
 //        ToolbarItem(placement: .navigationBarLeading) {
 //            Button("Cancel") {
-//                /// Do nothing to revert the values as the original `FieldValueViewModel` is still untouched
+//                /// Do nothing to revert the values as the original `FieldViewModel` is still untouched
 //                doNotRegisterUserInput = true
 //                dismiss()
 //            }
@@ -212,8 +212,8 @@
 //
 //    func saveAndDismiss() {
 //        doNotRegisterUserInput = true
-//        /// Copy the data across from the transient `FieldValueViewModel` we were using here to persist the data
-//        fieldValueViewModel.copyData(from: formViewModel)
+//        /// Copy the data across from the transient `FieldViewModel` we were using here to persist the data
+//        fieldViewModel.copyData(from: formViewModel)
 //        dismiss()
 //    }
 //
@@ -331,7 +331,7 @@
 ////    }
 ////
 ////    var body: some View {
-////        EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
+////        EnergyForm(fieldViewModel: viewModel.energyViewModel)
 ////            .environmentObject(viewModel)
 ////    }
 ////}

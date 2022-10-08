@@ -1,11 +1,11 @@
 import FoodLabelScanner
 
 extension ScanResult {
-    var servingSizeViewModels: [FieldValueViewModel] {
+    var servingSizeViewModels: [FieldViewModel] {
         [servingUnitSizeViewModel, equivalentUnitSizeViewModel, perContainerSizeViewModel].compactMap { $0 }
     }
     
-    var perContainerSizeViewModel: FieldValueViewModel? {
+    var perContainerSizeViewModel: FieldViewModel? {
         guard let perContainerSize, let perContainerSizeValueText else {
             return nil
         }
@@ -14,7 +14,7 @@ extension ScanResult {
             valueText: perContainerSizeValueText,
             scanResultId: id,
             value: nil)
-        return FieldValueViewModel(fieldValue: .size(FieldValue.SizeValue(
+        return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
             size: perContainerSize,
             fillType: fillType)
         ))
@@ -31,7 +31,7 @@ extension ScanResult {
             unit: .serving
         )
     }
-    var servingUnitSizeViewModel: FieldValueViewModel? {
+    var servingUnitSizeViewModel: FieldViewModel? {
         guard let servingUnitSize, let servingUnitSizeValueText else {
             return nil
         }
@@ -41,10 +41,10 @@ extension ScanResult {
             scanResultId: id,
             value: nil)
         let fieldValue: FieldValue = .size(.init(size: servingUnitSize, fillType: fillType))
-        return FieldValueViewModel(fieldValue: fieldValue)
+        return FieldViewModel(fieldValue: fieldValue)
     }
     
-    var equivalentUnitSizeViewModel: FieldValueViewModel? {
+    var equivalentUnitSizeViewModel: FieldViewModel? {
         guard let equivalentUnitSize, let equivalentUnitSizeValueText else {
             return nil
         }
@@ -54,7 +54,7 @@ extension ScanResult {
             scanResultId: id,
             value: nil)
         let fieldValue: FieldValue = .size(.init(size: equivalentUnitSize, fillType: fillType))
-        return FieldValueViewModel(fieldValue: fieldValue)
+        return FieldViewModel(fieldValue: fieldValue)
     }
 
     //MARK: Units Sizes

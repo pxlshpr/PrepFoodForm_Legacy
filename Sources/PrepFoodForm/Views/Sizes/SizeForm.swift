@@ -8,10 +8,10 @@ struct SizeForm: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: FoodFormViewModel
     
-    let existingSizeViewModel: FieldValueViewModel?
+    let existingSizeViewModel: FieldViewModel?
     
-    /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-    @StateObject var sizeViewModel: FieldValueViewModel
+    /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
+    @StateObject var sizeViewModel: FieldViewModel
     
     @StateObject var formViewModel: SizeFormViewModel
     @State var showingVolumePrefixToggle: Bool
@@ -21,28 +21,28 @@ struct SizeForm: View {
 
     @State var refreshBool = false
 
-    var didAddSizeViewModel: ((FieldValueViewModel) -> ())?
+    var didAddSizeViewModel: ((FieldViewModel) -> ())?
 
-    init(fieldValueViewModel: FieldValueViewModel? = nil,
+    init(fieldViewModel: FieldViewModel? = nil,
          includeServing: Bool = true,
          allowAddSize: Bool = true,
-         didAddSizeViewModel: ((FieldValueViewModel) -> ())? = nil
+         didAddSizeViewModel: ((FieldViewModel) -> ())? = nil
     ) {
         let formViewModel = SizeFormViewModel(
             includeServing: includeServing,
             allowAddSize: allowAddSize,
-            formState: fieldValueViewModel == nil ? .empty : .noChange
+            formState: fieldViewModel == nil ? .empty : .noChange
         )
         _formViewModel = StateObject(wrappedValue: formViewModel)
 
-        self.existingSizeViewModel = fieldValueViewModel
+        self.existingSizeViewModel = fieldViewModel
         
-        if let fieldValueViewModel {
-            _showingVolumePrefixToggle = State(initialValue: fieldValueViewModel.size?.isVolumePrefixed ?? false)
-            _sizeViewModel = StateObject(wrappedValue: fieldValueViewModel.copy)
+        if let fieldViewModel {
+            _showingVolumePrefixToggle = State(initialValue: fieldViewModel.size?.isVolumePrefixed ?? false)
+            _sizeViewModel = StateObject(wrappedValue: fieldViewModel.copy)
         } else {
             _showingVolumePrefixToggle = State(initialValue: false)
-            _sizeViewModel = StateObject(wrappedValue: FieldValueViewModel.emptySize)
+            _sizeViewModel = StateObject(wrappedValue: FieldViewModel.emptySize)
         }
         
         self.didAddSizeViewModel = didAddSizeViewModel
@@ -147,7 +147,7 @@ struct SizeForm: View {
 
     var fillOptionsSections: some View {
         FillOptionsSections(
-            fieldValueViewModel: sizeViewModel,
+            fieldViewModel: sizeViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
 //                showTextPicker()

@@ -11,26 +11,26 @@ struct FillOptionsSections: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingAutofillInfo = false
-    @ObservedObject var fieldValueViewModel: FieldValueViewModel
+    @ObservedObject var fieldViewModel: FieldViewModel
     @Binding var shouldAnimate: Bool
     var didTapImage: () -> ()
     var didTapFillOption: (FillOption) -> ()
 
     var body: some View {
         Group {
-            if viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) {
+            if viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) {
                 FormStyledSection(header: autofillHeader) {
                     FillOptionsGrid(
-                        fieldValueViewModel: fieldValueViewModel,
+                        fieldViewModel: fieldViewModel,
                         shouldAnimate: $shouldAnimate
                     ) { fillOption in
                         didTapFillOption(fillOption)
                     }
                 }
-                if let image = fieldValueViewModel.imageToDisplay {
+                if let image = fieldViewModel.imageToDisplay {
                     FormStyledSection {
                         ZStack {
-                            if fieldValueViewModel.isCroppingNextImage {
+                            if fieldViewModel.isCroppingNextImage {
                                 ZStack {
                                     ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
                                         .frame(width: 50, height: 50)
@@ -133,7 +133,7 @@ public struct FillOptionSectionsPreview: View {
     }
     
     var optionsSections: some View {
-        FillOptionsSections(fieldValueViewModel: viewModel.energyViewModel,
+        FillOptionsSections(fieldViewModel: viewModel.energyViewModel,
                            shouldAnimate: $shouldAnimate,
                            didTapImage: {
             

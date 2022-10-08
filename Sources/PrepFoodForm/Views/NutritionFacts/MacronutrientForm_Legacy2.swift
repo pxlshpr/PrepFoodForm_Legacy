@@ -8,8 +8,8 @@
 //
 //struct MacronutrientForm_Legacy2: View {
 //    @EnvironmentObject var viewModel: FoodFormViewModel
-//    @ObservedObject var fieldValueViewModel: FieldValueViewModel
-//    
+//    @ObservedObject var fieldViewModel: FieldViewModel
+//
 //    @Environment(\.presentationMode) var presentation
 //    @Environment(\.dismiss) var dismiss
 //    @FocusState var isFocused: Bool
@@ -19,10 +19,10 @@
 //    @State var hasBecomeFirstResponder: Bool = false
 //    /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
 //    @State var shouldAnimateOptions = false
-//    
-//    init(fieldValueViewModel: FieldValueViewModel) {
-//        self.fieldValueViewModel = fieldValueViewModel
-//        _doNotRegisterUserInput = State(initialValue: !fieldValueViewModel.fieldValue.macroValue.string.isEmpty)
+//
+//    init(fieldViewModel: FieldViewModel) {
+//        self.fieldViewModel = fieldViewModel
+//        _doNotRegisterUserInput = State(initialValue: !fieldViewModel.fieldValue.macroValue.string.isEmpty)
 //    }
 //}
 //
@@ -38,7 +38,7 @@
 //            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
 //                print("🔥")
 //                shouldAnimateOptions = true
-//                
+//
 //                /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
 //                doNotRegisterUserInput = false
 //            }
@@ -47,7 +47,7 @@
 //            textPicker
 //        }
 //    }
-//    
+//
 //    var content: some View {
 //        FormStyledScrollView {
 //            textFieldSection
@@ -68,7 +68,7 @@
 //
 //    var fillOptionsSections: some View {
 //        FillOptionsSections(
-//            fieldValueViewModel: fieldValueViewModel,
+//            fieldViewModel: fieldViewModel,
 //            shouldAnimate: $shouldAnimateOptions,
 //            didTapImage: {
 //                showingTextPicker = true
@@ -87,42 +87,42 @@
 //            }
 //        }
 //    }
-//    
+//
 //    var header: some View {
-//        let autofillString = viewModel.shouldShowFillOptions(for: fieldValueViewModel.fieldValue) ? "or autofill " : ""
+//        let autofillString = viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) ? "or autofill " : ""
 //        let string = "Enter \(autofillString)a value"
 //        return Text(string)
 ////            .opacity(fieldValue.macroValue.string.isEmpty ? 1 : 0)
 //    }
-//    
+//
 //    var textField: some View {
 //        let binding = Binding<String>(
 //            get: { self.fieldValue.macroValue.string },
 //            set: {
-//                self.fieldValueViewModel.fieldValue.macroValue.string = $0
+//                self.fieldViewModel.fieldValue.macroValue.string = $0
 //                if !doNotRegisterUserInput && isFocused {
 //                    withAnimation {
-//                        fieldValueViewModel.registerUserInput()
+//                        fieldViewModel.registerUserInput()
 //                    }
 //                }
 //            }
 //        )
-//        
+//
 //        return TextField("Required", text: binding)
 //            .multilineTextAlignment(.leading)
 //            .keyboardType(.decimalPad)
 //            .focused($isFocused)
-//            .font(fieldValueViewModel.fieldValue.macroValue.string.isEmpty ? .body : .largeTitle)
+//            .font(fieldViewModel.fieldValue.macroValue.string.isEmpty ? .body : .largeTitle)
 //            .frame(minHeight: 50)
 //            .introspectTextField(customize: introspectTextField)
 //    }
-//    
+//
 //    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
 //    func introspectTextField(_ uiTextField: UITextField) {
 //        guard self.uiTextField == nil, !hasBecomeFirstResponder else {
 //            return
 //        }
-//        
+//
 //        self.uiTextField = uiTextField
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
 //            uiTextField.becomeFirstResponder()
@@ -130,7 +130,7 @@
 //            hasBecomeFirstResponder = true
 //        }
 //    }
-//    
+//
 //    var textPicker: some View {
 //        TextPicker(
 //            imageViewModels: viewModel.imageViewModels,
@@ -142,22 +142,22 @@
 //            didTapText(text, onImageWithId: scanResultId)
 //        }
 //        .onDisappear {
-//            guard fieldValueViewModel.isCroppingNextImage else {
+//            guard fieldViewModel.isCroppingNextImage else {
 //                return
 //            }
-//            fieldValueViewModel.cropFilledImage()
+//            fieldViewModel.cropFilledImage()
 //            doNotRegisterUserInput = false
 //        }
 //    }
 //
 //    //MARK: - Actions
-//    
+//
 //    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
 //        guard let value = text.firstFoodLabelValue else {
 //            print("Couldn't get a foodLabelValue from the tapped string")
 //            return
 //        }
-//        
+//
 //        let newFillType: FillType
 //        if let autofillValueText = viewModel.autofillValueText(for: fieldValue),
 //           autofillValueText.text == text
@@ -171,18 +171,18 @@
 //                scanResultId: imageId
 //            )
 //        }
-//        
+//
 //        doNotRegisterUserInput = true
 //        withAnimation {
 //            setNew(amount: value.amount)
-//            fieldValueViewModel.fieldValue.fillType = newFillType
+//            fieldViewModel.fieldValue.fillType = newFillType
 //        }
-//        
+//
 //        withAnimation {
-//            fieldValueViewModel.isCroppingNextImage = true
+//            fieldViewModel.isCroppingNextImage = true
 //        }
 //    }
-//    
+//
 //    func didTapFillOption(_ fillOption: FillOption) {
 //        switch fillOption.type {
 //        case .chooseText:
@@ -193,23 +193,23 @@
 //            dismiss()
 //        }
 //    }
-//    
+//
 //    func didTapChooseButton() {
 //        Haptics.feedback(style: .soft)
 //        showingTextPicker = true
 //    }
-//    
+//
 //    func didTapFillTypeButton(for fillType: FillType) {
 //        Haptics.feedback(style: .rigid)
 //        withAnimation {
 //            changeFillType(to: fillType)
 //        }
 //    }
-//    
+//
 //    func changeFillType(to fillType: FillType) {
-//        
+//
 //        doNotRegisterUserInput = true
-//        
+//
 //        switch fillType {
 //        case .imageSelection(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
@@ -218,41 +218,41 @@
 //        default:
 //            break
 //        }
-//        
+//
 //        let previousFillType = fieldValue.fillType
-//        fieldValueViewModel.fieldValue.fillType = fillType
+//        fieldViewModel.fieldValue.fillType = fillType
 //        if fillType.text?.id != previousFillType.text?.id {
-//            fieldValueViewModel.isCroppingNextImage = true
-//            fieldValueViewModel.cropFilledImage()
+//            fieldViewModel.isCroppingNextImage = true
+//            fieldViewModel.cropFilledImage()
 //        }
-//        
+//
 //        doNotRegisterUserInput = false
 //    }
-//    
+//
 //    func setNew(amount: Double) {
-//        fieldValueViewModel.fieldValue.macroValue.string = amount.cleanAmount
+//        fieldViewModel.fieldValue.macroValue.string = amount.cleanAmount
 //    }
-//    
+//
 //    func setNewValue(_ value: FoodLabelValue) {
 //        setNew(amount: value.amount)
 //    }
-//    
+//
 //    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
 //        let value = altValue ?? valueText.value
 //        setNewValue(value)
 //    }
-//    
+//
 //    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
 //        guard let value = altValue ?? text.string.values.first else {
 //            return
 //        }
 //        setNewValue(value)
 //    }
-//    
+//
 //    //MARK: - Helpers
-//    
+//
 //    var fieldValue: FieldValue {
-//        fieldValueViewModel.fieldValue
+//        fieldViewModel.fieldValue
 //    }
 //
 //    var selectedImageIndex: Int? {

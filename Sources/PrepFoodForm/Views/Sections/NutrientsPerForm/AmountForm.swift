@@ -9,10 +9,10 @@ public struct AmountForm: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: FoodFormViewModel
     
-    let existingAmountViewModel: FieldValueViewModel
+    let existingAmountViewModel: FieldViewModel
     
-    /// This stores a copy of the data from fieldValueViewModel until we're ready to persist the change
-    @StateObject var amountViewModel: FieldValueViewModel
+    /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
+    @StateObject var amountViewModel: FieldViewModel
 
     @State var showingUnitPicker = false
     @State var showingAddSizeForm = false
@@ -26,7 +26,7 @@ public struct AmountForm: View {
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
 
-    init(amountViewModel: FieldValueViewModel) {
+    init(amountViewModel: FieldViewModel) {
         self.existingAmountViewModel = amountViewModel
         _amountViewModel = StateObject(wrappedValue: amountViewModel.copy)
         _doNotRegisterUserInput = State(initialValue: !amountViewModel.fieldValue.stringValue.isEmpty)
@@ -108,7 +108,7 @@ extension AmountForm {
     
     var fillOptionsSections: some View {
         FillOptionsSections(
-            fieldValueViewModel: amountViewModel,
+            fieldViewModel: amountViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
                 showTextPicker()

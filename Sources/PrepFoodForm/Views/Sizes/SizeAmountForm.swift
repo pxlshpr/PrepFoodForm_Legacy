@@ -4,7 +4,7 @@ import SwiftHaptics
 struct SizeAmountForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @EnvironmentObject var formViewModel: SizeFormViewModel
-    @ObservedObject var sizeViewModel: FieldValueViewModel
+    @ObservedObject var sizeViewModel: FieldViewModel
     
     @Environment(\.dismiss) var dismiss
     @State var showingUnitPicker = false

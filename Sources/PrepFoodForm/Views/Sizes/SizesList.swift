@@ -7,7 +7,7 @@ struct SizesList: View {
     @State var showingEditSizeForm: Bool = false
     @State var showingAddSizeForm = false
     
-    @State var sizeToEdit: FieldValueViewModel?
+    @State var sizeToEdit: FieldViewModel?
 //    @State var standardSizeIndexToEdit: Int? = nil
 //    @State var volumePrefixedSizeIndexToEdit: Int? = nil
 
@@ -25,13 +25,13 @@ struct SizesList: View {
                 editSizeForm
             }
             .sheet(item: $sizeToEdit) { sizeViewModel in
-                SizeForm(fieldValueViewModel: sizeViewModel) { sizeViewModel in
+                SizeForm(fieldViewModel: sizeViewModel) { sizeViewModel in
                     
                 }
             }
     }
     
-//    var sizeToEdit: FieldValueViewModel? {
+//    var sizeToEdit: FieldViewModel? {
 //        if let standardSizeIndexToEdit {
 //            return viewModel.standardSizeViewModels[standardSizeIndexToEdit]
 //        } else if let volumePrefixedSizeIndexToEdit {
@@ -44,7 +44,7 @@ struct SizesList: View {
     @ViewBuilder
     var editSizeForm: some View {
         if let sizeToEdit {
-            SizeForm(fieldValueViewModel: sizeToEdit) { sizeViewModel in
+            SizeForm(fieldViewModel: sizeToEdit) { sizeViewModel in
                 
             }
         }
@@ -103,7 +103,7 @@ struct SizesList: View {
                 Button {
                     sizeToEdit = viewModel.standardSizeViewModels[index]
                 } label: {
-                    Cell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
+                    Cell(fieldViewModel: viewModel.standardSizeViewModels[index])
                 }
             }
             .onDelete(perform: deleteStandardSizes)
@@ -126,7 +126,7 @@ struct SizesList: View {
                 Button {
                     sizeToEdit = viewModel.volumePrefixedSizeViewModels[index]
                 } label: {
-                    Cell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
+                    Cell(fieldViewModel: viewModel.volumePrefixedSizeViewModels[index])
                 }
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
@@ -174,8 +174,8 @@ public struct SizesListPreview: View {
     }
     
     func populateData() {
-        viewModel.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
-        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
+        viewModel.standardSizeViewModels = mockStandardSizes.fieldViewModels
+        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
     }
 }
 

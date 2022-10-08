@@ -5,12 +5,12 @@
 //struct CroppedImageButton: View {
 //    
 //    @EnvironmentObject var viewModel: FoodFormViewModel
-//    @EnvironmentObject var fieldValueViewModel: FieldValueViewModel
+//    @EnvironmentObject var fieldViewModel: FieldViewModel
 ////    @Binding var image: UIImage?
 //
 //    var body: some View {
 //        Button {
-//            fieldValueViewModel.showingImageTextPicker = true
+//            fieldViewModel.showingImageTextPicker = true
 //        } label: {
 //            VStack {
 //                HStack {

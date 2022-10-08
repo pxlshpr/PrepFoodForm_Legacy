@@ -1,7 +1,7 @@
 import SwiftUI
 import FoodLabelScanner
 
-extension FieldValueViewModel: Hashable {
+extension FieldViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
         hasher.combine(fieldValue)
@@ -10,13 +10,13 @@ extension FieldValueViewModel: Hashable {
     }
 }
 
-extension FieldValueViewModel: Equatable {
-    static func ==(lhs: FieldValueViewModel, rhs: FieldValueViewModel) -> Bool {
+extension FieldViewModel: Equatable {
+    static func ==(lhs: FieldViewModel, rhs: FieldViewModel) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
 }
 
-class FieldValueViewModel: ObservableObject, Identifiable {
+class FieldViewModel: ObservableObject, Identifiable {
     let id = UUID()
     @Published var fieldValue: FieldValue
     @Published var imageToDisplay: UIImage? = nil
@@ -26,21 +26,21 @@ class FieldValueViewModel: ObservableObject, Identifiable {
         self.fieldValue = fieldValue
     }
     
-    var copy: FieldValueViewModel {
-        let new = FieldValueViewModel(fieldValue: fieldValue)
+    var copy: FieldViewModel {
+        let new = FieldViewModel(fieldValue: fieldValue)
         new.copyData(from: self)
         return new
     }
     
-    func copyData(from fieldValueViewModel: FieldValueViewModel) {
-        fieldValue = fieldValueViewModel.fieldValue
+    func copyData(from fieldViewModel: FieldViewModel) {
+        fieldValue = fieldViewModel.fieldValue
         
         /// If the the image is still being cropped—do the crop ourselves instead of setting it here incorrectly
-        if fieldValueViewModel.isCroppingNextImage {
+        if fieldViewModel.isCroppingNextImage {
             isCroppingNextImage = true
             cropFilledImage()
         } else {
-            imageToDisplay = fieldValueViewModel.imageToDisplay
+            imageToDisplay = fieldViewModel.imageToDisplay
             isCroppingNextImage = false
         }
     }
@@ -102,7 +102,7 @@ class FieldValueViewModel: ObservableObject, Identifiable {
 //    }
 }
 
-extension FieldValueViewModel {
+extension FieldViewModel {
     var isValid: Bool {
         switch fieldValue {
         case .size(let sizeValue):

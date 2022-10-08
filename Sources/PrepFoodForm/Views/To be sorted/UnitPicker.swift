@@ -235,7 +235,7 @@ extension UnitPicker {
     }
     
     @ViewBuilder
-    func sizeButton(for sizeViewModel: FieldValueViewModel) -> some View {
+    func sizeButton(for sizeViewModel: FieldViewModel) -> some View {
         if let size = sizeViewModel.size {
             Button {
                 pickedUnit(unit: .size(size, nil))
@@ -261,7 +261,7 @@ extension UnitPicker {
     }
     
     @ViewBuilder
-    func volumePrefixedSizeGroup(for sizeViewModel: FieldValueViewModel) -> some View {
+    func volumePrefixedSizeGroup(for sizeViewModel: FieldViewModel) -> some View {
         if let size = sizeViewModel.size {
             DisclosureGroup(size.name) {
                 volumePrefixes(for: size)

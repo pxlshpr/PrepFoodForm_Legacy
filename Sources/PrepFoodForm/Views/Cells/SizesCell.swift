@@ -3,7 +3,7 @@ import SwiftUI
 //MARK: - SizeCell
 extension FoodForm.NutrientsPerForm.SizesCell {
     struct SizeCell: View {
-        @ObservedObject var fieldValueViewModel: FieldValueViewModel
+        @ObservedObject var fieldViewModel: FieldViewModel
     }
 }
 
@@ -21,7 +21,7 @@ extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     }
     
     var size: Size? {
-        fieldValueViewModel.fieldValue.size
+        fieldViewModel.fieldValue.size
     }
     
     var name: String {
@@ -63,10 +63,10 @@ extension FoodForm.NutrientsPerForm.SizesCell {
     var content: some View {
         VStack(alignment: .leading, spacing: 5) {
             ForEach(0..<numberOfStandardSizes, id: \.self) { index in
-                SizeCell(fieldValueViewModel: viewModel.standardSizeViewModels[index])
+                SizeCell(fieldViewModel: viewModel.standardSizeViewModels[index])
             }
             ForEach(0..<numberOfVolumePrefixedSizes, id: \.self) { index in
-                SizeCell(fieldValueViewModel: viewModel.volumePrefixedSizeViewModels[index])
+                SizeCell(fieldViewModel: viewModel.volumePrefixedSizeViewModels[index])
             }
             if numberOfExcessSizes > 0 {
                 HStack {
@@ -137,8 +137,8 @@ struct SizesCellPreview: View {
     }
     
     func populateData() {
-        viewModel.standardSizeViewModels = mockStandardSizes.fieldValueViewModels
-        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldValueViewModels
+        viewModel.standardSizeViewModels = mockStandardSizes.fieldViewModels
+        viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
     }
 }
 
@@ -161,9 +161,9 @@ let mockVolumePrefixedSizes: [Size] = [
 ]
 
 extension Array where Element == Size {
-    var fieldValueViewModels: [FieldValueViewModel] {
+    var fieldViewModels: [FieldViewModel] {
         map {
-            FieldValueViewModel(fieldValue: .size(.init(size: $0, fillType: .userInput)))
+            FieldViewModel(fieldValue: .size(.init(size: $0, fillType: .userInput)))
         }
     }
 }

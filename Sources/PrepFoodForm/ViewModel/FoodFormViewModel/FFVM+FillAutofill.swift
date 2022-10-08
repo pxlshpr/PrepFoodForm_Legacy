@@ -41,9 +41,9 @@ extension FoodFormViewModel {
         extractServing()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            for fieldValueViewModel in self.allFieldValueViewModels {
-                fieldValueViewModel.isCroppingNextImage = true
-                fieldValueViewModel.cropFilledImage()
+            for fieldViewModel in self.allFieldViewModels {
+                fieldViewModel.isCroppingNextImage = true
+                fieldViewModel.cropFilledImage()
             }
         }
     }
@@ -88,7 +88,7 @@ extension FoodFormViewModel {
             print("Couldn't find indexes for nutrientType: \(nutrientType) in micronutrients array")
             return
         }
-        micronutrients[indexes.groupIndex].fieldValueViewModels[indexes.fieldIndex] = .init(fieldValue: fieldValue)
+        micronutrients[indexes.groupIndex].fieldViewModels[indexes.fieldIndex] = .init(fieldValue: fieldValue)
         autofillFieldValues.append(fieldValue)
     }
     
@@ -96,7 +96,7 @@ extension FoodFormViewModel {
         guard let groupIndex = micronutrients.firstIndex(where: { $0.group == nutrientType.group }) else {
             return nil
         }
-        guard let fieldIndex = micronutrients[groupIndex].fieldValueViewModels.firstIndex(where: { $0.fieldValue.microValue.nutrientType == nutrientType }) else {
+        guard let fieldIndex = micronutrients[groupIndex].fieldViewModels.firstIndex(where: { $0.fieldValue.microValue.nutrientType == nutrientType }) else {
             return nil
         }
         return (groupIndex, fieldIndex)

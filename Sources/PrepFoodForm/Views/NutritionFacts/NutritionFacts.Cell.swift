@@ -6,7 +6,7 @@ extension FoodForm.NutritionFacts {
     struct Cell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
-        @ObservedObject var fieldValueViewModel: FieldValueViewModel
+        @ObservedObject var fieldViewModel: FieldViewModel
     }
 }
 
@@ -124,9 +124,9 @@ extension FoodForm.NutritionFacts.Cell {
         }
         
         return Group {
-            if let image = fieldValueViewModel.imageToDisplay {
+            if let image = fieldViewModel.imageToDisplay {
                 ZStack {
-                    if fieldValueViewModel.isCroppingNextImage {
+                    if fieldViewModel.isCroppingNextImage {
                         activityIndicator
                     } else {
                         Image(uiImage: image)
@@ -146,7 +146,7 @@ extension FoodForm.NutritionFacts.Cell {
     
     //MARK: Helpers
     var fieldValue: FieldValue {
-        fieldValueViewModel.fieldValue
+        fieldViewModel.fieldValue
     }
     
     var isEmpty: Bool {

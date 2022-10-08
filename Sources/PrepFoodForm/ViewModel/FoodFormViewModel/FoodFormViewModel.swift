@@ -13,16 +13,16 @@ public class FoodFormViewModel: ObservableObject {
     public init() { }
     
     //MARK: - Food Details
-    @Published var nameViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .name())
-    @Published var emojiViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .emoji())
-    @Published var detailViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .detail())
-    @Published var brandViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .brand())
-    @Published var barcodeViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .barcode())
+    @Published var nameViewModel: FieldViewModel = FieldViewModel(fieldValue: .name())
+    @Published var emojiViewModel: FieldViewModel = FieldViewModel(fieldValue: .emoji())
+    @Published var detailViewModel: FieldViewModel = FieldViewModel(fieldValue: .detail())
+    @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
+    @Published var barcodeViewModel: FieldViewModel = FieldViewModel(fieldValue: .barcode())
     
     @Published var showingCameraImagePicker: Bool = false
     
     //MARK: Amount Per
-    @Published var amountViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput))) {
+    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput))) {
         didSet {
             updateShouldShowDensitiesSection()
             if amountViewModel.fieldValue.doubleValue.unit != .serving {
@@ -33,7 +33,7 @@ public class FoodFormViewModel: ObservableObject {
         }
     }
     
-    @Published var servingViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: .serving()) {
+    @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving()) {
         didSet {
             /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
             modifyServingUnitIfServingBased()
@@ -45,22 +45,22 @@ public class FoodFormViewModel: ObservableObject {
     }
     
     //MARK: Sizes
-    @Published var standardSizeViewModels: [FieldValueViewModel] = []
-    @Published var volumePrefixedSizeViewModels: [FieldValueViewModel] = []
+    @Published var standardSizeViewModels: [FieldViewModel] = []
+    @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
 
     //MARK: Density
-    @Published var densityViewModel: FieldValueViewModel = FieldValueViewModel(fieldValue: FieldValue.density())
+    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density())
 
     /// These are used for the FoodLabel
     @Published public var energyValue: FoodLabelValue = .zero
 
     //MARK: Nutrition Facts
-    @Published var energyViewModel: FieldValueViewModel = .init(fieldValue: .energy())
-    @Published var carbViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
-    @Published var fatViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
-    @Published var proteinViewModel: FieldValueViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
+    @Published var energyViewModel: FieldViewModel = .init(fieldValue: .energy())
+    @Published var carbViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
+    @Published var fatViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
+    @Published var proteinViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
     
-    @Published var micronutrients: [(group: NutrientTypeGroup, fieldValueViewModels: [FieldValueViewModel])] = [
+    @Published var micronutrients: [(group: NutrientTypeGroup, fieldViewModels: [FieldViewModel])] = [
         (NutrientTypeGroup.fats, [
             .init(fieldValue: FieldValue(micronutrient: .saturatedFat)),
             .init(fieldValue: FieldValue(micronutrient: .monounsaturatedFat)),
@@ -184,31 +184,31 @@ public class FoodFormViewModel: ObservableObject {
 extension FoodFormViewModel {
     
     var allMicronutrientFieldValues: [FieldValue] {
-        allMicronutrientFieldValueViewModels.map { $0.fieldValue }
+        allMicronutrientFieldViewModels.map { $0.fieldValue }
     }
 
-    var allMicronutrientFieldValueViewModels: [FieldValueViewModel] {
-        micronutrients.reduce([FieldValueViewModel]()) { partialResult, tuple in
-            partialResult + tuple.fieldValueViewModels
+    var allMicronutrientFieldViewModels: [FieldViewModel] {
+        micronutrients.reduce([FieldViewModel]()) { partialResult, tuple in
+            partialResult + tuple.fieldViewModels
         }
     }
     
     var allFieldValues: [FieldValue] {
-        allFieldValueViewModels.map { $0.fieldValue }
+        allFieldViewModels.map { $0.fieldValue }
     }
     
-    var allFieldValueViewModels: [FieldValueViewModel] {
+    var allFieldViewModels: [FieldViewModel] {
         [
             nameViewModel, emojiViewModel, detailViewModel, brandViewModel, barcodeViewModel,
             amountViewModel, servingViewModel, densityViewModel,
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
         ]
-        + allMicronutrientFieldValueViewModels
+        + allMicronutrientFieldViewModels
         + standardSizeViewModels
         + volumePrefixedSizeViewModels
     }
     
-    var allSizeViewModels: [FieldValueViewModel] {
+    var allSizeViewModels: [FieldViewModel] {
         standardSizeViewModels + volumePrefixedSizeViewModels
     }
     
@@ -306,12 +306,12 @@ extension FoodFormViewModel: FoodLabelDataSource {
     
     public var nutrients: [NutrientType : Double] {
         var nutrients: [NutrientType : Double] = [:]
-        for (_, fieldValueViewModels) in micronutrients {
-            for fieldValueViewModel in fieldValueViewModels {
-                guard case .micro = fieldValueViewModel.fieldValue else {
+        for (_, fieldViewModels) in micronutrients {
+            for fieldViewModel in fieldViewModels {
+                guard case .micro = fieldViewModel.fieldValue else {
                     continue
                 }
-                nutrients[fieldValueViewModel.fieldValue.microValue.nutrientType] = fieldValueViewModel.fieldValue.double
+                nutrients[fieldViewModel.fieldValue.microValue.nutrientType] = fieldViewModel.fieldValue.double
             }
         }
         return nutrients

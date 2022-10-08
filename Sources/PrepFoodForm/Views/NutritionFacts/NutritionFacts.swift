@@ -7,8 +7,8 @@ extension FoodForm {
         @Environment(\.colorScheme) var colorScheme
         
         @State var showingEnergyForm = false
-        @State var showingMacroFieldValueViewModel: FieldValueViewModel?
-        @State var showingMicroFieldValueViewModel: FieldValueViewModel?
+        @State var showingMacroFieldViewModel: FieldViewModel?
+        @State var showingMicroFieldViewModel: FieldViewModel?
     }
 }
 
@@ -22,16 +22,16 @@ extension FoodForm.NutritionFacts {
                 MicronutrientPicker()
                     .environmentObject(viewModel)
             }
-            .sheet(item: $showingMicroFieldValueViewModel) { fieldValueViewModel in
-                MicronutrientForm(fieldValueViewModel: fieldValueViewModel)
+            .sheet(item: $showingMicroFieldViewModel) { fieldViewModel in
+                MicronutrientForm(existingFieldViewModel: fieldViewModel)
                     .environmentObject(viewModel)
             }
-            .sheet(item: $showingMacroFieldValueViewModel) { fieldValueViewModel in
-                MacronutrientForm(fieldValueViewModel: fieldValueViewModel)
+            .sheet(item: $showingMacroFieldViewModel) { fieldViewModel in
+                MacronutrientForm(existingFieldViewModel: fieldViewModel)
                     .environmentObject(viewModel)
             }
             .sheet(isPresented: $showingEnergyForm) {
-                EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
+                EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
                     .environmentObject(viewModel)
             }
     }
@@ -49,20 +49,20 @@ extension FoodForm.NutritionFacts {
         .background(formBackgroundColor)
     }
     
-    func macronutrientForm(for fieldValueViewModel: FieldValueViewModel) -> some View {
+    func macronutrientForm(for fieldViewModel: FieldViewModel) -> some View {
         Button {
-            showingMacroFieldValueViewModel = fieldValueViewModel
+            showingMacroFieldViewModel = fieldViewModel
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
+            FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         }
     }
 
-    func micronutrientCell(for fieldValueViewModel: FieldValueViewModel) -> some View {
+    func micronutrientCell(for fieldViewModel: FieldViewModel) -> some View {
         Button {
-            showingMicroFieldValueViewModel = fieldValueViewModel
+            showingMicroFieldViewModel = fieldViewModel
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: fieldValueViewModel)
+            FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -71,7 +71,7 @@ extension FoodForm.NutritionFacts {
         Button {
             showingEnergyForm = true
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldValueViewModel: viewModel.energyViewModel)
+            FoodForm.NutritionFacts.Cell(fieldViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -109,9 +109,9 @@ extension FoodForm.NutritionFacts {
             ForEach(viewModel.micronutrients.indices, id: \.self) { g in
                 if viewModel.hasNonEmptyFieldValuesInMicronutrientsGroup(at: g) {
                     subtitleCell(viewModel.micronutrients[g].group.description)
-                    ForEach(viewModel.micronutrients[g].fieldValueViewModels.indices, id: \.self) { f in
-                        if !viewModel.micronutrients[g].fieldValueViewModels[f].fieldValue.isEmpty {
-                            micronutrientCell(for: viewModel.micronutrients[g].fieldValueViewModels[f])
+                    ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
+                        if !viewModel.micronutrients[g].fieldViewModels[f].fieldValue.isEmpty {
+                            micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
                         }
                     }
                 }

@@ -1,6 +1,6 @@
 import SwiftUI
 struct MacronutrientForm_Legacy: View {
-    @Binding var fieldValueViewModel: FieldValueViewModel
+    @Binding var fieldViewModel: FieldViewModel
     var body: some View {
         Color.blue
     }
@@ -15,7 +15,7 @@ struct MacronutrientForm_Legacy: View {
 //    @Environment(\.dismiss) var dismiss
 //    @FocusState var isFocused: Bool
 //
-//    @StateObject var fieldFormViewModel = FieldValueViewModel()
+//    @StateObject var fieldFormViewModel = FieldViewModel()
 //    @Binding var fieldValue: FieldValue
 //}
 //

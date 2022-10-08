@@ -3,28 +3,28 @@ import PrepUnits
 
 struct EnergyForm: View {
     
-    @ObservedObject var fieldValueViewModel: FieldValueViewModel
-    @StateObject var formViewModel: FieldValueViewModel
+    @ObservedObject var existingFieldViewModel: FieldViewModel
+    @StateObject var fieldViewModel: FieldViewModel
     
-    init(fieldValueViewModel: FieldValueViewModel) {
-        self.fieldValueViewModel = fieldValueViewModel
+    init(existingFieldViewModel: FieldViewModel) {
+        self.existingFieldViewModel = existingFieldViewModel
         
-        let formViewModel = fieldValueViewModel.copy
-        _formViewModel = StateObject(wrappedValue: formViewModel)
+        let fieldViewModel = existingFieldViewModel.copy
+        _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
     }
 
     
     var body: some View {
         FieldValueForm(
-            formViewModel: formViewModel,
-            fieldValueViewModel: fieldValueViewModel,
+            fieldViewModel: fieldViewModel,
+            existingFieldViewModel: existingFieldViewModel,
             unitView: unitPicker,
             setNewValue: setNewValue
         )
     }
     
     var unitPicker: some View {
-        Picker("", selection: $formViewModel.fieldValue.energyValue.unit) {
+        Picker("", selection: $fieldViewModel.fieldValue.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
@@ -35,11 +35,11 @@ struct EnergyForm: View {
     }
     
     func setNewValue(_ value: FoodLabelValue) {
-        formViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
+        fieldViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
         if let unit = value.unit, unit.isEnergy {
-            formViewModel.fieldValue.energyValue.unit = unit.energyUnit
+            fieldViewModel.fieldValue.energyValue.unit = unit.energyUnit
         } else {
-            formViewModel.fieldValue.energyValue.unit = .kcal
+            fieldViewModel.fieldValue.energyValue.unit = .kcal
         }
     }
 }
@@ -56,7 +56,7 @@ struct EnergyFormPreview: View {
     }
     
     var body: some View {
-        EnergyForm(fieldValueViewModel: viewModel.energyViewModel)
+        EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
             .environmentObject(viewModel)
     }
 }

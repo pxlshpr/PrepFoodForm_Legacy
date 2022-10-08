@@ -20,8 +20,8 @@ class SizeFormViewModel: ObservableObject {
         self.showingVolumePrefix = false
     }
     
-    func updateFormState(of sizeViewModel: FieldValueViewModel, comparedToExisting existingSizeViewModel: FieldValueViewModel? = nil) {
-        let newFormState = sizeViewModel.formState(existingFieldValueViewModel: existingSizeViewModel)
+    func updateFormState(of sizeViewModel: FieldViewModel, comparedToExisting existingSizeViewModel: FieldViewModel? = nil) {
+        let newFormState = sizeViewModel.formState(existingFieldViewModel: existingSizeViewModel)
         guard self.formState != newFormState else {
             return
         }
@@ -52,8 +52,8 @@ class SizeFormViewModel: ObservableObject {
     }
 }
 
-extension FieldValueViewModel {
-    static var emptySize: FieldValueViewModel {
+extension FieldViewModel {
+    static var emptySize: FieldViewModel {
         .init(fieldValue: .size(.init(size: Size(), fillType: .userInput)))
     }
 }
