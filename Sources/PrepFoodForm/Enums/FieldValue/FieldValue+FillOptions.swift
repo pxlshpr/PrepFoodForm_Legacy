@@ -37,7 +37,7 @@ extension FieldValue {
         return fillOptions
     }
 
-    func selectionAmountValues(for primaryText: RecognizedText) -> [FoodLabelValue] {
+    func selectionDoubleValues(for primaryText: RecognizedText) -> [FoodLabelValue] {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
         for candidate in primaryText.candidates {
@@ -138,8 +138,8 @@ extension FieldValue {
 //            <#code#>
 //        case .density(let densityValue):
 //            <#code#>
-        case .amount:
-            return selectionAmountValues(for: primaryText)
+        case .amount, .serving:
+            return selectionDoubleValues(for: primaryText)
         case .energy:
             return selectionEnergyValues(for: primaryText, and: supplementaryTexts)
         case .macro:
@@ -214,7 +214,7 @@ extension FieldValue {
 //            <#code#>
 //        case .density(let densityValue):
 //            <#code#>
-        case .amount(let doubleValue):
+        case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.description
         case .energy(let energyValue):
             return energyValue.description
