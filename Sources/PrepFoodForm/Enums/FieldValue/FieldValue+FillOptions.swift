@@ -173,7 +173,7 @@ extension FieldValue {
                 FillOption(
                     string: value.description,
                     systemImage: FillType.SystemImage.imageSelection,
-                    isSelected: self.value == value && self.fillType.isImageSelection,
+                    isSelected: value.matchesSelection(self.value) && self.fillType.isImageSelection,
                     type: .fillType(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )
                 )
@@ -181,6 +181,17 @@ extension FieldValue {
         }
         
         return fillOptions
+    }
+}
+
+extension FoodLabelValue {
+    /// Returns true if the values match and both have units. However, if either one has a unit missing—then the amounts are only checked.
+    func matchesSelection(_ other: FoodLabelValue?) -> Bool {
+        guard let other else { return false }
+        guard unit != nil, other.unit != nil else {
+            return amount == other.amount
+        }
+        return self == other
     }
 }
 
