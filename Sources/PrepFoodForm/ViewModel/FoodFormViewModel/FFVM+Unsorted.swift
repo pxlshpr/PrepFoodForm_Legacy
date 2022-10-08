@@ -289,19 +289,6 @@ extension FoodFormViewModel {
         return "\(amountViewModel.fieldValue.doubleValue.string) \(amountViewModel.fieldValue.doubleValue.unitDescription)"
     }
     
-    var amountFormHeaderString: String {
-        switch amountViewModel.fieldValue.doubleValue.unit {
-        case .serving:
-            return "Servings"
-        case .weight:
-            return "Weight"
-        case .volume:
-            return "Volume"
-        case .size:
-            return "Size"
-        }
-    }
-
     var servingFormHeaderString: String {
         switch servingViewModel.fieldValue.doubleValue.unit {
         case .weight:
@@ -419,9 +406,9 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let image = sampleImage(11),
+        guard let image = sampleImage(12),
 //              let mfpProcessedFood = sampleMFPProcessedFood(11),
-              let scanResult = sampleScanResult(11)
+              let scanResult = sampleScanResult(12)
         else {
             fatalError("Couldn't load mock files")
         }

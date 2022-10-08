@@ -433,6 +433,8 @@ extension FieldValue {
                 return .g
             case .micro:
                 return self.microValue.unit.foodLabelUnit
+            case .amount, .serving:
+                return self.doubleValue.unit.foodLabelUnit
             default:
                 return nil
             }
@@ -529,6 +531,9 @@ extension FieldValue {
     var value: FoodLabelValue? {
         switch self {
         case .energy, .macro, .micro:
+            guard let amount = double else { return nil }
+            return FoodLabelValue(amount: amount, unit: foodLabelUnit)
+        case .amount, .serving:
             guard let amount = double else { return nil }
             return FoodLabelValue(amount: amount, unit: foodLabelUnit)
         default:
@@ -874,6 +879,38 @@ extension NutrientUnit {
         }
     }
 }
+
+extension FormUnit {
+    var foodLabelUnit: FoodLabelUnit? {
+        switch self {
+        case .weight(let weightUnit):
+            switch weightUnit {
+            case .g:
+                return .g
+            case .oz:
+                return .oz
+            case .mg:
+                return .mg
+            default:
+                return nil
+            }
+        case .volume(let volumeUnit):
+            switch volumeUnit {
+            case .cup:
+                return .cup
+            case .tablespoon:
+                return .tbsp
+            case .mL:
+                return .ml
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
+}
+
 
 extension EnergyUnit {
     var foodLabelUnit: FoodLabelUnit? {

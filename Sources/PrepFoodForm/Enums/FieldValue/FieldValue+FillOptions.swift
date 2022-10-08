@@ -36,7 +36,27 @@ extension FieldValue {
         
         return fillOptions
     }
-    
+
+    func selectionAmountValues(for primaryText: RecognizedText) -> [FoodLabelValue] {
+        var values: [FoodLabelValue] = []
+        /// Go through all the candidates provided by the Vision framework
+        for candidate in primaryText.candidates {
+            for value in candidate.values {
+                
+                /// If it has a unit—make sure it is a `FormUnit` (only weight and measurements will be allowed)
+                if let unit = value.unit {
+                    guard unit.formUnit != nil else {
+                        continue
+                    }
+                }
+                /// Don't add duplicates
+                guard !values.contains(value) else { continue }
+                values.append(value)
+            }
+        }
+        return values
+    }
+
     func selectionEnergyValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText]) -> [FoodLabelValue]
     {
         var values: [FoodLabelValue] = []
@@ -115,6 +135,8 @@ extension FieldValue {
 //            <#code#>
 //        case .density(let densityValue):
 //            <#code#>
+        case .amount:
+            return selectionAmountValues(for: primaryText)
         case .energy:
             return selectionEnergyValues(for: primaryText, and: supplementaryTexts)
         case .macro:
@@ -178,6 +200,8 @@ extension FieldValue {
 //            <#code#>
 //        case .density(let densityValue):
 //            <#code#>
+        case .amount(let doubleValue):
+            return doubleValue.description
         case .energy(let energyValue):
             return energyValue.description
         case .macro(let macroValue):
@@ -187,6 +211,12 @@ extension FieldValue {
         default:
             return "(not implemented)"
         }
+    }
+}
+
+extension FieldValue.DoubleValue {
+    var description: String {
+        "\(internalString) \(unitDescription)"
     }
 }
 

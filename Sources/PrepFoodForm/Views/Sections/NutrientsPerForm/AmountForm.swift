@@ -1,6 +1,9 @@
 import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
+import VisionSugar
+import FoodLabelScanner
+import PrepUnits
 
 public struct AmountForm: View {
     @Environment(\.dismiss) var dismiss
@@ -13,6 +16,7 @@ public struct AmountForm: View {
 
     @State var showingUnitPicker = false
     @State var showingAddSizeForm = false
+    @State var showingTextPicker = false
     @FocusState var isFocused
     
     @State var doNotRegisterUserInput: Bool
@@ -36,11 +40,12 @@ extension AmountForm {
             form
             .navigationTitle("Amount Per")
             .toolbar { keyboardToolbarContents }
-            .toolbar { bottomToolbarContent }
             .toolbar { navigationLeadingContent }
+            .toolbar { bottomBarContents }
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
+            .sheet(isPresented: $showingTextPicker) { textPicker }
         }
-        .scrollDismissesKeyboard(.never)
+//        .scrollDismissesKeyboard(.never)
         .interactiveDismissDisabled(!haveValue)
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -57,11 +62,31 @@ extension AmountForm {
                     unitButton
                 }
             }
+            fillOptionsSections
+        }
+    }
+    
+    var bottomBarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Spacer()
+            saveButton
         }
     }
     
     var textField: some View {
-        TextField("Required", text: $amountViewModel.fieldValue.doubleValue.string)
+        let binding = Binding<String>(
+            get: { amountViewModel.fieldValue.doubleValue.string },
+            set: {
+                amountViewModel.fieldValue.doubleValue.string = $0
+                if !doNotRegisterUserInput && isFocused {
+                    withAnimation {
+                        amountViewModel.registerUserInput()
+                    }
+                }
+            }
+        )
+
+        return TextField("Required", text: binding)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
@@ -81,6 +106,77 @@ extension AmountForm {
         .buttonStyle(.borderless)
     }
     
+    var fillOptionsSections: some View {
+        FillOptionsSections(
+            fieldValueViewModel: amountViewModel,
+            shouldAnimate: $shouldAnimateOptions,
+            didTapImage: {
+                showTextPicker()
+            }, didTapFillOption: { fillOption in
+                didTapFillOption(fillOption)
+            })
+        .environmentObject(viewModel)
+    }
+    
+    func showTextPicker() {
+        Haptics.feedback(style: .soft)
+        doNotRegisterUserInput = true
+        isFocused = false
+        showingTextPicker = true
+    }
+
+    func didTapFillOption(_ fillOption: FillOption) {
+        switch fillOption.type {
+        case .chooseText:
+            didTapChooseButton()
+        case .fillType(let fillType):
+            Haptics.feedback(style: .rigid)
+            changeFillType(to: fillType)
+//            saveAndDismiss()
+        }
+    }
+    
+    func changeFillType(to fillType: FillType) {
+        
+        doNotRegisterUserInput = true
+        
+        switch fillType {
+        case .imageSelection(let text, _, _, let value):
+            changeFillTypeToSelection(of: text, withAltValue: value)
+        case .imageAutofill(let valueText, _, value: let value):
+            changeFillTypeToAutofill(of: valueText, withAltValue: value)
+        default:
+            break
+        }
+        
+        let previousFillType = amountViewModel.fieldValue.fillType
+        amountViewModel.fieldValue.fillType = fillType
+        if fillType.text?.id != previousFillType.text?.id {
+            amountViewModel.isCroppingNextImage = true
+            amountViewModel.cropFilledImage()
+        }
+        
+        doNotRegisterUserInput = false
+    }
+
+    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
+        let value = altValue ?? valueText.value
+        amountViewModel.fieldValue.doubleValue.double = value.amount
+        amountViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
+    }
+    
+    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
+        guard let value = altValue ?? text.string.values.first else {
+            return
+        }
+        amountViewModel.fieldValue.doubleValue.double = value.amount
+        amountViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
+    }
+
+    func didTapChooseButton() {
+        showTextPicker()
+    }
+
     var unitPicker: some View {
         UnitPicker(
             pickedUnit: amountViewModel.fieldValue.doubleValue.unit
@@ -95,6 +191,61 @@ extension AmountForm {
         .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
     }
     
+    var textPicker: some View {
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            selectedText: fillType.text,
+            selectedAttributeText: fillType.attributeText,
+            selectedImageIndex: selectedImageIndex,
+            onlyShowTextsWithValues: true
+        ) { text, scanResultId in
+            didTapText(text, onImageWithId: scanResultId)
+        }
+        .onDisappear {
+            guard amountViewModel.isCroppingNextImage else {
+                return
+            }
+            amountViewModel.cropFilledImage()
+            doNotRegisterUserInput = false
+            refreshBool.toggle()
+       }
+    }
+    
+    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
+        
+        guard let value = text.firstFoodLabelValue else {
+            print("Couldn't get a double from the tapped string")
+            return
+        }
+        
+        let newFillType = fillType(for: text, onImageWithId: imageId)
+        doNotRegisterUserInput = true
+        
+        amountViewModel.fieldValue.doubleValue.double = value.amount
+        amountViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
+        amountViewModel.fieldValue.fillType = newFillType
+        amountViewModel.isCroppingNextImage = true
+    }
+    
+    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
+        if let valueText = viewModel.autofillValueText(for: amountViewModel.fieldValue),
+            valueText.text == text
+        {
+            return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
+        } else {
+            return .imageSelection(recognizedText: text, scanResultId: imageId)
+        }
+    }
+
+    
+    var selectedImageIndex: Int? {
+        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fillType.scanResultId })
+    }
+    
+    var fillType: FillType {
+        amountViewModel.fieldValue.fillType
+    }
+
     var addSizeForm: some View {
         SizeForm(includeServing: false, allowAddSize: false) { sizeViewModel in
             guard let size = sizeViewModel.size else { return }
@@ -109,13 +260,26 @@ extension AmountForm {
     }
 
     var header: some View {
-        Text(viewModel.amountFormHeaderString)
+        var string: String {
+            switch amountViewModel.fieldValue.doubleValue.unit {
+            case .serving:
+                return "Servings"
+            case .weight:
+                return "Weight"
+            case .volume:
+                return "Volume"
+            case .size:
+                return "Size"
+            }
+        }
+
+        return Text(string)
     }
     
     @ViewBuilder
     var footer: some View {
         Text("This is how much of this food the nutrition facts are for. You'll be able to log this food using the unit you choose.")
-            .foregroundColor(viewModel.amountViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+            .foregroundColor(amountViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
 
     var keyboardToolbarContents: some ToolbarContent {
@@ -124,10 +288,7 @@ extension AmountForm {
                 showingUnitPicker = true
             }
             Spacer()
-            Button("Done") {
-                dismiss()
-            }
-            .disabled(!haveValue)
+            saveButton
         }
     }
     
@@ -139,27 +300,21 @@ extension AmountForm {
         }
     }
 
-    var bottomToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
-            Spacer()
-            Button("Save") {
-//                if let didAddSizeViewModel = didAddSizeViewModel {
-//                    didAddSizeViewModel(sizeViewModel)
-//                }
-//                if let existingSizeViewModel {
-//                    viewModel.edit(existingSizeViewModel, with: sizeViewModel)
-//                } else {
-//                    viewModel.add(sizeViewModel: sizeViewModel)
-//                }
-//                dismiss()
-            }
-//            .disabled(!sizeViewModel.isValid || !isDirty)
-            .id(refreshBool)
+    var saveButton: some View {
+        Button("Save") {
+            viewModel.amountViewModel.copyData(from: amountViewModel)
+            dismiss()
         }
+        .disabled(!haveValue || !isDirty)
+        .id(refreshBool)
+    }
+    
+    var isDirty: Bool {
+        amountViewModel.fieldValue != existingAmountViewModel.fieldValue
     }
     
     var haveValue: Bool {
-        !viewModel.amountViewModel.fieldValue.doubleValue.string.isEmpty
+        !amountViewModel.fieldValue.doubleValue.string.isEmpty
     }
     
     /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
