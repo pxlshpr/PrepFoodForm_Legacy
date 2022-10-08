@@ -493,7 +493,8 @@ extension ScanResult {
         
         return ScanResult(
             serving: serving,
-            nutrients: Nutrients(headerText1: nil, headerText2: nil, rows: []),
+            headers: nil,
+            nutrients: Nutrients(rows: []),
             texts: [])
     }
 }
