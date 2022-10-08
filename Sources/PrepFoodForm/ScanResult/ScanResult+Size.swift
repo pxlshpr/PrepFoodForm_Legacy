@@ -10,13 +10,9 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: FillType = .imageAutofill(
-            valueText: perContainerSizeValueText,
-            scanResultId: id,
-            value: nil)
         return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
             size: perContainerSize,
-            fillType: fillType)
+            fillType: autoFillType(for: perContainerSizeValueText))
         ))
     }
     
@@ -36,11 +32,10 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: FillType = .imageAutofill(
-            valueText: servingUnitSizeValueText,
-            scanResultId: id,
-            value: nil)
-        let fieldValue: FieldValue = .size(.init(size: servingUnitSize, fillType: fillType))
+        let fieldValue: FieldValue = .size(.init(
+            size: servingUnitSize,
+            fillType: autoFillType(for: servingUnitSizeValueText)
+        ))
         return FieldViewModel(fieldValue: fieldValue)
     }
     
@@ -49,14 +44,13 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: FillType = .imageAutofill(
-            valueText: equivalentUnitSizeValueText,
-            scanResultId: id,
-            value: nil)
-        let fieldValue: FieldValue = .size(.init(size: equivalentUnitSize, fillType: fillType))
+        let fieldValue: FieldValue = .size(.init(
+            size: equivalentUnitSize,
+            fillType: autoFillType(for: equivalentUnitSizeValueText)
+        ))
         return FieldViewModel(fieldValue: fieldValue)
     }
-
+    
     //MARK: Units Sizes
     
     var servingUnitSize: Size? {
@@ -109,6 +103,13 @@ extension ScanResult {
         )
     }
  
+    //MARK: - Value Texts
+    var servingAmountValueText: ValueText? {
+        guard let amountText = serving?.amountText else {
+            return nil
+        }
+        return amountText.asValueText
+    }
     var perContainerSizeValueText: ValueText? {
         serving?.perContainer?.amountText.asValueText
     }
@@ -131,6 +132,14 @@ extension ScanResult {
         } else {
             return servingUnitNameText.asValueText
         }
+    }
+    
+    //MARK: - Helpers
+    func autoFillType(for valueText: ValueText) -> FillType {
+        .imageAutofill(
+            valueText: valueText,
+            scanResultId: id,
+            value: nil)
     }
 }
 

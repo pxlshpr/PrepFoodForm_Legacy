@@ -330,6 +330,20 @@ extension FieldValue {
         return false
     }
 
+    var isServing: Bool {
+        if case .serving = self {
+            return true
+        }
+        return false
+    }
+    
+    var isAmount: Bool {
+        if case .amount = self {
+            return true
+        }
+        return false
+    }
+
 }
 
 extension FieldValue: CustomStringConvertible {

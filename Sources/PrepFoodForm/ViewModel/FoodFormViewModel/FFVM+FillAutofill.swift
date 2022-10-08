@@ -118,7 +118,16 @@ extension FoodFormViewModel {
         servingViewModel = .init(fieldValue: fieldValue)
         autofillFieldValues.append(fieldValue)
     }
-    
+
+    func extractAmount() {
+        guard let fieldValue = fieldValueFromScanResultsForAmount else {
+            return
+        }
+        //TODO: Only do this if user hasn't already got a value in there
+        amountViewModel = .init(fieldValue: fieldValue)
+        autofillFieldValues.append(fieldValue)
+    }
+
     var fieldValueFromScanResultsForServing: FieldValue? {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
@@ -134,12 +143,22 @@ extension FoodFormViewModel {
                 }
                 return fieldValue
             }
-            
-            //TODO: SizeValue
-//            if let (fieldValue, sizesToAdd) = scanResult.fieldValueForServing {
-//                standardSizes.append(contentsOf: sizesToAdd)
-//                return fieldValue
-//            }
+        }
+        return nil
+    }
+    
+    var fieldValueFromScanResultsForAmount: FieldValue? {
+        /// **We're current returning the first one we find amongst the images**
+        for scanResult in scanResults {
+
+            if let fieldValue = scanResult.amountFieldValue {
+                //TODO: Revisit this if need be
+//                let sizeViewModels = scanResult.amountSizeViewModels
+//                for sizeViewModel in sizeViewModels {
+//                    add(sizeViewModel: sizeViewModel)
+//                }
+                return fieldValue
+            }
         }
         return nil
     }

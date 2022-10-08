@@ -2,13 +2,23 @@ import FoodLabelScanner
 import PrepUnits
 
 extension ScanResult {
+
+    var amountFieldValue: FieldValue? {
+        if false {
+            /// get amountPer from header here
+        } else {
+            /// As a fallback return the `servingFieldValue` as we'll be using that if no headers were found
+            return servingFieldValue
+        }
+    }
+
     var servingFieldValue: FieldValue? {
-        guard let servingAmount else { return nil }
+        guard let servingAmount, let servingAmountValueText else { return nil }
         return FieldValue.serving(FieldValue.DoubleValue(
             double: servingAmount,
             string: servingAmount.cleanAmount,
             unit: servingFormUnit,
-            fillType: .userInput //TODO: Do FillType
+            fillType: autoFillType(for: servingAmountValueText)
         ))
     }
     

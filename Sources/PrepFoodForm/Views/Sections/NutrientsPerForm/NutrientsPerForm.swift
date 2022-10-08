@@ -26,6 +26,9 @@ extension FoodForm.NutrientsPerForm {
         .sheet(isPresented: $viewModel.showingNutrientsPerServingForm) {
             ServingForm(existingFieldViewModel: viewModel.servingViewModel)
                 .environmentObject(viewModel)
+                .onDisappear {
+                    refreshBool.toggle()
+                }
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
             AmountForm(existingFieldViewModel: viewModel.amountViewModel)

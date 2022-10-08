@@ -102,6 +102,10 @@ extension FoodFormViewModel {
             return autofillFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
         case .micro(let microValue):
             return autofillFieldValues.first(where: { $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
+        case .amount:
+            return autofillFieldValues.first(where: { $0.isAmount })
+        case .serving:
+            return autofillFieldValues.first(where: { $0.isServing })
 //        case .amount(let doubleValue):
 //            <#code#>
 //        case .serving(let doubleValue):
