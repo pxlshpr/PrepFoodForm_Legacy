@@ -5,7 +5,7 @@ import PrepUnits
 
 extension Array where Element == ScanResult {
     var bestColumn: Int {
-        2
+        1
     }
 }
 extension FoodFormViewModel {
@@ -45,6 +45,7 @@ extension FoodFormViewModel {
         }
         
         extractServing(for: column)
+        extractAmount(for: column)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             for fieldViewModel in self.allFieldViewModels {
@@ -124,8 +125,8 @@ extension FoodFormViewModel {
         autofillFieldValues.append(fieldValue)
     }
 
-    func extractAmount() {
-        guard let fieldValue = fieldValueFromScanResultsForAmount else {
+    func extractAmount(for column: Int) {
+        guard let fieldValue = fieldValueFromScanResultsForAmount(for: column) else {
             return
         }
         //TODO: Only do this if user hasn't already got a value in there
@@ -152,11 +153,11 @@ extension FoodFormViewModel {
         return nil
     }
     
-    var fieldValueFromScanResultsForAmount: FieldValue? {
+    func fieldValueFromScanResultsForAmount(for column: Int) -> FieldValue? {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
 
-            if let fieldValue = scanResult.amountFieldValue {
+            if let fieldValue = scanResult.amountFieldValue(for: column) {
                 //TODO: Revisit this if need be
 //                let sizeViewModels = scanResult.amountSizeViewModels
 //                for sizeViewModel in sizeViewModels {

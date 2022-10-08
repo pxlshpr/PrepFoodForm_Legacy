@@ -15,16 +15,15 @@ extension ScanResult.Headers {
 
 extension ScanResult {
 
-    var amountFieldValue: FieldValue? {
-        if false {
-            //TODO: Header
-            /// get amountPer from header here
+    func amountFieldValue(for column: Int) -> FieldValue? {
+        if headerType(for: column) != .perServing {
+            return headerFieldValue(for: column)
         } else {
             /// As a fallback return the `servingFieldValue` as we'll be using that if no headers were found
-            return servingFieldValue(for: 1) //TODO: Header
+            return servingFieldValue(for: column) //TODO: Header
         }
     }
-
+    
     func servingFieldValue(for column: Int) -> FieldValue? {
         if let servingAmount, let servingAmountValueText {
             return FieldValue.serving(FieldValue.DoubleValue(
@@ -34,15 +33,25 @@ extension ScanResult {
                 fillType: autoFillType(for: servingAmountValueText)
             ))
         }
-        else if let headerServingAmount, let headerServingValueText {
-            return FieldValue.serving(FieldValue.DoubleValue(
-                double: headerServingAmount,
-                string: headerServingAmount.cleanAmount,
-                unit: headerServingFormUnit,
-                fillType: autoFillType(for: headerServingValueText)
-            ))
+        else if headerType(for: column) == .perServing {
+            return headerFieldValue(for: column)
+        } else {
+            return nil
         }
-        return nil
+    }
+    
+    func headerFieldValue(for column: Int) -> FieldValue? {
+        guard let headerAmount = headerAmount(for: column),
+                let headerValueText = headerValueText(for: column)
+        else {
+            return nil
+        }
+        return FieldValue.serving(FieldValue.DoubleValue(
+            double: headerAmount,
+            string: headerAmount.cleanAmount,
+            unit: headerFormUnit(for: column),
+            fillType: autoFillType(for: headerValueText)
+        ))
     }
     
     var headerServingValueText: ValueText? {
@@ -58,6 +67,46 @@ extension ScanResult {
     
     var headerServingAmount: Double? {
         return headers?.serving?.amount
+    }
+    
+    func headerAmount(for column: Int) -> Double? {
+        guard let headerType = headerType(for: column) else {
+            return nil
+        }
+        switch headerType {
+        case .per100g, .per100ml:
+            return 100
+        case .perServing:
+            return headerServingAmount
+        }
+    }
+
+    func headerText(for column: Int) -> HeaderText? {
+        column == 1 ? headers?.headerText1 : headers?.headerText2
+    }
+    
+    func headerValueText(for column: Int) -> ValueText? {
+        guard let headerText = headerText(for: column) else { return nil }
+        return headerText.text.asValueText
+    }
+    
+    func headerType(for column: Int) -> HeaderType? {
+        column == 1 ? headers?.header1Type : headers?.header2Type
+    }
+    
+    func headerFormUnit(for column: Int) -> FormUnit {
+        guard let headerType = headerType(for: column) else {
+            return .serving
+        }
+        
+        switch headerType {
+        case .per100g:
+            return .weight(.g)
+        case .per100ml:
+            return .volume(.mL)
+        case .perServing:
+            return headerServingFormUnit
+        }
     }
 
     var headerServingFormUnit: FormUnit {

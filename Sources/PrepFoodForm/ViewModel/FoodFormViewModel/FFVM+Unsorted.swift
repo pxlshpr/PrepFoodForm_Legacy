@@ -406,9 +406,9 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let image = sampleImage(12),
+        guard let image = sampleImage(13),
 //              let mfpProcessedFood = sampleMFPProcessedFood(11),
-              let scanResult = sampleScanResult(12)
+              let scanResult = sampleScanResult(13)
         else {
             fatalError("Couldn't load mock files")
         }
