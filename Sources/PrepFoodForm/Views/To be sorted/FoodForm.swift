@@ -168,6 +168,16 @@ public struct FoodForm: View {
         Form {
             detailsSection
             servingSection
+            if let columns = viewModel.availableColumns {
+                Section {
+                    Picker("", selection: $viewModel.pickedColumn) {
+                        ForEach(columns.indices, id: \.self) { column in
+                            Text(columns[column]).tag(column+1)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+            }
             foodLabelSection
             sourceSection
             prefillSection
@@ -318,6 +328,7 @@ public struct FoodForm: View {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
             }
+            .frame(minHeight: 50)
             .sheet(isPresented: $showingAmountPer) {
                 NutrientsPerForm()
                     .environmentObject(viewModel)
