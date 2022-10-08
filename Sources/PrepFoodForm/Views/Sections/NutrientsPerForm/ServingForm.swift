@@ -1,85 +1,35 @@
 import SwiftUI
+import PrepUnits
 import SwiftHaptics
 
 struct ServingForm: View {
-    @Environment(\.dismiss) var dismiss
+    
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @State var showingUnitPicker = false
-    @State var showingSizeForm = false
-    @FocusState var isFocused
-}
+    @ObservedObject var existingFieldViewModel: FieldViewModel
+    @StateObject var fieldViewModel: FieldViewModel
 
-extension ServingForm {
+    @State var showingUnitPicker = false
+    @State var showingAddSizeForm = false
+
+    init(existingFieldViewModel: FieldViewModel) {
+        self.existingFieldViewModel = existingFieldViewModel
+        
+        let fieldViewModel = existingFieldViewModel.copy
+        _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
+    }
+
     
     var body: some View {
-        form
-            .navigationTitle("Serving Size")
-            .onAppear {
-                isFocused = true
-            }
-            .toolbar { keyboardToolbarContents }
-    }
-    
-    var keyboardToolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Button("Units") {
-                showingUnitPicker = true
-            }
-            Spacer()
-            Button("Done") {
-                dismiss()
-            }
-        }
-    }
-    
-    var form: some View {
-        Form {
-            Section(header: header, footer: footer) {
-                HStack(spacing: 0) {
-                    textField
-                    unitButton
-                }
-            }
-        }
-        .sheet(isPresented: $showingUnitPicker) {
-            UnitPicker(
-                pickedUnit: viewModel.servingViewModel.fieldValue.doubleValue.unit,
-                includeServing: false)
-            {
-                showingSizeForm = true
-            } didPickUnit: { unit in
-                withAnimation {
-                    if unit.isServingBased {
-                        viewModel.modifyServingAmount(for: unit)
-                    }
-                    viewModel.servingViewModel.fieldValue.doubleValue.unit = unit
-                }
-            }
-            .environmentObject(viewModel)
-            .sheet(isPresented: $showingSizeForm) {
-                SizeForm(includeServing: true, allowAddSize: false) { sizeViewModel in
-                    guard let size = sizeViewModel.size else { return }
-                    withAnimation {
-                        viewModel.servingViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            Haptics.feedback(style: .rigid)
-                            showingUnitPicker = false
-                        }
-                    }
-                }
-                .environmentObject(viewModel)
-            }
-        }
-    }
-    
-    var textField: some View {
-        TextField("", text: $viewModel.servingViewModel.fieldValue.doubleValue.string)
-            .multilineTextAlignment(.leading)
-            .keyboardType(.decimalPad)
-            .placeholder(when: viewModel.servingViewModel.fieldValue.isEmpty) {
-                Text("Optional").foregroundColor(Color(.quaternaryLabel))
-            }
-            .focused($isFocused)
+        FieldValueForm(
+            fieldViewModel: fieldViewModel,
+            existingFieldViewModel: existingFieldViewModel,
+            unitView: unitButton,
+            headerString: headerString,
+            footerString: footerString,
+            placeholderString: "Optional",
+            setNewValue: setNewValue
+        )
+        .sheet(isPresented: $showingUnitPicker) { unitPicker }
     }
     
     var unitButton: some View {
@@ -87,7 +37,7 @@ extension ServingForm {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(viewModel.servingUnitShortString)
+                Text(fieldViewModel.fieldValue.doubleValue.unit.shortDescription)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
@@ -95,13 +45,62 @@ extension ServingForm {
         .buttonStyle(.borderless)
     }
 
-    var header: some View {
-        Text(viewModel.servingFormHeaderString)
+    var unitPicker: some View {
+        UnitPicker(
+            pickedUnit: fieldViewModel.fieldValue.doubleValue.unit
+        ) {
+            showingAddSizeForm = true
+        } didPickUnit: { unit in
+            if unit.isServingBased {
+                viewModel.modifyServingAmount(for: unit)
+            }
+            fieldViewModel.fieldValue.doubleValue.unit = unit
+        }
+        .environmentObject(viewModel)
+        .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
     }
 
-    @ViewBuilder
-    var footer: some View {
-        Text(viewModel.servingSizeFooterString)
-            .foregroundColor(viewModel.servingViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+    var addSizeForm: some View {
+        SizeForm(includeServing: true, allowAddSize: false) { sizeViewModel in
+            guard let size = sizeViewModel.size else { return }
+            fieldViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Haptics.feedback(style: .rigid)
+                showingUnitPicker = false
+            }
+        }
+        .environmentObject(viewModel)
+    }
+
+    func setNewValue(_ value: FoodLabelValue) {
+        fieldViewModel.fieldValue.doubleValue.double = value.amount
+        fieldViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .weight(.g)
+    }
+    
+    var headerString: String {
+        switch fieldViewModel.fieldValue.doubleValue.unit {
+        case .weight:
+            return "Weight"
+        case .volume:
+            return "Volume"
+        case .size:
+            return "Size"
+        default:
+            return ""
+        }
+    }
+
+    var footerString: String {
+        switch fieldViewModel.fieldValue.doubleValue.unit {
+        case .weight:
+            return "This is the weight of 1 serving. Enter this to log this food using its weight in addition to servings."
+        case .volume:
+            return "This is the volume of 1 serving. Enter this to log this food using its volume in addition to servings."
+        case .size(let size, _):
+            return "This is how many \(size.prefixedName) is 1 serving."
+        case .serving:
+            return "Unsupported"
+        }
+        
     }
 }

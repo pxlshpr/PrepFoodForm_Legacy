@@ -10,6 +10,8 @@ extension FoodForm {
         
         @State var sizeToEdit: FieldViewModel?
 
+        @State var refreshBool: Bool = false
+        
         public init() { }
     }
 }
@@ -18,28 +20,19 @@ extension FoodForm.NutrientsPerForm {
     public var body: some View {
         NavigationView {
             form
-//            .toolbar { bottomToolbarContent }
             .navigationTitle("Amount Per")
-//            .navigationBarTitleDisplayMode(.large)
             .navigationBarTitleDisplayMode(.inline)
-//            .scrollDismissesKeyboard(.interactively)
-//            .interactiveDismissDisabled()
-        }
-        .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
-            AmountFieldForm(existingFieldViewModel: viewModel.amountViewModel)
-                .environmentObject(viewModel)
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerServingForm) {
-            NavigationView {
-                ServingForm()
-                    .environmentObject(viewModel)
-            }
+            ServingForm(existingFieldViewModel: viewModel.servingViewModel)
+                .environmentObject(viewModel)
         }
-        .onAppear {
-            /// If it's present the amount form as the empty form is redundant to display
-//            if !viewModel.hasNutrientsPerContent {
-//                viewModel.showingNutrientsPerAmountForm = true
-//            }
+        .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
+            AmountForm(existingFieldViewModel: viewModel.amountViewModel)
+                .environmentObject(viewModel)
+                .onDisappear {
+                    refreshBool.toggle()
+                }
         }
         .sheet(item: $sizeToEdit) { sizeViewModel in
             SizeForm(fieldViewModel: sizeViewModel) { sizeViewModel in
@@ -68,8 +61,9 @@ extension FoodForm.NutrientsPerForm {
         }
         
         return Section(footer: footer) {
-            Field()
+            AmountField()
                 .environmentObject(viewModel)
+                .id(refreshBool)
         }
     }
     var bottomToolbarContent: some ToolbarContent {

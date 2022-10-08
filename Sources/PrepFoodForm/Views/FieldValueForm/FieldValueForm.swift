@@ -11,6 +11,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     var supplementaryView: SupplementaryView?
     var supplementaryViewFooterString: String?
     var supplementaryViewHeaderString: String?
+    let headerString: String?
+    let footerString: String?
+    let placeholderString: String
 
     @EnvironmentObject var viewModel: FoodFormViewModel
     @ObservedObject var existingFieldViewModel: FieldViewModel
@@ -37,6 +40,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     init(fieldViewModel: FieldViewModel,
          existingFieldViewModel: FieldViewModel,
          unitView: UnitView,
+         headerString: String? = nil,
+         footerString: String? = nil,
+         placeholderString: String = "Required",
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
@@ -47,6 +53,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = unitView
+        self.headerString = headerString
+        self.footerString = footerString
+        self.placeholderString = placeholderString
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
@@ -58,6 +67,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
 extension FieldValueForm where UnitView == EmptyView {
     init(fieldViewModel: FieldViewModel,
          existingFieldViewModel: FieldViewModel,
+         headerString: String? = nil,
+         footerString: String? = nil,
+         placeholderString: String = "Required",
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
@@ -68,6 +80,9 @@ extension FieldValueForm where UnitView == EmptyView {
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = nil
+        self.headerString = headerString
+        self.footerString = footerString
+        self.placeholderString = placeholderString
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
@@ -79,6 +94,9 @@ extension FieldValueForm where SupplementaryView == EmptyView {
     init(fieldViewModel: FieldViewModel,
          existingFieldViewModel: FieldViewModel,
          unitView: UnitView,
+         headerString: String? = nil,
+         footerString: String? = nil,
+         placeholderString: String = "Required",
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -86,6 +104,9 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = unitView
+        self.headerString = headerString
+        self.footerString = footerString
+        self.placeholderString = placeholderString
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
@@ -96,6 +117,9 @@ extension FieldValueForm where SupplementaryView == EmptyView {
 extension FieldValueForm where UnitView == EmptyView, SupplementaryView == EmptyView {
     init(fieldViewModel: FieldViewModel,
          existingFieldViewModel: FieldViewModel,
+         headerString: String? = nil,
+         footerString: String? = nil,
+         placeholderString: String = "Required",
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -103,6 +127,9 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = nil
+        self.headerString = headerString
+        self.footerString = footerString
+        self.placeholderString = placeholderString
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
@@ -175,10 +202,30 @@ extension FieldValueForm {
     }
 
     var textFieldSection: some View {
-        FormStyledSection(footer: header) {
-            HStack {
-                textField
-                unitView
+        @ViewBuilder
+        var footer: some View {
+            if let footerString {
+                Text(footerString)
+            } else {
+                defaultFooter
+            }
+        }
+        
+        return Group {
+            if let headerString {
+                FormStyledSection(header: Text(headerString), footer: footer) {
+                    HStack {
+                        textField
+                        unitView
+                    }
+                }
+            } else {
+                FormStyledSection(footer: footer) {
+                    HStack {
+                        textField
+                        unitView
+                    }
+                }
             }
         }
     }
@@ -237,7 +284,7 @@ extension FieldValueForm {
         }
     }
     
-    var header: some View {
+    var defaultFooter: some View {
         let autofillString = viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) ? "or autofill " : ""
         let string = "Enter \(autofillString)a value"
         return Text(string)
@@ -256,7 +303,7 @@ extension FieldValueForm {
             }
         )
         
-        return TextField("Required", text: binding)
+        return TextField(placeholderString, text: binding)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)

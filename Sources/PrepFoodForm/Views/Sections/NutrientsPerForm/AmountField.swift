@@ -1,16 +1,14 @@
 import SwiftUI
 
-extension FoodForm.NutrientsPerForm {
-    struct Field: View {
+struct AmountField: View {
 
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    
 //        @State var showingAmountForm = false
 //        @State var showingServingForm = false
-    }
 }
 
-extension FoodForm.NutrientsPerForm.Field {
+extension AmountField {
     
     var body: some View {
         HStack {
@@ -72,7 +70,7 @@ public struct NutrientsPerFormFieldPreview: View {
     public var body: some View {
         NavigationView {
             Form {
-                FoodForm.NutrientsPerForm.Field()
+                AmountField()
                     .environmentObject(viewModel)
             }
         }
