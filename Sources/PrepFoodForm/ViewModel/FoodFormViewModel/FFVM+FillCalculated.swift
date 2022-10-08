@@ -2,13 +2,13 @@ import FoodLabelScanner
 
 extension FoodFormViewModel {
 
-    func calculatedFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+    func calculatedFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
         var newFieldValue = fieldValue
 
         switch fieldValue {
         case .energy:
             /// First check if we have a calculated value from the scanResult (which will be indicated by it not having an associated text)
-            if let energyFieldValue = calculatedFieldValueFromScanResults(for: .energy) {
+            if let energyFieldValue = calculatedFieldValueFromScanResults(for: .energy, at: column) {
                 return energyFieldValue
             } else {
                 /// If this is not the case—do the calculation ourself by seeing if we have 3 other components of the energy equation and if so—calculating it
@@ -18,7 +18,7 @@ extension FoodFormViewModel {
 
         case .macro:
             /// First check if we have a calculated value from the scanResult (which will be indicated by it not having an associated text)
-            if let macroFieldValue = calculatedFieldValueFromScanResults(for: fieldValue.macroValue.macro.attribute) {
+            if let macroFieldValue = calculatedFieldValueFromScanResults(for: fieldValue.macroValue.macro.attribute, at: column) {
                 return macroFieldValue
             } else {
                 /// If this is not the case—do the calculation ourself by seeing if we have 3 other components of the energy equation and if so—calculating it
@@ -34,8 +34,8 @@ extension FoodFormViewModel {
         return newFieldValue
     }
 
-    func calculatedFieldValueFromScanResults(for attribute: Attribute) -> FieldValue? {
-        guard let fieldValue = fieldValueFromScanResults(for: attribute),
+    func calculatedFieldValueFromScanResults(for attribute: Attribute, at column: Int) -> FieldValue? {
+        guard let fieldValue = fieldValueFromScanResults(for: attribute, at: column),
               fieldValue.fillType == .calculated
         else {
             return nil

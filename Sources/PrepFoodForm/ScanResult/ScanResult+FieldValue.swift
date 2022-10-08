@@ -1,27 +1,101 @@
 import FoodLabelScanner
 import PrepUnits
 
+extension ScanResult.Headers {
+    var serving: HeaderText.Serving? {
+        if header1Type == .perServing {
+            return headerText1?.serving
+        } else if header2Type == .perServing {
+            return headerText2?.serving
+        } else {
+            return nil
+        }
+    }
+}
+
 extension ScanResult {
 
     var amountFieldValue: FieldValue? {
         if false {
+            //TODO: Header
             /// get amountPer from header here
         } else {
             /// As a fallback return the `servingFieldValue` as we'll be using that if no headers were found
-            return servingFieldValue
+            return servingFieldValue(for: 1) //TODO: Header
         }
     }
 
-    var servingFieldValue: FieldValue? {
-        guard let servingAmount, let servingAmountValueText else { return nil }
-        return FieldValue.serving(FieldValue.DoubleValue(
-            double: servingAmount,
-            string: servingAmount.cleanAmount,
-            unit: servingFormUnit,
-            fillType: autoFillType(for: servingAmountValueText)
-        ))
+    func servingFieldValue(for column: Int) -> FieldValue? {
+        if let servingAmount, let servingAmountValueText {
+            return FieldValue.serving(FieldValue.DoubleValue(
+                double: servingAmount,
+                string: servingAmount.cleanAmount,
+                unit: servingFormUnit,
+                fillType: autoFillType(for: servingAmountValueText)
+            ))
+        }
+        else if let headerServingAmount, let headerServingValueText {
+            return FieldValue.serving(FieldValue.DoubleValue(
+                double: headerServingAmount,
+                string: headerServingAmount.cleanAmount,
+                unit: headerServingFormUnit,
+                fillType: autoFillType(for: headerServingValueText)
+            ))
+        }
+        return nil
     }
     
+    var headerServingValueText: ValueText? {
+        guard let headers else { return nil }
+        if headers.header1Type == .perServing {
+            return headers.headerText1?.text.asValueText
+        } else if headers.header2Type == .perServing {
+            return headers.headerText2?.text.asValueText
+        } else {
+            return nil
+        }
+    }
+    
+    var headerServingAmount: Double? {
+        return headers?.serving?.amount
+    }
+
+    var headerServingFormUnit: FormUnit {
+        if let headerServingUnitName {
+            let size = Size(
+                name: headerServingUnitName,
+                amount: headerServingUnitAmount,
+                unit: headerServingUnitSizeUnit
+            )
+            return .size(size, nil)
+        } else {
+            return headerServingUnit?.formUnit ?? .weight(.g)
+        }
+    }
+    
+    var headerServingUnitName: String? {
+        headers?.serving?.unitName
+    }
+    
+    var headerServingUnitAmount: Double {
+        if let headerEquivalentSize {
+            return headerEquivalentSize.amount
+        } else {
+            return headers?.serving?.amount ?? 1
+        }
+    }
+    
+    var headerServingUnitSizeUnit: FormUnit {
+        headerEquivalentSizeFormUnit ?? .serving
+    }
+    
+    var headerServingUnit: FoodLabelUnit? {
+        headers?.serving?.unit
+    }
+
+    var headerEquivalentSize: HeaderText.Serving.EquivalentSize? {
+        headers?.serving?.equivalentSize
+    }
     var servingFormUnit: FormUnit {
         if let servingUnitNameText {
             let size = Size(
@@ -44,19 +118,39 @@ extension ScanResult {
     }
     
     var servingUnitSizeUnit: FormUnit {
-        if let equivalentSizeFormUnit {
-            return equivalentSizeFormUnit
-        } else {
-            return .serving
-        }
+        equivalentSizeFormUnit ?? .serving
     }
-    
     
     var equivalentSizeFormUnit: FormUnit? {
         if let equivalentSizeUnitSize {
             return .size(equivalentSizeUnitSize, nil)
         } else {
             return equivalentSize?.unit?.formUnit ?? .weight(.g)
+        }
+    }
+    
+    var headerEquivalentSizeFormUnit: FormUnit? {
+        if let headerEquivalentSizeUnitSize {
+            return .size(headerEquivalentSizeUnitSize, nil)
+        } else {
+            return headerEquivalentSize?.unit?.formUnit ?? .weight(.g)
+        }
+    }
+    
+    var headerEquivalentSizeUnitSize: Size? {
+        guard let headerEquivalentSize, headerEquivalentSize.amount > 0,
+              let headerServingAmount, headerServingAmount > 0
+        else {
+            return nil
+        }
+        
+        if let unitName = headerEquivalentSize.unitName {
+            return Size(
+                name: unitName,
+                amount: 1.0/headerServingAmount/headerEquivalentSize.amount,
+                unit: .serving)
+        } else {
+            return nil
         }
     }
     

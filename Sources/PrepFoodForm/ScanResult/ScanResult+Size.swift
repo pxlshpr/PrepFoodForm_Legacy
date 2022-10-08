@@ -154,3 +154,11 @@ extension StringText {
         ValueText(value: .zero, text: self.text, attributeText: self.attributeText)
     }
 }
+
+import VisionSugar
+
+extension RecognizedText {
+    var asValueText: ValueText? {
+        ValueText(value: .zero, text: self, attributeText: self)
+    }    
+}
