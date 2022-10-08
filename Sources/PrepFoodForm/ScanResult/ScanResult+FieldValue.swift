@@ -19,8 +19,18 @@ extension ScanResult {
         if headerType(for: column) != .perServing {
             return headerFieldValue(for: column)
         } else {
-            /// As a fallback return the `servingFieldValue` as we'll be using that if no headers were found
-            return servingFieldValue(for: column) //TODO: Header
+            guard let valueText = amountValueText(for: column) else { return nil }
+            return FieldValue.amount(FieldValue.DoubleValue(
+                double: 1, string: "1", unit: .serving, fillType: autoFillType(for: valueText))
+            )
+        }
+    }
+    
+    func amountValueText(for column: Int) -> ValueText? {
+        if let servingAmountValueText {
+            return servingAmountValueText
+        } else {
+            return headerValueText(for: column)
         }
     }
     
