@@ -1,24 +1,22 @@
 import SwiftUI
 import SwiftHaptics
 
-extension FoodForm.NutrientsPerForm {
-    public struct AmountForm: View {
-        @Environment(\.dismiss) var dismiss
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @State var showingUnitPicker = false
-        @State var showingSizeForm = false
-        @FocusState var isFocused
-        
-        @State var showingSheet = false
-        @State var fieldSourceType = "viewfinder.circle.fill"
-        
-        @State var previousValue: FieldValue?
-        
-        public init() { }
-    }
+public struct AmountForm: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @State var showingUnitPicker = false
+    @State var showingSizeForm = false
+    @FocusState var isFocused
+    
+    @State var showingSheet = false
+    @State var fieldSourceType = "viewfinder.circle.fill"
+    
+    @State var previousValue: FieldValue?
+    
+    public init() { }
 }
 
-extension FoodForm.NutrientsPerForm.AmountForm {
+extension AmountForm {
     
     public var body: some View {
         NavigationView {
@@ -200,7 +198,7 @@ struct AmountFormPreview: View {
     @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
-        FoodForm.NutrientsPerForm.AmountForm()
+        AmountForm()
             .environmentObject(viewModel)
     }
 }

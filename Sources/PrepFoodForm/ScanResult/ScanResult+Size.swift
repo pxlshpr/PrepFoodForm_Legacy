@@ -2,9 +2,35 @@ import FoodLabelScanner
 
 extension ScanResult {
     var servingSizeViewModels: [FieldValueViewModel] {
-        [servingUnitSizeViewModel, equivalentUnitSizeViewModel].compactMap { $0 }
+        [servingUnitSizeViewModel, equivalentUnitSizeViewModel, perContainerSizeViewModel].compactMap { $0 }
     }
     
+    var perContainerSizeViewModel: FieldValueViewModel? {
+        guard let perContainerSize, let perContainerSizeValueText else {
+            return nil
+        }
+        
+        let fillType: FillType = .imageAutofill(
+            valueText: perContainerSizeValueText,
+            scanResultId: id,
+            value: nil)
+        return FieldValueViewModel(fieldValue: .size(FieldValue.SizeValue(
+            size: perContainerSize,
+            fillType: fillType)
+        ))
+    }
+    
+    var perContainerSize: Size? {
+        guard let perContainer = serving?.perContainer else {
+            return nil
+        }
+        return Size(
+            quantity: 1,
+            name: perContainer.name ?? "container",
+            amount: perContainer.amount,
+            unit: .serving
+        )
+    }
     var servingUnitSizeViewModel: FieldValueViewModel? {
         guard let servingUnitSize, let servingUnitSizeValueText else {
             return nil
@@ -82,7 +108,11 @@ extension ScanResult {
             unit: servingFormUnit
         )
     }
-    
+ 
+    var perContainerSizeValueText: ValueText? {
+        serving?.perContainer?.amountText.asValueText
+    }
+ 
     var equivalentUnitSizeValueText: ValueText? {
         equivalentSize?.unitNameText?.asValueText
     }
@@ -101,6 +131,12 @@ extension ScanResult {
         } else {
             return servingUnitNameText.asValueText
         }
+    }
+}
+
+extension DoubleText {
+    var asValueText: ValueText? {
+        ValueText(value: .zero, text: self.text, attributeText: self.attributeText)
     }
 }
 

@@ -26,12 +26,12 @@ extension FoodForm.NutrientsPerForm {
 //            .interactiveDismissDisabled()
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerAmountForm) {
-            FoodForm.NutrientsPerForm.AmountForm()
+            AmountForm()
                 .environmentObject(viewModel)
         }
         .sheet(isPresented: $viewModel.showingNutrientsPerServingForm) {
             NavigationView {
-                FoodForm.NutrientsPerForm.ServingForm()
+                ServingForm()
                     .environmentObject(viewModel)
             }
         }

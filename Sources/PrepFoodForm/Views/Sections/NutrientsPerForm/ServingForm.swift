@@ -1,17 +1,15 @@
 import SwiftUI
 import SwiftHaptics
 
-extension FoodForm.NutrientsPerForm {
-    struct ServingForm: View {
-        @Environment(\.dismiss) var dismiss
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @State var showingUnitPicker = false
-        @State var showingSizeForm = false
-        @FocusState var isFocused
-    }
+struct ServingForm: View {
+    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @State var showingUnitPicker = false
+    @State var showingSizeForm = false
+    @FocusState var isFocused
 }
 
-extension FoodForm.NutrientsPerForm.ServingForm {
+extension ServingForm {
     
     var body: some View {
         form
