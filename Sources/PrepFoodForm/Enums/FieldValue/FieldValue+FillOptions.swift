@@ -43,15 +43,18 @@ extension FieldValue {
         for candidate in primaryText.candidates {
             for value in candidate.values {
                 
+                var compatibleValue = value
+                
                 /// If it has a unit—make sure it is a `FormUnit` (only weight and measurements will be allowed)
-                if let unit = value.unit {
-                    guard unit.formUnit != nil else {
-                        continue
+                if let unit = compatibleValue.unit {
+                    if unit.formUnit == nil {
+                        /// and if not, set it to nil so we can at least use the number
+                        compatibleValue.unit = nil
                     }
                 }
                 /// Don't add duplicates
-                guard !values.contains(value) else { continue }
-                values.append(value)
+                guard !values.contains(compatibleValue) else { continue }
+                values.append(compatibleValue)
             }
         }
         return values
