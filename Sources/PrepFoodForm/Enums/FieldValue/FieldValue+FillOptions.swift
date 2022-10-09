@@ -176,11 +176,27 @@ extension FieldValue {
                 FillOption(
                     string: imageText.text.string,
                     systemImage: Fill.SystemImage.selection,
-                    isSelected: true,
+                    isSelected: info.imageTexts.contains(imageText.withoutPickedCandidate),
                     disableWhenSelected: false,
                     type: .fill(.selection(.init(imageTexts: [imageText])))
                 )
             )
+            
+            for candidate in imageText.text.candidates {
+                guard fillOptions.contains(where: { $0.string != candidate }) else {
+                    continue
+                }
+                let candidateImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: candidate)
+                fillOptions.append(
+                    FillOption(
+                        string: candidate,
+                        systemImage: Fill.SystemImage.selection,
+                        isSelected: info.imageTexts.contains(candidateImageText),
+                        disableWhenSelected: false,
+                        type: .fill(.selection(.init(imageTexts: [candidateImageText])))
+                    )
+                )
+            }
         }
         return fillOptions
     }

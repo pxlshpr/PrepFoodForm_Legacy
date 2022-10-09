@@ -8,17 +8,26 @@ struct ImageText: Hashable {
     let text: RecognizedText
     let attributeText: RecognizedText?
     let imageId: UUID
+    var pickedCandidate: String?
     
-    init(text: RecognizedText, attributeText: RecognizedText? = nil, imageId: UUID) {
+    init(text: RecognizedText, attributeText: RecognizedText? = nil, imageId: UUID, pickedCandidate: String? = nil) {
         self.text = text
         self.imageId = imageId
         self.attributeText = attributeText
+        self.pickedCandidate = pickedCandidate
     }
     
-    init(valueText: ValueText, imageId: UUID) {
+    init(valueText: ValueText, imageId: UUID, pickedCandidate: String? = nil) {
         self.text = valueText.text
         self.attributeText = valueText.attributeText
         self.imageId = imageId
+        self.pickedCandidate = pickedCandidate
+    }
+    
+    var withoutPickedCandidate: ImageText {
+        var newImageText = self
+        newImageText.pickedCandidate = nil
+        return newImageText
     }
 }
 
@@ -54,6 +63,13 @@ struct SelectionFillInfo: Hashable {
         var newInfo = self
         newInfo.altValue = value
         return newInfo
+    }
+    
+    var concatenated: String {
+        imageTexts
+            .map { $0.pickedCandidate ?? $0.text.string }
+            .map { $0.capitalized }
+            .joined(separator: " ")
     }
 }
 

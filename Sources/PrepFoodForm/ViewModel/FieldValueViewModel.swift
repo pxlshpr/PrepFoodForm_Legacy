@@ -126,3 +126,29 @@ extension FieldViewModel {
         }
     }
 }
+
+extension FieldViewModel {
+    func contains(_ imageText: ImageText) -> Bool {
+        guard case .selection(let info) = fieldValue.fill else {
+            return false
+        }
+        return info.imageTexts.contains(imageText)
+    }
+    
+    func replaceExistingImageText(with imageText: ImageText) {
+        guard case .selection(let info) = fieldValue.fill else {
+            return
+        }
+        var newInfo = info
+        for i in newInfo.imageTexts.indices {
+            if newInfo.imageTexts[i].text == imageText.text {
+                newInfo.imageTexts[i].pickedCandidate = imageText.pickedCandidate
+            }
+        }
+        fieldValue.fill = .selection(newInfo)
+    }
+    
+    func imageTextMatchingText(of imageText: ImageText) -> ImageText? {
+        nil
+    }
+}

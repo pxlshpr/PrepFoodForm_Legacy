@@ -56,9 +56,3 @@ extension Fill {
         self = .selection(.init(imageTexts: imageTexts))
     }
 }
-
-extension Array where Element == RecognizedText {
-    var concatenatedString: String {
-        map{ $0.string.capitalized }.joined(separator: " ")
-    }
-}

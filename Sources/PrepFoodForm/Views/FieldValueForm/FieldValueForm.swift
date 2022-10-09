@@ -454,7 +454,15 @@ extension FieldValueForm {
                 setNewValue(value)
             }
         } else {
-            fieldViewModel.fieldValue.fill.removeImageText(imageText)
+            withAnimation {
+                if fieldViewModel.contains(imageText) {
+                    fieldViewModel.fieldValue.fill.removeImageText(imageText)
+                } else {
+                    fieldViewModel.replaceExistingImageText(with: imageText)
+                }
+            }
+            //TODO: If this is selected, deslect it
+            //TODO: Otherwise—replace the one that shares this
             doNotRegisterUserInput = false
         }
     }
