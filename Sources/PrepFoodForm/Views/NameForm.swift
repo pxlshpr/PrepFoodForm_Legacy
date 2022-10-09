@@ -31,7 +31,7 @@ struct NameForm: View {
     }
 }
 
-extension FillType {
+extension Fill {
     mutating func appendSelectedText(_ text: RecognizedText) {
         let newSupplementaryTexts: [RecognizedText]
         if case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, let value) = self {

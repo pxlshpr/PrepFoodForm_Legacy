@@ -247,7 +247,7 @@ extension ScanResult {
         else {
             return nil
         }
-        let fillType: FillType
+        let fillType: Fill
         if valueText.text.id == defaultUUID {
             fillType = .calculated
         } else {
@@ -270,7 +270,7 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: FillType
+        let fillType: Fill
         if valueText.text.id == defaultUUID {
             fillType = .calculated
         } else {
@@ -293,7 +293,7 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: FillType
+        let fillType: Fill
         if valueText.text.id == defaultUUID {
             fillType = .calculated
         } else {

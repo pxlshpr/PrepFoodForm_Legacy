@@ -20,7 +20,7 @@ enum FieldValue: Hashable {
 extension FieldValue {
     struct SizeValue: Hashable {
         var size: Size
-        var fillType: FillType
+        var fillType: Fill
     }
 }
 extension FieldValue {
@@ -29,9 +29,9 @@ extension FieldValue {
         var internalDouble: Double?
         var internalString: String
         var unit: NutrientUnit
-        var fillType: FillType
+        var fillType: Fill
 
-        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: FillType = .userInput) {
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: Fill = .userInput) {
             self.nutrientType = nutrientType
             self.internalDouble = double
             self.internalString = string
@@ -110,9 +110,9 @@ extension FieldValue {
         var macro: Macro
         var internalDouble: Double?
         var internalString: String
-        var fillType: FillType
+        var fillType: Fill
 
-        init(macro: Macro, double: Double? = nil, string: String = "", fillType: FillType = .userInput) {
+        init(macro: Macro, double: Double? = nil, string: String = "", fillType: Fill = .userInput) {
             self.macro = macro
             self.internalDouble = double
             self.internalString = string
@@ -170,9 +170,9 @@ extension FieldValue {
         var internalDouble: Double?
         var internalString: String
         var unit: EnergyUnit
-        var fillType: FillType
+        var fillType: Fill
 
-        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: FillType = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: Fill = .userInput) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
@@ -228,9 +228,9 @@ extension FieldValue {
         var internalDouble: Double? = nil
         var internalString: String = ""
         var unit: FormUnit
-        var fillType: FillType
+        var fillType: Fill
 
-        init(double: Double? = nil, string: String = "", unit: FormUnit, fillType: FillType = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: FormUnit, fillType: Fill = .userInput) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
@@ -280,9 +280,9 @@ extension FieldValue {
     struct StringValue: Hashable {
         private var internalString: String
 //        var string: String = ""
-        var fillType: FillType
+        var fillType: Fill
         
-        init(string: String = "", fillType: FillType = .userInput) {
+        init(string: String = "", fillType: Fill = .userInput) {
             self.internalString = string
             self.fillType = fillType
         }
@@ -316,7 +316,7 @@ extension FieldValue {
         static let DefaultVolume = DoubleValue(unit: .volume(.cup))
         var weight = DefaultWeight
         var volume = DefaultVolume
-        var fillType: FillType = .userInput
+        var fillType: Fill = .userInput
     }
 }
 
@@ -324,7 +324,7 @@ extension FieldValue {
 //MARK: - Helpers
 
 extension FieldValue {
-    init(micronutrient: NutrientType, fillType: FillType = .userInput) {
+    init(micronutrient: NutrientType, fillType: Fill = .userInput) {
         let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
         self = .micro(microValue)
     }
@@ -694,7 +694,7 @@ extension FieldValue {
         }
     }
 
-    var fillType: FillType {
+    var fillType: Fill {
         get {
             switch self {
             case .energy(let energyValue):

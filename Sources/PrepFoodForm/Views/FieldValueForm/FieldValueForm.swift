@@ -428,7 +428,7 @@ extension FieldValueForm {
         showingTextPicker = true
     }
     
-    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
+    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
         if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
             return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
         } else {

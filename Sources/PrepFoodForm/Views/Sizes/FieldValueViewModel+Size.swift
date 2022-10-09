@@ -5,7 +5,7 @@ extension FieldViewModel {
         fieldValue.size
     }
 
-    var fillType: FillType {
+    var fillType: Fill {
         fieldValue.fillType
     }
 

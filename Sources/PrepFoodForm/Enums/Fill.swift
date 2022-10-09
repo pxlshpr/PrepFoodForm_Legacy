@@ -10,7 +10,7 @@ enum PrefillField {
     case brand
 }
 
-enum FillType: Hashable {
+enum Fill: Hashable {
     case userInput
     
     /// `supplementaryTexts` are used for string based fields such as `name` and `detail` where multile texts may be selected and joined together to form the filled value
@@ -222,7 +222,7 @@ enum FillType: Hashable {
 
 }
 
-extension FillType {
+extension Fill {
     var detectedValues: [FoodLabelValue] {
         text?.string.values ?? []
     }
@@ -271,7 +271,7 @@ extension FillType {
     }
 }
 
-extension FillType {
+extension Fill {
     var energyValue: FoodLabelValue? {
         switch self {
         case .imageSelection(let recognizedText, _, _, let altValue):
@@ -284,7 +284,7 @@ extension FillType {
     }
 }
 
-extension FillType {
+extension Fill {
     func uses(text: RecognizedText) -> Bool {
         switch self {
         case .imageSelection(let recognizedText, _, _, _):

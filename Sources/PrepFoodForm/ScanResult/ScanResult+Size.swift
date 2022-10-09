@@ -151,7 +151,7 @@ extension ScanResult {
     }
     
     //MARK: - Helpers
-    func autoFillType(for valueText: ValueText, value: FoodLabelValue) -> FillType {
+    func autoFillType(for valueText: ValueText, value: FoodLabelValue) -> Fill {
         .imageAutofill(
             valueText: valueText,
             scanResultId: id,

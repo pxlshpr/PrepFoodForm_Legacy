@@ -57,7 +57,7 @@ extension FoodFormViewModel {
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
             let option = FillOption(
                 string: prefillFieldValue.prefillString,
-                systemImage: FillType.SystemImage.prefill,
+                systemImage: Fill.SystemImage.prefill,
                 isSelected: fieldValue.fillType.isThirdPartyFoodPrefill,
                 type: .fillType(.prefill())
             )
@@ -80,7 +80,7 @@ extension FoodFormViewModel {
         }
         return FillOption(
             string: "Choose",
-            systemImage: FillType.SystemImage.imageSelection,
+            systemImage: Fill.SystemImage.imageSelection,
             isSelected: false, /// never selected as we only use this to pop up the `TextPicker`
             type: .chooseText
         )
