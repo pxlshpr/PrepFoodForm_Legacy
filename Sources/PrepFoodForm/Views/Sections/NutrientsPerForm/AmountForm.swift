@@ -26,6 +26,8 @@ struct AmountForm: View {
             unitView: unitButton,
             headerString: headerString,
             footerString: footerString,
+            didSave: didSave,
+            toggledFieldValue: toggledFieldValue,
             setNewValue: setNewValue
         )
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
@@ -50,7 +52,7 @@ struct AmountForm: View {
         ) {
             showingAddSizeForm = true
         } didPickUnit: { unit in
-            fieldViewModel.fieldValue.doubleValue.unit = unit
+            setUnit(unit)
         }
         .environmentObject(viewModel)
         .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
@@ -68,9 +70,34 @@ struct AmountForm: View {
         .environmentObject(viewModel)
     }
 
+    func toggledFieldValue(_ fieldValue: FieldValue) {
+        switch fieldValue {
+        case .amount(let doubleValue):
+            guard let double = doubleValue.double else {
+                return
+            }
+            setAmount(double)
+            setUnit(doubleValue.unit)
+        default:
+            return
+        }
+    }
+
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.doubleValue.double = value.amount
-        fieldViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
+        setAmount(value.amount)
+        setUnit(value.unit?.formUnit ?? .serving)
+    }
+    
+    func setAmount(_ amount: Double) {
+        fieldViewModel.fieldValue.doubleValue.double = amount
+    }
+    
+    func didSave() {
+        viewModel.amountChanged()
+    }
+    
+    func setUnit(_ unit: FormUnit) {
+        fieldViewModel.fieldValue.doubleValue.unit = unit
     }
     
     var headerString: String {

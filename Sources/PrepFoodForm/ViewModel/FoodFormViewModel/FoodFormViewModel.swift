@@ -54,27 +54,9 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingCameraImagePicker: Bool = false
     
     //MARK: Amount Per
-    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput))) {
-        didSet {
-            updateShouldShowDensitiesSection()
-            if amountViewModel.fieldValue.doubleValue.unit != .serving {
-                servingViewModel.fieldValue.doubleValue.double = nil
-                servingViewModel.fieldValue.doubleValue.string = ""
-                servingViewModel.fieldValue.doubleValue.unit = .weight(.g)
-            }
-        }
-    }
+    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput)))
     
-    @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving()) {
-        didSet {
-            /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
-            modifyServingUnitIfServingBased()
-            updateShouldShowDensitiesSection()
-//            if !servingString.isEmpty && amountString.isEmpty {
-//                amountString = "1"
-//            }
-        }
-    }
+    @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
     
     //MARK: Sizes
     @Published var standardSizeViewModels: [FieldViewModel] = []
@@ -150,6 +132,23 @@ public class FoodFormViewModel: ObservableObject {
 
 extension FoodFormViewModel {
     
+    func amountChanged() {
+        updateShouldShowDensitiesSection()
+        if amountViewModel.fieldValue.doubleValue.unit != .serving {
+            servingViewModel.fieldValue.doubleValue.double = nil
+            servingViewModel.fieldValue.doubleValue.string = ""
+            servingViewModel.fieldValue.doubleValue.unit = .weight(.g)
+        }
+    }
+    
+    func servingChanged() {
+        /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
+        modifyServingUnitIfServingBased()
+        updateShouldShowDensitiesSection()
+//        if !servingString.isEmpty && amountString.isEmpty {
+//            amountString = "1"
+//        }
+    }
     var allMicronutrientFieldValues: [FieldValue] {
         allMicronutrientFieldViewModels.map { $0.fieldValue }
     }

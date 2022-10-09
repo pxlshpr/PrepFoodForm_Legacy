@@ -13,6 +13,9 @@ struct FillOptionsSections: View {
     @State var showingAutofillInfo = false
     @ObservedObject var fieldViewModel: FieldViewModel
     @Binding var shouldAnimate: Bool
+    
+    @State var showingPrefillSource = false
+    
     var didTapImage: () -> ()
     var didTapFillOption: (FillOption) -> ()
 
@@ -27,28 +30,60 @@ struct FillOptionsSections: View {
                         didTapFillOption(fillOption)
                     }
                 }
-                if let image = fieldViewModel.imageToDisplay {
-                    FormStyledSection {
-                        ZStack {
-                            if fieldViewModel.isCroppingNextImage {
-                                ZStack {
-                                    ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
-                                        .frame(width: 50, height: 50)
-                                        .foregroundColor(Color(.tertiaryLabel))
-                                }
-                                .frame(maxWidth: .infinity)
-                            } else {
-                                croppedImageButton(for: image)
-                            }
-                        }
-                    }
-                }
+                supplementarySection
             }
         }
         .sheet(isPresented: $showingAutofillInfo) {
             AutofillInfoSheet()
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
+        }
+    }
+    
+    @ViewBuilder
+    var supplementarySection: some View {
+        if fieldViewModel.imageToDisplay != nil || fieldViewModel.prefillUrl != nil {
+            FormStyledSection {
+                if let image = fieldViewModel.imageToDisplay {
+                    imageSection(for: image)
+                }
+                if let prefillUrl = fieldViewModel.prefillUrl {
+                    prefillSection(for: prefillUrl)
+                }
+            }
+        }
+    }
+    
+    func prefillSection(for prefillUrl: String) -> some View {
+//        Button {
+//            showingPrefillSource = true
+        NavigationLink {
+            SourceWebView(urlString: prefillUrl)
+        } label: {
+            HStack {
+                Label("MyFitnessPal", systemImage: "link")
+                    .foregroundColor(.accentColor)
+                Spacer()
+            }
+        }
+        .sheet(isPresented: $showingPrefillSource) {
+            SourceWebView(urlString: prefillUrl)
+        }
+    }
+
+    @ViewBuilder
+    func imageSection(for image: UIImage) -> some View {
+        ZStack {
+            if fieldViewModel.isCroppingNextImage {
+                ZStack {
+                    ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                        .frame(width: 50, height: 50)
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+                .frame(maxWidth: .infinity)
+            } else {
+                croppedImageButton(for: image)
+            }
         }
     }
     

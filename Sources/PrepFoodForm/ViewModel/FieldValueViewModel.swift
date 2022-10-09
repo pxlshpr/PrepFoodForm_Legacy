@@ -22,8 +22,14 @@ class FieldViewModel: ObservableObject, Identifiable {
     @Published var imageToDisplay: UIImage? = nil
     @Published var isCroppingNextImage: Bool = false
 
+    @Published var prefillUrl: String? = nil
+
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
+        
+        if fieldValue.fillType.isThirdPartyFoodPrefill {
+            self.prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
+        }
     }
     
     var copy: FieldViewModel {
@@ -35,7 +41,15 @@ class FieldViewModel: ObservableObject, Identifiable {
     func copyData(from fieldViewModel: FieldViewModel) {
         fieldValue = fieldViewModel.fieldValue
         
-        /// If the the image is still being cropped—do the crop ourselves instead of setting it here incorrectly
+        if fieldValue.fillType.usesImage {
+            continueCroppingImageIfNeeded(for: fieldViewModel)
+        } else if fieldValue.fillType.isThirdPartyFoodPrefill {
+            prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
+        }
+    }
+    
+    func continueCroppingImageIfNeeded(for fieldViewModel: FieldViewModel) {
+        /// If the the image is still being cropped (during a copy)—do the crop ourselves instead of setting it here incorrectly
         if fieldViewModel.isCroppingNextImage {
             isCroppingNextImage = true
             cropFilledImage()

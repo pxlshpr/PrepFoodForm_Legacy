@@ -63,8 +63,11 @@ extension UnitPicker {
     
     //MARK: - Components
     
+    /**
+     We're currently only showing the AddSize button if the the flag is true in addition to the sizes list being empty
+     */
     var shouldShowAddSizeButton: Bool {
-        allowAddSize && viewModel.standardSizeViewModels.isEmpty && viewModel.volumePrefixedSizeViewModels.isEmpty
+        allowAddSize && viewModel.allSizeViewModels.isEmpty
     }
     
     var longList: some View {

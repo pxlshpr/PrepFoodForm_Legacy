@@ -27,6 +27,8 @@ struct ServingForm: View {
             headerString: headerString,
             footerString: footerString,
             placeholderString: "Optional",
+            didSave: didSave,
+            toggledFieldValue: toggledFieldValue,
             setNewValue: setNewValue
         )
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
@@ -47,39 +49,17 @@ struct ServingForm: View {
 
     var unitPicker: some View {
         UnitPicker(
-            pickedUnit: fieldViewModel.fieldValue.doubleValue.unit
+            pickedUnit: fieldViewModel.fieldValue.doubleValue.unit,
+            includeServing: false
         ) {
             showingAddSizeForm = true
         } didPickUnit: { unit in
-            if unit.isServingBased {
-                modifyServingAmount(for: unit)
-            }
-            fieldViewModel.fieldValue.doubleValue.unit = unit
+            setUnit(unit)
         }
         .environmentObject(viewModel)
         .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
     }
     
-    func modifyServingAmount(for unit: FormUnit) {
-        guard fieldViewModel.fieldValue.doubleValue.unit.isServingBased,
-              case .size(let size, _) = fieldViewModel.fieldValue.doubleValue.unit
-        else {
-            return
-        }
-        let newAmount: Double
-        if let quantity = size.quantity,
-           let servingAmount = fieldViewModel.fieldValue.doubleValue.double, servingAmount > 0
-        {
-            newAmount = quantity / servingAmount
-        } else {
-            newAmount = 0
-        }
-        
-        //TODO-SIZE: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
-//        size.amountDouble = newAmount
-//        updateSummary()
-    }
-
     var addSizeForm: some View {
         SizeForm(includeServing: true, allowAddSize: false) { sizeViewModel in
             guard let size = sizeViewModel.size else { return }
@@ -92,11 +72,59 @@ struct ServingForm: View {
         .environmentObject(viewModel)
     }
 
+    func didSave() {
+        viewModel.servingChanged()
+    }
+
+    func toggledFieldValue(_ fieldValue: FieldValue) {
+        switch fieldValue {
+        case .serving(let doubleValue):
+            guard let double = doubleValue.double else {
+                return
+            }
+            setAmount(double)
+            setUnit(doubleValue.unit)
+        default:
+            return
+        }
+    }
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.doubleValue.double = value.amount
-        fieldViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .weight(.g)
+        setAmount(value.amount)
+        setUnit(value.unit?.formUnit ?? .weight(.g))
     }
     
+    func setAmount(_ amount: Double) {
+        fieldViewModel.fieldValue.doubleValue.double = amount
+    }
+    
+    func setUnit(_ unit: FormUnit) {
+        if unit.isServingBased {
+            modifyServingAmount(for: unit)
+        }
+        fieldViewModel.fieldValue.doubleValue.unit = unit
+    }
+    
+    //TODO: Revisit this
+    func modifyServingAmount(for unit: FormUnit) {
+//        guard fieldViewModel.fieldValue.doubleValue.unit.isServingBased,
+//              case .size(let size, _) = fieldViewModel.fieldValue.doubleValue.unit
+//        else {
+//            return
+//        }
+//        let newAmount: Double
+//        if let quantity = size.quantity,
+//           let servingAmount = fieldViewModel.fieldValue.doubleValue.double, servingAmount > 0
+//        {
+//            newAmount = quantity / servingAmount
+//        } else {
+//            newAmount = 0
+//        }
+        
+        //TODO-SIZE: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
+//        size.amountDouble = newAmount
+//        updateSummary()
+    }
+
     var headerString: String {
         switch fieldViewModel.fieldValue.doubleValue.unit {
         case .weight:

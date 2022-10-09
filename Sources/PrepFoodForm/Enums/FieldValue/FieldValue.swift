@@ -278,8 +278,30 @@ extension FieldValue {
 //MARK: StringValue
 extension FieldValue {
     struct StringValue: Hashable {
-        var string: String = ""
-        var fillType: FillType = .userInput
+        private var internalString: String
+//        var string: String = ""
+        var fillType: FillType
+        
+        init(string: String = "", fillType: FillType = .userInput) {
+            self.internalString = string
+            self.fillType = fillType
+        }
+        
+        var string: String {
+            get {
+                switch fillType {
+                case .imageSelection(_, _, let supplementaryTexts, _):
+                    return supplementaryTexts.concatenatedString
+                case .prefill:
+                    return "prefill values go here"
+                default:
+                    return internalString
+                }
+            }
+            set {
+                self = .init(string: newValue, fillType: fillType)
+            }
+        }
         
         var isEmpty: Bool {
             string.isEmpty
@@ -484,11 +506,43 @@ extension FieldValue {
         }
     }
     
+    var prefillString: String {
+        switch self {
+//        case .name(let stringValue):
+//            <#code#>
+//        case .emoji(let stringValue):
+//            <#code#>
+//        case .brand(let stringValue):
+//            <#code#>
+//        case .barcode(let stringValue):
+//            <#code#>
+//        case .detail(let stringValue):
+//            <#code#>
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.description
+//        case .serving(let doubleValue):
+//            <#code#>
+//        case .density(let densityValue):
+//            <#code#>
+//        case .energy(let energyValue):
+//            <#code#>
+//        case .macro(let macroValue):
+//            <#code#>
+//        case .micro(let microValue):
+//            <#code#>
+//        case .size(let sizeValue):
+//            <#code#>
+        default:
+            return ""
+        }
+    }
     var string: String {
         get {
             switch self {
             case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+                
                 return stringValue.string
+                
             case .amount(let doubleValue), .serving(let doubleValue):
                 return doubleValue.string
             case .density(_):
@@ -529,8 +583,12 @@ extension FieldValue {
                 var newDoubleValue = doubleValue
                 newDoubleValue.string = newValue
                 self = .serving(newDoubleValue)
-//            case .name(let stringValue):
-//                <#code#>
+                
+            case .name(let stringValue):
+                var newStringValue = stringValue
+                newStringValue.string = newValue
+                self = .name(newStringValue)
+                
 //            case .emoji(let stringValue):
 //                <#code#>
 //            case .brand(let stringValue):

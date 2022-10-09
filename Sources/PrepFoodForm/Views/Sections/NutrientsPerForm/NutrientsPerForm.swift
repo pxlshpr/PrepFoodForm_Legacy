@@ -116,7 +116,8 @@ extension FoodForm.NutrientsPerForm {
                         Text(viewModel.lhsDensityUnitString)
                             .foregroundColor(Color(.secondaryLabel))
                     }
-                    Text("=")
+                    Image(systemName: "arrow.triangle.swap")
+//                    Text("=")
                         .foregroundColor(Color(.tertiaryLabel))
                     HStack(spacing: 2) {
                         Text(viewModel.rhsDensityAmountString)

@@ -26,7 +26,7 @@ enum FillType: Hashable {
     struct SystemImage {
         static let imageSelection = "hand.tap"
         static let prefill = "link"
-        static let calculated = "equal.square"
+        static let calculated = "function"
         static let imageAutofill = "text.viewfinder"
         static let barcodeScan = "barcode.viewfinder"
         static let userInput = "keyboard"

@@ -128,7 +128,7 @@ extension FoodFormViewModel {
             shouldShowDensitiesSection =
             (amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (amountViewModel.fieldValue.doubleValue.double ?? 0) > 0)
             ||
-            (amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (servingViewModel.fieldValue.doubleValue.double ?? 0) > 0)
+            (servingViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (servingViewModel.fieldValue.doubleValue.double ?? 0) > 0)
         }
     }
 
@@ -406,22 +406,22 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let image = sampleImage(13),
-//              let mfpProcessedFood = sampleMFPProcessedFood(11),
-              let scanResult = sampleScanResult(13)
+        guard let image = sampleImage(10),
+              let mfpProcessedFood = sampleMFPProcessedFood(10),
+              let scanResult = sampleScanResult(10)
         else {
             fatalError("Couldn't load mock files")
         }
         
         viewModel.shouldShowWizard = false
         
-//        viewModel.prefilledFood = mfpProcessedFood
+//        viewModel.prefill(mfpProcessedFood)
         
         viewModel.sourceType = .images
         viewModel.imageViewModels.append(
             ImageViewModel(image: image,
                            scanResult: scanResult
-                           
+
                           )
         )
         viewModel.processScanResults()

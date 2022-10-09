@@ -52,12 +52,11 @@ extension FoodFormViewModel {
     
     func prefillOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []
-        //TODO: Check this again
         /// Prefill Options
         //TODO: Check that array returns name, detail and brand for string fields
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
             let option = FillOption(
-                string: prefillFieldValue.stringValue.string,
+                string: prefillFieldValue.prefillString,
                 systemImage: FillType.SystemImage.prefill,
                 isSelected: fieldValue.fillType.isThirdPartyFoodPrefill,
                 type: .fillType(.prefill())

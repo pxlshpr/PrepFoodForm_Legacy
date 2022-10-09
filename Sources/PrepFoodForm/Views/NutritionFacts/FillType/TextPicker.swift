@@ -21,6 +21,8 @@ struct TextPicker: View {
 
     @State var currentIndex: Int = 0
 
+    @State var hasAppeared: Bool = false
+    
     let onlyShowTextsWithValues: Bool
     let selectedImageIndex: Int?
     let selectedText: RecognizedText?
@@ -71,14 +73,13 @@ struct TextPicker: View {
         }
         .onAppear(perform: appeared)
     }
-}
-
-extension TextPicker {
     
-    //MARK: - Components
-    
+    @ViewBuilder
     var content: some View {
-        pager
+        if hasAppeared {
+            pager
+                .transition(.opacity)
+        }
     }
     
     var bottomToolbar: some ToolbarContent {
@@ -302,11 +303,16 @@ extension TextPicker {
     }
     
     func appeared() {
-        if let selectedImageIndex {
-            pageToImage(at: selectedImageIndex)
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            withAnimation {
+                hasAppeared = true
+            }
+            if let selectedImageIndex {
+                pageToImage(at: selectedImageIndex)
+            }
 
-        sendFocusMessage(to: selectedImageIndex ?? 0, animated: true)
+            sendFocusMessage(to: selectedImageIndex ?? 0, animated: true)
+        }
     }
     
     func sendFocusMessage(to index: Int, animated: Bool) {

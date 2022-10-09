@@ -304,11 +304,12 @@ public struct FoodForm: View {
     var detailsSection: some View {
         Section("Details") {
             NavigationLink {
-                DetailsForm()
+                DetailsForm(nameViewModel: viewModel.nameViewModel)
                     .environmentObject(viewModel)
             } label: {
-                DetailsCell()
+                DetailsCell(nameViewModel: viewModel.nameViewModel)
                     .environmentObject(viewModel)
+                    .buttonStyle(.borderless)
             }
         }
     }
@@ -332,7 +333,7 @@ public struct FoodForm: View {
             .sheet(isPresented: $showingAmountPer) {
                 NutrientsPerForm()
                     .environmentObject(viewModel)
-                    .presentationDetents([.height(500)])
+                    .presentationDetents([.height(500), .large])
             }
         }
     }

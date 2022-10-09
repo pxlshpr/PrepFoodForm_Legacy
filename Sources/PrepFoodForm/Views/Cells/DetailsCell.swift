@@ -5,6 +5,7 @@ import AVFoundation
 extension FoodForm {
     struct DetailsCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
+        @ObservedObject var nameViewModel: FieldViewModel
     }
 }
 
@@ -39,8 +40,8 @@ extension FoodForm.DetailsCell {
         
         @ViewBuilder
         var name: some View {
-            if !viewModel.nameViewModel.fieldValue.isEmpty {
-                Text(viewModel.nameViewModel.fieldValue.stringValue.string)
+            if !nameViewModel.fieldValue.isEmpty {
+                Text(nameViewModel.fieldValue.stringValue.string)
                     .bold()
             } else {
                 Text("Required")
@@ -123,7 +124,7 @@ struct DetailsCellPreview: View {
                 Section("Details") {
                     NavigationLink {
                     } label: {
-                        FoodForm.DetailsCell()
+                        FoodForm.DetailsCell(nameViewModel: viewModel.nameViewModel)
                             .environmentObject(viewModel)
                     }
                     .buttonStyle(.borderless)

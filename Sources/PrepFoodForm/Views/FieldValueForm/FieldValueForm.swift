@@ -36,7 +36,10 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
 //    @Environment(\.presentationMode) var presentation
     
     let setNewValue: ((FoodLabelValue) -> ())?
-    
+    let toggledFieldValue: ((FieldValue) -> ())?
+    let tappedText: ((RecognizedText, UUID) -> ())?
+    let didSave: (() -> ())?
+
     init(fieldViewModel: FieldViewModel,
          existingFieldViewModel: FieldViewModel,
          unitView: UnitView,
@@ -46,6 +49,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
+         didSave: (() -> ())? = nil,
+         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedText: ((RecognizedText, UUID) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -59,6 +65,9 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
+        self.didSave = didSave
+        self.toggledFieldValue = toggledFieldValue
+        self.tappedText = tappedText
         self.setNewValue = setNewValue
     }
 
@@ -73,6 +82,9 @@ extension FieldValueForm where UnitView == EmptyView {
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
+         didSave: (() -> ())? = nil,
+         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedText: ((RecognizedText, UUID) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -86,6 +98,9 @@ extension FieldValueForm where UnitView == EmptyView {
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
+        self.didSave = didSave
+        self.toggledFieldValue = toggledFieldValue
+        self.tappedText = tappedText
         self.setNewValue = setNewValue
     }
 }
@@ -97,6 +112,9 @@ extension FieldValueForm where SupplementaryView == EmptyView {
          headerString: String? = nil,
          footerString: String? = nil,
          placeholderString: String = "Required",
+         didSave: (() -> ())? = nil,
+         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedText: ((RecognizedText, UUID) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -110,6 +128,9 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
+        self.didSave = didSave
+        self.toggledFieldValue = toggledFieldValue
+        self.tappedText = tappedText
         self.setNewValue = setNewValue
     }
 }
@@ -120,6 +141,9 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          headerString: String? = nil,
          footerString: String? = nil,
          placeholderString: String = "Required",
+         didSave: (() -> ())? = nil,
+         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedText: ((RecognizedText, UUID) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -133,6 +157,9 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
+        self.didSave = didSave
+        self.toggledFieldValue = toggledFieldValue
+        self.tappedText = tappedText
         self.setNewValue = setNewValue
     }
 }
@@ -143,10 +170,11 @@ extension FieldValueForm {
         NavigationView {
             content
                 .navigationTitle(fieldValue.description)
-                .toolbar { keyboardToolbarContent }
-                .toolbar { bottomToolbarContent }
                 .toolbar { navigationLeadingContent }
                 .toolbar { navigationTrailingContent }
+                .sheet(isPresented: $showingTextPicker) {
+                    textPicker
+                }
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
@@ -157,15 +185,13 @@ extension FieldValueForm {
                 doNotRegisterUserInput = false
             }
         }
-        .sheet(isPresented: $showingTextPicker) {
-            textPicker
-        }
         .interactiveDismissDisabled(isDirty)
     }
     
     /// Returns true if any of the fields have changed from what they initially were
     var isDirty: Bool {
         fieldViewModel.fieldValue != existingFieldViewModel.fieldValue
+        || fieldViewModel.fillType != existingFieldViewModel.fillType
     }
     
     var content: some View {
@@ -263,23 +289,6 @@ extension FieldValueForm {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button {
-                
-            } label: {
-                Image(systemName: "info.circle")
-            }
-        }
-    }
-    var bottomToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
-            Spacer()
-            saveButton
-        }
-    }
-    
-    var keyboardToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
             saveButton
         }
     }
@@ -307,10 +316,14 @@ extension FieldValueForm {
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
-            .font(fieldViewModel.fieldValue.string.isEmpty ? .body : .largeTitle)
+            .font(textFieldFont)
             .frame(minHeight: 50)
             .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
+    }
+    
+    var textFieldFont: Font {
+        fieldViewModel.fieldValue.string.isEmpty ? .body : .largeTitle
     }
     
     /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
@@ -332,7 +345,7 @@ extension FieldValueForm {
             selectedText: fieldValue.fillType.text,
             selectedAttributeText: fieldValue.fillType.attributeText,
             selectedImageIndex: selectedImageIndex,
-            onlyShowTextsWithValues: true
+            onlyShowTextsWithValues: fieldValue.usesValueBasedTexts
         ) { text, scanResultId in
             didTapText(text, onImageWithId: scanResultId)
         }
@@ -352,6 +365,9 @@ extension FieldValueForm {
         doNotRegisterUserInput = true
         /// Copy the data across from the transient `FieldViewModel` we were using here to persist the data
         existingFieldViewModel.copyData(from: fieldViewModel)
+        if let didSave {
+            didSave()
+        }
         dismiss()
     }
     
@@ -361,7 +377,42 @@ extension FieldValueForm {
             didTapChooseButton()
         case .fillType(let fillType):
             Haptics.feedback(style: .rigid)
-            changeFillType(to: fillType)
+            guard case .fillType(let fillType) = fillOption.type else {
+                return
+            }
+
+            doNotRegisterUserInput = true
+            
+            //TODO: Support 'deselecting' fill options for multiples like name
+            switch fillType {
+            case .imageSelection(let text, _, _, let value):
+                changeFillTypeToSelection(of: text, withAltValue: value)
+            case .imageAutofill(let valueText, _, value: let value):
+                changeFillTypeToAutofill(of: valueText, withAltValue: value)
+            case .prefill:
+                /// Tapped a prefill or calculated value
+                guard let fieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
+                    return
+                }
+                if let toggledFieldValue {
+                    toggledFieldValue(fieldValue)
+                }
+            default:
+                break
+            }
+
+            let previousFillType = fieldValue.fillType
+            fieldViewModel.fieldValue.fillType = fillType
+            
+            //TODO: Write a more succinct helper for this
+            if fillType.text?.id != previousFillType.text?.id {
+                fieldViewModel.isCroppingNextImage = true
+                fieldViewModel.cropFilledImage()
+            }
+            
+            doNotRegisterUserInput = false
+            
+            //TODO: Don't save and dismiss if we expect multiples
             saveAndDismiss()
         }
     }
@@ -377,29 +428,6 @@ extension FieldValueForm {
         showingTextPicker = true
     }
     
-    func changeFillType(to fillType: FillType) {
-        
-        doNotRegisterUserInput = true
-        
-        switch fillType {
-        case .imageSelection(let text, _, _, let value):
-            changeFillTypeToSelection(of: text, withAltValue: value)
-        case .imageAutofill(let valueText, _, value: let value):
-            changeFillTypeToAutofill(of: valueText, withAltValue: value)
-        default:
-            break
-        }
-        
-        let previousFillType = fieldValue.fillType
-        fieldViewModel.fieldValue.fillType = fillType
-        if fillType.text?.id != previousFillType.text?.id {
-            fieldViewModel.isCroppingNextImage = true
-            fieldViewModel.cropFilledImage()
-        }
-        
-        doNotRegisterUserInput = false
-    }
-    
     func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
         if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
             return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
@@ -410,6 +438,15 @@ extension FieldValueForm {
     
     func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
         
+        /// If we have a custom handler—use that
+        if let tappedText {
+            tappedText(text, imageId)
+            return
+        }
+        
+        //TODO: Handle serving and amount
+        
+        /// This is the generic handler which works for single pick fields such as energy, macro, micro
         guard let value = text.firstFoodLabelValue else {
             print("Couldn't get a double from the tapped string")
             return

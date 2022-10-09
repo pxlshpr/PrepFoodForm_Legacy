@@ -14,6 +14,8 @@ extension FoodFormViewModel {
             case .fat: return prefilledFood?.fatFieldValue
             case .protein: return prefilledFood?.proteinFieldValue
             }
+        case .micro(let microValue):
+            return prefilledFood?.microFieldValue(for: microValue.nutrientType)
         default:
             return nil
         }
@@ -71,9 +73,10 @@ extension FoodFormViewModel {
         prefillSizes(from: food)
         
         prefillAmountPer(from: food)
-        prefillDensity(from: food)
         prefillNutrients(from: food)
-        
+
+        updateShouldShowDensitiesSection()
+
         prefilledFood = food
         
         withAnimation {
@@ -97,7 +100,42 @@ extension FoodFormViewModel {
     }
 
     func prefillSizes(from food: MFPProcessedFood) {
-        
+        for size in food.sizes {
+            guard !size.isDensity else {
+                prefillDensitySize(size)
+                continue
+            }
+            
+            prefillSize(size)
+        }
+    }
+    
+    func prefillSize(_ processedSize: MFPProcessedFood.Size) {
+        let fieldViewModel: FieldViewModel = .init(fieldValue: processedSize.fieldValue)
+        if processedSize.isVolumePrefixed {
+            volumePrefixedSizeViewModels.append(fieldViewModel)
+        } else {
+            standardSizeViewModels.append(fieldViewModel)
+        }
+    }
+
+    func prefillSize(_ size: Size) {
+        let fieldViewModel: FieldViewModel = .init(fieldValue: size.fieldValue)
+        if size.isVolumePrefixed {
+            volumePrefixedSizeViewModels.append(fieldViewModel)
+        } else {
+            standardSizeViewModels.append(fieldViewModel)
+        }
+    }
+
+    func prefillDensitySize(_ size: MFPProcessedFood.Size) {
+        guard let volumeUnit = size.prefixVolumeUnit else { return }
+        let densityFieldValue = FieldValue.density(FieldValue.DensityValue(
+            weight: .init(double: size.amount, string: size.amount.cleanAmount, unit: size.amountUnit.formUnit, fillType: .prefill()),
+            volume: .init(double: size.quantity, string: size.quantity.cleanAmount, unit: volumeUnit.formUnit, fillType: .prefill()),
+            fillType: .prefill())
+        )
+        densityViewModel = FieldViewModel(fieldValue: densityFieldValue)
     }
 
     func prefillAmountPer(from food: MFPProcessedFood) {
@@ -106,30 +144,29 @@ extension FoodFormViewModel {
     }
     
     func prefillAmount(from food: MFPProcessedFood) {
-        guard food.amount > 0 else {
+        guard let fieldValue = food.amountFieldValue else {
             return
         }
         
-        let size: Size?
-        if case .size(let mfpSize) = food.amountUnit {
-            size = nil
-        } else {
-            size = nil
-        }
+//        /// If the amount had a size as a unit—prefill that too
+//        if case .size(let size, _) = fieldValue.doubleValue.unit {
+//            prefillSize(size)
+//        }
         
-        let fieldValue = FieldValue.amount(FieldValue.DoubleValue(
-            double: food.amount,
-            string: food.amount.cleanAmount,
-            unit: food.amountUnit.formUnit(withSize: size),
-            fillType: .prefill())
-        )
         self.amountViewModel = .init(fieldValue: fieldValue)
     }
     
-    func prefillDensity(from food: MFPProcessedFood) {
-    }
-    
     func prefillServing(from food: MFPProcessedFood) {
+        guard let fieldValue = food.servingFieldValue else {
+            return
+        }
+        
+//        /// If the serving had a size as a unit—prefill that too
+//        if case .size(let size, _) = fieldValue.doubleValue.unit {
+//            prefillSize(size)
+//        }
+        
+        self.servingViewModel = .init(fieldValue: fieldValue)
     }
     
     func prefillNutrients(from food: MFPProcessedFood) {
@@ -137,27 +174,28 @@ extension FoodFormViewModel {
         self.carbViewModel = .init(fieldValue: food.carbFieldValue)
         self.fatViewModel = .init(fieldValue: food.fatFieldValue)
         self.proteinViewModel = .init(fieldValue: food.proteinFieldValue)
+        
+        setMicronutrients(with: food.microFieldValues)
+    }
+    
+    func setMicronutrients(with fieldValues: [FieldValue]) {
+        for groupIndex in micronutrients.indices {
+            for index in micronutrients[groupIndex].fieldViewModels.indices {
+                guard let nutrientType = micronutrients[groupIndex].fieldViewModels[index].nutrientType,
+                      let fieldValue = fieldValues.first(where: { $0.microValue.nutrientType == nutrientType })
+                else {
+                    continue
+                }
+                let fieldViewModel = FieldViewModel(fieldValue: fieldValue)
+                micronutrients[groupIndex].fieldViewModels[index].copyData(from: fieldViewModel)
+            }
+        }
     }
 }
 
-extension MFPProcessedFood {
-    var energyFieldValue: FieldValue {
-        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fillType: .prefill()))
-    }
-    
-    func macroFieldValue(macro: Macro, double: Double) -> FieldValue {
-        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fillType: .prefill()))
-    }
-    
-    var carbFieldValue: FieldValue {
-        macroFieldValue(macro: .carb, double: carbohydrate)
-    }
-    var fatFieldValue: FieldValue {
-        macroFieldValue(macro: .fat, double: fat)
-    }
-
-    var proteinFieldValue: FieldValue {
-        macroFieldValue(macro: .protein, double: protein)
+extension FieldViewModel {
+    var nutrientType: NutrientType? {
+        fieldValue.microValue.nutrientType
     }
 }
 
@@ -174,6 +212,23 @@ extension AmountUnit {
             /// We should have had a size (pre-created from the actual `MFPProcessedFood.Size`) and passed into this function—otherwise fallback to a serving unit
             guard let size else {
                 return .serving
+            }
+            return .size(size, nil)
+        }
+    }
+}
+
+extension ServingUnit {
+    func formUnit(withSize size: Size? = nil) -> FormUnit {
+        switch self {
+        case .weight(let weightUnit):
+            return .weight(weightUnit)
+        case .volume(let volumeUnit):
+            return .volume(volumeUnit)
+        case .size:
+            /// We should have had a size (pre-created from the actual `MFPProcessedFood.Size`) and passed into this function—otherwise fallback to a default unit
+            guard let size else {
+                return .weight(.g)
             }
             return .size(size, nil)
         }
@@ -203,7 +258,16 @@ extension FoodFormViewModel {
         switch fieldValue {
         case .name:
             return food.detailStrings.map { FieldValue.prefillOptionForName(with: $0) }
-//            return FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill))
+        case .macro(let macroValue):
+            return [food.macroFieldValue(for: macroValue.macro)]
+        case .micro(let microValue):
+            return [food.microFieldValue(for: microValue.nutrientType)].compactMap { $0 }
+        case .energy:
+            return [food.energyFieldValue]
+        case .serving:
+            return [food.servingFieldValue].compactMap { $0 }
+        case .amount:
+            return [food.amountFieldValue].compactMap { $0 }
 //        case .brand(let stringValue):
 //            return FieldValue.brand(FieldValue.StringValue(string: detail, fillType: .prefill))
 //            return food.detail
@@ -211,17 +275,7 @@ extension FoodFormViewModel {
 //            return nil
 //        case .detail(let stringValue):
 //
-//        case .amount(let doubleValue):
-//            <#code#>
-//        case .serving(let doubleValue):
-//            <#code#>
 //        case .density(let densityValue):
-//            <#code#>
-//        case .energy(let energyValue):
-//            <#code#>
-//        case .macro(let macroValue):
-//            <#code#>
-//        case .micro(let microValue):
 //            <#code#>
         default:
             return []
@@ -239,8 +293,8 @@ extension FoodFormViewModel {
         var availableTexts: [RecognizedText] = []
         for imageViewModel in imageViewModels {
             let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithValues : imageViewModel.texts
-            let filtered = texts.filter { isNotUsingText($0) }
-            availableTexts.append(contentsOf: filtered)
+//            let filtered = texts.filter { isNotUsingText($0) }
+            availableTexts.append(contentsOf: texts)
         }
         return availableTexts
     }
@@ -266,5 +320,63 @@ extension FoodFormViewModel {
         allFieldValues.first(where: {
             $0.fillType.uses(text: text)
         })
+    }
+}
+
+extension MFPProcessedFood.Size {
+    var size: Size {
+        Size(
+            quantity: quantity,
+            volumePrefixUnit: prefixVolumeUnit?.formUnit,
+            name: name.lowercased(),
+            amount: amount,
+            unit: amountUnit.formUnit
+        )
+    }
+    
+    var fieldValue: FieldValue {
+        size.fieldValue
+    }
+    
+    var isVolumePrefixed: Bool {
+        prefixVolumeUnit != nil
+    }
+}
+
+extension Size {
+    var fieldValue: FieldValue {
+        .size(FieldValue.SizeValue(
+            size: self,
+            fillType: .prefill())
+        )
+    }
+}
+
+extension AmountUnit {
+    var formUnit: FormUnit {
+        switch self {
+        case .weight(let weightUnit):
+            return .weight(weightUnit)
+        case .volume(let volumeUnit):
+            return .volume(volumeUnit)
+        case .serving:
+            return .serving
+        case .size(let processedSize):
+            return .size(processedSize.size, nil)
+        }
+    }
+    
+    var weightUnit: WeightUnit? {
+        switch self {
+        case .weight(let weightUnit):
+            return weightUnit
+        default:
+            return nil
+        }
+    }
+}
+extension VolumeUnit {
+    var formUnit: FormUnit {
+        .volume(self)
     }
 }
