@@ -290,7 +290,7 @@ extension FieldValue {
         var string: String {
             get {
                 switch fill {
-                case .scanManual(_, _, let supplementaryTexts, _):
+                case .selection(_, _, let supplementaryTexts, _):
                     return supplementaryTexts.concatenatedString
                 case .prefill:
                     return "prefill values go here"

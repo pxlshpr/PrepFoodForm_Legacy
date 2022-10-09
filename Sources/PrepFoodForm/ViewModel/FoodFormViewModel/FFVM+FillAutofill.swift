@@ -61,7 +61,7 @@ extension FoodFormViewModel {
         }
         //TODO: Only do this if user hasn't already got a value in there
         energyViewModel = .init(fieldValue: fieldValue)
-        autofillFieldValues.append(fieldValue)
+        scannedFieldValues.append(fieldValue)
     }
     
     func extractMacro(_ macro: Macro, at column: Int) {
@@ -77,7 +77,7 @@ extension FoodFormViewModel {
         case .protein:
             proteinViewModel = .init(fieldValue: fieldValue)
         }
-        autofillFieldValues.append(fieldValue)
+        scannedFieldValues.append(fieldValue)
     }
     
     func extractNutrient(_ nutrientType: NutrientType, at column: Int) {
@@ -95,7 +95,7 @@ extension FoodFormViewModel {
             return
         }
         micronutrients[indexes.groupIndex].fieldViewModels[indexes.fieldIndex] = .init(fieldValue: fieldValue)
-        autofillFieldValues.append(fieldValue)
+        scannedFieldValues.append(fieldValue)
     }
     
     func micronutrientIndexes(for nutrientType: NutrientType) -> (groupIndex: Int, fieldIndex: Int)? {
@@ -122,7 +122,7 @@ extension FoodFormViewModel {
         }
         //TODO: Only do this if user hasn't already got a value in there
         servingViewModel = .init(fieldValue: fieldValue)
-        autofillFieldValues.append(fieldValue)
+        scannedFieldValues.append(fieldValue)
     }
 
     func extractAmount(for column: Int) {
@@ -131,7 +131,7 @@ extension FoodFormViewModel {
         }
         //TODO: Only do this if user hasn't already got a value in there
         amountViewModel = .init(fieldValue: fieldValue)
-        autofillFieldValues.append(fieldValue)
+        scannedFieldValues.append(fieldValue)
     }
 
     func fieldValueFromScanResultsForServing(for column: Int) -> FieldValue? {
@@ -251,7 +251,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(.init(valueText: valueText, resultId: id))
+            fill = .scanned(.init(valueText: valueText, resultId: id))
         }
         return FieldValue.energy(FieldValue.EnergyValue(
             double: value.amount,
@@ -274,7 +274,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(.init(valueText: valueText, resultId: id))
+            fill = .scanned(.init(valueText: valueText, resultId: id))
         }
         return FieldValue.macro(FieldValue.MacroValue(
             macro: macro,
@@ -297,7 +297,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(.init(valueText: valueText, resultId: id))
+            fill = .scanned(.init(valueText: valueText, resultId: id))
         }
 
         let unit = value.unit?.nutrientUnit(for: nutrientType) ?? nutrientType.defaultUnit

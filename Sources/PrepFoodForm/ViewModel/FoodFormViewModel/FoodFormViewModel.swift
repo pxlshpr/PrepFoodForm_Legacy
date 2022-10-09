@@ -76,7 +76,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var proteinViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
     @Published var micronutrients = DefaultMicronutrients
 
-    var autofillFieldValues: [FieldValue] = []
+    var scannedFieldValues: [FieldValue] = []
     
     //MARK: - Source
     @Published var sourceType: SourceType = .manualEntry

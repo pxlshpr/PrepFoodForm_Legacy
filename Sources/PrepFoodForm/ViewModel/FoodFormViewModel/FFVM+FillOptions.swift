@@ -80,7 +80,7 @@ extension FoodFormViewModel {
         }
         return FillOption(
             string: "Choose",
-            systemImage: Fill.SystemImage.scanManual,
+            systemImage: Fill.SystemImage.selection,
             isSelected: false, /// never selected as we only use this to pop up the `TextPicker`
             type: .chooseText
         )
@@ -92,19 +92,19 @@ extension FoodFormViewModel {
         !fillOptions(for: fieldValue).isEmpty
     }
     
-    func scanAutoFillFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+    func scannedFieldValue(for fieldValue: FieldValue) -> FieldValue? {
         
         switch fieldValue {
         case .energy:
-            return autofillFieldValues.first(where: { $0.isEnergy })
+            return scannedFieldValues.first(where: { $0.isEnergy })
         case .macro(let macroValue):
-            return autofillFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
+            return scannedFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
         case .micro(let microValue):
-            return autofillFieldValues.first(where: { $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
+            return scannedFieldValues.first(where: { $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
         case .amount:
-            return autofillFieldValues.first(where: { $0.isAmount })
+            return scannedFieldValues.first(where: { $0.isAmount })
         case .serving:
-            return autofillFieldValues.first(where: { $0.isServing })
+            return scannedFieldValues.first(where: { $0.isServing })
 //        case .amount(let doubleValue):
 //            <#code#>
 //        case .serving(let doubleValue):
@@ -114,15 +114,15 @@ extension FoodFormViewModel {
         }
     }
 
-    func scanAutoFillText(for fieldValue: FieldValue) -> RecognizedText? {
-        guard let fill = scanAutoFillFieldValue(for: fieldValue)?.fill else {
+    func scannedText(for fieldValue: FieldValue) -> RecognizedText? {
+        guard let fill = scannedFieldValue(for: fieldValue)?.fill else {
             return nil
         }
         return fill.text
     }
 
-    func scanAutoFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
-        guard let fill = scanAutoFillFieldValue(for: fieldValue)?.fill,
+    func scannedFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
+        guard let fill = scannedFieldValue(for: fieldValue)?.fill,
               fill.text == text else {
             return nil
         }

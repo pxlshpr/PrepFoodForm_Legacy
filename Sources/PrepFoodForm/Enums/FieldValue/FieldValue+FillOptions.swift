@@ -6,15 +6,15 @@ extension FieldValue {
     //MARK: Image Autofill
     var autofillOptions: [FillOption] {
         var fillOptions: [FillOption] = []
-        guard let fieldValue = FoodFormViewModel.shared.scanAutoFillFieldValue(for: self),
-              case .scanAuto(let info) = fieldValue.fill
+        guard let fieldValue = FoodFormViewModel.shared.scannedFieldValue(for: self),
+              case .scanned(let info) = fieldValue.fill
         else {
             return []
         }
         fillOptions.append(
             FillOption(
                 string: fieldValue.fillButtonString,
-                systemImage: Fill.SystemImage.scanAuto,
+                systemImage: Fill.SystemImage.scanned,
 //                isSelected: self.value == autofillFieldValue.value,
                 isSelected: self == fieldValue,
                 type: .fill(fieldValue.fill)
@@ -26,9 +26,9 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: altValue.fillOptionString,
-                    systemImage: Fill.SystemImage.scanAuto,
+                    systemImage: Fill.SystemImage.scanned,
                     isSelected: self.value == altValue && self.fill.isImageAutofill,
-                    type: .fill(.scanAuto(info.withAltValue(altValue)))
+                    type: .fill(.scanned(info.withAltValue(altValue)))
                 )
             )
         }
@@ -153,13 +153,13 @@ extension FieldValue {
     //MARK: Image Selection
     var selectionFillOptions: [FillOption] {
         guard
-            case .scanManual(
+            case .selection(
                 let primaryText,
                 let scanResultId,
                 let supplementaryTexts,
                 value: _) = fill
                 ,
-            primaryText != FoodFormViewModel.shared.scanAutoFillText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+            primaryText != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }
@@ -171,9 +171,9 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: value.description,
-                    systemImage: Fill.SystemImage.scanManual,
+                    systemImage: Fill.SystemImage.selection,
                     isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
-                    type: .fill(.scanManual(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
+                    type: .fill(.selection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )
                 )
             )

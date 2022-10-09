@@ -93,7 +93,7 @@ class FieldViewModel: ObservableObject, Identifiable {
 //
 //        fieldValue.fill = fill
 //        switch fill {
-//        case .scanManual(let text, let scanResultId, let supplementaryTexts, let value):
+//        case .selection(let text, let scanResultId, let supplementaryTexts, let value):
 //            break
 //        case .scanResult(let valueText, scanResultId: _, value: let value):
 //            changeFillTypeToAutofill(of: valueText, withAltValue: value)

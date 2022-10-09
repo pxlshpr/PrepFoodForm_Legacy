@@ -34,13 +34,13 @@ struct NameForm: View {
 extension Fill {
     mutating func appendSelectedText(_ text: RecognizedText) {
         let newSupplementaryTexts: [RecognizedText]
-        if case .scanManual(let recognizedText, let scanResultId, let supplementaryTexts, let value) = self {
+        if case .selection(let recognizedText, let scanResultId, let supplementaryTexts, let value) = self {
             newSupplementaryTexts = supplementaryTexts + [text]
         } else {
             newSupplementaryTexts = [text]
         }
         
-        self = .scanManual(
+        self = .selection(
             recognizedText: text,
             scanResultId: defaultUUID,
             supplementaryTexts: newSupplementaryTexts,
