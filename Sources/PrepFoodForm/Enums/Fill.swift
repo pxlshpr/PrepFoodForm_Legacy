@@ -4,38 +4,38 @@ import VisionSugar
 import UIKit
 import PrepUnits
 
-struct ResultText: Hashable {
+struct ImageText: Hashable {
     let text: RecognizedText
     let attributeText: RecognizedText?
-    let resultId: UUID
+    let imageId: UUID
     
-    init(text: RecognizedText, attributeText: RecognizedText? = nil, resultId: UUID) {
+    init(text: RecognizedText, attributeText: RecognizedText? = nil, imageId: UUID) {
         self.text = text
-        self.resultId = resultId
+        self.imageId = imageId
         self.attributeText = attributeText
     }
     
-    init(valueText: ValueText, resultId: UUID) {
+    init(valueText: ValueText, imageId: UUID) {
         self.text = valueText.text
         self.attributeText = valueText.attributeText
-        self.resultId = resultId
+        self.imageId = imageId
     }
 }
 
 struct ScannedFillInfo: Hashable {
-    var resultText: ResultText
+    var imageText: ImageText
     var value: FoodLabelValue?
     var altValue: FoodLabelValue? = nil
     
-    init(resultText: ResultText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil) {
+    init(resultText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil) {
         self.value = value
-        self.resultText = resultText
+        self.imageText = resultText
         self.altValue = altValue
     }
     
-    init(valueText: ValueText, resultId: UUID, altValue: FoodLabelValue? = nil) {
+    init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
         self.value = valueText.value
-        self.resultText = ResultText(valueText: valueText, resultId: resultId)
+        self.imageText = ImageText(valueText: valueText, imageId: imageId)
         self.altValue = altValue
     }
     
@@ -47,7 +47,7 @@ struct ScannedFillInfo: Hashable {
 }
 
 struct SelectionFillInfo: Hashable {
-    var resultTexts: [ResultText]
+    var resultTexts: [ImageText]
     var altValue: FoodLabelValue? = nil
 }
 
@@ -179,7 +179,7 @@ extension Fill {
     var attributeText: RecognizedText? {
         switch self {
         case .scanned(let info):
-            return info.resultText.attributeText
+            return info.imageText.attributeText
         default:
             return nil
         }
@@ -188,7 +188,7 @@ extension Fill {
     var text: RecognizedText? {
         switch self {
         case .scanned(let info):
-            return info.resultText.text
+            return info.imageText.text
         case .selection(let recognizedText, _, _, _):
             return recognizedText
         default:
@@ -199,7 +199,7 @@ extension Fill {
     var resultId: UUID? {
         switch self {
         case .scanned(let scannedFillInfo):
-            return scannedFillInfo.resultText.resultId
+            return scannedFillInfo.imageText.imageId
         case .selection(_, let resultId, _, _):
             return resultId
         default:
@@ -212,9 +212,9 @@ extension Fill {
         switch self {
         case .scanned(let info):
             if let attributeText = attributeText, attributeText != text {
-                return attributeText.boundingBox.union(info.resultText.text.boundingBox)
+                return attributeText.boundingBox.union(info.imageText.text.boundingBox)
             } else {
-                return info.resultText.text.boundingBox
+                return info.imageText.text.boundingBox
             }
         case .selection(let recognizedText, _, _, _):
             return recognizedText.boundingBox
@@ -227,9 +227,9 @@ extension Fill {
         switch self {
         case .scanned(let info):
             if let attributeText = attributeText {
-                return attributeText.boundingBox.union(info.resultText.text.boundingBox)
+                return attributeText.boundingBox.union(info.imageText.text.boundingBox)
             } else {
-                return info.resultText.text.boundingBox
+                return info.imageText.text.boundingBox
             }
         case .selection(let recognizedText, _, _, _):
             return recognizedText.boundingBox
@@ -328,7 +328,7 @@ extension Fill {
         case .selection(let recognizedText, _, _, _):
             return recognizedText.id == text.id
         case .scanned(let info):
-            return info.resultText.text.id == text.id || info.resultText.attributeText?.id == text.id
+            return info.imageText.text.id == text.id || info.imageText.attributeText?.id == text.id
         default:
             return false
         }
