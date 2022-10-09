@@ -12,7 +12,7 @@ extension FieldValue {
         fillOptions.append(
             FillOption(
                 string: autofillFieldValue.fillButtonString,
-                systemImage: Fill.SystemImage.imageAutofill,
+                systemImage: Fill.SystemImage.scanResult,
 //                isSelected: self.value == autofillFieldValue.value,
                 isSelected: self == autofillFieldValue,
                 type: .fill(autofillFieldValue.fill)
@@ -27,9 +27,9 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: alternateValue.fillOptionString,
-                    systemImage: Fill.SystemImage.imageAutofill,
+                    systemImage: Fill.SystemImage.scanResult,
                     isSelected: self.value == alternateValue && self.fill.isImageAutofill,
-                    type: .fill(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+                    type: .fill(.scanAuto(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                 )
             )
         }
@@ -154,7 +154,7 @@ extension FieldValue {
     //MARK: Image Selection
     var selectionFillOptions: [FillOption] {
         guard
-            case .imageSelection(
+            case .scanManual(
                 let primaryText,
                 let scanResultId,
                 let supplementaryTexts,
@@ -172,9 +172,9 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: value.description,
-                    systemImage: Fill.SystemImage.imageSelection,
+                    systemImage: Fill.SystemImage.scanSelection,
                     isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
-                    type: .fill(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
+                    type: .fill(.scanManual(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )
                 )
             )

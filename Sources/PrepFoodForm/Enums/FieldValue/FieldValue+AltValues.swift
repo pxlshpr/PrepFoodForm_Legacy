@@ -131,9 +131,9 @@ extension FieldValue.EnergyValue {
     */
     var valueToGenerateAltsFor: FoodLabelValue? {
         switch fill {
-        case .imageSelection(let recognizedText, _, _, let altValue):
+        case .scanManual(let recognizedText, _, _, let altValue):
             return altValue ?? recognizedText.string.energyValue
-        case .imageAutofill(let valueText, _, let altValue):
+        case .scanAuto(let valueText, _, let altValue):
             return altValue ?? valueText.value
         default:
             return nil
@@ -142,9 +142,9 @@ extension FieldValue.EnergyValue {
     
     var altValue: FoodLabelValue? {
         switch fill {
-        case .imageSelection(_, _, _, let altValue):
+        case .scanManual(_, _, _, let altValue):
             return altValue
-        case .imageAutofill(_, _, let altValue):
+        case .scanAuto(_, _, let altValue):
             return altValue
         default:
             return nil

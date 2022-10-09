@@ -141,9 +141,9 @@
 //        doNotRegisterUserInput = true
 //        
 //        switch fill {
-//        case .imageSelection(let text, _, _, let value):
+//        case .scanSelection(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
-//        case .imageAutofill(let valueText, _, value: let value):
+//        case .scanResult(let valueText, _, value: let value):
 //            changeFillTypeToAutofill(of: valueText, withAltValue: value)
 //        default:
 //            break
@@ -231,9 +231,9 @@
 //        if let valueText = viewModel.autofillValueText(for: amountViewModel.fieldValue),
 //            valueText.text == text
 //        {
-//            return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
+//            return .scanResult(valueText: valueText, scanResultId: imageId, value: nil)
 //        } else {
-//            return .imageSelection(recognizedText: text, scanResultId: imageId)
+//            return .scanSelection(recognizedText: text, scanResultId: imageId)
 //        }
 //    }
 //

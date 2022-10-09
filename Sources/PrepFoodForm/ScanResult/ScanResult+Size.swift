@@ -152,7 +152,7 @@ extension ScanResult {
     
     //MARK: - Helpers
     func autoFillType(for valueText: ValueText, value: FoodLabelValue) -> Fill {
-        .imageAutofill(
+        .scanAuto(
             valueText: valueText,
             scanResultId: id,
             value: value)

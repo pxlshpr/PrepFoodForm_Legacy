@@ -14,8 +14,8 @@ enum Fill: Hashable {
     case userInput
     
     /// `supplementaryTexts` are used for string based fields such as `name` and `detail` where multile texts may be selected and joined together to form the filled value
-    case imageSelection(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: FoodLabelValue? = nil)
-    case imageAutofill(valueText: ValueText, scanResultId: UUID, value: FoodLabelValue? = nil)
+    case scanManual(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: FoodLabelValue? = nil)
+    case scanAuto(valueText: ValueText, scanResultId: UUID, value: FoodLabelValue? = nil)
     
     case calculated
     
@@ -24,10 +24,10 @@ enum Fill: Hashable {
     case barcodeScan
     
     struct SystemImage {
-        static let imageSelection = "hand.tap"
+        static let scanSelection = "hand.tap"
         static let prefill = "link"
         static let calculated = "function"
-        static let imageAutofill = "text.viewfinder"
+        static let scanResult = "text.viewfinder"
         static let barcodeScan = "barcode.viewfinder"
         static let userInput = "keyboard"
     }
@@ -36,12 +36,12 @@ enum Fill: Hashable {
         switch self {
         case .userInput:
             return SystemImage.userInput
-        case .imageSelection:
-            return SystemImage.imageSelection
+        case .scanManual:
+            return SystemImage.scanSelection
         case .calculated:
             return SystemImage.calculated
-        case .imageAutofill:
-            return SystemImage.imageAutofill
+        case .scanAuto:
+            return SystemImage.scanResult
         case .prefill:
             return SystemImage.prefill
         case .barcodeScan:
@@ -54,9 +54,9 @@ enum Fill: Hashable {
         //        switch self {
         //        case .userInput:
         //            return "circle.dashed"
-        //        case .imageSelection:
+        //        case .scanSelection:
         //            return "hand.tap"
-        //        case .imageAutofill:
+        //        case .scanResult:
         //            return "viewfinder.circle.fill"
         //        case .prefill:
         //            return "link"
@@ -69,11 +69,11 @@ enum Fill: Hashable {
         switch self {
         case .prefill:
             return "Copied from third-pary food"
-        case .imageAutofill:
+        case .scanAuto:
             return "Auto-filled from image"
         case .calculated:
             return "Calculated"
-        case .imageSelection:
+        case .scanManual:
             return "Selected from image"
         case .userInput:
 //            if !fieldValue.isEmpty {
@@ -106,7 +106,7 @@ enum Fill: Hashable {
 
     var isImageAutofill: Bool {
         switch self {
-        case .imageAutofill:
+        case .scanAuto:
             return true
         default:
             return false
@@ -115,7 +115,7 @@ enum Fill: Hashable {
     
     var usesImage: Bool {
         switch self {
-        case .imageSelection, .imageAutofill:
+        case .scanManual, .scanAuto:
             return true
         default:
             return false
@@ -124,7 +124,7 @@ enum Fill: Hashable {
     
     var isImageSelection: Bool {
         switch self {
-        case .imageSelection:
+        case .scanManual:
             return true
         default:
             return false
@@ -133,7 +133,7 @@ enum Fill: Hashable {
     
     var valueText: ValueText? {
         switch self {
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             return valueText
         default:
             return nil
@@ -142,7 +142,7 @@ enum Fill: Hashable {
 
     var attributeText: RecognizedText? {
         switch self {
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             return valueText.attributeText
         default:
             return nil
@@ -151,9 +151,9 @@ enum Fill: Hashable {
     
     var text: RecognizedText? {
         switch self {
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             return valueText.text
-        case .imageSelection(let recognizedText, _, _, _):
+        case .scanManual(let recognizedText, _, _, _):
             return recognizedText
         default:
             return nil
@@ -162,13 +162,13 @@ enum Fill: Hashable {
     
     var boundingBoxToCrop: CGRect? {
         switch self {
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             if let attributeText = valueText.attributeText, attributeText != valueText.text {
                 return attributeText.boundingBox.union(valueText.text.boundingBox)
             } else {
                 return valueText.text.boundingBox
             }
-        case .imageSelection(let recognizedText, _, _, _):
+        case .scanManual(let recognizedText, _, _, _):
             return recognizedText.boundingBox
         default:
             return nil
@@ -177,9 +177,9 @@ enum Fill: Hashable {
 
     var scanResultId: UUID? {
         switch self {
-        case .imageSelection(_, let scanResultId, _, _):
+        case .scanManual(_, let scanResultId, _, _):
             return scanResultId
-        case .imageAutofill(_, let scanResultId, _):
+        case .scanAuto(_, let scanResultId, _):
             return scanResultId
         default:
             return nil
@@ -189,7 +189,7 @@ enum Fill: Hashable {
     func boxRect(for image: UIImage) -> CGRect? {
         //        return CGRect(x: 20, y: 50, width: 20, height: 20)
         switch self {
-        case .imageSelection, .imageAutofill:
+        case .scanManual, .scanAuto:
             return boundingBox?.rectForSize(image.size)
         default:
             return nil
@@ -198,7 +198,7 @@ enum Fill: Hashable {
 
     var boundingBox: CGRect? {
         switch self {
-        case .imageSelection, .imageAutofill:
+        case .scanManual, .scanAuto:
             return text?.boundingBox
         default:
             return nil
@@ -207,9 +207,9 @@ enum Fill: Hashable {
 
     var boundingBoxForImagePicker: CGRect? {
         switch self {
-        case .imageSelection(let recognizedText, _, _, _):
+        case .scanManual(let recognizedText, _, _, _):
             return recognizedText.boundingBox
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             if let attributeText = valueText.attributeText {
                 return attributeText.boundingBox.union(valueText.text.boundingBox)
             } else {
@@ -234,9 +234,9 @@ extension Fill {
     /// Returns the `FoodLabelValue` represented by this fill type.
     var value: FoodLabelValue? {
         switch self {
-        case .imageSelection(let recognizedText, _, _, let value):
+        case .scanManual(let recognizedText, _, _, let value):
             return value ?? recognizedText.firstFoodLabelValue
-        case .imageAutofill(let valueText, _, let value):
+        case .scanAuto(let valueText, _, let value):
             return value ?? valueText.value
         case .calculated:
             //TODO: Do this
@@ -250,9 +250,9 @@ extension Fill {
     var altValue: FoodLabelValue? {
         get {
             switch self {
-            case .imageSelection(_, _, _, let value):
+            case .scanManual(_, _, _, let value):
                 return value
-            case .imageAutofill(_, _, let value):
+            case .scanAuto(_, _, let value):
                 return value
             default:
                 return nil
@@ -260,10 +260,10 @@ extension Fill {
         }
         set {
             switch self {
-            case .imageSelection(let recognizedText, let scanResultId, let supplementaryTexts, _):
-                self = .imageSelection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
-            case .imageAutofill(let valueText, let scanResultId, _):
-                self = .imageAutofill(valueText: valueText, scanResultId: scanResultId, value: newValue)
+            case .scanManual(let recognizedText, let scanResultId, let supplementaryTexts, _):
+                self = .scanManual(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
+            case .scanAuto(let valueText, let scanResultId, _):
+                self = .scanAuto(valueText: valueText, scanResultId: scanResultId, value: newValue)
             default:
                 break
             }
@@ -274,9 +274,9 @@ extension Fill {
 extension Fill {
     var energyValue: FoodLabelValue? {
         switch self {
-        case .imageSelection(let recognizedText, _, _, let altValue):
+        case .scanManual(let recognizedText, _, _, let altValue):
             return altValue ?? recognizedText.string.energyValue
-        case .imageAutofill(let valueText, _, let altValue):
+        case .scanAuto(let valueText, _, let altValue):
             return altValue ?? valueText.value
         default:
             return nil
@@ -287,9 +287,9 @@ extension Fill {
 extension Fill {
     func uses(text: RecognizedText) -> Bool {
         switch self {
-        case .imageSelection(let recognizedText, _, _, _):
+        case .scanManual(let recognizedText, _, _, _):
             return recognizedText.id == text.id
-        case .imageAutofill(let valueText, _, _):
+        case .scanAuto(let valueText, _, _):
             return valueText.text.id == text.id || valueText.attributeText?.id == text.id
         default:
             return false

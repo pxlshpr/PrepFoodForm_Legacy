@@ -385,9 +385,9 @@ extension FieldValueForm {
             
             //TODO: Support 'deselecting' fill options for multiples like name
             switch fill {
-            case .imageSelection(let text, _, _, let value):
+            case .scanManual(let text, _, _, let value):
                 changeFillTypeToSelection(of: text, withAltValue: value)
-            case .imageAutofill(let valueText, _, value: let value):
+            case .scanAuto(let valueText, _, value: let value):
                 changeFillTypeToAutofill(of: valueText, withAltValue: value)
             case .prefill:
                 /// Tapped a prefill or calculated value
@@ -430,9 +430,9 @@ extension FieldValueForm {
     
     func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
         if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
-            return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
+            return .scanAuto(valueText: valueText, scanResultId: imageId, value: nil)
         } else {
-            return .imageSelection(recognizedText: text, scanResultId: imageId)
+            return .scanManual(recognizedText: text, scanResultId: imageId)
         }
     }
     

@@ -160,7 +160,7 @@ struct MicronutrientForm_Legacy: View {
 //
 //            var newFieldValue = fieldValue
 //            newFieldValue.microValue.double = text.string.double
-//            newFieldValue.fill = .imageSelection(recognizedText: text, scanResultId: scanResultId)
+//            newFieldValue.fill = .scanSelection(recognizedText: text, scanResultId: scanResultId)
 //
 //            fieldFormViewModel.ignoreNextChange = true
 //            withAnimation {

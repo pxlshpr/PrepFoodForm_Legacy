@@ -93,9 +93,9 @@ class FieldViewModel: ObservableObject, Identifiable {
 //
 //        fieldValue.fill = fill
 //        switch fill {
-//        case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
+//        case .scanSelection(let text, let scanResultId, let supplementaryTexts, let value):
 //            break
-//        case .imageAutofill(let valueText, scanResultId: _, value: let value):
+//        case .scanResult(let valueText, scanResultId: _, value: let value):
 //            changeFillTypeToAutofill(of: valueText, withAltValue: value)
 //        default:
 //            break

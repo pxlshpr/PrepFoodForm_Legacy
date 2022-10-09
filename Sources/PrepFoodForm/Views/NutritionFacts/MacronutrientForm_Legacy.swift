@@ -114,7 +114,7 @@ struct MacronutrientForm_Legacy: View {
 //
 //            var newFieldValue = fieldValue
 //            newFieldValue.macroValue.double = text.string.double
-//            newFieldValue.fill = .imageSelection(recognizedText: text, scanResultId: scanResultId)
+//            newFieldValue.fill = .scanSelection(recognizedText: text, scanResultId: scanResultId)
 //
 //            fieldFormViewModel.ignoreNextChange = true
 //            withAnimation {
