@@ -2,8 +2,6 @@ import SwiftUI
 
 struct FillOptionButton: View {
     
-    let selectionColorDark = Color(hex: "6c6c6c")
-    let selectionColorLight = Color(hex: "959596")
     @Environment(\.colorScheme) var colorScheme
     
     let fillOption: FillOption
@@ -15,31 +13,19 @@ struct FillOptionButton: View {
     }
 
     var body: some View {
-
-        var backgroundColor: Color {
-            guard fillOption.isSelected else {
-                return Color(.secondarySystemFill)
-            }
-            if fillOption.disableWhenSelected {
-                return .accentColor
-            } else {
-                return colorScheme == .light ? selectionColorLight : selectionColorDark
-            }
-        }
-        
-        return Button {
+        Button {
             didTap()
         } label: {
             ZStack {
                 Capsule(style: .continuous)
-                    .foregroundColor(backgroundColor)
+                    .foregroundColor(fillOption.backgroundColor(for: colorScheme))
                 HStack(spacing: 5) {
                     Image(systemName: fillOption.systemImage)
-                        .foregroundColor(fillOption.isSelected ? .white : .secondary)
+                        .foregroundColor(fillOption.imageColor)
                         .imageScale(.small)
                         .frame(height: 25)
                     Text(fillOption.string)
-                        .foregroundColor(fillOption.isSelected ? .white : .primary)
+                        .foregroundColor(fillOption.textColor)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 5)
@@ -53,5 +39,44 @@ struct FillOptionButton: View {
         }
         .grayscale(fillOption.isSelected ? 1 : 0)
         .disabled(fillOption.disableWhenSelected ? fillOption.isSelected : false)
+    }
+}
+
+extension FillOption {
+    var textColor: Color {
+        switch type {
+        case .chooseText:
+            return .secondary
+        case .fill:
+            return isSelected ? .white : .primary
+        }
+    }
+    
+    var imageColor: Color {
+        switch type {
+        case .chooseText:
+            return Color(.tertiaryLabel)
+        case .fill:
+            return isSelected ? .white : .secondary
+        }
+    }
+
+    func backgroundColor(for colorScheme: ColorScheme) -> Color {
+        let selectionColorDark = Color(hex: "6c6c6c")
+        let selectionColorLight = Color(hex: "959596")
+
+        switch type {
+//        case .chooseText:
+//            return .accentColor
+        case .fill, .chooseText:
+            guard isSelected else {
+                return Color(.secondarySystemFill)
+            }
+            if disableWhenSelected {
+                return .accentColor
+            } else {
+                return colorScheme == .light ? selectionColorLight : selectionColorDark
+            }
+        }
     }
 }

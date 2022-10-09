@@ -37,7 +37,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     
     let setNewValue: ((FoodLabelValue) -> ())?
     let toggledFieldValue: ((FieldValue) -> ())?
-    let tappedText: ((RecognizedText, UUID) -> ())?
+    let didSelectImageTextsHandler: (([ImageText]) -> ())?
     let didSave: (() -> ())?
 
     init(fieldViewModel: FieldViewModel,
@@ -51,7 +51,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
          toggledFieldValue: ((FieldValue) -> ())? = nil,
-         tappedText: ((RecognizedText, UUID) -> ())? = nil,
+         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -67,7 +67,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
         self.toggledFieldValue = toggledFieldValue
-        self.tappedText = tappedText
+        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 
@@ -84,7 +84,7 @@ extension FieldValueForm where UnitView == EmptyView {
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
          toggledFieldValue: ((FieldValue) -> ())? = nil,
-         tappedText: ((RecognizedText, UUID) -> ())? = nil,
+         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -100,7 +100,7 @@ extension FieldValueForm where UnitView == EmptyView {
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
         self.toggledFieldValue = toggledFieldValue
-        self.tappedText = tappedText
+        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -114,7 +114,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
          toggledFieldValue: ((FieldValue) -> ())? = nil,
-         tappedText: ((RecognizedText, UUID) -> ())? = nil,
+         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -130,7 +130,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
         self.toggledFieldValue = toggledFieldValue
-        self.tappedText = tappedText
+        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -143,7 +143,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
          toggledFieldValue: ((FieldValue) -> ())? = nil,
-         tappedText: ((RecognizedText, UUID) -> ())? = nil,
+         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -159,7 +159,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
         self.toggledFieldValue = toggledFieldValue
-        self.tappedText = tappedText
+        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -294,9 +294,18 @@ extension FieldValueForm {
     }
     
     var defaultFooter: some View {
-        let autofillString = viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) ? "or autofill " : ""
-        let string = "Enter \(autofillString)a value"
-        return Text(string)
+        var string: String {
+            let autofillString = viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) ? "or autofill " : ""
+            return "Enter \(autofillString)a value"
+        }
+
+        return Group {
+            if !isForDecimalValue {
+                EmptyView()
+            } else {
+                Text(string)
+            }
+        }
     }
     
     var textField: some View {
@@ -312,18 +321,32 @@ extension FieldValueForm {
             }
         )
         
-        return TextField(placeholderString, text: binding)
+        return TextField(placeholderString, text: binding, axis: .vertical)
             .multilineTextAlignment(.leading)
-            .keyboardType(.decimalPad)
             .focused($isFocused)
             .font(textFieldFont)
-            .frame(minHeight: 50)
+            .if(isForDecimalValue) { view in
+                view
+                    .keyboardType(.decimalPad)
+                    .frame(minHeight: 50)
+            }
+            .if(!isForDecimalValue) { view in
+                view
+                    .lineLimit(1...3)
+            }
             .scrollDismissesKeyboard(.interactively)
             .introspectTextField(customize: introspectTextField)
     }
     
+    var isForDecimalValue: Bool {
+        fieldValue.usesValueBasedTexts
+    }
+    
     var textFieldFont: Font {
-        fieldViewModel.fieldValue.string.isEmpty ? .body : .largeTitle
+        guard isForDecimalValue else {
+            return .body
+        }
+        return fieldViewModel.fieldValue.string.isEmpty ? .body : .largeTitle
     }
     
     /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
@@ -342,12 +365,13 @@ extension FieldValueForm {
     var textPicker: some View {
         TextPicker(
             imageViewModels: viewModel.imageViewModels,
+            allowsMultipleSelection: !isForDecimalValue,
             selectedText: fieldValue.fill.text,
             selectedAttributeText: fieldValue.fill.attributeText,
             selectedImageIndex: selectedImageIndex,
             onlyShowTextsWithValues: fieldValue.usesValueBasedTexts
-        ) { text, scanResultId in
-            didTapText(text, onImageWithId: scanResultId)
+        ) { selectedImageTexts in
+            didSelectImageTexts(selectedImageTexts)
         }
         .onDisappear {
             guard fieldViewModel.isCroppingNextImage else {
@@ -377,16 +401,16 @@ extension FieldValueForm {
             didTapChooseButton()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
-            guard case .fill(let fill) = fillOption.type else {
-                return
-            }
+//            guard case .fill(let fill) = fillOption.type else {
+//                return
+//            }
 
             doNotRegisterUserInput = true
             
             //TODO: Support 'deselecting' fill options for multiples like name
             switch fill {
-            case .selection(let text, _, _, let value):
-                changeFillTypeToSelection(of: text, withAltValue: value)
+            case .selection(let info):
+                changeFillTypeToSelection(info)
             case .scanned(let info):
                 changeFillTypeToAutofill(info)
             case .prefill:
@@ -417,6 +441,20 @@ extension FieldValueForm {
         }
     }
     
+    func changeFillTypeToAutofill(_ info: ScannedFillInfo) {
+        if let value = info.altValue ?? info.value, let setNewValue {
+            setNewValue(value)
+        }
+    }
+    
+    func changeFillTypeToSelection(_ info: SelectionFillInfo) {
+        guard let value = info.altValue ?? info.imageTexts.first?.text.string.values.first else {
+            return
+        }
+        if let setNewValue {
+            setNewValue(value)
+        }
+    }
     func didTapChooseButton() {
         showTextPicker()
     }
@@ -432,48 +470,34 @@ extension FieldValueForm {
         if let fill = viewModel.scannedFill(for: fieldValue, with: text) {
             return fill
         } else {
-            return .selection(recognizedText: text, scanResultId: imageId)
+            return .selection(.init(imageTexts: [ImageText(text: text, imageId: imageId)]))
         }
     }
     
-    func didTapText(_ text: RecognizedText, onImageWithId imageId: UUID) {
+    func didSelectImageTexts(_ imageTexts: [ImageText]) {
         
         /// If we have a custom handler—use that
-        if let tappedText {
-            tappedText(text, imageId)
+        if let didSelectImageTextsHandler {
+            didSelectImageTextsHandler(imageTexts)
             return
         }
         
         //TODO: Handle serving and amount
         
+        
+        
         /// This is the generic handler which works for single pick fields such as energy, macro, micro
-        guard let value = text.firstFoodLabelValue else {
-            print("Couldn't get a double from the tapped string")
+        guard let imageText = imageTexts.first, let value = imageText.text.firstFoodLabelValue else {
             return
         }
         
-        let newFillType = fill(for: text, onImageWithId: imageId)
+        let newFillType = fill(for: imageText.text, onImageWithId: imageText.imageId)
         doNotRegisterUserInput = true
         
         if let setNewValue {
             setNewValue(value)
             fieldViewModel.fieldValue.fill = newFillType
             fieldViewModel.isCroppingNextImage = true
-        }
-    }
-    
-    func changeFillTypeToAutofill(_ info: ScannedFillInfo) {
-        if let value = info.value, let setNewValue {
-            setNewValue(value)
-        }
-    }
-    
-    func changeFillTypeToSelection(of text: RecognizedText, withAltValue altValue: FoodLabelValue?) {
-        guard let value = altValue ?? text.string.values.first else {
-            return
-        }
-        if let setNewValue {
-            setNewValue(value)
         }
     }
 

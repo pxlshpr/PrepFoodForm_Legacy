@@ -290,8 +290,8 @@ extension FieldValue {
         var string: String {
             get {
                 switch fill {
-                case .selection(_, _, let supplementaryTexts, _):
-                    return supplementaryTexts.concatenatedString
+                case .selection(let info):
+                    return info.imageTexts.map({ $0.text }).concatenatedString
                 case .prefill:
                     return "prefill values go here"
                 default:
@@ -929,7 +929,7 @@ extension FieldValue {
         default:
             return false
         }
-    }    
+    }
 }
 
 //MARK: - To be moved

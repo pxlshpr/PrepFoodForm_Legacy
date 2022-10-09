@@ -16,7 +16,7 @@ extension FieldValue {
                 string: fieldValue.fillButtonString,
                 systemImage: Fill.SystemImage.scanned,
 //                isSelected: self.value == autofillFieldValue.value,
-                isSelected: self == fieldValue,
+                isSelected: self.value == fieldValue.fill.value,
                 type: .fill(fieldValue.fill)
             )
         )
@@ -59,67 +59,59 @@ extension FieldValue {
         return values
     }
 
-    func selectionEnergyValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText]) -> [FoodLabelValue]
-    {
+    func selectionEnergyValues(for text: RecognizedText) -> [FoodLabelValue] {
         var values: [FoodLabelValue] = []
-        for text in ([primaryText] + supplementaryTexts) {
-            /// Go through all the candidates provided by the Vision framework
-            for candidate in text.candidates {
-                for value in candidate.values {
-                    
-                    let energyValue = value.withEnergyUnit
-                    
-                    /// Don't add duplicates
-                    guard !values.contains(energyValue) else { continue }
-                    values.append(energyValue)
-                    
-                    let oppositeValue = energyValue.withOppositeEnergyUnit
-                    if !values.contains(oppositeValue) {
-                        values.append(oppositeValue)
-                    }
+        /// Go through all the candidates provided by the Vision framework
+        for candidate in text.candidates {
+            for value in candidate.values {
+                
+                let energyValue = value.withEnergyUnit
+                
+                /// Don't add duplicates
+                guard !values.contains(energyValue) else { continue }
+                values.append(energyValue)
+                
+                let oppositeValue = energyValue.withOppositeEnergyUnit
+                if !values.contains(oppositeValue) {
+                    values.append(oppositeValue)
                 }
             }
         }
         return values
     }
     
-    func selectionMacroValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText]) -> [FoodLabelValue]
-    {
+    func selectionMacroValues(for text: RecognizedText) -> [FoodLabelValue] {
         var values: [FoodLabelValue] = []
-        for text in ([primaryText] + supplementaryTexts) {
-            /// Go through all the candidates provided by the Vision framework
-            for candidate in text.candidates {
-                for value in candidate.values {
-                    
-                    let macroValue = value.withMacroUnit
-                    
-                    guard !values.contains(macroValue) else { continue }
-                    values.append(macroValue)
-                }
+        /// Go through all the candidates provided by the Vision framework
+        for candidate in text.candidates {
+            for value in candidate.values {
+                
+                let macroValue = value.withMacroUnit
+                
+                guard !values.contains(macroValue) else { continue }
+                values.append(macroValue)
             }
         }
         return values
     }
 
-    func selectionMicroValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText], nutrientType: NutrientType) -> [FoodLabelValue]
-    {
+    func selectionMicroValues(for text: RecognizedText, nutrientType: NutrientType) -> [FoodLabelValue] {
         var values: [FoodLabelValue] = []
-        for text in ([primaryText] + supplementaryTexts) {
-            /// Go through all the candidates provided by the Vision framework
-            for candidate in text.candidates {
-                for value in candidate.values {
-                    
-                    let microValue = value.withMicroUnit(for: nutrientType)
-                    
-                    guard !values.contains(microValue) else { continue }
-                    values.append(microValue)
-                }
+        /// Go through all the candidates provided by the Vision framework
+        for candidate in text.candidates {
+            for value in candidate.values {
+                
+                let microValue = value.withMicroUnit(for: nutrientType)
+                
+                guard !values.contains(microValue) else { continue }
+                values.append(microValue)
             }
         }
         return values
     }
 
-    func selectionFillValues(for primaryText: RecognizedText, and supplementaryTexts: [RecognizedText]) -> [FoodLabelValue] {
+    func selectionFillValues(for texts: [RecognizedText]) -> [FoodLabelValue] {
+        guard let firstText = texts.first else { return [] }
         switch self {
 //        case .name(let stringValue):
 //            <#code#>
@@ -138,13 +130,13 @@ extension FieldValue {
 //        case .density(let densityValue):
 //            <#code#>
         case .amount, .serving:
-            return selectionDoubleValues(for: primaryText)
+            return selectionDoubleValues(for: firstText)
         case .energy:
-            return selectionEnergyValues(for: primaryText, and: supplementaryTexts)
+            return selectionEnergyValues(for: firstText)
         case .macro:
-            return selectionMacroValues(for: primaryText, and: supplementaryTexts)
+            return selectionMacroValues(for: firstText)
         case .micro(let microValue):
-            return selectionMicroValues(for: primaryText, and: supplementaryTexts, nutrientType: microValue.nutrientType)
+            return selectionMicroValues(for: firstText, nutrientType: microValue.nutrientType)
         default:
             return []
         }
@@ -152,19 +144,13 @@ extension FieldValue {
     
     //MARK: Image Selection
     var selectionFillOptions: [FillOption] {
-        guard
-            case .selection(
-                let primaryText,
-                let scanResultId,
-                let supplementaryTexts,
-                value: _) = fill
-                ,
-            primaryText != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+        guard case .selection(let info) = fill,
+              info.imageTexts.first?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }
 
-        let values = selectionFillValues(for: primaryText, and: supplementaryTexts)
+        let values = selectionFillValues(for: info.imageTexts.map { $0.text })
         
         var fillOptions: [FillOption] = []
         for value in values {
@@ -173,8 +159,7 @@ extension FieldValue {
                     string: value.description,
                     systemImage: Fill.SystemImage.selection,
                     isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
-                    type: .fill(.selection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
-                    )
+                    type: .fill(.selection(info.withAltValue(value)))
                 )
             )
         }

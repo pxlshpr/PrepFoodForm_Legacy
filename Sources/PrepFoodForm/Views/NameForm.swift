@@ -18,12 +18,14 @@ struct NameForm: View {
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
             didSave: didSave,
-            tappedText: tappedText
+            didSelectImageTextsHandler: didSelectImageTextsHandler
         )
     }
     
-    func tappedText(_ text: RecognizedText, imageId: UUID) {
-        fieldViewModel.fieldValue.stringValue.fill.appendSelectedText(text)
+    func didSelectImageTextsHandler(_ imageTexts: [ImageText]) {
+        for imageText in imageTexts {
+            fieldViewModel.fieldValue.stringValue.fill.appendSelectedText(imageText.text, on: imageText.imageId)
+        }
     }
     
     func didSave() {
@@ -32,19 +34,17 @@ struct NameForm: View {
 }
 
 extension Fill {
-    mutating func appendSelectedText(_ text: RecognizedText) {
-        let newSupplementaryTexts: [RecognizedText]
-        if case .selection(let recognizedText, let scanResultId, let supplementaryTexts, let value) = self {
-            newSupplementaryTexts = supplementaryTexts + [text]
+    mutating func appendSelectedText(_ text: RecognizedText, on imageId: UUID) {
+        let imageText = ImageText(text: text, imageId: imageId)
+        let imageTexts: [ImageText]
+        if case .selection(let info) = self {
+            imageTexts = info.imageTexts + [imageText]
         } else {
-            newSupplementaryTexts = [text]
+            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
+            imageTexts = [imageText]
         }
         
-        self = .selection(
-            recognizedText: text,
-            scanResultId: defaultUUID,
-            supplementaryTexts: newSupplementaryTexts,
-            value: value)
+        self = .selection(.init(imageTexts: imageTexts))
     }
 }
 

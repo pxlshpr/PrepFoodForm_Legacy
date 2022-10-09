@@ -11,7 +11,7 @@ struct TextPicker: View {
     
     var imageViewModels: [ImageViewModel]
     
-    @State var tappedText: RecognizedText? = nil
+    @State var selectedImageTexts: [ImageText] = []
     
     @State var page: Page = .first()
 //    @State var texts: [RecognizedText]
@@ -23,21 +23,24 @@ struct TextPicker: View {
 
     @State var hasAppeared: Bool = false
     
+    let allowsMultipleSelection: Bool
     let onlyShowTextsWithValues: Bool
     let selectedText: RecognizedText?
     let selectedImageIndex: Int?
     let selectedAttributeText: RecognizedText?
     private let selectedBoundingBox: CGRect?
-    let didSelectRecognizedText: (RecognizedText, UUID) -> Void
+    let didSelectImageTexts: ([ImageText]) -> Void
     
     init(imageViewModels: [ImageViewModel],
+         allowsMultipleSelection: Bool = false,
          selectedText: RecognizedText? = nil,
          selectedAttributeText: RecognizedText? = nil,
          selectedImageIndex: Int? = nil,
          onlyShowTextsWithValues: Bool = false,
-         didSelectRecognizedText: @escaping (RecognizedText, UUID) -> Void
+         didSelectImageTexts: @escaping ([ImageText]) -> Void
     ) {
         self.imageViewModels = imageViewModels
+        self.allowsMultipleSelection = allowsMultipleSelection
         _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
         _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
@@ -60,7 +63,7 @@ struct TextPicker: View {
         } else {
             self.selectedBoundingBox = selectedText?.boundingBox
         }
-        self.didSelectRecognizedText = didSelectRecognizedText
+        self.didSelectImageTexts = didSelectImageTexts
     }
     
     var body: some View {
@@ -71,15 +74,79 @@ struct TextPicker: View {
                 .toolbar { bottomToolbar }
                 .toolbar(.visible, for: .bottomBar)
                 .toolbarBackground(.visible, for: .bottomBar)
+                .if(allowsMultipleSelection) { view in
+                    view
+                        .toolbar { navigationTrailingContents }
+                }
         }
         .onAppear(perform: appeared)
+    }
+    
+    var navigationTrailingContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            Button("Done") {
+                didSelectImageTexts(selectedImageTexts)
+                Haptics.successFeedback()
+                dismiss()
+            }
+        }
     }
     
     @ViewBuilder
     var content: some View {
         if hasAppeared {
-            pager
-                .transition(.opacity)
+            ZStack {
+                pager
+                selectedTextsLayer
+            }
+            .transition(.opacity)
+        }
+    }
+    
+    let texts = [
+        "Here", "are", "some test", "strings to work on"
+    ]
+    var selectedTextsLayer: some View {
+        VStack {
+            Spacer()
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(selectedImageTexts, id: \.self) { imageText in
+                        selectedTextButton(for: imageText)
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(
+                .thickMaterial
+            )
+//            .cornerRadius(15)
+//            .padding(.horizontal)
+//            .padding(.bottom)
+        }
+    }
+    
+    func selectedTextButton(for imageText: ImageText) -> some View {
+        Button {
+            withAnimation {
+                selectedImageTexts.removeAll(where: { $0 == imageText })
+            }
+        } label: {
+            ZStack {
+                Capsule(style: .continuous)
+                    .foregroundColor(Color(.secondarySystemFill))
+                HStack(spacing: 5) {
+                    Text(imageText.text.string)
+                        .foregroundColor(.primary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+            }
+            .fixedSize(horizontal: true, vertical: true)
+            .contentShape(Rectangle())
+            .transition(.move(edge: .leading))
         }
     }
     
@@ -177,6 +244,10 @@ struct TextPicker: View {
         }
     }
     
+    func color(for text: RecognizedText) -> Color {
+        selectedImageTexts.contains(where: { $0.text == text }) ? Color.blue : Color.primary
+    }
+    
     @ViewBuilder
     func boxLayerForSelectedText(inSize size: CGSize, for imageViewModel: ImageViewModel) -> some View {
         if let selectedBoundingBox,
@@ -190,10 +261,33 @@ struct TextPicker: View {
         }
     }
     
+    func toggleSelection(of imageText: ImageText) {
+        if selectedImageTexts.contains(imageText) {
+            Haptics.feedback(style: .light)
+            withAnimation {
+                selectedImageTexts.removeAll(where: { $0 == imageText })
+            }
+        } else {
+            Haptics.transientHaptic()
+            withAnimation {
+                selectedImageTexts.append(imageText)
+            }
+        }
+    }
+    
     func boxLayer(for text: RecognizedText, inSize size: CGSize) -> some View {
-        boxLayer(boundingBox: text.boundingBox, inSize: size, color: .primary) {
-            didSelectRecognizedText(text, currentScanResultId ?? UUID())
-            dismiss()
+        boxLayer(boundingBox: text.boundingBox, inSize: size, color: color(for: text)) {
+            guard let currentScanResultId else {
+                return
+            }
+            let imageText = ImageText(text: text, imageId: currentScanResultId)
+            
+            if allowsMultipleSelection {
+                toggleSelection(of: imageText)
+            } else {
+                didSelectImageTexts([imageText])
+                dismiss()
+            }
         }
     }
     
@@ -311,7 +405,8 @@ struct TextPicker: View {
                 pageToImage(at: selectedImageIndex)
             }
 
-            sendFocusMessage(to: selectedImageIndex ?? 0, animated: true)
+            
+            sendFocusMessage(to: selectedImageIndex ?? 0, animated: false)
         }
     }
     
@@ -375,30 +470,32 @@ public struct ImageTextPickerPreview: View {
         let viewModel = FoodFormViewModel()
         viewModel.populateWithSampleImages([10])
         _viewModel = StateObject(wrappedValue: viewModel)
-        
-        let fieldValue = FieldValue.energy()
-        _fieldValue = State(initialValue: fieldValue)
-        
-        let text = viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "AC10E3D9-E7D6-4510-B555-8A3F52F7B8F2")!})!
-        _selectedText = State(initialValue: text)
+
+//        let fieldValue = FieldValue.energy()
+//        _fieldValue = State(initialValue: fieldValue)
+//
+//        let text = viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "AC10E3D9-E7D6-4510-B555-8A3F52F7B8F2")!})!
+//        _selectedText = State(initialValue: text)
     }
     
     public var body: some View {
-        NavigationView {
-            Color.clear
-                .sheet(isPresented: .constant(true)) {
+//        NavigationView {
+//            Color.clear
+//                .sheet(isPresented: .constant(true)) {
                     imageTextPicker
-//                        .presentationDetents([.medium, .large])
-//                        .presentationDragIndicator(.hidden)
-                }
-        }
+//                }
+//        }
     }
     
-    @State var fieldValue: FieldValue
-    @State var selectedText: RecognizedText
-    
+//    @State var fieldValue: FieldValue
+//    @State var selectedText: RecognizedText
+
     var imageTextPicker: some View {
-        TextPicker(imageViewModels: viewModel.imageViewModels, selectedText: selectedText) { text, ouputId in
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            allowsMultipleSelection: true
+//            selectedText: selectedText
+        ) { selectedImageTexts in
         }
         .environmentObject(viewModel)
     }

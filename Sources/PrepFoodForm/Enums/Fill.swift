@@ -47,8 +47,14 @@ struct ScannedFillInfo: Hashable {
 }
 
 struct SelectionFillInfo: Hashable {
-    var resultTexts: [ImageText]
+    var imageTexts: [ImageText]
     var altValue: FoodLabelValue? = nil
+    
+    func withAltValue(_ value: FoodLabelValue) -> SelectionFillInfo {
+        var newInfo = self
+        newInfo.altValue = value
+        return newInfo
+    }
 }
 
 struct PrefillFillInfo: Hashable {
@@ -58,7 +64,7 @@ struct PrefillFillInfo: Hashable {
 enum Fill: Hashable {
     
     case scanned(ScannedFillInfo)
-    case selection(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: FoodLabelValue? = nil)
+    case selection(SelectionFillInfo)
     
     case prefill(prefillFields: [PrefillField] = [])
     case userInput
@@ -121,16 +127,16 @@ extension Fill {
         case .selection:
             return "Selected from image"
         case .userInput:
-//            if !fieldValue.isEmpty {
-//                return "Manually entered"
-//            }
+            //            if !fieldValue.isEmpty {
+            //                return "Manually entered"
+            //            }
             return ""
         default:
             break
         }
         return ""
     }
-
+    
     var isCalculated: Bool {
         switch self {
         case .calculated:
@@ -139,7 +145,7 @@ extension Fill {
             return false
         }
     }
-
+    
     var isThirdPartyFoodPrefill: Bool {
         switch self {
         case .prefill:
@@ -148,7 +154,7 @@ extension Fill {
             return false
         }
     }
-
+    
     var isImageAutofill: Bool {
         switch self {
         case .scanned:
@@ -177,37 +183,42 @@ extension Fill {
     }
     
     var attributeText: RecognizedText? {
+        imageText?.attributeText
+    }
+    
+    var texts: [RecognizedText] {
         switch self {
         case .scanned(let info):
-            return info.imageText.attributeText
+            return [info.imageText.text]
+        case .selection(let info):
+            return info.imageTexts.map { $0.text }
+        default:
+            return []
+        }
+    }
+}
+
+//TODO: Selection will return multiple for these
+extension Fill {
+    var imageText: ImageText? {
+        switch self {
+        case .scanned(let info):
+            return info.imageText
+        case .selection(let info):
+            return info.imageTexts.first
         default:
             return nil
         }
     }
     
     var text: RecognizedText? {
-        switch self {
-        case .scanned(let info):
-            return info.imageText.text
-        case .selection(let recognizedText, _, _, _):
-            return recognizedText
-        default:
-            return nil
-        }
+        imageText?.text
     }
     
     var resultId: UUID? {
-        switch self {
-        case .scanned(let scannedFillInfo):
-            return scannedFillInfo.imageText.imageId
-        case .selection(_, let resultId, _, _):
-            return resultId
-        default:
-            return nil
-        }
+        imageText?.imageId
     }
     
-    //TODO: Merge boundingBoxToCrop and boundingBoxForImagePicker into one
     var boundingBoxToCrop: CGRect? {
         switch self {
         case .scanned(let info):
@@ -216,37 +227,13 @@ extension Fill {
             } else {
                 return info.imageText.text.boundingBox
             }
-        case .selection(let recognizedText, _, _, _):
-            return recognizedText.boundingBox
-        default:
-            return nil
-        }
-    }
-
-    var boundingBoxForImagePicker: CGRect? {
-        switch self {
-        case .scanned(let info):
-            if let attributeText = attributeText {
-                return attributeText.boundingBox.union(info.imageText.text.boundingBox)
-            } else {
-                return info.imageText.text.boundingBox
-            }
-        case .selection(let recognizedText, _, _, _):
-            return recognizedText.boundingBox
+        case .selection:
+            return text?.boundingBox
         default:
             return nil
         }
     }
     
-    func boxRect(for image: UIImage) -> CGRect? {
-        switch self {
-        case .selection, .scanned:
-            return boundingBox?.rectForSize(image.size)
-        default:
-            return nil
-        }
-    }
-
     var boundingBox: CGRect? {
         switch self {
         case .selection, .scanned:
@@ -255,13 +242,13 @@ extension Fill {
             return nil
         }
     }
-
-}
-
-extension Fill {
+    
     var detectedValues: [FoodLabelValue] {
         text?.string.values ?? []
     }
+}
+
+extension Fill {
     
     var isAltValue: Bool {
         altValue != nil
@@ -272,8 +259,8 @@ extension Fill {
         switch self {
         case .scanned(let info):
             return info.altValue ?? info.value
-        case .selection(let recognizedText, _, _, let value):
-            return value ?? recognizedText.firstFoodLabelValue
+        case .selection(let info):
+            return info.altValue ?? info.imageTexts.first?.text.firstFoodLabelValue
         case .calculated:
             //TODO: Do this
             return nil
@@ -286,9 +273,9 @@ extension Fill {
     var altValue: FoodLabelValue? {
         get {
             switch self {
-            case .selection(_, _, _, let value):
-                return value
             case .scanned(let info):
+                return info.altValue
+            case .selection(let info):
                 return info.altValue
             default:
                 return nil
@@ -296,12 +283,14 @@ extension Fill {
         }
         set {
             switch self {
-            case .selection(let recognizedText, let scanResultId, let supplementaryTexts, _):
-                self = .selection(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
             case .scanned(let info):
                 var newInfo = info
-                newInfo.value = newValue
+                newInfo.altValue = newValue
                 self = .scanned(newInfo)
+            case .selection(let info):
+                var newInfo = info
+                newInfo.altValue = newValue
+                self = .selection(newInfo)
             default:
                 break
             }
@@ -312,10 +301,10 @@ extension Fill {
 extension Fill {
     var energyValue: FoodLabelValue? {
         switch self {
-        case .selection(let recognizedText, _, _, let altValue):
-            return altValue ?? recognizedText.string.energyValue
         case .scanned(let info):
             return info.altValue ?? info.value
+        case .selection(let info):
+            return altValue ?? info.imageTexts.first?.text.string.energyValue
         default:
             return nil
         }
@@ -325,8 +314,8 @@ extension Fill {
 extension Fill {
     func uses(text: RecognizedText) -> Bool {
         switch self {
-        case .selection(let recognizedText, _, _, _):
-            return recognizedText.id == text.id
+        case .selection:
+            return self.text?.id == text.id
         case .scanned(let info):
             return info.imageText.text.id == text.id || info.imageText.attributeText?.id == text.id
         default:
