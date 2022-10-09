@@ -401,58 +401,71 @@ extension FieldValueForm {
             didTapChooseButton()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
-//            guard case .fill(let fill) = fillOption.type else {
-//                return
-//            }
-
+            
             doNotRegisterUserInput = true
             
             //TODO: Support 'deselecting' fill options for multiples like name
             switch fill {
             case .selection(let info):
-                changeFillTypeToSelection(info)
+                tappedSelectionFill(info)
             case .scanned(let info):
-                changeFillTypeToAutofill(info)
+                tappedScannedFill(info)
             case .prefill:
-                /// Tapped a prefill or calculated value
-                guard let fieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
-                    return
-                }
-                if let toggledFieldValue {
-                    toggledFieldValue(fieldValue)
-                }
+                tappedPrefill()
             default:
                 break
             }
 
-            let previousFillType = fieldValue.fill
-            fieldViewModel.fieldValue.fill = fill
-            
-            //TODO: Write a more succinct helper for this
-            if fill.text?.id != previousFillType.text?.id {
-                fieldViewModel.isCroppingNextImage = true
-                fieldViewModel.cropFilledImage()
+            if fieldValue.usesValueBasedTexts {
+                let previousFillType = fieldValue.fill
+                fieldViewModel.fieldValue.fill = fill
+                
+                //TODO: Write a more succinct helper for this
+                if fill.text?.id != previousFillType.text?.id {
+                    fieldViewModel.isCroppingNextImage = true
+                    fieldViewModel.cropFilledImage()
+                }
+                
+                doNotRegisterUserInput = false
+                
+                if fieldValue.usesValueBasedTexts {
+                    saveAndDismiss()
+                }
             }
-            
-            doNotRegisterUserInput = false
-            
-            //TODO: Don't save and dismiss if we expect multiples
-            saveAndDismiss()
         }
     }
     
-    func changeFillTypeToAutofill(_ info: ScannedFillInfo) {
+    func tappedScannedFill(_ info: ScannedFillInfo) {
         if let value = info.altValue ?? info.value, let setNewValue {
             setNewValue(value)
         }
     }
     
-    func changeFillTypeToSelection(_ info: SelectionFillInfo) {
-        guard let value = info.altValue ?? info.imageTexts.first?.text.string.values.first else {
+    func tappedSelectionFill(_ info: SelectionFillInfo) {
+        guard let imageText = info.imageTexts.first else {
+            return
+            
+        }
+        if fieldValue.usesValueBasedTexts {
+            guard let value = info.altValue ?? imageText.text.string.values.first else {
+                return
+            }
+            if let setNewValue {
+                setNewValue(value)
+            }
+        } else {
+            fieldViewModel.fieldValue.fill.removeImageText(imageText)
+            doNotRegisterUserInput = false
+        }
+    }
+    
+    func tappedPrefill() {
+        /// Tapped a prefill or calculated value
+        guard let fieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
             return
         }
-        if let setNewValue {
-            setNewValue(value)
+        if let toggledFieldValue {
+            toggledFieldValue(fieldValue)
         }
     }
     func didTapChooseButton() {

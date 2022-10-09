@@ -143,7 +143,7 @@ extension FieldValue {
     }
     
     //MARK: Image Selection
-    var selectionFillOptions: [FillOption] {
+    var valueBasedSelectionFillOptions: [FillOption] {
         guard case .selection(let info) = fill,
               info.imageTexts.first?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
@@ -163,8 +163,34 @@ extension FieldValue {
                 )
             )
         }
-        
         return fillOptions
+    }
+    
+    var stringBasedSelectionFillOptions: [FillOption] {
+        guard case .selection(let info) = fill else {
+            return []
+        }
+        var fillOptions: [FillOption] = []
+        for imageText in info.imageTexts {
+            fillOptions.append(
+                FillOption(
+                    string: imageText.text.string,
+                    systemImage: Fill.SystemImage.selection,
+                    isSelected: true,
+                    disableWhenSelected: false,
+                    type: .fill(.selection(.init(imageTexts: [imageText])))
+                )
+            )
+        }
+        return fillOptions
+    }
+    
+    var selectionFillOptions: [FillOption] {
+        if self.usesValueBasedTexts {
+            return valueBasedSelectionFillOptions
+        } else {
+            return stringBasedSelectionFillOptions
+        }
     }
 }
 

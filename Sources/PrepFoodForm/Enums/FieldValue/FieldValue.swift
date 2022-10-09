@@ -299,7 +299,12 @@ extension FieldValue {
                 }
             }
             set {
-                self = .init(string: newValue, fill: fill)
+                guard newValue != string else {
+                    return
+                }
+                withAnimation {
+                    self = .init(string: newValue, fill: .userInput)
+                }
             }
         }
         

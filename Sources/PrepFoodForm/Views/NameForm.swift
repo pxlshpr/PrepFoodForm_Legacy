@@ -34,6 +34,15 @@ struct NameForm: View {
 }
 
 extension Fill {
+    mutating func removeImageText(_ imageText: ImageText) {
+        guard case .selection(let info) = self else {
+            return
+        }
+        var newInfo = info
+        newInfo.imageTexts.removeAll(where: { $0 == imageText })
+        self = .selection(newInfo)
+    }
+    
     mutating func appendSelectedText(_ text: RecognizedText, on imageId: UUID) {
         let imageText = ImageText(text: text, imageId: imageId)
         let imageTexts: [ImageText]
