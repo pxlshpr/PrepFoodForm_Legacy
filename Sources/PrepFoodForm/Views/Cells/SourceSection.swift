@@ -129,7 +129,7 @@ extension FoodForm.SourceSection {
                 
             } label: {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Provide a source if you want this food to be eligible for the public database and award you member points.")
+                    Text("Provide a source if you want this food to be eligible for the public database and earn member points.")
                         .foregroundColor(Color(.secondaryLabel))
                         .multilineTextAlignment(.leading)
                     Label("Learn more", systemImage: "info.circle")
