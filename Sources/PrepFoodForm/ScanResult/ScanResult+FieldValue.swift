@@ -21,7 +21,7 @@ extension ScanResult {
         } else {
             guard let valueText = amountValueText(for: column) else { return nil }
             return FieldValue.amount(FieldValue.DoubleValue(
-                double: 1, string: "1", unit: .serving, fillType: autoFillType(
+                double: 1, string: "1", unit: .serving, fill: autoFillType(
                     for: valueText,
                     value: FoodLabelValue(amount: 1, unit: nil)
                 ))
@@ -43,7 +43,7 @@ extension ScanResult {
                 double: servingAmount,
                 string: servingAmount.cleanAmount,
                 unit: servingFormUnit,
-                fillType: autoFillType(
+                fill: autoFillType(
                     for: servingAmountValueText,
                     value: FoodLabelValue(
                         amount: servingAmount,
@@ -69,7 +69,7 @@ extension ScanResult {
             double: headerAmount,
             string: headerAmount.cleanAmount,
             unit: headerFormUnit(for: column),
-            fillType: autoFillType(
+            fill: autoFillType(
                 for: headerValueText,
                 value: FoodLabelValue(
                     amount: headerAmount,

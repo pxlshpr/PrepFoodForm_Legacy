@@ -46,7 +46,7 @@ extension FoodFormViewModel {
         if onlyServing {
             let size = Size(quantity: 1, name: "container", amount: 5, unit: .serving)
             let sizeViewModels: [FieldViewModel] = [
-                FieldViewModel(fieldValue: .size(.init(size: size, fillType: .userInput)))
+                FieldViewModel(fieldValue: .size(.init(size: size, fill: .userInput)))
             ]
             
             self.standardSizeViewModels = sizeViewModels
@@ -433,7 +433,7 @@ extension FoodFormViewModel {
 
 extension Size {
     var asFieldViewModelForUserInput: FieldViewModel {
-        FieldViewModel(fieldValue: .size(.init(size: self, fillType: .userInput)))
+        FieldViewModel(fieldValue: .size(.init(size: self, fill: .userInput)))
     }
 }
 
@@ -453,7 +453,7 @@ extension FieldValue {
             }
             switch self {
             case .size(let sizeValue):
-                self = .size(.init(size: newValue, fillType: sizeValue.fillType))
+                self = .size(.init(size: newValue, fill: sizeValue.fill))
             default:
                 break
             }

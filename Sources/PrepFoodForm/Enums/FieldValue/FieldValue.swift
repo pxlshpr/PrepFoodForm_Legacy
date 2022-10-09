@@ -20,7 +20,7 @@ enum FieldValue: Hashable {
 extension FieldValue {
     struct SizeValue: Hashable {
         var size: Size
-        var fillType: Fill
+        var fill: Fill
     }
 }
 extension FieldValue {
@@ -29,14 +29,14 @@ extension FieldValue {
         var internalDouble: Double?
         var internalString: String
         var unit: NutrientUnit
-        var fillType: Fill
+        var fill: Fill
 
-        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fillType: Fill = .userInput) {
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fill: Fill = .userInput) {
             self.nutrientType = nutrientType
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
-            self.fillType = fillType
+            self.fill = fill
         }
         
         var double: Double? {
@@ -110,13 +110,13 @@ extension FieldValue {
         var macro: Macro
         var internalDouble: Double?
         var internalString: String
-        var fillType: Fill
+        var fill: Fill
 
-        init(macro: Macro, double: Double? = nil, string: String = "", fillType: Fill = .userInput) {
+        init(macro: Macro, double: Double? = nil, string: String = "", fill: Fill = .userInput) {
             self.macro = macro
             self.internalDouble = double
             self.internalString = string
-            self.fillType = fillType
+            self.fill = fill
         }
         
         var double: Double? {
@@ -170,13 +170,13 @@ extension FieldValue {
         var internalDouble: Double?
         var internalString: String
         var unit: EnergyUnit
-        var fillType: Fill
+        var fill: Fill
 
-        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fillType: Fill = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fill: Fill = .userInput) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
-            self.fillType = fillType
+            self.fill = fill
         }
         
         var double: Double? {
@@ -228,13 +228,13 @@ extension FieldValue {
         var internalDouble: Double? = nil
         var internalString: String = ""
         var unit: FormUnit
-        var fillType: Fill
+        var fill: Fill
 
-        init(double: Double? = nil, string: String = "", unit: FormUnit, fillType: Fill = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: FormUnit, fill: Fill = .userInput) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
-            self.fillType = fillType
+            self.fill = fill
         }
         
         var double: Double? {
@@ -280,16 +280,16 @@ extension FieldValue {
     struct StringValue: Hashable {
         private var internalString: String
 //        var string: String = ""
-        var fillType: Fill
+        var fill: Fill
         
-        init(string: String = "", fillType: Fill = .userInput) {
+        init(string: String = "", fill: Fill = .userInput) {
             self.internalString = string
-            self.fillType = fillType
+            self.fill = fill
         }
         
         var string: String {
             get {
-                switch fillType {
+                switch fill {
                 case .imageSelection(_, _, let supplementaryTexts, _):
                     return supplementaryTexts.concatenatedString
                 case .prefill:
@@ -299,7 +299,7 @@ extension FieldValue {
                 }
             }
             set {
-                self = .init(string: newValue, fillType: fillType)
+                self = .init(string: newValue, fill: fill)
             }
         }
         
@@ -316,7 +316,7 @@ extension FieldValue {
         static let DefaultVolume = DoubleValue(unit: .volume(.cup))
         var weight = DefaultWeight
         var volume = DefaultVolume
-        var fillType: Fill = .userInput
+        var fill: Fill = .userInput
     }
 }
 
@@ -324,8 +324,8 @@ extension FieldValue {
 //MARK: - Helpers
 
 extension FieldValue {
-    init(micronutrient: NutrientType, fillType: Fill = .userInput) {
-        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fillType: fillType)
+    init(micronutrient: NutrientType, fill: Fill = .userInput) {
+        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fill: fill)
         self = .micro(microValue)
     }
 }
@@ -478,7 +478,7 @@ extension FieldValue {
         set {
             switch self {
             case .energy(let energyValue):
-                self = .energy(EnergyValue(double: energyValue.double, string: energyValue.string, unit: newValue?.energyUnit ?? .kcal, fillType: energyValue.fillType))
+                self = .energy(EnergyValue(double: energyValue.double, string: energyValue.string, unit: newValue?.energyUnit ?? .kcal, fill: energyValue.fill))
             default:
                 break
 //            case .macro(let macroValue):
@@ -638,7 +638,7 @@ extension FieldValue {
         set {
             switch self {
             case .energy(let energyValue):
-                self = .energy(EnergyValue(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyValue.unit, fillType: energyValue.fillType))
+                self = .energy(EnergyValue(double: newValue, string: newValue?.cleanAmount ?? "", unit: energyValue.unit, fill: energyValue.fill))
             default:
                 break
 //            case .macro(let macroValue):
@@ -694,70 +694,70 @@ extension FieldValue {
         }
     }
 
-    var fillType: Fill {
+    var fill: Fill {
         get {
             switch self {
             case .energy(let energyValue):
-                return energyValue.fillType
+                return energyValue.fill
             case .macro(let macroValue):
-                return macroValue.fillType
+                return macroValue.fill
             case .micro(let microValue):
-                return microValue.fillType
+                return microValue.fill
             case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
-                return stringValue.fillType
+                return stringValue.fill
             case .amount(let doubleValue), .serving(let doubleValue):
-                return doubleValue.fillType
+                return doubleValue.fill
             case .density(let density):
-                return density?.fillType ?? .userInput
+                return density?.fill ?? .userInput
             case .size(let sizeValue):
-                return sizeValue.fillType
+                return sizeValue.fill
             }
         }
         set {
             switch self {
             case .name(let stringValue):
-                self = .name(StringValue(string: stringValue.string, fillType: newValue))
+                self = .name(StringValue(string: stringValue.string, fill: newValue))
             case .emoji(let stringValue):
-                self = .emoji(StringValue(string: stringValue.string, fillType: newValue))
+                self = .emoji(StringValue(string: stringValue.string, fill: newValue))
             case .brand(let stringValue):
-                self = .brand(StringValue(string: stringValue.string, fillType: newValue))
+                self = .brand(StringValue(string: stringValue.string, fill: newValue))
             case .barcode(let stringValue):
-                self = .barcode(StringValue(string: stringValue.string, fillType: newValue))
+                self = .barcode(StringValue(string: stringValue.string, fill: newValue))
             case .detail(let stringValue):
-                self = .detail(StringValue(string: stringValue.string, fillType: newValue))
+                self = .detail(StringValue(string: stringValue.string, fill: newValue))
             case .amount(let doubleValue):
                 self = .amount(DoubleValue(
                     double: doubleValue.double,
                     string: doubleValue.string,
                     unit: doubleValue.unit,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .serving(let doubleValue):
                 self = .serving(DoubleValue(
                     double: doubleValue.double,
                     string: doubleValue.string,
                     unit: doubleValue.unit,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .density(let densityValue):
                 self = .density(DensityValue(
                     weight: densityValue?.weight ?? DensityValue.DefaultWeight,
                     volume: densityValue?.volume ?? DensityValue.DefaultVolume,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .energy(let energyValue):
                 self = .energy(EnergyValue(
                     double: energyValue.double,
                     string: energyValue.string,
                     unit: energyValue.unit,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .macro(let macroValue):
                 self = .macro(MacroValue(
                     macro: macroValue.macro,
                     double: macroValue.double,
                     string: macroValue.string,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .micro(let microValue):
                 self = .micro(MicroValue(
@@ -765,10 +765,10 @@ extension FieldValue {
                     double: microValue.double,
                     string: microValue.string,
                     unit: microValue.unit,
-                    fillType: newValue)
+                    fill: newValue)
                 )
             case .size(let sizeValue):
-                self = .size(SizeValue(size: sizeValue.size, fillType: newValue))
+                self = .size(SizeValue(size: sizeValue.size, fill: newValue))
             }
         }
     }

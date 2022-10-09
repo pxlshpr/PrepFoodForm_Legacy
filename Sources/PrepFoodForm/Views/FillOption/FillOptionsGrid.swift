@@ -107,7 +107,7 @@ public struct FillOptionsGridPreview: View {
     
     func addRandomFillOption() {
         fillOptions.append(
-            FillOption(string: "Test\(Int.random(in: 0...1000))", systemImage: "face.smiling", isSelected: false, type: .fillType(.userInput))
+            FillOption(string: "Test\(Int.random(in: 0...1000))", systemImage: "face.smiling", isSelected: false, type: .fill(.userInput))
         )
     }
 }

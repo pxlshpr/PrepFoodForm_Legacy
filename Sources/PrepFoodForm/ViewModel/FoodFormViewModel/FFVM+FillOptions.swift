@@ -5,8 +5,8 @@ import PrepUnits
 extension FillOption {
     var foodLabelValue: FoodLabelValue? {
         switch self.type {
-        case .fillType(let fillType):
-            return fillType.value
+        case .fill(let fill):
+            return fill.value
         default:
             return nil
         }
@@ -58,8 +58,8 @@ extension FoodFormViewModel {
             let option = FillOption(
                 string: prefillFieldValue.prefillString,
                 systemImage: Fill.SystemImage.prefill,
-                isSelected: fieldValue.fillType.isThirdPartyFoodPrefill,
-                type: .fillType(.prefill())
+                isSelected: fieldValue.fill.isThirdPartyFoodPrefill,
+                type: .fill(.prefill())
             )
             fillOptions.append(option)
         }
@@ -118,7 +118,7 @@ extension FoodFormViewModel {
         guard let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) else {
             return nil
         }
-        return autofillFieldValue.fillType.valueText
+        return autofillFieldValue.fill.valueText
     }
     
     func autofillText(for fieldValue: FieldValue) -> RecognizedText? {

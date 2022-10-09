@@ -27,7 +27,7 @@ class FieldViewModel: ObservableObject, Identifiable {
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
         
-        if fieldValue.fillType.isThirdPartyFoodPrefill {
+        if fieldValue.fill.isThirdPartyFoodPrefill {
             self.prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
         }
     }
@@ -41,9 +41,9 @@ class FieldViewModel: ObservableObject, Identifiable {
     func copyData(from fieldViewModel: FieldViewModel) {
         fieldValue = fieldViewModel.fieldValue
         
-        if fieldValue.fillType.usesImage {
+        if fieldValue.fill.usesImage {
             continueCroppingImageIfNeeded(for: fieldViewModel)
-        } else if fieldValue.fillType.isThirdPartyFoodPrefill {
+        } else if fieldValue.fill.isThirdPartyFoodPrefill {
             prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
         }
     }
@@ -60,19 +60,19 @@ class FieldViewModel: ObservableObject, Identifiable {
     }
     
     func registerUserInput() {
-        fieldValue.fillType = .userInput
+        fieldValue.fill = .userInput
         imageToDisplay = nil
     }
     
     func cropFilledImage() {
-        guard fieldValue.fillType.usesImage else {
+        guard fieldValue.fill.usesImage else {
             withAnimation {
                 imageToDisplay = nil
             }
             return
         }
         Task {
-            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fieldValue.fillType) else {
+            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fieldValue.fill) else {
                 print("⚠️ Couldn't get cropped image for: \(self.fieldValue.description)")
                 return
             }
@@ -87,12 +87,12 @@ class FieldViewModel: ObservableObject, Identifiable {
         }
     }
     
-//    func changeFillType(to fillType: FillType) {
+//    func changeFillType(to fill: FillType) {
 //        print("🔘 🔒 isFilling set to true for: \(fieldValue.description)")
 //        isFilling = true
 //
-//        fieldValue.fillType = fillType
-//        switch fillType {
+//        fieldValue.fill = fill
+//        switch fill {
 //        case .imageSelection(let text, let scanResultId, let supplementaryTexts, let value):
 //            break
 //        case .imageAutofill(let valueText, scanResultId: _, value: let value):

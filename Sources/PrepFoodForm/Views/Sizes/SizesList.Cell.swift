@@ -25,7 +25,7 @@ extension SizesList.Cell {
             //            Button {
             //
             //            } label: {
-            //                Image(systemName: size.fillType.buttonSystemImage)
+            //                Image(systemName: size.fill.buttonSystemImage)
             //                    .imageScale(.large)
             //            }
             //            .buttonStyle(.borderless)

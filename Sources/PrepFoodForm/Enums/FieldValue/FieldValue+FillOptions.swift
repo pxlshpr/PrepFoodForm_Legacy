@@ -15,21 +15,21 @@ extension FieldValue {
                 systemImage: Fill.SystemImage.imageAutofill,
 //                isSelected: self.value == autofillFieldValue.value,
                 isSelected: self == autofillFieldValue,
-                type: .fillType(autofillFieldValue.fillType)
+                type: .fill(autofillFieldValue.fill)
             )
         )
 
         /// Show alts if selected (only check the text because it might have a different value attached to it)
         for alternateValue in autofillFieldValue.altValues {
-            guard let valueText = autofillFieldValue.fillType.valueText, let scanResultId = autofillFieldValue.fillType.scanResultId else {
+            guard let valueText = autofillFieldValue.fill.valueText, let scanResultId = autofillFieldValue.fill.scanResultId else {
                 continue
             }
             fillOptions.append(
                 FillOption(
                     string: alternateValue.fillOptionString,
                     systemImage: Fill.SystemImage.imageAutofill,
-                    isSelected: self.value == alternateValue && self.fillType.isImageAutofill,
-                    type: .fillType(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+                    isSelected: self.value == alternateValue && self.fill.isImageAutofill,
+                    type: .fill(.imageAutofill(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                 )
             )
         }
@@ -158,7 +158,7 @@ extension FieldValue {
                 let primaryText,
                 let scanResultId,
                 let supplementaryTexts,
-                value: _) = fillType
+                value: _) = fill
                 ,
             primaryText != FoodFormViewModel.shared.autofillText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
@@ -173,8 +173,8 @@ extension FieldValue {
                 FillOption(
                     string: value.description,
                     systemImage: Fill.SystemImage.imageSelection,
-                    isSelected: value.matchesSelection(self.value) && self.fillType.isImageSelection,
-                    type: .fillType(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
+                    isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
+                    type: .fill(.imageSelection(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )
                 )
             )

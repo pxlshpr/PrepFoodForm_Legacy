@@ -1,7 +1,7 @@
 import Foundation
 
 enum FillOptionType: Hashable {
-    case fillType(Fill)
+    case fill(Fill)
     case chooseText
 }
 

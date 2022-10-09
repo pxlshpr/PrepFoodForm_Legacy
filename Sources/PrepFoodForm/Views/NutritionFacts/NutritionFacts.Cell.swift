@@ -24,7 +24,7 @@ extension FoodForm.NutritionFacts.Cell {
         .cornerRadius(10)
         .padding(.bottom, 10)
 //        .onAppear {
-//            getCroppedImage(for: fieldValue.fillType)
+//            getCroppedImage(for: fieldValue.fill)
 //        }
     }
     
@@ -73,7 +73,7 @@ extension FoodForm.NutritionFacts.Cell {
     @ViewBuilder
     var fillTypeIcon: some View {
         if viewModel.hasNonUserInputFills, !isEmpty {
-            Image(systemName: fieldValue.fillType.iconSystemImage)
+            Image(systemName: fieldValue.fill.iconSystemImage)
 //        Image(systemName: "text.viewfinder")
                 .foregroundColor(Color(.secondaryLabel))
         }
@@ -138,7 +138,7 @@ extension FoodForm.NutritionFacts.Cell {
                             .shadow(radius: 3, x: 0, y: 3)
                     }
                 }
-            } else if fieldValue.fillType.usesImage {
+            } else if fieldValue.fill.usesImage {
                 activityIndicator
             }
         }
@@ -163,7 +163,7 @@ public struct NutritionFacts_CellPreview: View {
     @Environment(\.colorScheme) var colorScheme
     
     var fieldValue: FieldValue {
-        var fieldValue = FieldValue(micronutrient: .calcium, fillType: .userInput)
+        var fieldValue = FieldValue(micronutrient: .calcium, fill: .userInput)
         fieldValue.microValue.double = 25
         fieldValue.microValue.unit = .g
         return fieldValue

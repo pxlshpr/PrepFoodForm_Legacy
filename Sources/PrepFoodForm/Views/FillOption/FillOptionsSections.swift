@@ -199,7 +199,7 @@ public struct FillOptionSectionsPreview: View {
         }
         .onChange(of: string) { newValue in
             withAnimation {
-                viewModel.energyViewModel.fieldValue.energyValue.fillType = .userInput
+                viewModel.energyViewModel.fieldValue.energyValue.fill = .userInput
             }
         }
     }

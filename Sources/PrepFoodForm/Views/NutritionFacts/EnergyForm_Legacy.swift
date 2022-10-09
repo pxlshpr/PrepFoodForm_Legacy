@@ -192,8 +192,8 @@
 //    var textPicker: some View {
 //        TextPicker(
 //            imageViewModels: viewModel.imageViewModels,
-//            selectedText: fieldValue.fillType.text,
-//            selectedAttributeText: fieldValue.fillType.attributeText,
+//            selectedText: fieldValue.fill.text,
+//            selectedAttributeText: fieldValue.fill.attributeText,
 //            selectedImageIndex: selectedImageIndex,
 //            onlyShowTextsWithValues: true
 //        ) { text, scanResultId in
@@ -240,7 +240,7 @@
 //
 //        doNotRegisterUserInput = true
 //        setNewValue(value)
-//        formViewModel.fieldValue.fillType = newFillType
+//        formViewModel.fieldValue.fill = newFillType
 //        formViewModel.isCroppingNextImage = true
 //    }
 //
@@ -248,9 +248,9 @@
 //        switch fillOption.type {
 //        case .chooseText:
 //            didTapChooseButton()
-//        case .fillType(let fillType):
+//        case .fill(let fill):
 //            Haptics.feedback(style: .rigid)
-//            changeFillType(to: fillType)
+//            changeFillType(to: fill)
 //            saveAndDismiss()
 //        }
 //    }
@@ -266,11 +266,11 @@
 //        showingTextPicker = true
 //    }
 //
-//    func changeFillType(to fillType: FillType) {
+//    func changeFillType(to fill: FillType) {
 //
 //        doNotRegisterUserInput = true
 //
-//        switch fillType {
+//        switch fill {
 //        case .imageSelection(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
 //        case .imageAutofill(let valueText, _, value: let value):
@@ -279,9 +279,9 @@
 //            break
 //        }
 //
-//        let previousFillType = fieldValue.fillType
-//        formViewModel.fieldValue.fillType = fillType
-//        if fillType.text?.id != previousFillType.text?.id {
+//        let previousFillType = fieldValue.fill
+//        formViewModel.fieldValue.fill = fill
+//        if fill.text?.id != previousFillType.text?.id {
 //            formViewModel.isCroppingNextImage = true
 //            formViewModel.cropFilledImage()
 //        }
@@ -309,7 +309,7 @@
 //    }
 //
 //    var selectedImageIndex: Int? {
-//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
+//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.scanResultId })
 //    }
 //
 //    //MARK: - Energy based

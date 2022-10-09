@@ -12,7 +12,7 @@ extension ScanResult {
         
         return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
             size: perContainerSize,
-            fillType: autoFillType(
+            fill: autoFillType(
                 for: perContainerSizeValueText,
                 value: FoodLabelValue(amount: perContainerSize.amount ?? 0,
                                       unit: perContainerSize.unit.foodLabelUnit)
@@ -38,7 +38,7 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: servingUnitSize,
-            fillType: autoFillType(
+            fill: autoFillType(
                 for: servingUnitSizeValueText,
                 value: FoodLabelValue(
                     amount: servingUnitSize.amount ?? 0,
@@ -56,7 +56,7 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: equivalentUnitSize,
-            fillType: autoFillType(
+            fill: autoFillType(
                 for: equivalentUnitSizeValueText,
                 value: FoodLabelValue(
                     amount: equivalentUnitSize.amount ?? 0,

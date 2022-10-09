@@ -22,7 +22,7 @@ public class FoodFormViewModel: ObservableObject {
     }
     
     func clearFieldModels() {
-        amountViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput)))
+        amountViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
         servingViewModel = FieldViewModel(fieldValue: .serving())
         standardSizeViewModels = []
         volumePrefixedSizeViewModels = []
@@ -54,7 +54,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingCameraImagePicker: Bool = false
     
     //MARK: Amount Per
-    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fillType: .userInput)))
+    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
     
     @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
     
@@ -180,13 +180,13 @@ extension FoodFormViewModel {
     
     var hasNonUserInputFills: Bool {
         for field in allFieldValues {
-            if field.fillType != .userInput {
+            if field.fill != .userInput {
                 return true
             }
         }
         
         for model in allSizeViewModels {
-            if model.fieldValue.fillType != .userInput {
+            if model.fieldValue.fill != .userInput {
                 return true
             }
         }

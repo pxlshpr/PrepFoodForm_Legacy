@@ -3,11 +3,11 @@ import PrepUnits
 
 extension MFPProcessedFood {
     var energyFieldValue: FieldValue {
-        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fillType: .prefill()))
+        .energy(FieldValue.EnergyValue(double: energy, string: energy.cleanAmount, unit: .kcal, fill: .prefill()))
     }
     
     func macroFieldValue(macro: Macro, double: Double) -> FieldValue {
-        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fillType: .prefill()))
+        .macro(FieldValue.MacroValue(macro: macro, double: double, string: double.cleanAmount, fill: .prefill()))
     }
 
     func macroFieldValue(for macro: Macro) -> FieldValue {
@@ -56,7 +56,7 @@ extension MFPProcessedFood {
             double: amount,
             string: amount.cleanAmount,
             unit: amountUnit.formUnit(withSize: size),
-            fillType: .prefill())
+            fill: .prefill())
         )
     }
     var servingFieldValue: FieldValue? {
@@ -75,7 +75,7 @@ extension MFPProcessedFood {
             double: servingAmount,
             string: servingAmount.cleanAmount,
             unit: servingUnit.formUnit(withSize: size),
-            fillType: .prefill())
+            fill: .prefill())
         )
     }
 }
@@ -94,7 +94,7 @@ extension MFPProcessedFood.Nutrient {
             double: amount,
             string: amount.cleanAmount,
             unit: unit,
-            fillType: .prefill())
+            fill: .prefill())
         )
     }
 }

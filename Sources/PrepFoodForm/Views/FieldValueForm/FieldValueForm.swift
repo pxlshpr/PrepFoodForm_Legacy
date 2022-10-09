@@ -191,7 +191,7 @@ extension FieldValueForm {
     /// Returns true if any of the fields have changed from what they initially were
     var isDirty: Bool {
         fieldViewModel.fieldValue != existingFieldViewModel.fieldValue
-        || fieldViewModel.fillType != existingFieldViewModel.fillType
+        || fieldViewModel.fill != existingFieldViewModel.fill
     }
     
     var content: some View {
@@ -342,8 +342,8 @@ extension FieldValueForm {
     var textPicker: some View {
         TextPicker(
             imageViewModels: viewModel.imageViewModels,
-            selectedText: fieldValue.fillType.text,
-            selectedAttributeText: fieldValue.fillType.attributeText,
+            selectedText: fieldValue.fill.text,
+            selectedAttributeText: fieldValue.fill.attributeText,
             selectedImageIndex: selectedImageIndex,
             onlyShowTextsWithValues: fieldValue.usesValueBasedTexts
         ) { text, scanResultId in
@@ -375,16 +375,16 @@ extension FieldValueForm {
         switch fillOption.type {
         case .chooseText:
             didTapChooseButton()
-        case .fillType(let fillType):
+        case .fill(let fill):
             Haptics.feedback(style: .rigid)
-            guard case .fillType(let fillType) = fillOption.type else {
+            guard case .fill(let fill) = fillOption.type else {
                 return
             }
 
             doNotRegisterUserInput = true
             
             //TODO: Support 'deselecting' fill options for multiples like name
-            switch fillType {
+            switch fill {
             case .imageSelection(let text, _, _, let value):
                 changeFillTypeToSelection(of: text, withAltValue: value)
             case .imageAutofill(let valueText, _, value: let value):
@@ -401,11 +401,11 @@ extension FieldValueForm {
                 break
             }
 
-            let previousFillType = fieldValue.fillType
-            fieldViewModel.fieldValue.fillType = fillType
+            let previousFillType = fieldValue.fill
+            fieldViewModel.fieldValue.fill = fill
             
             //TODO: Write a more succinct helper for this
-            if fillType.text?.id != previousFillType.text?.id {
+            if fill.text?.id != previousFillType.text?.id {
                 fieldViewModel.isCroppingNextImage = true
                 fieldViewModel.cropFilledImage()
             }
@@ -428,7 +428,7 @@ extension FieldValueForm {
         showingTextPicker = true
     }
     
-    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
+    func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
         if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
             return .imageAutofill(valueText: valueText, scanResultId: imageId, value: nil)
         } else {
@@ -452,12 +452,12 @@ extension FieldValueForm {
             return
         }
         
-        let newFillType = fillType(for: text, onImageWithId: imageId)
+        let newFillType = fill(for: text, onImageWithId: imageId)
         doNotRegisterUserInput = true
         
         if let setNewValue {
             setNewValue(value)
-            fieldViewModel.fieldValue.fillType = newFillType
+            fieldViewModel.fieldValue.fill = newFillType
             fieldViewModel.isCroppingNextImage = true
         }
     }
@@ -485,6 +485,6 @@ extension FieldValueForm {
     }
 
     var selectedImageIndex: Int? {
-        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
+        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.scanResultId })
     }
 }

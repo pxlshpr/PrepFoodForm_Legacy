@@ -58,7 +58,7 @@ extension FoodForm.DetailsForm {
                 Haptics.feedback(style: .soft)
                 showingSheet = true
             } label: {
-                Image(systemName: stringValue.fillType.buttonSystemImage)
+                Image(systemName: stringValue.fill.buttonSystemImage)
                     .imageScale(.large)
             }
             .buttonStyle(.borderless)

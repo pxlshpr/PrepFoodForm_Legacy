@@ -134,8 +134,8 @@
 //    var textPicker: some View {
 //        TextPicker(
 //            imageViewModels: viewModel.imageViewModels,
-//            selectedText: fieldValue.fillType.text,
-//            selectedAttributeText: fieldValue.fillType.attributeText,
+//            selectedText: fieldValue.fill.text,
+//            selectedAttributeText: fieldValue.fill.attributeText,
 //            selectedImageIndex: selectedImageIndex,
 //            onlyShowTextsWithValues: true
 //        ) { text, scanResultId in
@@ -175,7 +175,7 @@
 //        doNotRegisterUserInput = true
 //        withAnimation {
 //            setNew(amount: value.amount)
-//            fieldViewModel.fieldValue.fillType = newFillType
+//            fieldViewModel.fieldValue.fill = newFillType
 //        }
 //
 //        withAnimation {
@@ -187,8 +187,8 @@
 //        switch fillOption.type {
 //        case .chooseText:
 //            didTapChooseButton()
-//        case .fillType(let fillType):
-//            didTapFillTypeButton(for: fillType)
+//        case .fill(let fill):
+//            didTapFillTypeButton(for: fill)
 //            doNotRegisterUserInput = true
 //            dismiss()
 //        }
@@ -199,18 +199,18 @@
 //        showingTextPicker = true
 //    }
 //
-//    func didTapFillTypeButton(for fillType: FillType) {
+//    func didTapFillTypeButton(for fill: FillType) {
 //        Haptics.feedback(style: .rigid)
 //        withAnimation {
-//            changeFillType(to: fillType)
+//            changeFillType(to: fill)
 //        }
 //    }
 //
-//    func changeFillType(to fillType: FillType) {
+//    func changeFillType(to fill: FillType) {
 //
 //        doNotRegisterUserInput = true
 //
-//        switch fillType {
+//        switch fill {
 //        case .imageSelection(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
 //        case .imageAutofill(let valueText, _, value: let value):
@@ -219,9 +219,9 @@
 //            break
 //        }
 //
-//        let previousFillType = fieldValue.fillType
-//        fieldViewModel.fieldValue.fillType = fillType
-//        if fillType.text?.id != previousFillType.text?.id {
+//        let previousFillType = fieldValue.fill
+//        fieldViewModel.fieldValue.fill = fill
+//        if fill.text?.id != previousFillType.text?.id {
 //            fieldViewModel.isCroppingNextImage = true
 //            fieldViewModel.cropFilledImage()
 //        }
@@ -256,6 +256,6 @@
 //    }
 //
 //    var selectedImageIndex: Int? {
-//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fillType.scanResultId })
+//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.scanResultId })
 //    }
 //}

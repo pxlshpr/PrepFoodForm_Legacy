@@ -129,18 +129,18 @@
 //        switch fillOption.type {
 //        case .chooseText:
 //            didTapChooseButton()
-//        case .fillType(let fillType):
+//        case .fill(let fill):
 //            Haptics.feedback(style: .rigid)
-//            changeFillType(to: fillType)
+//            changeFillType(to: fill)
 ////            saveAndDismiss()
 //        }
 //    }
 //    
-//    func changeFillType(to fillType: FillType) {
+//    func changeFillType(to fill: FillType) {
 //        
 //        doNotRegisterUserInput = true
 //        
-//        switch fillType {
+//        switch fill {
 //        case .imageSelection(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
 //        case .imageAutofill(let valueText, _, value: let value):
@@ -149,9 +149,9 @@
 //            break
 //        }
 //        
-//        let previousFillType = amountViewModel.fieldValue.fillType
-//        amountViewModel.fieldValue.fillType = fillType
-//        if fillType.text?.id != previousFillType.text?.id {
+//        let previousFillType = amountViewModel.fieldValue.fill
+//        amountViewModel.fieldValue.fill = fill
+//        if fill.text?.id != previousFillType.text?.id {
 //            amountViewModel.isCroppingNextImage = true
 //            amountViewModel.cropFilledImage()
 //        }
@@ -194,8 +194,8 @@
 //    var textPicker: some View {
 //        TextPicker(
 //            imageViewModels: viewModel.imageViewModels,
-//            selectedText: fillType.text,
-//            selectedAttributeText: fillType.attributeText,
+//            selectedText: fill.text,
+//            selectedAttributeText: fill.attributeText,
 //            selectedImageIndex: selectedImageIndex,
 //            onlyShowTextsWithValues: true
 //        ) { text, scanResultId in
@@ -218,16 +218,16 @@
 //            return
 //        }
 //        
-//        let newFillType = fillType(for: text, onImageWithId: imageId)
+//        let newFillType = fill(for: text, onImageWithId: imageId)
 //        doNotRegisterUserInput = true
 //        
 //        amountViewModel.fieldValue.doubleValue.double = value.amount
 //        amountViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
-//        amountViewModel.fieldValue.fillType = newFillType
+//        amountViewModel.fieldValue.fill = newFillType
 //        amountViewModel.isCroppingNextImage = true
 //    }
 //    
-//    func fillType(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
+//    func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> FillType {
 //        if let valueText = viewModel.autofillValueText(for: amountViewModel.fieldValue),
 //            valueText.text == text
 //        {
@@ -239,11 +239,11 @@
 //
 //    
 //    var selectedImageIndex: Int? {
-//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fillType.scanResultId })
+//        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fill.scanResultId })
 //    }
 //    
-//    var fillType: FillType {
-//        amountViewModel.fieldValue.fillType
+//    var fill: FillType {
+//        amountViewModel.fieldValue.fill
 //    }
 //
 //    var addSizeForm: some View {

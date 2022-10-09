@@ -247,17 +247,17 @@ extension ScanResult {
         else {
             return nil
         }
-        let fillType: Fill
+        let fill: Fill
         if valueText.text.id == defaultUUID {
-            fillType = .calculated
+            fill = .calculated
         } else {
-            fillType = .imageAutofill(valueText: valueText, scanResultId: self.id)
+            fill = .imageAutofill(valueText: valueText, scanResultId: self.id)
         }
         return FieldValue.energy(FieldValue.EnergyValue(
             double: value.amount,
             string: value.amount.cleanAmount,
             unit: value.unit?.energyUnit ?? .kcal,
-            fillType: fillType)
+            fill: fill)
         )
     }
     
@@ -270,17 +270,17 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: Fill
+        let fill: Fill
         if valueText.text.id == defaultUUID {
-            fillType = .calculated
+            fill = .calculated
         } else {
-            fillType = .imageAutofill(valueText: valueText, scanResultId: self.id)
+            fill = .imageAutofill(valueText: valueText, scanResultId: self.id)
         }
         return FieldValue.macro(FieldValue.MacroValue(
             macro: macro,
             double: value.amount,
             string: value.amount.cleanAmount,
-            fillType: fillType)
+            fill: fill)
         )
     }
 
@@ -293,11 +293,11 @@ extension ScanResult {
             return nil
         }
         
-        let fillType: Fill
+        let fill: Fill
         if valueText.text.id == defaultUUID {
-            fillType = .calculated
+            fill = .calculated
         } else {
-            fillType = .imageAutofill(valueText: valueText, scanResultId: self.id)
+            fill = .imageAutofill(valueText: valueText, scanResultId: self.id)
         }
 
         let unit = value.unit?.nutrientUnit(for: nutrientType) ?? nutrientType.defaultUnit
@@ -307,7 +307,7 @@ extension ScanResult {
             double: value.amount,
             string: value.amount.cleanAmount,
             unit: unit,
-            fillType: fillType)
+            fill: fill)
         )
     }
 

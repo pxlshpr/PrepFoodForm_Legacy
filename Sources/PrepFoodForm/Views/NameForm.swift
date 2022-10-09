@@ -23,7 +23,7 @@ struct NameForm: View {
     }
     
     func tappedText(_ text: RecognizedText, imageId: UUID) {
-        fieldViewModel.fieldValue.stringValue.fillType.appendSelectedText(text)
+        fieldViewModel.fieldValue.stringValue.fill.appendSelectedText(text)
     }
     
     func didSave() {

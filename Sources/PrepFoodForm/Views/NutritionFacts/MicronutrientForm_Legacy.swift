@@ -33,7 +33,7 @@ struct MicronutrientForm_Legacy: View {
 //
 ////    @State var string: String = ""
 ////    @State var nutrientUnit: NutrientUnit = .g
-////    @State var fillType: FillType = .userInput
+////    @State var fill: FillType = .userInput
 //
 //    init(fieldValue: Binding<FieldValue>, isBeingEdited: Bool = false, didSubmit: @escaping ((FieldValue) -> ())) {
 //        _fieldValue = fieldValue
@@ -59,11 +59,11 @@ struct MicronutrientForm_Legacy: View {
 ////                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
 ////                    self.fieldFormViewModel.ignoreNextChange = false
 ////                }
-////                fillType = fieldValue.fillType
+////                fill = fieldValue.fill
 //
-//                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+//                fieldFormViewModel.getCroppedImage(for: fieldValue.fill)
 //            }
-//            .onChange(of: fieldValueCopy.fillType) { newValue in
+//            .onChange(of: fieldValueCopy.fill) { newValue in
 //                fieldFormViewModel.getCroppedImage(for: newValue)
 //            }
 //            .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
@@ -77,7 +77,7 @@ struct MicronutrientForm_Legacy: View {
 //                    return
 //                }
 //                withAnimation {
-//                    fieldValue.fillType = .userInput
+//                    fieldValue.fill = .userInput
 //                }
 //            }
 //    }
@@ -154,13 +154,13 @@ struct MicronutrientForm_Legacy: View {
 //    }
 //
 //    var imageTextPicker: some View {
-//        ImageTextPicker(fillType: fieldValueCopy.fillType) { text, scanResultId in
+//        ImageTextPicker(fill: fieldValueCopy.fill) { text, scanResultId in
 //
 //            fieldFormViewModel.showingImageTextPicker = false
 //
 //            var newFieldValue = fieldValue
 //            newFieldValue.microValue.double = text.string.double
-//            newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
+//            newFieldValue.fill = .imageSelection(recognizedText: text, scanResultId: scanResultId)
 //
 //            fieldFormViewModel.ignoreNextChange = true
 //            withAnimation {

@@ -30,13 +30,13 @@ extension FoodFormViewModel {
         default:
             return nil
         }
-        newFieldValue.fillType = .calculated
+        newFieldValue.fill = .calculated
         return newFieldValue
     }
 
     func calculatedFieldValueFromScanResults(for attribute: Attribute, at column: Int) -> FieldValue? {
         guard let fieldValue = fieldValueFromScanResults(for: attribute, at: column),
-              fieldValue.fillType == .calculated
+              fieldValue.fill == .calculated
         else {
             return nil
         }

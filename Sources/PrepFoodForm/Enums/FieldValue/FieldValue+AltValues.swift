@@ -3,7 +3,7 @@ import PrepUnits
 
 extension FieldValue {
     var altValues: [FoodLabelValue] {
-//        guard !fillType.isAltValue else { return [] }
+//        guard !fill.isAltValue else { return [] }
         switch self {
         case .energy(let energyValue):
             return energyValue.altValues
@@ -36,9 +36,9 @@ extension FieldValue {
 }
 
 extension FieldValue.DoubleValue {
-    /// Return all `FoodLabelValue`s detected in the recognized text of the `fillType` that isn't the value attached to this fieldValue
+    /// Return all `FoodLabelValue`s detected in the recognized text of the `fill` that isn't the value attached to this fieldValue
     var altValues: [FoodLabelValue] {
-        guard let textString = self.fillType.valueText?.text.string else {
+        guard let textString = self.fill.valueText?.text.string else {
             return []
         }
         return textString.values.filter({ $0 != self.value })
@@ -130,7 +130,7 @@ extension FieldValue.EnergyValue {
      Returns the `FoodLabelValue` to generate alts for. This is either the `altValue` currently attached to this—or the first value that's detected in the string (which is initially assigned to this when the text is selected).
     */
     var valueToGenerateAltsFor: FoodLabelValue? {
-        switch fillType {
+        switch fill {
         case .imageSelection(let recognizedText, _, _, let altValue):
             return altValue ?? recognizedText.string.energyValue
         case .imageAutofill(let valueText, _, let altValue):
@@ -141,7 +141,7 @@ extension FieldValue.EnergyValue {
     }
     
     var altValue: FoodLabelValue? {
-        switch fillType {
+        switch fill {
         case .imageSelection(_, _, _, let altValue):
             return altValue
         case .imageAutofill(_, _, let altValue):
@@ -160,7 +160,7 @@ extension FieldValue.EnergyValue {
         values.append(valueToGenerateAltsFor.withOppositeEnergyUnit)
         
         /// Add any other values that were found
-        for value in fillType.detectedValues {
+        for value in fill.detectedValues {
             
             /// Skip any values
             guard

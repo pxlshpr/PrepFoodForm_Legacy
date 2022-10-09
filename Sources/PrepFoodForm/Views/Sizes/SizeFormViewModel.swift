@@ -54,6 +54,6 @@ class SizeFormViewModel: ObservableObject {
 
 extension FieldViewModel {
     static var emptySize: FieldViewModel {
-        .init(fieldValue: .size(.init(size: Size(), fillType: .userInput)))
+        .init(fieldValue: .size(.init(size: Size(), fill: .userInput)))
     }
 }

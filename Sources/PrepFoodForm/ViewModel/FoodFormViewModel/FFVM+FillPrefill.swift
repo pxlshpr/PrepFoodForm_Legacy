@@ -86,15 +86,15 @@ extension FoodFormViewModel {
     
     func prefillDetails(from food: MFPProcessedFood) {
         if !food.name.isEmpty {
-            let fieldValue = FieldValue.name(FieldValue.StringValue(string: food.name, fillType: .prefill(prefillFields: [.name])))
+            let fieldValue = FieldValue.name(FieldValue.StringValue(string: food.name, fill: .prefill(prefillFields: [.name])))
             nameViewModel = .init(fieldValue: fieldValue)
         }
         if let detail = food.detail, !detail.isEmpty {
-            let fieldValue = FieldValue.detail(FieldValue.StringValue(string: detail, fillType: .prefill(prefillFields: [.detail])))
+            let fieldValue = FieldValue.detail(FieldValue.StringValue(string: detail, fill: .prefill(prefillFields: [.detail])))
             detailViewModel = .init(fieldValue: fieldValue)
         }
         if let brand = food.brand, !brand.isEmpty {
-            let fieldValue = FieldValue.brand(FieldValue.StringValue(string: brand, fillType: .prefill(prefillFields: [.brand])))
+            let fieldValue = FieldValue.brand(FieldValue.StringValue(string: brand, fill: .prefill(prefillFields: [.brand])))
             brandViewModel = .init(fieldValue: fieldValue)
         }
     }
@@ -131,9 +131,9 @@ extension FoodFormViewModel {
     func prefillDensitySize(_ size: MFPProcessedFood.Size) {
         guard let volumeUnit = size.prefixVolumeUnit else { return }
         let densityFieldValue = FieldValue.density(FieldValue.DensityValue(
-            weight: .init(double: size.amount, string: size.amount.cleanAmount, unit: size.amountUnit.formUnit, fillType: .prefill()),
-            volume: .init(double: size.quantity, string: size.quantity.cleanAmount, unit: volumeUnit.formUnit, fillType: .prefill()),
-            fillType: .prefill())
+            weight: .init(double: size.amount, string: size.amount.cleanAmount, unit: size.amountUnit.formUnit, fill: .prefill()),
+            volume: .init(double: size.quantity, string: size.quantity.cleanAmount, unit: volumeUnit.formUnit, fill: .prefill()),
+            fill: .prefill())
         )
         densityViewModel = FieldViewModel(fieldValue: densityFieldValue)
     }
@@ -237,7 +237,7 @@ extension ServingUnit {
 
 extension FieldValue {
     static func prefillOptionForName(with string: String) -> FieldValue {
-        FieldValue.name(StringValue(string: string, fillType: .prefill(prefillFields: [.name])))
+        FieldValue.name(StringValue(string: string, fill: .prefill(prefillFields: [.name])))
     }
 }
 
@@ -269,7 +269,7 @@ extension FoodFormViewModel {
         case .amount:
             return [food.amountFieldValue].compactMap { $0 }
 //        case .brand(let stringValue):
-//            return FieldValue.brand(FieldValue.StringValue(string: detail, fillType: .prefill))
+//            return FieldValue.brand(FieldValue.StringValue(string: detail, fill: .prefill))
 //            return food.detail
 //        case .barcode(let stringValue):
 //            return nil
@@ -318,7 +318,7 @@ extension FoodFormViewModel {
      */
     func fieldValueUsing(text: RecognizedText) -> FieldValue? {
         allFieldValues.first(where: {
-            $0.fillType.uses(text: text)
+            $0.fill.uses(text: text)
         })
     }
 }
@@ -347,7 +347,7 @@ extension Size {
     var fieldValue: FieldValue {
         .size(FieldValue.SizeValue(
             size: self,
-            fillType: .prefill())
+            fill: .prefill())
         )
     }
 }

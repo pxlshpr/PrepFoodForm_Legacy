@@ -27,9 +27,9 @@ struct MacronutrientForm_Legacy: View {
 //            .toolbar { keyboardToolbarContents }
 //            .onAppear {
 //                isFocused = true
-//                fieldFormViewModel.getCroppedImage(for: fieldValue.fillType)
+//                fieldFormViewModel.getCroppedImage(for: fieldValue.fill)
 //            }
-//            .onChange(of: fieldValue.fillType) { newValue in
+//            .onChange(of: fieldValue.fill) { newValue in
 //                fieldFormViewModel.getCroppedImage(for: newValue)
 //            }
 //            .sheet(isPresented: $fieldFormViewModel.showingImageTextPicker) {
@@ -43,7 +43,7 @@ struct MacronutrientForm_Legacy: View {
 //                    return
 //                }
 //                withAnimation {
-//                    fieldValue.fillType = .userInput
+//                    fieldValue.fill = .userInput
 //                }
 //            }
 //    }
@@ -108,13 +108,13 @@ struct MacronutrientForm_Legacy: View {
 //    }
 //
 //    var imageTextPicker: some View {
-//        ImageTextPicker(fillType: fieldValue.fillType) { text, scanResultId in
+//        ImageTextPicker(fill: fieldValue.fill) { text, scanResultId in
 //
 //            fieldFormViewModel.showingImageTextPicker = false
 //
 //            var newFieldValue = fieldValue
 //            newFieldValue.macroValue.double = text.string.double
-//            newFieldValue.fillType = .imageSelection(recognizedText: text, scanResultId: scanResultId)
+//            newFieldValue.fill = .imageSelection(recognizedText: text, scanResultId: scanResultId)
 //
 //            fieldFormViewModel.ignoreNextChange = true
 //            withAnimation {
