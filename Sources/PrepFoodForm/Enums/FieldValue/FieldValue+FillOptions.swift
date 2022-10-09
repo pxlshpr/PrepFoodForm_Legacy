@@ -6,30 +6,29 @@ extension FieldValue {
     //MARK: Image Autofill
     var autofillOptions: [FillOption] {
         var fillOptions: [FillOption] = []
-        guard let autofillFieldValue = FoodFormViewModel.shared.autofillOptionFieldValue(for: self) else {
+        guard let fieldValue = FoodFormViewModel.shared.scanAutoFillFieldValue(for: self),
+              case .scanAuto(let info) = fieldValue.fill
+        else {
             return []
         }
         fillOptions.append(
             FillOption(
-                string: autofillFieldValue.fillButtonString,
+                string: fieldValue.fillButtonString,
                 systemImage: Fill.SystemImage.scanAuto,
 //                isSelected: self.value == autofillFieldValue.value,
-                isSelected: self == autofillFieldValue,
-                type: .fill(autofillFieldValue.fill)
+                isSelected: self == fieldValue,
+                type: .fill(fieldValue.fill)
             )
         )
 
         /// Show alts if selected (only check the text because it might have a different value attached to it)
-        for alternateValue in autofillFieldValue.altValues {
-            guard let valueText = autofillFieldValue.fill.valueText, let scanResultId = autofillFieldValue.fill.scanResultId else {
-                continue
-            }
+        for altValue in fieldValue.altValues {
             fillOptions.append(
                 FillOption(
-                    string: alternateValue.fillOptionString,
+                    string: altValue.fillOptionString,
                     systemImage: Fill.SystemImage.scanAuto,
-                    isSelected: self.value == alternateValue && self.fill.isImageAutofill,
-                    type: .fill(.scanAuto(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
+                    isSelected: self.value == altValue && self.fill.isImageAutofill,
+                    type: .fill(.scanAuto(info.withAltValue(altValue)))
                 )
             )
         }
@@ -160,7 +159,7 @@ extension FieldValue {
                 let supplementaryTexts,
                 value: _) = fill
                 ,
-            primaryText != FoodFormViewModel.shared.autofillText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+            primaryText != FoodFormViewModel.shared.scanAutoFillText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }

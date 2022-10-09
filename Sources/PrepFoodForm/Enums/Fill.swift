@@ -4,24 +4,60 @@ import VisionSugar
 import UIKit
 import PrepUnits
 
-struct ScanAutoFillInfo {
-    var text: RecognizedText
-    var attributeText: RecognizedText? = nil
-    var altValue: FoodLabelValue? = nil
+struct ResultText: Hashable {
+    let text: RecognizedText
+    let attributeText: RecognizedText?
+    let resultId: UUID
+    
+    init(text: RecognizedText, attributeText: RecognizedText? = nil, resultId: UUID) {
+        self.text = text
+        self.resultId = resultId
+        self.attributeText = attributeText
+    }
+    
+    init(valueText: ValueText, resultId: UUID) {
+        self.text = valueText.text
+        self.attributeText = valueText.attributeText
+        self.resultId = resultId
+    }
 }
 
-struct ScanManualFillInfo {
+struct ScanAutoFillInfo: Hashable {
+    var resultText: ResultText
+    var value: FoodLabelValue?
+    var altValue: FoodLabelValue? = nil
+    
+    init(resultText: ResultText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil) {
+        self.value = value
+        self.resultText = resultText
+        self.altValue = altValue
+    }
+    
+    init(valueText: ValueText, resultId: UUID, altValue: FoodLabelValue? = nil) {
+        self.value = valueText.value
+        self.resultText = ResultText(valueText: valueText, resultId: resultId)
+        self.altValue = altValue
+    }
+    
+    func withAltValue(_ value: FoodLabelValue) -> ScanAutoFillInfo {
+        var newInfo = self
+        newInfo.altValue = value
+        return newInfo
+    }
+}
+
+struct ScanManualFillInfo: Hashable {
     var texts: [RecognizedText]
     var altValue: FoodLabelValue? = nil
 }
 
-struct PrefillFillInfo {
+struct PrefillFillInfo: Hashable {
     var fields: [PrefillField] = []
 }
 
 enum Fill: Hashable {
     
-    case scanAuto(valueText: ValueText, scanResultId: UUID, value: FoodLabelValue? = nil)
+    case scanAuto(ScanAutoFillInfo)
 
     case userInput
     
@@ -144,19 +180,10 @@ extension Fill {
         }
     }
     
-    var valueText: ValueText? {
-        switch self {
-        case .scanAuto(let valueText, _, _):
-            return valueText
-        default:
-            return nil
-        }
-    }
-
     var attributeText: RecognizedText? {
         switch self {
-        case .scanAuto(let valueText, _, _):
-            return valueText.attributeText
+        case .scanAuto(let info):
+            return info.resultText.attributeText
         default:
             return nil
         }
@@ -164,8 +191,8 @@ extension Fill {
     
     var text: RecognizedText? {
         switch self {
-        case .scanAuto(let valueText, _, _):
-            return valueText.text
+        case .scanAuto(let info):
+            return info.resultText.text
         case .scanManual(let recognizedText, _, _, _):
             return recognizedText
         default:
@@ -173,13 +200,25 @@ extension Fill {
         }
     }
     
+    var resultId: UUID? {
+        switch self {
+        case .scanAuto(let scanAutoFillInfo):
+            return scanAutoFillInfo.resultText.resultId
+        case .scanManual(_, let resultId, _, _):
+            return resultId
+        default:
+            return nil
+        }
+    }
+    
+    //TODO: Merge boundingBoxToCrop and boundingBoxForImagePicker into one
     var boundingBoxToCrop: CGRect? {
         switch self {
-        case .scanAuto(let valueText, _, _):
-            if let attributeText = valueText.attributeText, attributeText != valueText.text {
-                return attributeText.boundingBox.union(valueText.text.boundingBox)
+        case .scanAuto(let info):
+            if let attributeText = attributeText, attributeText != text {
+                return attributeText.boundingBox.union(info.resultText.text.boundingBox)
             } else {
-                return valueText.text.boundingBox
+                return info.resultText.text.boundingBox
             }
         case .scanManual(let recognizedText, _, _, _):
             return recognizedText.boundingBox
@@ -188,19 +227,22 @@ extension Fill {
         }
     }
 
-    var scanResultId: UUID? {
+    var boundingBoxForImagePicker: CGRect? {
         switch self {
-        case .scanManual(_, let scanResultId, _, _):
-            return scanResultId
-        case .scanAuto(_, let scanResultId, _):
-            return scanResultId
+        case .scanAuto(let info):
+            if let attributeText = attributeText {
+                return attributeText.boundingBox.union(info.resultText.text.boundingBox)
+            } else {
+                return info.resultText.text.boundingBox
+            }
+        case .scanManual(let recognizedText, _, _, _):
+            return recognizedText.boundingBox
         default:
             return nil
         }
     }
     
     func boxRect(for image: UIImage) -> CGRect? {
-        //        return CGRect(x: 20, y: 50, width: 20, height: 20)
         switch self {
         case .scanManual, .scanAuto:
             return boundingBox?.rectForSize(image.size)
@@ -213,21 +255,6 @@ extension Fill {
         switch self {
         case .scanManual, .scanAuto:
             return text?.boundingBox
-        default:
-            return nil
-        }
-    }
-
-    var boundingBoxForImagePicker: CGRect? {
-        switch self {
-        case .scanManual(let recognizedText, _, _, _):
-            return recognizedText.boundingBox
-        case .scanAuto(let valueText, _, _):
-            if let attributeText = valueText.attributeText {
-                return attributeText.boundingBox.union(valueText.text.boundingBox)
-            } else {
-                return valueText.text.boundingBox
-            }
         default:
             return nil
         }
@@ -247,10 +274,10 @@ extension Fill {
     /// Returns the `FoodLabelValue` represented by this fill type.
     var value: FoodLabelValue? {
         switch self {
+        case .scanAuto(let info):
+            return info.altValue ?? info.value
         case .scanManual(let recognizedText, _, _, let value):
             return value ?? recognizedText.firstFoodLabelValue
-        case .scanAuto(let valueText, _, let value):
-            return value ?? valueText.value
         case .calculated:
             //TODO: Do this
             return nil
@@ -265,8 +292,8 @@ extension Fill {
             switch self {
             case .scanManual(_, _, _, let value):
                 return value
-            case .scanAuto(_, _, let value):
-                return value
+            case .scanAuto(let info):
+                return info.altValue
             default:
                 return nil
             }
@@ -275,8 +302,10 @@ extension Fill {
             switch self {
             case .scanManual(let recognizedText, let scanResultId, let supplementaryTexts, _):
                 self = .scanManual(recognizedText: recognizedText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: newValue)
-            case .scanAuto(let valueText, let scanResultId, _):
-                self = .scanAuto(valueText: valueText, scanResultId: scanResultId, value: newValue)
+            case .scanAuto(let info):
+                var newInfo = info
+                newInfo.value = newValue
+                self = .scanAuto(newInfo)
             default:
                 break
             }
@@ -289,8 +318,8 @@ extension Fill {
         switch self {
         case .scanManual(let recognizedText, _, _, let altValue):
             return altValue ?? recognizedText.string.energyValue
-        case .scanAuto(let valueText, _, let altValue):
-            return altValue ?? valueText.value
+        case .scanAuto(let info):
+            return info.altValue ?? info.value
         default:
             return nil
         }
@@ -302,8 +331,8 @@ extension Fill {
         switch self {
         case .scanManual(let recognizedText, _, _, _):
             return recognizedText.id == text.id
-        case .scanAuto(let valueText, _, _):
-            return valueText.text.id == text.id || valueText.attributeText?.id == text.id
+        case .scanAuto(let info):
+            return info.resultText.text.id == text.id || info.resultText.attributeText?.id == text.id
         default:
             return false
         }

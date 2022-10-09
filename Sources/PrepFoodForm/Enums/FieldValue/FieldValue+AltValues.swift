@@ -38,7 +38,7 @@ extension FieldValue {
 extension FieldValue.DoubleValue {
     /// Return all `FoodLabelValue`s detected in the recognized text of the `fill` that isn't the value attached to this fieldValue
     var altValues: [FoodLabelValue] {
-        guard let textString = self.fill.valueText?.text.string else {
+        guard let textString = self.fill.text?.string else {
             return []
         }
         return textString.values.filter({ $0 != self.value })
@@ -133,8 +133,8 @@ extension FieldValue.EnergyValue {
         switch fill {
         case .scanManual(let recognizedText, _, _, let altValue):
             return altValue ?? recognizedText.string.energyValue
-        case .scanAuto(let valueText, _, let altValue):
-            return altValue ?? valueText.value
+        case .scanAuto(let info):
+            return info.altValue ?? info.value
         default:
             return nil
         }
@@ -144,8 +144,8 @@ extension FieldValue.EnergyValue {
         switch fill {
         case .scanManual(_, _, _, let altValue):
             return altValue
-        case .scanAuto(_, _, let altValue):
-            return altValue
+        case .scanAuto(let info):
+            return info.altValue
         default:
             return nil
         }

@@ -24,8 +24,8 @@ struct TextPicker: View {
     @State var hasAppeared: Bool = false
     
     let onlyShowTextsWithValues: Bool
-    let selectedImageIndex: Int?
     let selectedText: RecognizedText?
+    let selectedImageIndex: Int?
     let selectedAttributeText: RecognizedText?
     private let selectedBoundingBox: CGRect?
     let didSelectRecognizedText: (RecognizedText, UUID) -> Void
@@ -41,15 +41,16 @@ struct TextPicker: View {
         _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
         _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
-        self.selectedImageIndex = selectedImageIndex
         self.selectedText = selectedText
         self.selectedAttributeText = selectedAttributeText
+        self.selectedImageIndex = selectedImageIndex
         
+        //TODO: Move all these computationally intensive stuff elsewhere
         if let selectedAttributeText, let selectedText, let selectedImageIndex {
             let union = selectedAttributeText.boundingBox.union(selectedText.boundingBox)
             let ivm = imageViewModels[selectedImageIndex]
             let texts = onlyShowTextsWithValues ? ivm.textsWithValues : ivm.texts
-            
+
             /// Only show the union of the attribute and selected texts if the union of them both does not entirely cover any other texts we will be displaying.
             if !texts.contains(where: { union.contains($0.boundingBox )}) {
                 self.selectedBoundingBox = union
@@ -178,7 +179,6 @@ struct TextPicker: View {
     
     @ViewBuilder
     func boxLayerForSelectedText(inSize size: CGSize, for imageViewModel: ImageViewModel) -> some View {
-        
         if let selectedBoundingBox,
            let imageViewIndex = imageViewModels.firstIndex(of: imageViewModel),
            let selectedImageIndex,

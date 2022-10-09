@@ -14,9 +14,9 @@ extension FoodFormViewModel {
     }
 
     func croppedImage(for fill: Fill) async -> UIImage? {
-        guard let scanResultId = fill.scanResultId,
+        guard let resultId = fill.resultId,
               let boundingBoxToCrop = fill.boundingBoxToCrop,
-              let image = image(for: scanResultId)
+              let image = image(for: resultId)
         else {
             return nil
         }

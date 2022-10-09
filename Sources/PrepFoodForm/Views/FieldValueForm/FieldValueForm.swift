@@ -387,8 +387,8 @@ extension FieldValueForm {
             switch fill {
             case .scanManual(let text, _, _, let value):
                 changeFillTypeToSelection(of: text, withAltValue: value)
-            case .scanAuto(let valueText, _, value: let value):
-                changeFillTypeToAutofill(of: valueText, withAltValue: value)
+            case .scanAuto(let info):
+                changeFillTypeToAutofill(info)
             case .prefill:
                 /// Tapped a prefill or calculated value
                 guard let fieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
@@ -429,8 +429,8 @@ extension FieldValueForm {
     }
     
     func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
-        if let valueText = viewModel.autofillValueText(for: fieldValue), valueText.text == text {
-            return .scanAuto(valueText: valueText, scanResultId: imageId, value: nil)
+        if let fill = viewModel.scanAutoFill(for: fieldValue, with: text) {
+            return fill
         } else {
             return .scanManual(recognizedText: text, scanResultId: imageId)
         }
@@ -462,9 +462,8 @@ extension FieldValueForm {
         }
     }
     
-    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: FoodLabelValue?) {
-        let value = altValue ?? valueText.value
-        if let setNewValue {
+    func changeFillTypeToAutofill(_ info: ScanAutoFillInfo) {
+        if let value = info.value, let setNewValue {
             setNewValue(value)
         }
     }
@@ -483,8 +482,8 @@ extension FieldValueForm {
     var fieldValue: FieldValue {
         fieldViewModel.fieldValue
     }
-
+    
     var selectedImageIndex: Int? {
-        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.scanResultId })
+        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.resultId })
     }
 }

@@ -251,7 +251,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(valueText: valueText, scanResultId: self.id)
+            fill = .scanAuto(.init(valueText: valueText, resultId: id))
         }
         return FieldValue.energy(FieldValue.EnergyValue(
             double: value.amount,
@@ -274,7 +274,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(valueText: valueText, scanResultId: self.id)
+            fill = .scanAuto(.init(valueText: valueText, resultId: id))
         }
         return FieldValue.macro(FieldValue.MacroValue(
             macro: macro,
@@ -297,7 +297,7 @@ extension ScanResult {
         if valueText.text.id == defaultUUID {
             fill = .calculated
         } else {
-            fill = .scanAuto(valueText: valueText, scanResultId: self.id)
+            fill = .scanAuto(.init(valueText: valueText, resultId: id))
         }
 
         let unit = value.unit?.nutrientUnit(for: nutrientType) ?? nutrientType.defaultUnit

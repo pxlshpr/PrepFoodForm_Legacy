@@ -92,7 +92,7 @@ extension FoodFormViewModel {
         !fillOptions(for: fieldValue).isEmpty
     }
     
-    func autofillOptionFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+    func scanAutoFillFieldValue(for fieldValue: FieldValue) -> FieldValue? {
         
         switch fieldValue {
         case .energy:
@@ -114,15 +114,19 @@ extension FoodFormViewModel {
         }
     }
 
-    func autofillValueText(for fieldValue: FieldValue) -> ValueText? {
-        guard let autofillFieldValue = autofillOptionFieldValue(for: fieldValue) else {
+    func scanAutoFillText(for fieldValue: FieldValue) -> RecognizedText? {
+        guard let fill = scanAutoFillFieldValue(for: fieldValue)?.fill else {
             return nil
         }
-        return autofillFieldValue.fill.valueText
+        return fill.text
     }
-    
-    func autofillText(for fieldValue: FieldValue) -> RecognizedText? {
-        autofillValueText(for: fieldValue)?.text
+
+    func scanAutoFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
+        guard let fill = scanAutoFillFieldValue(for: fieldValue)?.fill,
+              fill.text == text else {
+            return nil
+        }
+        return fill
     }
 }
 
