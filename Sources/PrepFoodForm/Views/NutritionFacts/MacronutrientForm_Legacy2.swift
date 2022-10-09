@@ -166,7 +166,7 @@
 //                valueText: autofillValueText, scanResultId: imageId, value: nil
 //            )
 //        } else {
-//            newFillType = .scanSelection(
+//            newFillType = .scanManual(
 //                recognizedText: text,
 //                scanResultId: imageId
 //            )
@@ -211,7 +211,7 @@
 //        doNotRegisterUserInput = true
 //
 //        switch fill {
-//        case .scanSelection(let text, _, _, let value):
+//        case .scanManual(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
 //        case .scanResult(let valueText, _, value: let value):
 //            changeFillTypeToAutofill(of: valueText, withAltValue: value)

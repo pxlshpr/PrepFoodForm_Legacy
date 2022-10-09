@@ -141,7 +141,7 @@
 //        doNotRegisterUserInput = true
 //        
 //        switch fill {
-//        case .scanSelection(let text, _, _, let value):
+//        case .scanManual(let text, _, _, let value):
 //            changeFillTypeToSelection(of: text, withAltValue: value)
 //        case .scanResult(let valueText, _, value: let value):
 //            changeFillTypeToAutofill(of: valueText, withAltValue: value)
@@ -233,7 +233,7 @@
 //        {
 //            return .scanResult(valueText: valueText, scanResultId: imageId, value: nil)
 //        } else {
-//            return .scanSelection(recognizedText: text, scanResultId: imageId)
+//            return .scanManual(recognizedText: text, scanResultId: imageId)
 //        }
 //    }
 //

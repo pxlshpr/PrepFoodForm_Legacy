@@ -12,7 +12,7 @@ extension FieldValue {
         fillOptions.append(
             FillOption(
                 string: autofillFieldValue.fillButtonString,
-                systemImage: Fill.SystemImage.scanResult,
+                systemImage: Fill.SystemImage.scanAuto,
 //                isSelected: self.value == autofillFieldValue.value,
                 isSelected: self == autofillFieldValue,
                 type: .fill(autofillFieldValue.fill)
@@ -27,7 +27,7 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: alternateValue.fillOptionString,
-                    systemImage: Fill.SystemImage.scanResult,
+                    systemImage: Fill.SystemImage.scanAuto,
                     isSelected: self.value == alternateValue && self.fill.isImageAutofill,
                     type: .fill(.scanAuto(valueText: valueText, scanResultId: scanResultId, value: alternateValue))
                 )
@@ -172,7 +172,7 @@ extension FieldValue {
             fillOptions.append(
                 FillOption(
                     string: value.description,
-                    systemImage: Fill.SystemImage.scanSelection,
+                    systemImage: Fill.SystemImage.scanManual,
                     isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
                     type: .fill(.scanManual(recognizedText: primaryText, scanResultId: scanResultId, supplementaryTexts: supplementaryTexts, value: value)
                     )

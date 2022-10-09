@@ -4,32 +4,45 @@ import VisionSugar
 import UIKit
 import PrepUnits
 
-enum PrefillField {
-    case name
-    case detail
-    case brand
+struct ScanAutoFillInfo {
+    var text: RecognizedText
+    var attributeText: RecognizedText? = nil
+    var altValue: FoodLabelValue? = nil
+}
+
+struct ScanManualFillInfo {
+    var texts: [RecognizedText]
+    var altValue: FoodLabelValue? = nil
+}
+
+struct PrefillFillInfo {
+    var fields: [PrefillField] = []
 }
 
 enum Fill: Hashable {
+    
+    case scanAuto(valueText: ValueText, scanResultId: UUID, value: FoodLabelValue? = nil)
+
     case userInput
     
-    /// `supplementaryTexts` are used for string based fields such as `name` and `detail` where multile texts may be selected and joined together to form the filled value
     case scanManual(recognizedText: RecognizedText, scanResultId: UUID, supplementaryTexts: [RecognizedText] = [], value: FoodLabelValue? = nil)
-    case scanAuto(valueText: ValueText, scanResultId: UUID, value: FoodLabelValue? = nil)
     
     case calculated
     
     case prefill(prefillFields: [PrefillField] = [])
     
     case barcodeScan
+}
+
+extension Fill {
     
     struct SystemImage {
-        static let scanSelection = "hand.tap"
+        static let scanAuto = "text.viewfinder"
+        static let scanManual = "hand.tap"
         static let prefill = "link"
-        static let calculated = "function"
-        static let scanResult = "text.viewfinder"
-        static let barcodeScan = "barcode.viewfinder"
         static let userInput = "keyboard"
+        static let calculated = "function"
+        static let barcodeScan = "barcode.viewfinder"
     }
     
     var iconSystemImage: String {
@@ -37,11 +50,11 @@ enum Fill: Hashable {
         case .userInput:
             return SystemImage.userInput
         case .scanManual:
-            return SystemImage.scanSelection
+            return SystemImage.scanManual
         case .calculated:
             return SystemImage.calculated
         case .scanAuto:
-            return SystemImage.scanResult
+            return SystemImage.scanAuto
         case .prefill:
             return SystemImage.prefill
         case .barcodeScan:
@@ -54,7 +67,7 @@ enum Fill: Hashable {
         //        switch self {
         //        case .userInput:
         //            return "circle.dashed"
-        //        case .scanSelection:
+        //        case .scanManual:
         //            return "hand.tap"
         //        case .scanResult:
         //            return "viewfinder.circle.fill"
@@ -295,4 +308,10 @@ extension Fill {
             return false
         }
     }
+}
+
+enum PrefillField {
+    case name
+    case detail
+    case brand
 }
