@@ -433,7 +433,7 @@ extension FieldValueForm {
     }
     
     func tappedSelectionFill(_ info: SelectionFillInfo) {
-        guard let imageText = info.imageTexts.first else {
+        guard let imageText = info.imageText else {
             return
             
         }
@@ -486,16 +486,19 @@ extension FieldValueForm {
         if let fill = viewModel.scannedFill(for: fieldValue, with: text) {
             return fill
         } else {
-            return .selection(.init(imageTexts: [ImageText(text: text, imageId: imageId)]))
+            return .selection(.init(imageText: ImageText(text: text, imageId: imageId)))
         }
     }
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {
         
-        if !fieldValue.usesValueBasedTexts {
+        //TODO: Replace this with components stuff
+        guard fieldValue.usesValueBasedTexts else {
             for imageText in imageTexts {
-                fieldViewModel.fieldValue.stringValue.fill.appendImageText(imageText)
+//                fieldViewModel.fieldValue.stringValue.fill.appendImageText(imageText)
+                fieldViewModel.appendComponentTexts(for: imageText)
             }
+            return
         }
         
         //TODO: Handle serving and amount

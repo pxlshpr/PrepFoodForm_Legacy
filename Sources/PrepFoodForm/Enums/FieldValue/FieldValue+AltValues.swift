@@ -132,7 +132,7 @@ extension FieldValue.EnergyValue {
     var valueToGenerateAltsFor: FoodLabelValue? {
         switch fill {
         case .selection(let info):
-            return info.altValue ?? info.imageTexts.first?.text.string.energyValue
+            return info.altValue ?? info.imageText?.text.string.energyValue
         case .scanned(let info):
             return info.altValue ?? info.value
         default:

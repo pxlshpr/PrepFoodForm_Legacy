@@ -14,12 +14,12 @@ extension FieldValue {
     }
     var valueBasedSelectionFillOptions: [FillOption] {
         guard case .selection(let info) = fill,
-              info.imageTexts.first?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+              info.imageText?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }
 
-        let values = selectionFillValues(for: info.imageTexts.map { $0.text })
+        let values = selectionFillValues(for: fill.texts)
         
         var fillOptions: [FillOption] = []
         for value in values {
@@ -48,10 +48,13 @@ extension FieldValue {
             let string: String
             if let stringOverride {
                 fillImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: stringOverride)
-                isSelected = info.imageTexts.contains(fillImageText)
+                //TODO: Replace this with components stuff
+                isSelected = false
+//                isSelected = info.imageTexts.contains(fillImageText)
                 string = stringOverride
             } else {
-                isSelected = info.imageTexts.contains(imageText.withoutPickedCandidate)
+                isSelected = false
+//                isSelected = info.imageTexts.contains(imageText.withoutPickedCandidate)
                 fillImageText = imageText
                 string = imageText.text.string
             }
@@ -61,18 +64,22 @@ extension FieldValue {
                 systemImage: Fill.SystemImage.selection,
                 isSelected: isSelected,
                 disableWhenSelected: false,
-                type: .fill(.selection(.init(imageTexts: [fillImageText])))
+                //TODO: Replace this with components stuff
+//                type: .fill(.selection(.init(imageTexts: [fillImageText])))
+                type: .fill(.selection(.init(imageText: nil)))
             )
         }
         
+
         var fillOptions: [FillOption] = []
-        for imageText in info.imageTexts {
-            for component in imageText.text.string.components {
-                guard !fillOptions.contains(where: { $0.string == component }) else { continue }
-                fillOptions.append(
-                    fillOption(for: imageText, with: component)
-                )
-            }
+        //TODO: Here we need a helper that grabs the unique set of imageTexts from the componentsTexts
+//        for imageText in info.imageTexts {
+//            for component in imageText.text.string.selectionComponents {
+//                guard !fillOptions.contains(where: { $0.string == component }) else { continue }
+//                fillOptions.append(
+//                    fillOption(for: imageText, with: component)
+//                )
+//            }
             
 //            for candidate in imageText.text.candidates {
 //                for component in candidate.components {
@@ -82,7 +89,7 @@ extension FieldValue {
 //                    )
 //                }
 //            }
-        }
+//        }
         return fillOptions
     }
     

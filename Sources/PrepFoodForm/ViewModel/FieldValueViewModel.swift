@@ -135,11 +135,14 @@ extension FieldViewModel {
 }
 
 extension FieldViewModel {
+    
     func contains(_ imageText: ImageText) -> Bool {
-        guard case .selection(let info) = fieldValue.fill else {
-            return false
-        }
-        return info.imageTexts.contains(imageText)
+        //TODO: Replace this with components stuff
+        return false
+//        guard case .selection(let info) = fieldValue.fill else {
+//            return false
+//        }
+//        return info.imageTexts.contains(imageText)
     }
     
     func contains(_ fieldString: PrefillFieldString) -> Bool {
@@ -150,16 +153,17 @@ extension FieldViewModel {
     }
     
     func replaceExistingImageText(with imageText: ImageText) {
-        guard case .selection(let info) = fieldValue.fill else {
-            return
-        }
-        var newInfo = info
-        for i in newInfo.imageTexts.indices {
-            if newInfo.imageTexts[i].text == imageText.text {
-                newInfo.imageTexts[i].pickedCandidate = imageText.pickedCandidate
-            }
-        }
-        fieldValue.fill = .selection(newInfo)
+        //TODO: Replace this with components stuff
+//        guard case .selection(let info) = fieldValue.fill else {
+//            return
+//        }
+//        var newInfo = info
+//        for i in newInfo.imageTexts.indices {
+//            if newInfo.imageTexts[i].text == imageText.text {
+//                newInfo.imageTexts[i].pickedCandidate = imageText.pickedCandidate
+//            }
+//        }
+//        fieldValue.fill = .selection(newInfo)
     }
     
     func imageTextMatchingText(of imageText: ImageText) -> ImageText? {

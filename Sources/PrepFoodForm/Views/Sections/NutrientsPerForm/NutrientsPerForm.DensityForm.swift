@@ -136,7 +136,7 @@ struct DensityForm: View {
             return fill
         } else {
             return .selection(.init(
-                imageTexts: [imageText],
+                imageText: imageText,
                 densityValue: densityValue
             ))
         }

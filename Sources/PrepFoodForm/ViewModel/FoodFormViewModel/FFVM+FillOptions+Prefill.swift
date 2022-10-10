@@ -148,7 +148,7 @@ extension FieldValue {
 extension FieldValue {
     var stringComponentFieldValues: [FieldValue] {
         var fieldValues: [FieldValue] = []
-        for component in string.components {
+        for component in string.selectionComponents {
             fieldValues.append(replacingString(with: component))
         }
         return fieldValues
@@ -156,7 +156,7 @@ extension FieldValue {
 }
 
 extension String {
-    var components: [String] {
+    var selectionComponents: [String] {
         self
         .components(separatedBy: ",")
         .map {
@@ -164,6 +164,8 @@ extension String {
                 .trimmingWhitespaces
                 .components(separatedBy: " ")
                 .filter { !$0.isEmpty }
+                .map { $0.capitalized }
+                .filter { $0.count > 1 }
         }
         .reduce([], +)
     }
@@ -183,7 +185,7 @@ extension MFPProcessedFood {
     
     var nameFieldStrings: [PrefillFieldString] {
         name
-            .components
+            .selectionComponents
             .map { PrefillFieldString(string: $0, field: .name) }
     }
     var nameFieldValue: FieldValue? {

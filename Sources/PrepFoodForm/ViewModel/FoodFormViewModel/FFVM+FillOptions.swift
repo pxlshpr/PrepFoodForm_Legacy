@@ -28,7 +28,7 @@ extension FoodFormViewModel {
         }
 
         guard case .selection(let info) = fieldValue.fill,
-              let selectedText = info.imageTexts.first?.text,
+              let selectedText = info.imageText?.text,
               selectedText != FoodFormViewModel.shared.scannedText(for: fieldValue)
         else {
             return []

@@ -57,8 +57,18 @@ struct ScannedFillInfo: Hashable {
     }
 }
 
+struct ComponentText: Hashable {
+    let componentString: String
+    let imageText: ImageText
+}
+
 struct SelectionFillInfo: Hashable {
-    var imageTexts: [ImageText]
+    
+    /// This indicates the `ImageText` that was selected by the user.
+    var imageText: ImageText?
+    
+    var componentTexts: [ComponentText]?
+    
     var altValue: FoodLabelValue? = nil
     var densityValue: FieldValue.DensityValue? = nil
 
@@ -69,10 +79,11 @@ struct SelectionFillInfo: Hashable {
     }
     
     var concatenated: String {
-        imageTexts
-            .map { $0.pickedCandidate ?? $0.text.string }
-            .map { $0.capitalized }
-            .joined(separator: ", ")
+        "TODO: Use componentTexts"
+//        imageTexts
+//            .map { $0.pickedCandidate ?? $0.text.string }
+//            .map { $0.capitalized }
+//            .joined(separator: ", ")
     }
 }
 
@@ -222,7 +233,7 @@ extension Fill {
         case .scanned(let info):
             return [info.imageText.text]
         case .selection(let info):
-            return info.imageTexts.map { $0.text }
+            return [info.imageText?.text].compactMap { $0 }
         default:
             return []
         }
@@ -236,7 +247,7 @@ extension Fill {
         case .scanned(let info):
             return info.imageText
         case .selection(let info):
-            return info.imageTexts.first
+            return info.imageText
         default:
             return nil
         }
@@ -291,7 +302,7 @@ extension Fill {
         case .scanned(let info):
             return info.altValue ?? info.value
         case .selection(let info):
-            return info.altValue ?? info.imageTexts.first?.text.firstFoodLabelValue
+            return info.altValue ?? info.imageText?.text.firstFoodLabelValue
         case .calculated:
             //TODO: Do this
             return nil
@@ -335,7 +346,7 @@ extension Fill {
         case .scanned(let info):
             return info.altValue ?? info.value
         case .selection(let info):
-            return altValue ?? info.imageTexts.first?.text.string.energyValue
+            return altValue ?? info.imageText?.text.string.energyValue
         default:
             return nil
         }
@@ -363,24 +374,40 @@ enum PrefillField {
 
 extension Fill {
     mutating func removeImageText(_ imageText: ImageText) {
-        guard case .selection(let info) = self else {
-            return
-        }
-        var newInfo = info
-        newInfo.imageTexts.removeAll(where: { $0 == imageText })
-        self = .selection(newInfo)
+        //TODO: Replace this with components stuff
+//        guard case .selection(let info) = self else {
+//            return
+//        }
+//        var newInfo = info
+//        newInfo.imageTexts.removeAll(where: { $0 == imageText })
+//        self = .selection(newInfo)
     }
     
     mutating func appendImageText(_ imageText: ImageText) {
-        let imageTexts: [ImageText]
-        if case .selection(let info) = self {
-            imageTexts = info.imageTexts + [imageText]
-        } else {
-            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
-            imageTexts = [imageText]
+        //TODO: Replace this with components stuff
+//        let imageTexts: [ImageText]
+//        if case .selection(let info) = self {
+//            imageTexts = info.imageTexts + [imageText]
+//        } else {
+//            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
+//            imageTexts = [imageText]
+//        }
+//
+//        self = .selection(.init(imageTexts: imageTexts))
+    }
+}
+
+extension FieldViewModel {
+    func appendComponentTexts(for imageText: ImageText) {
+        for component in imageText.text.string.selectionComponents {
+            print("TODO: Append component: \(component)")
+            /// After this, make sure fill options shows the components
+            /// Then handle how the string is created by concatenating the components
+            /// Then create the addition and removal (using the contains function) of those components
+            /// Now think about if we need to generate the components in the fillOptions generator part or is it enough that we've selected the text and generated them here?
+            ///     Actually—if the user removes it, it should still appear
+            ///         So we would need to go through the components at the Selection FillOptions generation, and add any that isn't present in the componentTexts array without a selection, allowing the user to select it
         }
-        
-        self = .selection(.init(imageTexts: imageTexts))
     }
 }
 
