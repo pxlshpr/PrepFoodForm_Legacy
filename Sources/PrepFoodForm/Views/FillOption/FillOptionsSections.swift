@@ -45,7 +45,7 @@ struct FillOptionsSections: View {
             return true
         }
         
-        if fieldViewModel.prefillUrl != nil && fieldViewModel.fieldValue.fill.isPrefill {
+        if fieldViewModel.prefillUrl != nil, fieldViewModel.isPrefilled {
             return true
         }
         

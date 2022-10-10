@@ -18,11 +18,18 @@ extension FieldViewModel: Equatable {
 
 class FieldViewModel: ObservableObject, Identifiable {
     let id = UUID()
-    @Published var fieldValue: FieldValue
+    @Published var fieldValue: FieldValue {
+        didSet {
+           withAnimation {
+                isPrefilled = fieldValue.fill.isPrefill
+            }
+        }
+    }
     @Published var imageToDisplay: UIImage? = nil
     @Published var isCroppingNextImage: Bool = false
 
     @Published var prefillUrl: String? = nil
+    @Published var isPrefilled: Bool = false
 
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue

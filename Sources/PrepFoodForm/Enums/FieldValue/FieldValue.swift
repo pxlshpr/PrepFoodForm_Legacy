@@ -303,9 +303,7 @@ extension FieldValue {
                     return
                 }
                 withAnimation {
-                    self.internalString = newValue
-                    self.fill = .userInput
-//                    self = .init(string: newValue, fill: .userInput)
+                    self = .init(string: newValue, fill: .userInput)
                 }
             }
         }
