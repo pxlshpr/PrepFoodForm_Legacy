@@ -146,6 +146,7 @@ extension FoodFormViewModel {
                 let sizeViewModels = scanResult.servingSizeViewModels
                 for sizeViewModel in sizeViewModels {
                     add(sizeViewModel: sizeViewModel)
+                    //TODO: Add sizes to a separate array (or the scanned one) here
                 }
                 return fieldValue
             }
@@ -159,6 +160,7 @@ extension FoodFormViewModel {
 
             if let fieldValue = scanResult.amountFieldValue(for: column) {
                 //TODO: Revisit this if need be
+                //TODO: Make sure these are added
 //                let sizeViewModels = scanResult.amountSizeViewModels
 //                for sizeViewModel in sizeViewModels {
 //                    add(sizeViewModel: sizeViewModel)

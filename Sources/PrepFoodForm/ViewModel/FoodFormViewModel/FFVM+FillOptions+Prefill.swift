@@ -68,13 +68,11 @@ extension FoodFormViewModel {
             return [food.servingFieldValue].compactMap { $0 }
         case .amount:
             return [food.amountFieldValue].compactMap { $0 }
-//        case .brand(let stringValue):
-//            return FieldValue.brand(FieldValue.StringValue(string: detail, fill: .prefill))
+        case .size:
+            
 //            return food.detail
 //        case .barcode(let stringValue):
 //            return nil
-//        case .detail(let stringValue):
-//
 //        case .density(let densityValue):
 //
         default:
