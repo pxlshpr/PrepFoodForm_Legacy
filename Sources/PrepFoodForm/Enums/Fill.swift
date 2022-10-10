@@ -73,8 +73,19 @@ struct SelectionFillInfo: Hashable {
     }
 }
 
+struct PrefillFieldString: Hashable {
+    let string: String
+    let field: PrefillField
+}
+
 struct PrefillFillInfo: Hashable {
-    var fields: [PrefillField] = []
+    var fieldStrings: [PrefillFieldString] = []
+    
+    var concatenated: String {
+        fieldStrings
+            .map { $0.string.capitalized }
+            .joined(separator: " ")
+    }
 }
 
 enum Fill: Hashable {
@@ -82,7 +93,7 @@ enum Fill: Hashable {
     case scanned(ScannedFillInfo)
     case selection(SelectionFillInfo)
     
-    case prefill(prefillFields: [PrefillField] = [])
+    case prefill(PrefillFillInfo = .init())
     case userInput
     case calculated
     case barcodeScan
@@ -162,7 +173,7 @@ extension Fill {
         }
     }
     
-    var isThirdPartyFoodPrefill: Bool {
+    var isPrefill: Bool {
         switch self {
         case .prefill:
             return true

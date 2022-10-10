@@ -27,7 +27,7 @@ class FieldViewModel: ObservableObject, Identifiable {
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
         
-        if fieldValue.fill.isThirdPartyFoodPrefill {
+        if fieldValue.fill.isPrefill {
             self.prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
         }
     }
@@ -43,7 +43,7 @@ class FieldViewModel: ObservableObject, Identifiable {
         
         if fieldValue.fill.usesImage {
             continueCroppingImageIfNeeded(for: fieldViewModel)
-        } else if fieldValue.fill.isThirdPartyFoodPrefill {
+        } else if fieldValue.fill.isPrefill {
             prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
         }
     }
@@ -135,6 +135,13 @@ extension FieldViewModel {
         return info.imageTexts.contains(imageText)
     }
     
+    func contains(_ fieldString: PrefillFieldString) -> Bool {
+        guard case .prefill(let info) = fieldValue.fill else {
+            return false
+        }
+        return info.fieldStrings.contains(fieldString)
+    }
+    
     func replaceExistingImageText(with imageText: ImageText) {
         guard case .selection(let info) = fieldValue.fill else {
             return
@@ -151,4 +158,22 @@ extension FieldViewModel {
     func imageTextMatchingText(of imageText: ImageText) -> ImageText? {
         nil
     }
+    
+    func toggle(_ imageText: ImageText) {
+        if contains(imageText) {
+            fieldValue.fill.removeImageText(imageText)
+        } else {
+            replaceExistingImageText(with: imageText)
+        }
+    }
+    
+    func toggle(_ fieldString: PrefillFieldString) {
+        if contains(fieldString) {
+            fieldValue.fill.removePrefillFieldString(fieldString)
+        } else {
+            fieldValue.fill.appendPrefillFieldString(fieldString)
+        }
+    }
+
 }
+

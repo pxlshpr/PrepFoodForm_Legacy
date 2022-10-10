@@ -3,8 +3,10 @@ import PrepUnits
 import VisionSugar
 
 extension FieldValue {
-    //MARK: Image Autofill
-    var autofillOptions: [FillOption] {
+    
+    //MARK: Scanned
+    
+    var scannedFillOptions: [FillOption] {
         var fillOptions: [FillOption] = []
         guard let fieldValue = FoodFormViewModel.shared.scannedFieldValue(for: self),
               case .scanned(let info) = fieldValue.fill
@@ -15,12 +17,12 @@ extension FieldValue {
             FillOption(
                 string: fieldValue.fillButtonString,
                 systemImage: Fill.SystemImage.scanned,
-//                isSelected: self.value == autofillFieldValue.value,
+                //                isSelected: self.value == autofillFieldValue.value,
                 isSelected: self.value == fieldValue.fill.value,
                 type: .fill(fieldValue.fill)
             )
         )
-
+        
         /// Show alts if selected (only check the text because it might have a different value attached to it)
         for altValue in fieldValue.altValues {
             fillOptions.append(
@@ -35,7 +37,76 @@ extension FieldValue {
         
         return fillOptions
     }
+}
 
+//MARK: Selection Options
+
+extension FieldValue {
+    var selectionFillOptions: [FillOption] {
+        if self.usesValueBasedTexts {
+            return valueBasedSelectionFillOptions
+        } else {
+            return stringBasedSelectionFillOptions
+        }
+    }
+    var valueBasedSelectionFillOptions: [FillOption] {
+        guard case .selection(let info) = fill,
+              info.imageTexts.first?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+        else {
+            return []
+        }
+
+        let values = selectionFillValues(for: info.imageTexts.map { $0.text })
+        
+        var fillOptions: [FillOption] = []
+        for value in values {
+            fillOptions.append(
+                FillOption(
+                    string: value.description,
+                    systemImage: Fill.SystemImage.selection,
+                    isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
+                    type: .fill(.selection(info.withAltValue(value)))
+                )
+            )
+        }
+        return fillOptions
+    }
+    
+    var stringBasedSelectionFillOptions: [FillOption] {
+        guard case .selection(let info) = fill else {
+            return []
+        }
+        var fillOptions: [FillOption] = []
+        for imageText in info.imageTexts {
+            fillOptions.append(
+                FillOption(
+                    string: imageText.text.string,
+                    systemImage: Fill.SystemImage.selection,
+                    isSelected: info.imageTexts.contains(imageText.withoutPickedCandidate),
+                    disableWhenSelected: false,
+                    type: .fill(.selection(.init(imageTexts: [imageText])))
+                )
+            )
+            
+            for candidate in imageText.text.candidates {
+                guard fillOptions.contains(where: { $0.string != candidate }) else {
+                    continue
+                }
+                let candidateImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: candidate)
+                fillOptions.append(
+                    FillOption(
+                        string: candidate,
+                        systemImage: Fill.SystemImage.selection,
+                        isSelected: info.imageTexts.contains(candidateImageText),
+                        disableWhenSelected: false,
+                        type: .fill(.selection(.init(imageTexts: [candidateImageText])))
+                    )
+                )
+            }
+        }
+        return fillOptions
+    }
+    
     func selectionDoubleValues(for primaryText: RecognizedText) -> [FoodLabelValue] {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
@@ -139,73 +210,6 @@ extension FieldValue {
             return selectionMicroValues(for: firstText, nutrientType: microValue.nutrientType)
         default:
             return []
-        }
-    }
-    
-    //MARK: Image Selection
-    var valueBasedSelectionFillOptions: [FillOption] {
-        guard case .selection(let info) = fill,
-              info.imageTexts.first?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
-        else {
-            return []
-        }
-
-        let values = selectionFillValues(for: info.imageTexts.map { $0.text })
-        
-        var fillOptions: [FillOption] = []
-        for value in values {
-            fillOptions.append(
-                FillOption(
-                    string: value.description,
-                    systemImage: Fill.SystemImage.selection,
-                    isSelected: value.matchesSelection(self.value) && self.fill.isImageSelection,
-                    type: .fill(.selection(info.withAltValue(value)))
-                )
-            )
-        }
-        return fillOptions
-    }
-    
-    var stringBasedSelectionFillOptions: [FillOption] {
-        guard case .selection(let info) = fill else {
-            return []
-        }
-        var fillOptions: [FillOption] = []
-        for imageText in info.imageTexts {
-            fillOptions.append(
-                FillOption(
-                    string: imageText.text.string,
-                    systemImage: Fill.SystemImage.selection,
-                    isSelected: info.imageTexts.contains(imageText.withoutPickedCandidate),
-                    disableWhenSelected: false,
-                    type: .fill(.selection(.init(imageTexts: [imageText])))
-                )
-            )
-            
-            for candidate in imageText.text.candidates {
-                guard fillOptions.contains(where: { $0.string != candidate }) else {
-                    continue
-                }
-                let candidateImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: candidate)
-                fillOptions.append(
-                    FillOption(
-                        string: candidate,
-                        systemImage: Fill.SystemImage.selection,
-                        isSelected: info.imageTexts.contains(candidateImageText),
-                        disableWhenSelected: false,
-                        type: .fill(.selection(.init(imageTexts: [candidateImageText])))
-                    )
-                )
-            }
-        }
-        return fillOptions
-    }
-    
-    var selectionFillOptions: [FillOption] {
-        if self.usesValueBasedTexts {
-            return valueBasedSelectionFillOptions
-        } else {
-            return stringBasedSelectionFillOptions
         }
     }
 }

@@ -26,6 +26,7 @@ struct MicronutrientForm: View {
             supplementaryView: percentageInfoView,
             supplementaryViewHeaderString: supplementaryViewHeaderString,
             supplementaryViewFooterString: supplementaryViewFooterString,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
         .onChange(of: unit) { newValue in
@@ -83,6 +84,13 @@ struct MicronutrientForm: View {
                 .foregroundColor(.secondary)
                 .font(.title3)
         }
+    }
+
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
+        guard case .micro(let microValue) = fieldValue else {
+            return
+        }
+        fieldViewModel.fieldValue.microValue = microValue
     }
 
     func setNewValue(_ value: FoodLabelValue) {

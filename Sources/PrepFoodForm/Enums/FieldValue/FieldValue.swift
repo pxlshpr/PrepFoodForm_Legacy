@@ -292,8 +292,8 @@ extension FieldValue {
                 switch fill {
                 case .selection(let info):
                     return info.concatenated
-                case .prefill:
-                    return "prefill values go here"
+                case .prefill(let info):
+                    return info.concatenated
                 default:
                     return internalString
                 }
@@ -513,30 +513,20 @@ extension FieldValue {
     
     var prefillString: String {
         switch self {
-//        case .name(let stringValue):
-//            <#code#>
-//        case .emoji(let stringValue):
-//            <#code#>
-//        case .brand(let stringValue):
-//            <#code#>
-//        case .barcode(let stringValue):
-//            <#code#>
-//        case .detail(let stringValue):
-//            <#code#>
+        case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+            return stringValue.string
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.description
-//        case .serving(let doubleValue):
-//            <#code#>
 //        case .density(let densityValue):
-//            <#code#>
-//        case .energy(let energyValue):
-//            <#code#>
-//        case .macro(let macroValue):
-//            <#code#>
-//        case .micro(let microValue):
-//            <#code#>
+//
+        case .energy(let energyValue):
+            return energyValue.description
+        case .macro(let macroValue):
+            return macroValue.description
+        case .micro(let microValue):
+            return microValue.description
 //        case .size(let sizeValue):
-//            <#code#>
+//
         default:
             return ""
         }

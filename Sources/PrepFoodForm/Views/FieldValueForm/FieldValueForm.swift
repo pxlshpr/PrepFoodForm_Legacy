@@ -36,7 +36,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
 //    @Environment(\.presentationMode) var presentation
     
     let setNewValue: ((FoodLabelValue) -> ())?
-    let toggledFieldValue: ((FieldValue) -> ())?
+    let tappedPrefillFieldValue: ((FieldValue) -> ())?
     let didSelectImageTextsHandler: (([ImageText]) -> ())?
     let didSave: (() -> ())?
 
@@ -50,7 +50,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
-         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
          didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
@@ -66,7 +66,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
-        self.toggledFieldValue = toggledFieldValue
+        self.tappedPrefillFieldValue = tappedPrefillFieldValue
         self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
@@ -83,7 +83,7 @@ extension FieldValueForm where UnitView == EmptyView {
          supplementaryViewHeaderString: String?,
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
-         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
          didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
@@ -99,7 +99,7 @@ extension FieldValueForm where UnitView == EmptyView {
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
-        self.toggledFieldValue = toggledFieldValue
+        self.tappedPrefillFieldValue = tappedPrefillFieldValue
         self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
@@ -113,7 +113,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
          footerString: String? = nil,
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
-         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
          didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
@@ -129,7 +129,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
-        self.toggledFieldValue = toggledFieldValue
+        self.tappedPrefillFieldValue = tappedPrefillFieldValue
         self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
@@ -142,7 +142,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          footerString: String? = nil,
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
-         toggledFieldValue: ((FieldValue) -> ())? = nil,
+         tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
          didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
@@ -158,7 +158,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.supplementaryViewHeaderString = nil
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
-        self.toggledFieldValue = toggledFieldValue
+        self.tappedPrefillFieldValue = tappedPrefillFieldValue
         self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
@@ -455,11 +455,7 @@ extension FieldValueForm {
             }
         } else {
             withAnimation {
-                if fieldViewModel.contains(imageText) {
-                    fieldViewModel.fieldValue.fill.removeImageText(imageText)
-                } else {
-                    fieldViewModel.replaceExistingImageText(with: imageText)
-                }
+                fieldViewModel.toggle(imageText)
             }
             //TODO: If this is selected, deslect it
             //TODO: Otherwise—replace the one that shares this
@@ -469,13 +465,23 @@ extension FieldValueForm {
     
     func tappedPrefill() {
         /// Tapped a prefill or calculated value
-        guard let fieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
+        guard let prefillFieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
             return
         }
-        if let toggledFieldValue {
-            toggledFieldValue(fieldValue)
+        
+        if let tappedPrefillFieldValue {
+            tappedPrefillFieldValue(prefillFieldValue)
+        } else {
+            if !fieldValue.usesValueBasedTexts,
+               let fieldString = prefillFieldValue.singlePrefillFieldString
+            {
+                withAnimation {
+                    fieldViewModel.toggle(fieldString)
+                }
+            }
         }
     }
+    
     func didTapChooseButton() {
         showTextPicker()
     }

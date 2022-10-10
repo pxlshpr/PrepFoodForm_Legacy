@@ -137,13 +137,6 @@ struct FillOptionsSections: View {
     }
 }
 
-
-extension MFPProcessedFood {
-    var detailStrings: [String] {
-        [name, detail, brand].compactMap { $0 }
-    }
-}
-
 //MARK: - Preview
 
 public struct FillOptionSectionsPreview: View {

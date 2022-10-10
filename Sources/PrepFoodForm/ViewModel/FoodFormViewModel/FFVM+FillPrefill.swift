@@ -85,16 +85,13 @@ extension FoodFormViewModel {
     }
     
     func prefillDetails(from food: MFPProcessedFood) {
-        if !food.name.isEmpty {
-            let fieldValue = FieldValue.name(FieldValue.StringValue(string: food.name, fill: .prefill(prefillFields: [.name])))
+        if let fieldValue = food.namePrefillFieldValue {
             nameViewModel = .init(fieldValue: fieldValue)
         }
-        if let detail = food.detail, !detail.isEmpty {
-            let fieldValue = FieldValue.detail(FieldValue.StringValue(string: detail, fill: .prefill(prefillFields: [.detail])))
+        if let fieldValue = food.detailPrefillFieldValue {
             detailViewModel = .init(fieldValue: fieldValue)
         }
-        if let brand = food.brand, !brand.isEmpty {
-            let fieldValue = FieldValue.brand(FieldValue.StringValue(string: brand, fill: .prefill(prefillFields: [.brand])))
+        if let fieldValue = food.brandPrefillFieldValue {
             brandViewModel = .init(fieldValue: fieldValue)
         }
     }
@@ -235,11 +232,6 @@ extension ServingUnit {
     }
 }
 
-extension FieldValue {
-    static func prefillOptionForName(with string: String) -> FieldValue {
-        FieldValue.name(StringValue(string: string, fill: .prefill(prefillFields: [.name])))
-    }
-}
 
 //TODO: Write an extension on FieldValue or RecognizedText that provides alternative `FoodLabelValue`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
 
@@ -249,38 +241,7 @@ extension FoodFormViewModel {
     func hasPrefillOptions(for fieldValue: FieldValue) -> Bool {
         !prefillOptionFieldValues(for: fieldValue).isEmpty
     }
-    
-    func prefillOptionFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
-        guard let food = prefilledFood else {
-            return []
-        }
-        
-        switch fieldValue {
-        case .name:
-            return food.detailStrings.map { FieldValue.prefillOptionForName(with: $0) }
-        case .macro(let macroValue):
-            return [food.macroFieldValue(for: macroValue.macro)]
-        case .micro(let microValue):
-            return [food.microFieldValue(for: microValue.nutrientType)].compactMap { $0 }
-        case .energy:
-            return [food.energyFieldValue]
-        case .serving:
-            return [food.servingFieldValue].compactMap { $0 }
-        case .amount:
-            return [food.amountFieldValue].compactMap { $0 }
-//        case .brand(let stringValue):
-//            return FieldValue.brand(FieldValue.StringValue(string: detail, fill: .prefill))
-//            return food.detail
-//        case .barcode(let stringValue):
-//            return nil
-//        case .detail(let stringValue):
-//
-//        case .density(let densityValue):
-//            <#code#>
-        default:
-            return []
-        }
-    }
+
 
     /**
      Returns true if there is at least one available (unused`RecognizedText` in all the `ScanResult`s that is compatible with the `fieldValue`

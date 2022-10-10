@@ -19,6 +19,7 @@ struct MacronutrientForm: View {
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
             unitView: unit,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
     }
@@ -30,6 +31,13 @@ struct MacronutrientForm: View {
         
     }
     
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
+        guard case .macro(let macroValue) = fieldValue else {
+            return
+        }
+        fieldViewModel.fieldValue.macroValue = macroValue
+    }
+
     func setNewValue(_ value: FoodLabelValue) {
         fieldViewModel.fieldValue.macroValue.string = value.amount.cleanAmount
     }

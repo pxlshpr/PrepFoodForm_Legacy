@@ -34,7 +34,7 @@ extension FoodFormViewModel {
         var fillOptions: [FillOption] = []
         
         /// Detected text option (if its available) + its alts
-        fillOptions.append(contentsOf: fieldValue.autofillOptions)
+        fillOptions.append(contentsOf: fieldValue.scannedFillOptions)
         fillOptions.append(contentsOf: fieldValue.selectionFillOptions)
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
         fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
@@ -48,24 +48,6 @@ extension FoodFormViewModel {
         return fillOptions
     }
 
-    //MARK: Prefill
-    
-    func prefillOptions(for fieldValue: FieldValue) -> [FillOption] {
-        var fillOptions: [FillOption] = []
-        /// Prefill Options
-        //TODO: Check that array returns name, detail and brand for string fields
-        for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
-            let option = FillOption(
-                string: prefillFieldValue.prefillString,
-                systemImage: Fill.SystemImage.prefill,
-                isSelected: fieldValue.fill.isThirdPartyFoodPrefill,
-                type: .fill(.prefill())
-            )
-            fillOptions.append(option)
-        }
-        return fillOptions
-    }
-    
     //MARK: Calculated
     func calculatedOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []

@@ -415,17 +415,17 @@ extension FoodFormViewModel {
         
         viewModel.shouldShowWizard = false
         
-//        viewModel.prefill(mfpProcessedFood)
+        viewModel.prefill(mfpProcessedFood)
         
-        viewModel.sourceType = .images
-        viewModel.imageViewModels.append(
-            ImageViewModel(image: image,
-                           scanResult: scanResult
-
-                          )
-        )
-        viewModel.processScanResults()
-        viewModel.imageSetStatus = .classified
+//        viewModel.sourceType = .images
+//        viewModel.imageViewModels.append(
+//            ImageViewModel(image: image,
+//                           scanResult: scanResult
+//
+//                          )
+//        )
+//        viewModel.processScanResults()
+//        viewModel.imageSetStatus = .classified
         
         return viewModel
     }

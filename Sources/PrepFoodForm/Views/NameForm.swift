@@ -18,16 +18,26 @@ struct NameForm: View {
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
             didSave: didSave,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             didSelectImageTextsHandler: didSelectImageTextsHandler
         )
     }
     
     func didSelectImageTextsHandler(_ imageTexts: [ImageText]) {
         for imageText in imageTexts {
-            fieldViewModel.fieldValue.stringValue.fill.appendSelectedText(imageText.text, on: imageText.imageId)
+            fieldViewModel.fieldValue.stringValue.fill.appendImageText(imageText)
         }
     }
     
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
+        guard case .name(let stringValue) = fieldValue,
+              let fieldString = fieldValue.singlePrefillFieldString
+        else {
+            return
+        }
+        fieldViewModel.fieldValue.stringValue.fill.appendPrefillFieldString(fieldString)
+    }
+
     func didSave() {
         
     }
@@ -43,8 +53,7 @@ extension Fill {
         self = .selection(newInfo)
     }
     
-    mutating func appendSelectedText(_ text: RecognizedText, on imageId: UUID) {
-        let imageText = ImageText(text: text, imageId: imageId)
+    mutating func appendImageText(_ imageText: ImageText) {
         let imageTexts: [ImageText]
         if case .selection(let info) = self {
             imageTexts = info.imageTexts + [imageText]
@@ -54,5 +63,28 @@ extension Fill {
         }
         
         self = .selection(.init(imageTexts: imageTexts))
+    }
+}
+
+extension Fill {
+    mutating func appendPrefillFieldString(_ fieldString: PrefillFieldString) {
+        let fieldStrings: [PrefillFieldString]
+        if case .prefill(let info) = self {
+            fieldStrings = info.fieldStrings + [fieldString]
+        } else {
+            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
+            fieldStrings = [fieldString]
+        }
+        
+        self = .prefill(.init(fieldStrings: fieldStrings))
+    }
+    
+    mutating func removePrefillFieldString(_ fieldString: PrefillFieldString) {
+        guard case .prefill(let info) = self else {
+            return
+        }
+        var newInfo = info
+        newInfo.fieldStrings.removeAll(where: { $0 == fieldString })
+        self = .prefill(newInfo)
     }
 }

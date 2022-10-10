@@ -28,7 +28,7 @@ struct ServingForm: View {
             footerString: footerString,
             placeholderString: "Optional",
             didSave: didSave,
-            toggledFieldValue: toggledFieldValue,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
@@ -76,7 +76,7 @@ struct ServingForm: View {
         viewModel.servingChanged()
     }
 
-    func toggledFieldValue(_ fieldValue: FieldValue) {
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
         switch fieldValue {
         case .serving(let doubleValue):
             guard let double = doubleValue.double else {

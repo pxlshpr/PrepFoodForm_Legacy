@@ -27,7 +27,7 @@ struct AmountForm: View {
             headerString: headerString,
             footerString: footerString,
             didSave: didSave,
-            toggledFieldValue: toggledFieldValue,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
@@ -70,7 +70,7 @@ struct AmountForm: View {
         .environmentObject(viewModel)
     }
 
-    func toggledFieldValue(_ fieldValue: FieldValue) {
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
         switch fieldValue {
         case .amount(let doubleValue):
             guard let double = doubleValue.double else {

@@ -19,6 +19,7 @@ struct EnergyForm: View {
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
             unitView: unitPicker,
+            tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
     }
@@ -32,6 +33,13 @@ struct EnergyForm: View {
         }
         .pickerStyle(.segmented)
         
+    }
+    
+    func tappedPrefillFieldValue(_ fieldValue: FieldValue) {
+        guard case .energy(let energyValue) = fieldValue else {
+            return
+        }
+        fieldViewModel.fieldValue.energyValue = energyValue
     }
     
     func setNewValue(_ value: FoodLabelValue) {
