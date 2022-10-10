@@ -69,7 +69,7 @@ struct SelectionFillInfo: Hashable {
         imageTexts
             .map { $0.pickedCandidate ?? $0.text.string }
             .map { $0.capitalized }
-            .joined(separator: " ")
+            .joined(separator: ", ")
     }
 }
 
@@ -81,10 +81,11 @@ struct PrefillFieldString: Hashable {
 struct PrefillFillInfo: Hashable {
     var fieldStrings: [PrefillFieldString] = []
     
+    
     var concatenated: String {
         fieldStrings
             .map { $0.string.capitalized }
-            .joined(separator: " ")
+            .joined(separator: ", ")
     }
 }
 

@@ -45,7 +45,6 @@ extension FoodForm.NutrientsPerForm.DensityForm {
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                print("🔥")
                 shouldAnimateOptions = true
                 
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
@@ -101,6 +100,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     func didTapFillOption(_ fillOption: FillOption) {
         //TODO: Prefill info should have DensityValue associated with it
         print("We tapped: \(fillOption)")
+        
     }
     
     func saveAndDismiss() {

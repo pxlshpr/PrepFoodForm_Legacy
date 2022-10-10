@@ -4,14 +4,10 @@ extension FoodFormViewModel {
     
     func prefillOptions(for fieldValue: FieldValue) -> [FillOption] {
         var fillOptions: [FillOption] = []
-        /// Prefill Options
-        //TODO: Check that array returns name, detail and brand for string fields
+        
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
-            var fieldStrings: [PrefillFieldString] = []
-            if let fieldString = prefillFieldValue.singlePrefillFieldString {
-                fieldStrings.append(fieldString)
-            }
-            let info = PrefillFillInfo(fieldStrings: fieldStrings)
+            
+            let info = prefillInfo(for: prefillFieldValue)
             let option = FillOption(
                 string: prefillString(for: prefillFieldValue),
                 systemImage: Fill.SystemImage.prefill,
@@ -22,6 +18,10 @@ extension FoodFormViewModel {
             fillOptions.append(option)
         }
         return fillOptions
+    }
+    
+    func prefillInfo(for fieldValue: FieldValue) -> PrefillFillInfo {
+        PrefillFillInfo(fieldStrings: fieldValue.prefillFieldStrings)
     }
     
     func prefillString(for fieldValue: FieldValue) -> String {
@@ -51,11 +51,11 @@ extension FoodFormViewModel {
 }
 
 extension FieldValue {
-    var singlePrefillFieldString: PrefillFieldString? {
+    var prefillFieldStrings: [PrefillFieldString] {
         guard case .prefill(let info) = fill, info.fieldStrings.count == 1 else {
-            return nil
+            return []
         }
-        return info.fieldStrings.first
+        return info.fieldStrings
     }
     
     func prefillFillContains(_ prefillFieldValue: FieldValue) -> Bool {
@@ -65,12 +65,19 @@ extension FieldValue {
             return fill.isPrefill
         }
         
-        guard case .prefill(let info) = fill,
-              let fieldString = prefillFieldValue.singlePrefillFieldString
+        guard case .prefill(let info) = fill, let fieldString = prefillFieldValue.prefillFieldStrings.first
         else {
             return false
         }
         return info.fieldStrings.contains(fieldString)
+    }
+}
+
+extension PrefillFieldString: Equatable {
+    /// Doesn't care about text case when comparing
+    static func ==(lhs: PrefillFieldString, rhs: PrefillFieldString) -> Bool {
+        lhs.string.lowercased() == rhs.string.lowercased()
+        && lhs.field == rhs.field
     }
 }
 
@@ -110,17 +117,61 @@ extension FoodFormViewModel {
 
 import MFPScraper
 
+extension Fill {
+    func replacingSinglePrefillString(with string: String) -> Fill {
+        guard isPrefill,
+              case .prefill(let prefillFillInfo) = self,
+              let fieldString = prefillFillInfo.fieldStrings.first
+        else {
+            return self
+        }
+        let copy = PrefillFieldString(string: string, field: fieldString.field)
+        return Fill.prefill(.init(fieldStrings: [copy]))
+    }
+}
+extension FieldValue {
+    func replacingString(with string: String) -> FieldValue {
+        var copy = self
+        copy.string = string
+        copy.fill = fill.replacingSinglePrefillString(with: string)
+        return copy
+    }
+}
+
+extension FieldValue {
+    var stringComponentFieldValues: [FieldValue] {
+        var fieldValues: [FieldValue] = []
+        for component in string.components(separatedBy: ",").map({ $0.trimmingWhitespaces }) {
+            fieldValues.append(replacingString(with: component))
+        }
+        return fieldValues
+    }
+}
+
+import SwiftSugar
+
 extension MFPProcessedFood {
     var stringBasedFieldValues: [FieldValue] {
-        [nameFieldValue, detailFieldValue, brandFieldValue].compactMap { $0 }
+        var componentFieldValues: [FieldValue] = []
+        let fieldValues = [nameFieldValue, detailFieldValue, brandFieldValue].compactMap { $0 }
+        for fieldValue in fieldValues {
+            componentFieldValues.append(contentsOf: fieldValue.stringComponentFieldValues)
+        }
+        return componentFieldValues
     }
     
+    var nameFieldStrings: [PrefillFieldString] {
+        name
+            .components(separatedBy: ",")
+            .map { $0.trimmingWhitespaces }
+            .map { PrefillFieldString(string: $0, field: .name) }
+    }
     var nameFieldValue: FieldValue? {
         guard !name.isEmpty else {
             return nil
         }
-        let fieldString = PrefillFieldString(string: name, field: .name)
-        let fill = Fill.prefill(.init(fieldStrings: [fieldString]))
+//        let fieldString = PrefillFieldString(string: name, field: .name)
+        let fill = Fill.prefill(.init(fieldStrings: nameFieldStrings))
         return FieldValue.name(FieldValue.StringValue(string: name, fill: fill))
     }
     
