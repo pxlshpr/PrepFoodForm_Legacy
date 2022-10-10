@@ -158,6 +158,11 @@ extension ScanResult {
     }
     
     func servingFieldValue(for column: Int) -> FieldValue? {
+        /// If we have a header type for the column and it's not `.perServing`, return `nil` immediately
+        guard headerType(for: column) == .perServing else {
+            return nil
+        }
+        
         if let servingAmount, let servingAmountValueText {
             return FieldValue.serving(FieldValue.DoubleValue(
                 double: servingAmount,
@@ -172,10 +177,13 @@ extension ScanResult {
                 )
             ))
         }
-        else if headerType(for: column) == .perServing {
+//        else if headerType(for: column) == .perServing {
+//            return headerFieldValue(for: column)
+//        } else {
+//            return nil
+//        }
+        else {
             return headerFieldValue(for: column)
-        } else {
-            return nil
         }
     }
     

@@ -156,7 +156,7 @@ struct DensityForm: View {
     }
     
     func didTapImage() {
-        
+        showTextPicker()
     }
     
     func didTapFillOption(_ fillOption: FillOption) {
