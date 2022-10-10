@@ -304,7 +304,11 @@ public struct FoodForm: View {
     var detailsSection: some View {
         Section("Details") {
             NavigationLink {
-                DetailsForm(nameViewModel: viewModel.nameViewModel)
+                DetailsForm(
+                    nameViewModel: viewModel.nameViewModel,
+                    detailViewModel: viewModel.detailViewModel,
+                    brandViewModel: viewModel.brandViewModel
+                )
                     .environmentObject(viewModel)
             } label: {
                 DetailsCell(nameViewModel: viewModel.nameViewModel)

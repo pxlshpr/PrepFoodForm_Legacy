@@ -303,7 +303,9 @@ extension FieldValue {
                     return
                 }
                 withAnimation {
-                    self = .init(string: newValue, fill: .userInput)
+                    self.internalString = newValue
+                    self.fill = .userInput
+//                    self = .init(string: newValue, fill: .userInput)
                 }
             }
         }
@@ -583,7 +585,17 @@ extension FieldValue {
                 var newStringValue = stringValue
                 newStringValue.string = newValue
                 self = .name(newStringValue)
-                
+
+            case .detail(let stringValue):
+                var newStringValue = stringValue
+                newStringValue.string = newValue
+                self = .detail(newStringValue)
+
+            case .brand(let stringValue):
+                var newStringValue = stringValue
+                newStringValue.string = newValue
+                self = .brand(newStringValue)
+
 //            case .emoji(let stringValue):
 //                <#code#>
 //            case .brand(let stringValue):

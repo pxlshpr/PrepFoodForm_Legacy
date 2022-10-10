@@ -7,11 +7,17 @@ extension FoodFormViewModel {
         /// Prefill Options
         //TODO: Check that array returns name, detail and brand for string fields
         for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
+            var fieldStrings: [PrefillFieldString] = []
+            if let fieldString = prefillFieldValue.singlePrefillFieldString {
+                fieldStrings.append(fieldString)
+            }
+            let info = PrefillFillInfo(fieldStrings: fieldStrings)
             let option = FillOption(
                 string: prefillFieldValue.prefillString,
                 systemImage: Fill.SystemImage.prefill,
                 isSelected: fieldValue.prefillFillContains(prefillFieldValue),
-                type: .fill(.prefill())
+                disableWhenSelected: false,
+                type: .fill(.prefill(info))
             )
             fillOptions.append(option)
         }
@@ -50,7 +56,7 @@ extension FoodFormViewModel {
         }
         
         switch fieldValue {
-        case .name:
+        case .name, .detail, .brand:
             return food.stringBasedPrefillFieldValues
         case .macro(let macroValue):
             return [food.macroFieldValue(for: macroValue.macro)]
@@ -108,7 +114,7 @@ extension MFPProcessedFood {
         }
         let fieldString = PrefillFieldString(string: brand, field: .brand)
         let fill = Fill.prefill(.init(fieldStrings: [fieldString]))
-        return FieldValue.detail(FieldValue.StringValue(string: brand, fill: fill))
+        return FieldValue.brand(FieldValue.StringValue(string: brand, fill: fill))
     }
 
 }

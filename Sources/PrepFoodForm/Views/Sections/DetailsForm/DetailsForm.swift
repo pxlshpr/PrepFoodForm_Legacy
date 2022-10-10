@@ -7,32 +7,34 @@ extension FoodForm {
     struct DetailsForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @ObservedObject var nameViewModel: FieldViewModel
-        
+        @ObservedObject var detailViewModel: FieldViewModel
+        @ObservedObject var brandViewModel: FieldViewModel
 
         @State var showingCodeScanner = false
-        @State var showingSheet = false
-        
-        @State var nameString: String = ""
         
         @State var showingNameForm = false
+        @State var showingDetailForm = false
+        @State var showingBrandForm = false
     }
 }
 
 extension FoodForm.DetailsForm {
     var body: some View {
-//        NavigationView {
-            form
-            .toolbar { bottomToolbarContent }
-            .navigationTitle("Details")
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingNameForm) {
-                NameForm(existingFieldViewModel: nameViewModel)
-                    .environmentObject(viewModel)
-            }
-
-//        }
-        .sheet(isPresented: $showingSheet) {
-            FillForm()
+        form
+        .toolbar { bottomToolbarContent }
+        .navigationTitle("Details")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingNameForm) {
+            StringFieldValueForm(existingFieldViewModel: nameViewModel)
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $showingDetailForm) {
+            StringFieldValueForm(existingFieldViewModel: detailViewModel)
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $showingBrandForm) {
+            StringFieldValueForm(existingFieldViewModel: brandViewModel)
+                .environmentObject(viewModel)
         }
         .sheet(isPresented: $showingCodeScanner) {
             CodeScanner { result in
@@ -50,21 +52,7 @@ extension FoodForm.DetailsForm {
         .interactiveDismissDisabled()
     }
     
-    @ViewBuilder
-    func fillButton(stringValue: FieldValue.StringValue) -> some View {
-        //TODO: In addition to hasNonUserInputFills, if it's empty—only show it if we have a value (particulkarly for detail)
-        if viewModel.hasNonUserInputFills {
-            Button {
-                Haptics.feedback(style: .soft)
-                showingSheet = true
-            } label: {
-                Image(systemName: stringValue.fill.buttonSystemImage)
-                    .imageScale(.large)
-            }
-            .buttonStyle(.borderless)
-        }
-    }
-    
+
     var nameButton: some View {
         Button {
             showingNameForm = true
@@ -84,9 +72,8 @@ extension FoodForm.DetailsForm {
     }
     
     var detailButton: some View {
-        NavigationLink {
-            DetailForm()
-                .environmentObject(viewModel)
+        Button {
+            showingDetailForm = true
         } label: {
             HStack {
                 if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
@@ -94,6 +81,7 @@ extension FoodForm.DetailsForm {
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
                     Text(viewModel.detailViewModel.fieldValue.stringValue.string)
+                        .foregroundColor(.primary)
                 }
                 Spacer()
             }
@@ -102,9 +90,8 @@ extension FoodForm.DetailsForm {
     }
     
     var brandButton: some View {
-        NavigationLink {
-            BrandForm()
-                .environmentObject(viewModel)
+        Button {
+            showingBrandForm = true
         } label: {
             HStack {
                 if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {
@@ -112,6 +99,7 @@ extension FoodForm.DetailsForm {
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
                     Text(viewModel.brandViewModel.fieldValue.stringValue.string)
+                        .foregroundColor(.primary)
                 }
                 Spacer()
             }
@@ -243,7 +231,11 @@ struct DetailsFormPreview: View {
     @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
-        FoodForm.DetailsForm(nameViewModel: viewModel.nameViewModel)
+        FoodForm.DetailsForm(
+            nameViewModel: viewModel.nameViewModel,
+            detailViewModel: viewModel.detailViewModel,
+            brandViewModel: viewModel.brandViewModel
+        )
             .environmentObject(viewModel)
     }
 }

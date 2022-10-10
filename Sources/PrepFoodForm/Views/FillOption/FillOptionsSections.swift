@@ -40,9 +40,21 @@ struct FillOptionsSections: View {
         }
     }
     
+    var shouldShowSupplementarySection: Bool {
+        if fieldViewModel.imageToDisplay != nil {
+            return true
+        }
+        
+        if fieldViewModel.prefillUrl != nil && fieldViewModel.fieldValue.fill.isPrefill {
+            return true
+        }
+        
+        return false
+    }
+    
     @ViewBuilder
     var supplementarySection: some View {
-        if fieldViewModel.imageToDisplay != nil || fieldViewModel.prefillUrl != nil {
+        if shouldShowSupplementarySection {
             FormStyledSection {
                 if let image = fieldViewModel.imageToDisplay {
                     imageSection(for: image)

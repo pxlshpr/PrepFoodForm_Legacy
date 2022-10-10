@@ -37,7 +37,6 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     
     let setNewValue: ((FoodLabelValue) -> ())?
     let tappedPrefillFieldValue: ((FieldValue) -> ())?
-    let didSelectImageTextsHandler: (([ImageText]) -> ())?
     let didSave: (() -> ())?
 
     init(fieldViewModel: FieldViewModel,
@@ -51,7 +50,6 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
          tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
-         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -67,7 +65,6 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
         self.tappedPrefillFieldValue = tappedPrefillFieldValue
-        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 
@@ -84,7 +81,6 @@ extension FieldValueForm where UnitView == EmptyView {
          supplementaryViewFooterString: String?,
          didSave: (() -> ())? = nil,
          tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
-         didSelectImageTextsHandler: (([ImageText]) -> ())? = nil,
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
@@ -100,7 +96,6 @@ extension FieldValueForm where UnitView == EmptyView {
         self.supplementaryViewFooterString = supplementaryViewFooterString
         self.didSave = didSave
         self.tappedPrefillFieldValue = tappedPrefillFieldValue
-        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -130,7 +125,6 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
         self.tappedPrefillFieldValue = tappedPrefillFieldValue
-        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -159,7 +153,6 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.supplementaryViewFooterString = nil
         self.didSave = didSave
         self.tappedPrefillFieldValue = tappedPrefillFieldValue
-        self.didSelectImageTextsHandler = didSelectImageTextsHandler
         self.setNewValue = setNewValue
     }
 }
@@ -410,8 +403,8 @@ extension FieldValueForm {
                 tappedSelectionFill(info)
             case .scanned(let info):
                 tappedScannedFill(info)
-            case .prefill:
-                tappedPrefill()
+            case .prefill(let info):
+                tappedPrefill(info)
             default:
                 break
             }
@@ -463,18 +456,16 @@ extension FieldValueForm {
         }
     }
     
-    func tappedPrefill() {
-        /// Tapped a prefill or calculated value
-        guard let prefillFieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
-            return
-        }
-        
+    func tappedPrefill(_ info: PrefillFillInfo) {
         if let tappedPrefillFieldValue {
+            /// Tapped a prefill or calculated value
+            guard let prefillFieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
+                return
+            }
+            
             tappedPrefillFieldValue(prefillFieldValue)
         } else {
-            if !fieldValue.usesValueBasedTexts,
-               let fieldString = prefillFieldValue.singlePrefillFieldString
-            {
+            if !fieldValue.usesValueBasedTexts, let fieldString = info.fieldStrings.first {
                 withAnimation {
                     fieldViewModel.toggle(fieldString)
                 }
@@ -503,15 +494,13 @@ extension FieldValueForm {
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {
         
-        /// If we have a custom handler—use that
-        if let didSelectImageTextsHandler {
-            didSelectImageTextsHandler(imageTexts)
-            return
+        if !fieldValue.usesValueBasedTexts {
+            for imageText in imageTexts {
+                fieldViewModel.fieldValue.stringValue.fill.appendImageText(imageText)
+            }
         }
         
         //TODO: Handle serving and amount
-        
-        
         
         /// This is the generic handler which works for single pick fields such as energy, macro, micro
         guard let imageText = imageTexts.first, let value = imageText.text.firstFoodLabelValue else {
