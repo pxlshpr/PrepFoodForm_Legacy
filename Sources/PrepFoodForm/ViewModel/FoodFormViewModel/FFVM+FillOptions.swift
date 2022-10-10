@@ -2,44 +2,6 @@ import FoodLabelScanner
 import VisionSugar
 import PrepUnits
 
-extension FillOption {
-    var foodLabelValue: FoodLabelValue? {
-        switch self.type {
-        case .fill(let fill):
-            return fill.value
-        default:
-            return nil
-        }
-    }
-}
-
-extension Array where Element == FillOption {
-    func removingFillOptionValueDuplicates() -> [Element] {
-        var uniqueDict = [FoodLabelValue: Bool]()
-
-        return filter {
-            guard let key = $0.foodLabelValue else { return true }
-            return uniqueDict.updateValue(true, forKey: key) == nil
-        }
-    }
-
-    mutating func removeFillOptionValueDuplicates() {
-        self = self.removingFillOptionValueDuplicates()
-    }
-}
-
-extension FieldValue {
-    func equalsScannedFieldValue(_ other: FieldValue) -> Bool {
-        switch self {
-        case .amount, .serving, .energy, .macro, .micro:
-            return value == other.fill.value
-        case .density(let densityValue):
-            return densityValue == other.densityValue
-        default:
-            return false
-        }
-    }
-}
 extension FoodFormViewModel {
 
     func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
@@ -47,7 +9,7 @@ extension FoodFormViewModel {
         
         /// Detected text option (if its available) + its alts
         fillOptions.append(contentsOf: scannedFillOptions(for: fieldValue))
-        fillOptions.append(contentsOf: fieldValue.selectionFillOptions)
+        fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
         fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
         
@@ -58,6 +20,28 @@ extension FoodFormViewModel {
         }
         
         return fillOptions
+    }
+    
+    func selectionFillOptions(for fieldValue: FieldValue) -> [FillOption] {
+        guard case .density = fieldValue else {
+            return fieldValue.selectionFillOptions
+        }
+
+        guard case .selection(let info) = fieldValue.fill,
+              let selectedText = info.imageTexts.first?.text,
+              selectedText != FoodFormViewModel.shared.scannedText(for: fieldValue)
+        else {
+            return []
+        }
+        
+        return [
+            FillOption(
+                string: fillButtonString(for: fieldValue),
+                systemImage: Fill.SystemImage.selection,
+                isSelected: true,
+                type: .fill(fieldValue.fill)
+            )
+        ]
     }
     
     func scannedFillOptions(for fieldValue: FieldValue) -> [FillOption] {
@@ -229,6 +213,45 @@ extension Fill {
             return prefillFillInfo.densityValue
         default:
             return nil
+        }
+    }
+}
+
+extension FillOption {
+    var foodLabelValue: FoodLabelValue? {
+        switch self.type {
+        case .fill(let fill):
+            return fill.value
+        default:
+            return nil
+        }
+    }
+}
+
+extension Array where Element == FillOption {
+    func removingFillOptionValueDuplicates() -> [Element] {
+        var uniqueDict = [FoodLabelValue: Bool]()
+
+        return filter {
+            guard let key = $0.foodLabelValue else { return true }
+            return uniqueDict.updateValue(true, forKey: key) == nil
+        }
+    }
+
+    mutating func removeFillOptionValueDuplicates() {
+        self = self.removingFillOptionValueDuplicates()
+    }
+}
+
+extension FieldValue {
+    func equalsScannedFieldValue(_ other: FieldValue) -> Bool {
+        switch self {
+        case .amount, .serving, .energy, .macro, .micro:
+            return value == other.fill.value
+        case .density(let densityValue):
+            return densityValue == other.densityValue
+        default:
+            return false
         }
     }
 }
