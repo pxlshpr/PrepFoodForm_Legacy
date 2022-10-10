@@ -10,7 +10,7 @@ enum FieldValue: Hashable {
     case detail(StringValue = StringValue())
     case amount(DoubleValue = DoubleValue(unit: .serving))
     case serving(DoubleValue = DoubleValue(unit: .weight(.g)))
-    case density(DensityValue? = nil)
+    case density(DensityValue = DensityValue())
     case energy(EnergyValue = EnergyValue())
     case macro(MacroValue)
     case micro(MicroValue)
@@ -317,11 +317,29 @@ extension FieldValue {
 //MARK: DensityValue
 extension FieldValue {
     struct DensityValue: Hashable {
+        var weight: DoubleValue
+        var volume: DoubleValue
+        var fill: Fill
+        
+        func description(weightFirst: Bool) -> String {
+            if weightFirst {
+                return "\(weight.description) ↔ \(volume.description)"
+            } else {
+                return " \(volume.description) ↔ \(weight.description)"
+            }
+        }
+        
+        init(weight: DoubleValue = DefaultWeight,
+             volume: DoubleValue = DefaultVolume,
+             fill: Fill = .userInput
+        ) {
+            self.weight = weight
+            self.volume = volume
+            self.fill = fill
+        }
+        
         static let DefaultWeight = DoubleValue(unit: .weight(.g))
         static let DefaultVolume = DoubleValue(unit: .volume(.cup))
-        var weight = DefaultWeight
-        var volume = DefaultVolume
-        var fill: Fill = .userInput
     }
 }
 
@@ -416,7 +434,7 @@ extension FieldValue {
             return doubleValue.isEmpty
             
         case .density(let density):
-            return density == nil
+            return density == DensityValue()
             
         case .energy(let energyValue):
             return energyValue.isEmpty
@@ -511,26 +529,6 @@ extension FieldValue {
         }
     }
     
-    var prefillString: String {
-        switch self {
-        case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
-            return stringValue.string
-        case .amount(let doubleValue), .serving(let doubleValue):
-            return doubleValue.description
-//        case .density(let densityValue):
-//
-        case .energy(let energyValue):
-            return energyValue.description
-        case .macro(let macroValue):
-            return macroValue.description
-        case .micro(let microValue):
-            return microValue.description
-//        case .size(let sizeValue):
-//
-        default:
-            return ""
-        }
-    }
     var string: String {
         get {
             switch self {
@@ -713,7 +711,7 @@ extension FieldValue {
             case .amount(let doubleValue), .serving(let doubleValue):
                 return doubleValue.fill
             case .density(let density):
-                return density?.fill ?? .userInput
+                return density.fill
             case .size(let sizeValue):
                 return sizeValue.fill
             }
@@ -746,8 +744,8 @@ extension FieldValue {
                 )
             case .density(let densityValue):
                 self = .density(DensityValue(
-                    weight: densityValue?.weight ?? DensityValue.DefaultWeight,
-                    volume: densityValue?.volume ?? DensityValue.DefaultVolume,
+                    weight: densityValue.weight,
+                    volume: densityValue.volume,
                     fill: newValue)
                 )
             case .energy(let energyValue):
@@ -886,11 +884,20 @@ extension FieldValue {
         }
     }
 
+    var densityValue: DensityValue? {
+        switch self {
+        case .density(let densityValue):
+            return densityValue
+        default:
+            return DensityValue()
+        }
+    }
+    
     var weight: DoubleValue {
         get {
             switch self {
             case .density(let density):
-                return density?.weight ?? DensityValue.DefaultWeight
+                return density.weight
             default:
                 return DensityValue.DefaultWeight
             }
@@ -898,7 +905,12 @@ extension FieldValue {
         set {
             switch self {
             case .density(let density):
-                self = .density(DensityValue(weight: newValue, volume: density?.volume ?? DensityValue.DefaultVolume))
+                self = .density(
+                    DensityValue(
+                        weight: newValue,
+                        volume: density.volume,
+                        fill: density.fill
+                    ))
             default:
                 break
             }
@@ -909,7 +921,7 @@ extension FieldValue {
         get {
             switch self {
             case .density(let density):
-                return density?.volume ?? DensityValue.DefaultVolume
+                return density.volume
             default:
                 return DensityValue.DefaultVolume
             }
@@ -917,7 +929,7 @@ extension FieldValue {
         set {
             switch self {
             case .density(let density):
-                self = .density(DensityValue(weight: density?.weight ?? DensityValue.DefaultWeight, volume: newValue))
+                self = .density(DensityValue(weight: density.weight, volume: newValue, fill: density.fill))
             default:
                 break
             }

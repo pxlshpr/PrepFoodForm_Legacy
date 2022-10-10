@@ -5,14 +5,14 @@ extension FoodForm {
 
         @EnvironmentObject var viewModel: FoodFormViewModel
         
+        @ObservedObject var densityViewModel: FieldViewModel
+        
         @State var showingAddSizeForm = false
         @State var showingDensityForm = false
         
         @State var sizeToEdit: FieldViewModel?
 
-        @State var refreshBool: Bool = false
-        
-        public init() { }
+        @State var refreshBool: Bool = false        
     }
 }
 
@@ -108,24 +108,9 @@ extension FoodForm.NutrientsPerForm {
         
         @ViewBuilder
         var label: some View {
-            if viewModel.hasValidDensity {
-                HStack {
-                    HStack(spacing: 2) {
-                        Text(viewModel.lhsDensityAmountString)
-                            .foregroundColor(Color(.label))
-                        Text(viewModel.lhsDensityUnitString)
-                            .foregroundColor(Color(.secondaryLabel))
-                    }
-                    Image(systemName: "arrow.triangle.swap")
-//                    Text("=")
-                        .foregroundColor(Color(.tertiaryLabel))
-                    HStack(spacing: 2) {
-                        Text(viewModel.rhsDensityAmountString)
-                            .foregroundColor(Color(.label))
-                        Text(viewModel.rhsDensityUnitString)
-                            .foregroundColor(Color(.secondaryLabel))
-                    }
-                }
+            if viewModel.hasValidDensity, let description = viewModel.densityDescription {
+                Text(description)
+                    .foregroundColor(.primary)
             } else {
                 Text("Optional")
                     .foregroundColor(Color(.quaternaryLabel))
@@ -146,8 +131,11 @@ extension FoodForm.NutrientsPerForm {
     
     var densityForm: some View {
         NavigationView {
-            FoodForm.NutrientsPerForm.DensityForm(orderWeightFirst: viewModel.isWeightBased)
-                .environmentObject(viewModel)
+            FoodForm.NutrientsPerForm.DensityForm(
+                densityViewModel: viewModel.densityViewModel,
+                orderWeightFirst: viewModel.isWeightBased
+            )
+            .environmentObject(viewModel)
         }
     }
     

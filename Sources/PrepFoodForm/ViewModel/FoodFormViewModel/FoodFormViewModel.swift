@@ -63,7 +63,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
 
     //MARK: Density
-    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density())
+    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density(FieldValue.DensityValue()))
 
     //TODO: Do we need this?
     /// These are used for the FoodLabel
@@ -222,6 +222,10 @@ extension FoodFormViewModel {
     
     func imageViewModel(forScanResultId scanResultId: UUID) -> ImageViewModel? {
         imageViewModels.first(where: { $0.scanResult?.id == scanResultId })
+    }
+    
+    var densityDescription: String? {
+        densityViewModel.fieldValue.densityValue?.description(weightFirst: isWeightBased)
     }
 }
 

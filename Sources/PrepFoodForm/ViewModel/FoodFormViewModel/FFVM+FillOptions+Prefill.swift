@@ -13,16 +13,41 @@ extension FoodFormViewModel {
             }
             let info = PrefillFillInfo(fieldStrings: fieldStrings)
             let option = FillOption(
-                string: prefillFieldValue.prefillString,
+                string: prefillString(for: prefillFieldValue),
                 systemImage: Fill.SystemImage.prefill,
                 isSelected: fieldValue.prefillFillContains(prefillFieldValue),
-                disableWhenSelected: false,
+                disableWhenSelected: fieldValue.usesValueBasedTexts, /// disable selected value-based prefills (so not string-based ones that act as toggles)
                 type: .fill(.prefill(info))
             )
             fillOptions.append(option)
         }
         return fillOptions
     }
+    
+    func prefillString(for fieldValue: FieldValue) -> String {
+        switch fieldValue {
+        case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+            return stringValue.string
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.description
+//        case .density(let densityValue):
+//
+        case .energy(let energyValue):
+            return energyValue.description
+        case .macro(let macroValue):
+            return macroValue.description
+        case .micro(let microValue):
+            return microValue.description
+//        case .size(let sizeValue):
+//
+        
+        case .density(let densityValue):
+            return densityValue.description(weightFirst: isWeightBased)
+        default:
+            return ""
+        }
+    }
+    
 }
 
 extension FieldValue {

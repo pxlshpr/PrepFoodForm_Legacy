@@ -347,21 +347,6 @@ extension FoodFormViewModel {
         && densityViewModel.fieldValue.weight.unit.unitType == .weight
         && densityViewModel.fieldValue.volume.unit.unitType == .volume
     }
-
-    var densityDescription: String? {
-        guard hasValidDensity else {
-            return nil
-        }
-                
-        let weight = "\(densityWeightAmount.cleanAmount) \(densityViewModel.fieldValue.weight.unitDescription)"
-        let volume = "\(densityVolumeAmount.cleanAmount) \(densityViewModel.fieldValue.volume.unitDescription)"
-        
-        if isWeightBased {
-            return "\(weight) = \(volume)"
-        } else {
-            return "\(volume) = \(weight)"
-        }
-    }
     
     var lhsDensityAmountString: String {
         if isWeightBased {

@@ -335,9 +335,9 @@ public struct FoodForm: View {
             }
             .frame(minHeight: 50)
             .sheet(isPresented: $showingAmountPer) {
-                NutrientsPerForm()
+                NutrientsPerForm(densityViewModel: viewModel.densityViewModel)
                     .environmentObject(viewModel)
-                    .presentationDetents([.height(500), .large])
+                    .presentationDetents([.height(550), .large])
             }
         }
     }
