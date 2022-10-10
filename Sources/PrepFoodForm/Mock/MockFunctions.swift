@@ -25,7 +25,11 @@ func sampleScanResult(_ number: Int) -> ScanResult? {
 }
 
 func sampleMFPProcessedFood(_ number: Int) -> MFPProcessedFood? {
-    guard let path = Bundle.module.path(forResource: "mfpProcessedFood\(number)", ofType: "json") else {
+    sampleMFPProcessedFood(jsonFilename: "mfpProcessedFood\(number)")
+}
+
+func sampleMFPProcessedFood(jsonFilename: String) -> MFPProcessedFood? {
+    guard let path = Bundle.module.path(forResource: jsonFilename, ofType: "json") else {
         return nil
     }
     

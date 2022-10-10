@@ -68,7 +68,7 @@ extension FoodFormViewModel {
             return [food.servingFieldValue].compactMap { $0 }
         case .amount:
             return [food.amountFieldValue].compactMap { $0 }
-        case .size:
+//        case .size:
             
 //            return food.detail
 //        case .barcode(let stringValue):

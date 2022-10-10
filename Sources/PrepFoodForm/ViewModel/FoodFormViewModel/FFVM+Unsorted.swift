@@ -235,11 +235,23 @@ extension FoodFormViewModel {
     }
 
     func edit(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
+        guard let newSize = newSizeViewModel.size, let oldSize = sizeViewModel.size else {
+            return
+        }
+        
         /// if this was a standard
-        if sizeViewModel.size?.isVolumePrefixed == false {
+        if oldSize.isVolumePrefixed == false {
             editStandardSizeViewModel(sizeViewModel, with: newSizeViewModel)
         } else {
             editVolumeBasedSizeViewModel(sizeViewModel, with: newSizeViewModel)
+        }
+        
+        /// if this size was used for either amount or serving—update it with the new size
+        if amountViewModel.fieldValue.doubleValue.unit.size == oldSize {
+            amountViewModel.fieldValue.doubleValue.unit.size = newSize
+        }
+        if servingViewModel.fieldValue.doubleValue.unit.size == oldSize {
+            servingViewModel.fieldValue.doubleValue.unit.size = newSize
         }
     }
 
@@ -402,7 +414,57 @@ extension FoodFormViewModel {
     }
 }
 
+import FoodLabelScanner
+import MFPScraper
+
 extension FoodFormViewModel {
+    
+    public enum MockCase {
+        case spinachPrefilled
+        
+        var image: UIImage? {
+            switch self {
+            default:
+                return nil
+            }
+        }
+        
+        var scanResult: ScanResult? {
+            switch self {
+            default:
+                return nil
+            }
+        }
+        
+        var mfpProcessedFood: MFPProcessedFood? {
+            switch self {
+            case .spinachPrefilled:
+                return sampleMFPProcessedFood(jsonFilename: "mfp_spinach")
+            }
+        }
+    }
+
+    public static func mock(for mockCase: MockCase) -> FoodFormViewModel {
+        let viewModel = FoodFormViewModel()
+        
+        viewModel.shouldShowWizard = false
+        
+        if let processedFood = mockCase.mfpProcessedFood {
+            viewModel.prefill(processedFood)
+        }
+        
+        if let image = mockCase.image, let scanResult = mockCase.scanResult {
+            viewModel.sourceType = .images
+            viewModel.imageViewModels.append(
+                ImageViewModel(image: image, scanResult: scanResult)
+            )
+            viewModel.processScanResults()
+            viewModel.imageSetStatus = .classified
+        }
+        
+        return viewModel
+    }
+    
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         

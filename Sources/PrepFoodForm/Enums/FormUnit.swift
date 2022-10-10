@@ -8,6 +8,27 @@ indirect enum FormUnit: Hashable {
 }
 
 extension FormUnit {
+    var size: Size? {
+        get {
+            switch self {
+            case .size(let size, _):
+                return size
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else { return }
+            switch self {
+            case .size(_, let volumeUnit):
+                self = .size(newValue, volumeUnit)
+            default:
+                self = .size(newValue, nil)
+            }
+        }
+    }
+}
+extension FormUnit {
     var isServingBased: Bool {
         switch self {
         case .size(let size, _):

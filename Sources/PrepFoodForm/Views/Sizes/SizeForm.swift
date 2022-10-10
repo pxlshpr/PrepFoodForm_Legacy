@@ -116,14 +116,18 @@ struct SizeForm: View {
         ToolbarItemGroup(placement: .bottomBar) {
             Spacer()
             Button(isEditing ? "Save" : "Add") {
-                if let didAddSizeViewModel = didAddSizeViewModel {
-                    didAddSizeViewModel(sizeViewModel)
-                }
                 if let existingSizeViewModel {
                     viewModel.edit(existingSizeViewModel, with: sizeViewModel)
                 } else {
                     viewModel.add(sizeViewModel: sizeViewModel)
+                    if let didAddSizeViewModel = didAddSizeViewModel {
+                        didAddSizeViewModel(sizeViewModel)
+                    }
                 }
+                
+                /// Call this in case a unit change changes whether we show the density or not
+                viewModel.updateShouldShowDensitiesSection()
+                
                 dismiss()
             }
             .disabled(!sizeViewModel.isValid || !isDirty)
