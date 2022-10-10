@@ -419,28 +419,21 @@ import MFPScraper
 
 extension FoodFormViewModel {
     
-    public enum MockCase {
-        case spinachPrefilled
+    public enum MockCase: String {
+        case spinachPrefilled = "spinach"
+        case pumpkinSeedsScanned = "pumpkin_seeds"
+        case iceCreamScanned = "ice_cream"
         
         var image: UIImage? {
-            switch self {
-            default:
-                return nil
-            }
+            sampleImage(imageFilename: rawValue)
         }
         
         var scanResult: ScanResult? {
-            switch self {
-            default:
-                return nil
-            }
+            sampleScanResult(jsonFilename: rawValue)
         }
         
         var mfpProcessedFood: MFPProcessedFood? {
-            switch self {
-            case .spinachPrefilled:
-                return sampleMFPProcessedFood(jsonFilename: "mfp_spinach")
-            }
+            sampleMFPProcessedFood(jsonFilename: "mfp_\(self.rawValue)")
         }
     }
 
@@ -468,27 +461,12 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let image = sampleImage(10),
-              let mfpProcessedFood = sampleMFPProcessedFood(10),
-              let scanResult = sampleScanResult(10)
-        else {
+        guard let mfpProcessedFood = sampleMFPProcessedFood(10) else {
             fatalError("Couldn't load mock files")
         }
         
         viewModel.shouldShowWizard = false
-        
         viewModel.prefill(mfpProcessedFood)
-        
-//        viewModel.sourceType = .images
-//        viewModel.imageViewModels.append(
-//            ImageViewModel(image: image,
-//                           scanResult: scanResult
-//
-//                          )
-//        )
-//        viewModel.processScanResults()
-//        viewModel.imageSetStatus = .classified
-        
         return viewModel
     }
 }

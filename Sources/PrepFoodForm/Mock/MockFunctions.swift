@@ -3,14 +3,22 @@ import FoodLabelScanner
 import MFPScraper
 
 func sampleImage(_ number: Int) -> UIImage? {
-    guard let path = Bundle.module.path(forResource: "label\(number)", ofType: "jpg") else {
+    sampleImage(imageFilename: "label\(number)")
+}
+
+func sampleImage(imageFilename: String) -> UIImage? {
+    guard let path = Bundle.module.path(forResource: imageFilename, ofType: "jpg") else {
         return nil
     }
     return UIImage(contentsOfFile: path)
 }
 
 func sampleScanResult(_ number: Int) -> ScanResult? {
-    guard let path = Bundle.module.path(forResource: "scanResult\(number)", ofType: "json") else {
+    sampleScanResult(jsonFilename: "scanResult\(number)")
+}
+
+func sampleScanResult(jsonFilename: String) -> ScanResult? {
+    guard let path = Bundle.module.path(forResource: jsonFilename, ofType: "json") else {
         return nil
     }
     

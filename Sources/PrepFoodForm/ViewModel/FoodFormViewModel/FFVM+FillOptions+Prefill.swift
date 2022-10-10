@@ -57,7 +57,7 @@ extension FoodFormViewModel {
         
         switch fieldValue {
         case .name, .detail, .brand:
-            return food.stringBasedPrefillFieldValues
+            return food.stringBasedFieldValues
         case .macro(let macroValue):
             return [food.macroFieldValue(for: macroValue.macro)]
         case .micro(let microValue):
@@ -68,6 +68,8 @@ extension FoodFormViewModel {
             return [food.servingFieldValue].compactMap { $0 }
         case .amount:
             return [food.amountFieldValue].compactMap { $0 }
+        case .density:
+            return [food.densityFieldValue].compactMap { $0 }
 //        case .size:
             
 //            return food.detail
@@ -84,11 +86,11 @@ extension FoodFormViewModel {
 import MFPScraper
 
 extension MFPProcessedFood {
-    var stringBasedPrefillFieldValues: [FieldValue] {
-        [namePrefillFieldValue, detailPrefillFieldValue, brandPrefillFieldValue].compactMap { $0 }
+    var stringBasedFieldValues: [FieldValue] {
+        [nameFieldValue, detailFieldValue, brandFieldValue].compactMap { $0 }
     }
     
-    var namePrefillFieldValue: FieldValue? {
+    var nameFieldValue: FieldValue? {
         guard !name.isEmpty else {
             return nil
         }
@@ -97,7 +99,7 @@ extension MFPProcessedFood {
         return FieldValue.name(FieldValue.StringValue(string: name, fill: fill))
     }
     
-    var detailPrefillFieldValue: FieldValue? {
+    var detailFieldValue: FieldValue? {
         guard let detail, !detail.isEmpty else {
             return nil
         }
@@ -106,7 +108,7 @@ extension MFPProcessedFood {
         return FieldValue.detail(FieldValue.StringValue(string: detail, fill: fill))
     }
     
-    var brandPrefillFieldValue: FieldValue? {
+    var brandFieldValue: FieldValue? {
         guard let brand, !brand.isEmpty else {
             return nil
         }
@@ -115,5 +117,25 @@ extension MFPProcessedFood {
         return FieldValue.brand(FieldValue.StringValue(string: brand, fill: fill))
     }
 
+    var densityFieldValue: FieldValue? {
+        guard let densitySize = sizes.first(where: { $0.isDensity }),
+              let volumeUnit = densitySize.prefixVolumeUnit else  {
+            return nil
+        }
+        
+        return FieldValue.density(FieldValue.DensityValue(
+            weight: .init(
+                double: densitySize.amount,
+                string: densitySize.amount.cleanAmount,
+                unit: densitySize.amountUnit.formUnit,
+                fill: .prefill()),
+            volume: .init(
+                double: densitySize.quantity,
+                string: densitySize.quantity.cleanAmount,
+                unit: volumeUnit.formUnit,
+                fill: .prefill()),
+            fill: .prefill()
+        ))
+    }
 }
 

@@ -72,6 +72,8 @@ extension FoodFormViewModel {
         /// Create sizes first as we might have one as the amount or serving unit
         prefillSizes(from: food)
         
+        prefillDensity(from: food)
+        
         prefillAmountPer(from: food)
         prefillNutrients(from: food)
 
@@ -85,24 +87,19 @@ extension FoodFormViewModel {
     }
     
     func prefillDetails(from food: MFPProcessedFood) {
-        if let fieldValue = food.namePrefillFieldValue {
+        if let fieldValue = food.nameFieldValue {
             nameViewModel = .init(fieldValue: fieldValue)
         }
-        if let fieldValue = food.detailPrefillFieldValue {
+        if let fieldValue = food.detailFieldValue {
             detailViewModel = .init(fieldValue: fieldValue)
         }
-        if let fieldValue = food.brandPrefillFieldValue {
+        if let fieldValue = food.brandFieldValue {
             brandViewModel = .init(fieldValue: fieldValue)
         }
     }
 
     func prefillSizes(from food: MFPProcessedFood) {
-        for size in food.sizes {
-            guard !size.isDensity else {
-                prefillDensitySize(size)
-                continue
-            }
-            
+        for size in food.sizes.filter({ !$0.isDensity }) {
             prefillSize(size)
         }
     }
@@ -125,14 +122,9 @@ extension FoodFormViewModel {
         }
     }
 
-    func prefillDensitySize(_ size: MFPProcessedFood.Size) {
-        guard let volumeUnit = size.prefixVolumeUnit else { return }
-        let densityFieldValue = FieldValue.density(FieldValue.DensityValue(
-            weight: .init(double: size.amount, string: size.amount.cleanAmount, unit: size.amountUnit.formUnit, fill: .prefill()),
-            volume: .init(double: size.quantity, string: size.quantity.cleanAmount, unit: volumeUnit.formUnit, fill: .prefill()),
-            fill: .prefill())
-        )
-        densityViewModel = FieldViewModel(fieldValue: densityFieldValue)
+    func prefillDensity(from food: MFPProcessedFood) {
+        guard let fieldValue = food.densityFieldValue else { return }
+        densityViewModel = .init(fieldValue: fieldValue)
     }
 
     func prefillAmountPer(from food: MFPProcessedFood) {
