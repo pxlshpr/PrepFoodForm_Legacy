@@ -146,7 +146,7 @@ struct DensityForm: View {
                 }
                 Spacer()
                 Text("↔")
-                    .font(.title3)
+                    .font(.title2)
                     .foregroundColor(Color(.tertiaryLabel))
                 Spacer()
                 if weightFirst {
@@ -209,6 +209,7 @@ struct DensityForm: View {
         return TextField("weight", text: binding)
             .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
+            .font(.title2)
             .focused($focusedField, equals: .weight)
     }
     
@@ -226,7 +227,7 @@ struct DensityForm: View {
     }
     
     //MARK: - Volume
-    
+     
     var volumeTextField: some View {
         let binding = Binding<String>(
             get: { densityViewModel.fieldValue.volume.string },
@@ -243,6 +244,7 @@ struct DensityForm: View {
         return TextField("volume", text: binding)
             .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
+            .font(.title2)
             .focused($focusedField, equals: .volume)
     }
     
@@ -269,18 +271,21 @@ struct DensityForm: View {
     var keyboardToolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .keyboard) {
             Button {
+                Haptics.feedback(style: .soft)
                 focusedField = weightFirst ? .weight : .volume
             } label: {
-                Image(systemName: "chevron.up")
+                Image(systemName: "chevron.backward")
             }
             .disabled(topFieldIsFocused)
             Button {
+                Haptics.feedback(style: .soft)
                 focusedField = weightFirst ? .volume : .weight
             } label: {
-                Image(systemName: "chevron.down")
+                Image(systemName: "chevron.forward")
             }
             .disabled(bottomFieldIsFocused)
             Button("Units") {
+                Haptics.feedback(style: .medium)
                 guard let focusedField = focusedField else {
                     return
                 }
@@ -292,6 +297,7 @@ struct DensityForm: View {
             }
             Spacer()
             Button("Save") {
+                Haptics.successFeedback()
                 saveAndDismiss()
             }
         }

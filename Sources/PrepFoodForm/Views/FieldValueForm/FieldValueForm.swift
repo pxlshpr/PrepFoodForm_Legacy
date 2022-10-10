@@ -313,7 +313,7 @@ extension FieldValueForm {
             }
         )
         
-        return TextField(placeholderString, text: binding, axis: .vertical)
+        return TextField(placeholderString, text: binding)
             .multilineTextAlignment(.leading)
             .focused($isFocused)
             .font(textFieldFont)
@@ -327,6 +327,9 @@ extension FieldValueForm {
                     .lineLimit(1...3)
             }
             .scrollDismissesKeyboard(.interactively)
+//            .introspectTextField(customize: { textField in
+//                print("WE HERE")
+//            })
             .introspectTextField(customize: introspectTextField)
     }
     
