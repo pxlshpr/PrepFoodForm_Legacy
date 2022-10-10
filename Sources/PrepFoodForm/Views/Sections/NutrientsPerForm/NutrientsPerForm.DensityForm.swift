@@ -1,40 +1,36 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
-extension FoodForm.NutrientsPerForm {
-    struct DensityForm: View {
-        
-        enum FocusedField {
-            case weight, volume
-        }
-        
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @ObservedObject var existingDensityViewModel: FieldViewModel
-        @StateObject var densityViewModel: FieldViewModel
-
-        @Environment(\.dismiss) var dismiss
-        
-        @State var showingWeightUnitPicker = false
-        @State var showingVolumeUnitPicker = false
-        @State var shouldAnimateOptions = false
-        @State var doNotRegisterUserInput: Bool
-        @FocusState var focusedField: FocusedField?
-        
-        let weightFirst: Bool
-        
-        init(densityViewModel: FieldViewModel, orderWeightFirst: Bool) {
-            
-            self.existingDensityViewModel = densityViewModel
-            _densityViewModel = StateObject(wrappedValue: densityViewModel)
-            
-            self.weightFirst = orderWeightFirst
-//            _doNotRegisterUserInput = State(initialValue: !densityViewModel.fieldValue.isEmpty)
-            _doNotRegisterUserInput = State(initialValue: true)
-        }
+struct DensityForm: View {
+    
+    enum FocusedField {
+        case weight, volume
     }
-}
+    
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @ObservedObject var existingDensityViewModel: FieldViewModel
+    @StateObject var densityViewModel: FieldViewModel
 
-extension FoodForm.NutrientsPerForm.DensityForm {
+    @Environment(\.dismiss) var dismiss
+    
+    @State var showingWeightUnitPicker = false
+    @State var showingVolumeUnitPicker = false
+    @State var shouldAnimateOptions = false
+    @State var doNotRegisterUserInput: Bool
+    @FocusState var focusedField: FocusedField?
+    
+    let weightFirst: Bool
+    
+    init(densityViewModel: FieldViewModel, orderWeightFirst: Bool) {
+        
+        self.existingDensityViewModel = densityViewModel
+        _densityViewModel = StateObject(wrappedValue: densityViewModel.copy)
+        
+        self.weightFirst = orderWeightFirst
+//            _doNotRegisterUserInput = State(initialValue: !densityViewModel.fieldValue.isEmpty)
+        _doNotRegisterUserInput = State(initialValue: true)
+    }
     
     var body: some View {
         form
@@ -55,13 +51,14 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     
     var form: some View {
         FormStyledScrollView {
-            if weightFirst {
-                weightSection
-                volumeSection
-            } else {
-                volumeSection
-                weightSection
-            }
+            fieldSection
+//            if weightFirst {
+//                weightSection
+//                volumeSection
+//            } else {
+//                volumeSection
+//                weightSection
+//            }
             fillOptionsSections
         }
         .sheet(isPresented: $showingWeightUnitPicker) {
@@ -98,15 +95,102 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     }
     
     func didTapFillOption(_ fillOption: FillOption) {
-        //TODO: Prefill info should have DensityValue associated with it
-        print("We tapped: \(fillOption)")
-        
+        switch fillOption.type {
+        case .chooseText:
+            break
+        case .fill(let fill):
+            Haptics.feedback(style: .rigid)
+            
+            doNotRegisterUserInput = true
+            switch fill {
+            case .prefill(let info):
+                guard let densityValue = info.densityValue else {
+                    return
+                }
+                setDensityValue(densityValue)
+            default:
+                break
+            }
+            doNotRegisterUserInput = false
+            saveAndDismiss()
+        }
+    }
+    
+    func setDensityValue(_ densityValue: FieldValue.DensityValue) {
+        densityViewModel.fieldValue.weight.double = densityValue.weight.double
+        densityViewModel.fieldValue.weight.unit = densityValue.weight.unit
+        densityViewModel.fieldValue.volume.double = densityValue.volume.double
+        densityViewModel.fieldValue.volume.unit = densityValue.volume.unit
     }
     
     func saveAndDismiss() {
         doNotRegisterUserInput = true
         existingDensityViewModel.copyData(from: densityViewModel)
         dismiss()
+    }
+
+    var weightSection: some View {
+        FormStyledSection(header: Text("Weight")) {
+            weightStack
+        }
+    }
+    
+    var fieldSection: some View {
+        FormStyledSection {
+            HStack {
+                Spacer()
+                if weightFirst {
+                    weightStack
+                } else {
+                    volumeStack
+                }
+                Spacer()
+                Text("↔")
+                    .font(.title3)
+                    .foregroundColor(Color(.tertiaryLabel))
+                Spacer()
+                if weightFirst {
+                    volumeStack
+                } else {
+                    weightStack
+                }
+                Spacer()
+            }
+        }
+    }
+    
+    @State var showColors = false
+    
+    //MARK: - Weight
+    var weightStack: some View {
+        HStack {
+//            Spacer()
+            weightTextField
+                .background(showColors ? .green : .clear)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
+            weightUnitButton
+                .background(showColors ? .red : .clear)
+                .layoutPriority(2)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//            Spacer()
+        }
+        .background(showColors ? .brown : .clear)
+    }
+    
+    var volumeStack: some View {
+        HStack {
+//            Spacer()
+            volumeTextField
+                .background(showColors ? .yellow : .clear)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
+            volumeUnitButton
+                .background(showColors ? .blue : .clear)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//            Spacer()
+        }
+        .background(showColors ? .pink : .clear)
     }
     
     var weightTextField: some View {
@@ -122,28 +206,26 @@ extension FoodForm.NutrientsPerForm.DensityForm {
             }
         )
         
-        return TextField("Required", text: binding)
-            .multilineTextAlignment(.leading)
+        return TextField("weight", text: binding)
+            .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
             .focused($focusedField, equals: .weight)
     }
-    var weightSection: some View {
-        FormStyledSection(header: Text("Weight")) {
-            HStack {
-                weightTextField
-                Button {
-                    showingWeightUnitPicker = true
-                } label: {
-                    HStack(spacing: 5) {
-                        Text(densityViewModel.fieldValue.weight.unitDescription)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                }
-                .buttonStyle(.borderless)
+    
+    var weightUnitButton: some View {
+        Button {
+            showingWeightUnitPicker = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(densityViewModel.fieldValue.weight.unitDescription)
+//                    Image(systemName: "chevron.up.chevron.down")
+//                        .imageScale(.small)
             }
         }
+        .buttonStyle(.borderless)
     }
+    
+    //MARK: - Volume
     
     var volumeTextField: some View {
         let binding = Binding<String>(
@@ -158,26 +240,29 @@ extension FoodForm.NutrientsPerForm.DensityForm {
             }
         )
         
-        return TextField("Required", text: binding)
-            .multilineTextAlignment(.leading)
+        return TextField("volume", text: binding)
+            .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
             .focused($focusedField, equals: .volume)
     }
+    
+    var volumeUnitButton: some View {
+        Button {
+            showingVolumeUnitPicker = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(densityViewModel.fieldValue.volume.unitDescription)
+//                    Image(systemName: "chevron.up.chevron.down")
+//                        .imageScale(.small)
+            }
+        }
+        .buttonStyle(.borderless)
+    }
+    
+
     var volumeSection: some View {
         FormStyledSection(header: Text("Volume")) {
-            HStack {
-                volumeTextField
-                Button {
-                    showingVolumeUnitPicker = true
-                } label: {
-                    HStack(spacing: 5) {
-                        Text(densityViewModel.fieldValue.volume.unitDescription)
-                        Image(systemName: "chevron.up.chevron.down")
-                            .imageScale(.small)
-                    }
-                }
-                .buttonStyle(.borderless)
-            }
+            volumeStack
         }
     }
     
@@ -229,7 +314,7 @@ extension FoodForm.NutrientsPerForm.DensityForm {
     }
 
     var navigationTitle: String {
-        return "Conversion"
+        return "Unit Conversion"
 //        if orderWeightFirst {
 //            return "Weight:Volume"
 ////            return "Weight-to-Volume Ratio"
@@ -237,5 +322,32 @@ extension FoodForm.NutrientsPerForm.DensityForm {
 //            return "Volume:Weight"
 ////            return "Volume-to-Weight Ratio"
 //        }
+    }
+}
+
+struct DensityFormPreview: View {
+    @StateObject var viewModel: FoodFormViewModel
+    
+    init() {
+        let viewModel = FoodFormViewModel.shared
+        viewModel.densityViewModel.fieldValue = FieldValue.density(FieldValue.DensityValue(
+            weight: FieldValue.DoubleValue(double: 33, string: "33", unit: .weight(.g), fill: .userInput),
+            volume: FieldValue.DoubleValue(double: 0.25, string: "0.25", unit: .volume(.cup), fill: .userInput),
+            fill: .userInput))
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
+    var body: some View {
+        DensityForm(
+            densityViewModel: viewModel.densityViewModel,
+            orderWeightFirst: viewModel.isWeightBased
+        )
+        .environmentObject(viewModel)
+    }
+}
+
+struct DensityForm_Previews: PreviewProvider {
+    static var previews: some View {
+        DensityFormPreview()
     }
 }

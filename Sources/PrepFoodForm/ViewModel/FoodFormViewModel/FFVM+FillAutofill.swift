@@ -46,7 +46,10 @@ extension FoodFormViewModel {
         
         extractServing(for: column)
         extractAmount(for: column)
+        extractDensity()
         
+        updateShouldShowDensitiesSection()
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             for fieldViewModel in self.allFieldViewModels {
                 fieldViewModel.isCroppingNextImage = true
@@ -133,6 +136,14 @@ extension FoodFormViewModel {
         amountViewModel = .init(fieldValue: fieldValue)
         scannedFieldValues.append(fieldValue)
     }
+    
+    func extractDensity() {
+        guard let fieldValue = fieldValueFromScanResultsForDensity() else {
+            return
+        }
+        densityViewModel = .init(fieldValue: fieldValue)
+        scannedFieldValues.append(fieldValue)
+    }
 
     func fieldValueFromScanResultsForServing(for column: Int) -> FieldValue? {
         /// **We're current returning the first one we find amongst the images**
@@ -165,6 +176,15 @@ extension FoodFormViewModel {
 //                for sizeViewModel in sizeViewModels {
 //                    add(sizeViewModel: sizeViewModel)
 //                }
+                return fieldValue
+            }
+        }
+        return nil
+    }
+    
+    func fieldValueFromScanResultsForDensity() -> FieldValue? {
+        for scanResult in scanResults {
+            if let fieldValue = scanResult.densityFieldValue {
                 return fieldValue
             }
         }

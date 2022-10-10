@@ -21,7 +21,14 @@ extension FoodFormViewModel {
     }
     
     func prefillInfo(for fieldValue: FieldValue) -> PrefillFillInfo {
-        PrefillFillInfo(fieldStrings: fieldValue.prefillFieldStrings)
+        switch fieldValue {
+        case .name, .brand, .detail:
+            return PrefillFillInfo(fieldStrings: fieldValue.prefillFieldStrings)
+        case .density(let densityValue):
+            return PrefillFillInfo(densityValue: densityValue)
+        default:
+            return PrefillFillInfo()
+        }
     }
     
     func prefillString(for fieldValue: FieldValue) -> String {

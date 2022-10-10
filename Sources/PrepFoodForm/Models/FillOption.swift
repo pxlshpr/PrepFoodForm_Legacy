@@ -17,6 +17,14 @@ struct FillOption: Hashable {
     }
 }
 
+extension Fill {
+    var prefilledDensityValue: FieldValue.DensityValue? {
+        guard case .prefill(let info) = self else {
+            return nil
+        }
+        return info.densityValue
+    }
+}
 extension FoodLabelValue {
     public var fillOptionString: String {
         if let unit = unit {

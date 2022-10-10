@@ -80,7 +80,7 @@ struct PrefillFieldString: Hashable {
 
 struct PrefillFillInfo: Hashable {
     var fieldStrings: [PrefillFieldString] = []
-    
+    var densityValue: FieldValue.DensityValue? = nil
     
     var concatenated: String {
         fieldStrings
@@ -89,7 +89,7 @@ struct PrefillFillInfo: Hashable {
     }
 }
 
-enum Fill: Hashable {
+indirect enum Fill: Hashable {
     
     case scanned(ScannedFillInfo)
     case selection(SelectionFillInfo)

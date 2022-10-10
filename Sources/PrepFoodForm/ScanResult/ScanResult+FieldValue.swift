@@ -13,8 +13,123 @@ extension ScanResult.Headers {
     }
 }
 
+extension FoodLabelUnit {
+    func isCompatibleForDensity(with other: FoodLabelUnit) -> Bool {
+        guard let unitType, let otherUnitType = other.unitType else {
+            return false
+        }
+        return (unitType == .weight && otherUnitType == .volume)
+        ||
+        (unitType == .volume && otherUnitType == .weight)
+    }
+    
+    var unitType: UnitType? {
+        switch self {
+        case .cup, .ml, .tbsp:
+            return .volume
+        case .mcg, .mg, .g, .oz:
+            return .weight
+        default:
+            return nil
+        }
+    }
+    
+    var weightFormUnit: FormUnit? {
+        switch self {
+        case .mcg:
+            return nil /// Not yet supported
+        case .mg:
+            return .weight(.mg)
+        case .g:
+            return .weight(.g)
+        case .oz:
+            return .weight(.oz)
+        default:
+            return nil
+        }
+    }
+    
+    var volumeFormUnit: FormUnit? {
+        switch self {
+        case .cup:
+            return .volume(.cup)
+        case .ml:
+            return .volume(.mL)
+        case .tbsp:
+            return .volume(.tablespoon)
+        default:
+            return nil
+        }
+    }
+}
 extension ScanResult {
 
+    var equivalentSizeDensityValue: FieldValue.DensityValue? {
+        guard let equivalentSize,
+              let equivalentSizeUnit = equivalentSize.unit,
+              let servingUnit, let servingAmount,
+              servingUnit.isCompatibleForDensity(with: equivalentSizeUnit)
+        else {
+            return nil
+        }
+        //TODO: Do the fill
+        let fill: Fill = Fill.scanned(ScannedFillInfo(
+            resultText: ImageText(
+                text: equivalentSize.amountText.text, imageId: id)
+        ))
+        
+        let weight: FieldValue.DoubleValue
+        let volume: FieldValue.DoubleValue
+        if let weightUnit = equivalentSizeUnit.weightFormUnit {
+            weight = FieldValue.DoubleValue(
+                double: equivalentSize.amount,
+                string: equivalentSize.amount.cleanAmount,
+                unit: weightUnit,
+                fill: fill)
+            guard let volumeUnit = servingUnit.volumeFormUnit else {
+                return nil
+            }
+            volume = FieldValue.DoubleValue(
+                double: servingAmount,
+                string: servingAmount.cleanAmount,
+                unit: volumeUnit,
+                fill: fill)
+        } else if let weightUnit = servingUnit.weightFormUnit {
+            weight = FieldValue.DoubleValue(
+                double: servingAmount,
+                string: servingAmount.cleanAmount,
+                unit: weightUnit,
+                fill: fill)
+            guard let volumeUnit = equivalentSizeUnit.volumeFormUnit else {
+                return nil
+            }
+            volume = FieldValue.DoubleValue(
+                double: equivalentSize.amount,
+                string: equivalentSize.amount.cleanAmount,
+                unit: volumeUnit,
+                fill: fill)
+        } else {
+            return nil
+        }
+        return FieldValue.DensityValue(weight: weight, volume: volume, fill: fill)
+    }
+    
+    var headerEquivalentSizeDensityValue: FieldValue.DensityValue? {
+        return nil
+    }
+    
+    var densityFieldValue: FieldValue? {
+        /// Check if we have an equivalent serving size
+        if let equivalentSizeDensityValue {
+            return FieldValue.density(equivalentSizeDensityValue)
+        }
+        /// Otherwise check if we have a header equivalent size for any of the headers
+        if let headerEquivalentSizeDensityValue {
+            return FieldValue.density(headerEquivalentSizeDensityValue)
+        }
+        return nil
+    }
+    
     func amountFieldValue(for column: Int) -> FieldValue? {
         if headerType(for: column) != .perServing {
             return headerFieldValue(for: column)

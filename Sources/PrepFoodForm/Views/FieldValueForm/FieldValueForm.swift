@@ -396,7 +396,6 @@ extension FieldValueForm {
             
             doNotRegisterUserInput = true
             
-            //TODO: Support 'deselecting' fill options for multiples like name
             switch fill {
             case .selection(let info):
                 tappedSelectionFill(info)
@@ -419,10 +418,7 @@ extension FieldValueForm {
                 }
                 
                 doNotRegisterUserInput = false
-                
-                if fieldValue.usesValueBasedTexts {
-                    saveAndDismiss()
-                }
+                saveAndDismiss()
             }
         }
     }

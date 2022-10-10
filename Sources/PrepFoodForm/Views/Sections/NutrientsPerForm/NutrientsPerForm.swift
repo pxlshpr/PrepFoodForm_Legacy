@@ -85,6 +85,48 @@ extension FoodForm.NutrientsPerForm {
     }
     
     var densitySection: some View {
+        
+        var header: some View {
+            Text("Unit Conversion")
+        }
+        
+        return Section(header: header, footer: densityFooter) {
+            Button {
+                showingDensityForm = true
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.triangle.swap")
+                        .foregroundColor(Color(.tertiaryLabel))
+                    if viewModel.hasValidDensity, let description = viewModel.densityDescription {
+                        Text(description)
+                            .foregroundColor(Color(.secondaryLabel))
+                    } else {
+                        Text("Optional")
+                            .foregroundColor(Color(.quaternaryLabel))
+                    }
+                    Spacer()
+                }
+            }
+            .sheet(isPresented: $showingDensityForm) {
+                densityForm
+            }
+
+        }
+    }
+    
+    @ViewBuilder
+    var densityFooter: some View {
+        Group {
+            if viewModel.isWeightBased {
+                Text("Enter this to be able to log this food using volume units, like cups.")
+            } else if viewModel.isVolumeBased {
+                Text("Enter this to be able to log this food using using its weight.")
+            }
+        }
+        .foregroundColor(!viewModel.hasValidDensity ? FormFooterEmptyColor : FormFooterFilledColor)
+    }
+
+    var densitySection_legacy: some View {
         @ViewBuilder
         var header: some View {
             if viewModel.isWeightBased {
@@ -92,18 +134,6 @@ extension FoodForm.NutrientsPerForm {
             } else if viewModel.isVolumeBased {
                 Text("Volume-to-Weight Conversion")
             }
-        }
-        
-        @ViewBuilder
-        var footer: some View {
-            Group {
-                if viewModel.isWeightBased {
-                    Text("Enter this to be able to log this food using volume units, like cups.")
-                } else if viewModel.isVolumeBased {
-                    Text("Enter this to be able to log this food using using its weight.")
-                }
-            }
-            .foregroundColor(!viewModel.hasValidDensity ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
         @ViewBuilder
@@ -117,7 +147,7 @@ extension FoodForm.NutrientsPerForm {
             }
         }
         
-        return Section(header: header, footer: footer) {
+        return Section(header: header, footer: densityFooter) {
             Button {
                 showingDensityForm = true
             } label: {
@@ -131,7 +161,7 @@ extension FoodForm.NutrientsPerForm {
     
     var densityForm: some View {
         NavigationView {
-            FoodForm.NutrientsPerForm.DensityForm(
+            DensityForm(
                 densityViewModel: viewModel.densityViewModel,
                 orderWeightFirst: viewModel.isWeightBased
             )
