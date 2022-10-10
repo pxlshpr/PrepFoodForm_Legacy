@@ -36,36 +36,52 @@ extension FieldValue {
     }
     
     var stringBasedSelectionFillOptions: [FillOption] {
+        
         guard case .selection(let info) = fill else {
             return []
         }
+
+        func fillOption(for imageText: ImageText, with stringOverride: String? = nil) -> FillOption {
+            
+            let isSelected: Bool
+            let fillImageText: ImageText
+            let string: String
+            if let stringOverride {
+                fillImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: stringOverride)
+                isSelected = info.imageTexts.contains(fillImageText)
+                string = stringOverride
+            } else {
+                isSelected = info.imageTexts.contains(imageText.withoutPickedCandidate)
+                fillImageText = imageText
+                string = imageText.text.string
+            }
+            
+            return FillOption(
+                string: string,
+                systemImage: Fill.SystemImage.selection,
+                isSelected: isSelected,
+                disableWhenSelected: false,
+                type: .fill(.selection(.init(imageTexts: [fillImageText])))
+            )
+        }
+        
         var fillOptions: [FillOption] = []
         for imageText in info.imageTexts {
-            fillOptions.append(
-                FillOption(
-                    string: imageText.text.string,
-                    systemImage: Fill.SystemImage.selection,
-                    isSelected: info.imageTexts.contains(imageText.withoutPickedCandidate),
-                    disableWhenSelected: false,
-                    type: .fill(.selection(.init(imageTexts: [imageText])))
-                )
-            )
-            
-            for candidate in imageText.text.candidates {
-                guard fillOptions.contains(where: { $0.string != candidate }) else {
-                    continue
-                }
-                let candidateImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: candidate)
+            for component in imageText.text.string.components {
+                guard !fillOptions.contains(where: { $0.string == component }) else { continue }
                 fillOptions.append(
-                    FillOption(
-                        string: candidate,
-                        systemImage: Fill.SystemImage.selection,
-                        isSelected: info.imageTexts.contains(candidateImageText),
-                        disableWhenSelected: false,
-                        type: .fill(.selection(.init(imageTexts: [candidateImageText])))
-                    )
+                    fillOption(for: imageText, with: component)
                 )
             }
+            
+//            for candidate in imageText.text.candidates {
+//                for component in candidate.components {
+//                    guard !fillOptions.contains(where: { $0.string == component }) else { continue }
+//                    fillOptions.append(
+//                        fillOption(for: imageText, with: component)
+//                    )
+//                }
+//            }
         }
         return fillOptions
     }

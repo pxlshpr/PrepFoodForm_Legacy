@@ -148,10 +148,24 @@ extension FieldValue {
 extension FieldValue {
     var stringComponentFieldValues: [FieldValue] {
         var fieldValues: [FieldValue] = []
-        for component in string.components(separatedBy: ",").map({ $0.trimmingWhitespaces }) {
+        for component in string.components {
             fieldValues.append(replacingString(with: component))
         }
         return fieldValues
+    }
+}
+
+extension String {
+    var components: [String] {
+        self
+        .components(separatedBy: ",")
+        .map {
+            $0
+                .trimmingWhitespaces
+                .components(separatedBy: " ")
+                .filter { !$0.isEmpty }
+        }
+        .reduce([], +)
     }
 }
 
@@ -169,8 +183,7 @@ extension MFPProcessedFood {
     
     var nameFieldStrings: [PrefillFieldString] {
         name
-            .components(separatedBy: ",")
-            .map { $0.trimmingWhitespaces }
+            .components
             .map { PrefillFieldString(string: $0, field: .name) }
     }
     var nameFieldValue: FieldValue? {
@@ -222,3 +235,27 @@ extension MFPProcessedFood {
     }
 }
 
+import SwiftUI
+
+struct TempPreview: PreviewProvider {
+    static var previews: some View {
+        Text(joined)
+    }
+    
+    static var components: [String] {
+        "Hi,,,,, hello there what's    up man"
+            .components(separatedBy: ",")
+            .map {
+                $0
+                    .trimmingWhitespaces
+                    .components(separatedBy: " ")
+                    .filter { !$0.isEmpty }
+            }
+            .reduce([], +)
+    }
+    
+    static var joined: String {
+        components
+            .joined(separator: "_")
+    }
+}
