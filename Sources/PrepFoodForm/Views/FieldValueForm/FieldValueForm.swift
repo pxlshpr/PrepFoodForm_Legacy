@@ -438,7 +438,7 @@ extension FieldValueForm {
             
         }
         if fieldValue.usesValueBasedTexts {
-            guard let value = info.altValue ?? imageText.text.string.values.first else {
+            guard let value = info.altValue ?? imageText.text.string.detectedValues.first else {
                 return
             }
             if let setNewValue {

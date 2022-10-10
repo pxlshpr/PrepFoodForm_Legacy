@@ -72,12 +72,11 @@ extension ScanResult {
         else {
             return nil
         }
-        //TODO: Do the fill
-        let fill: Fill = Fill.scanned(ScannedFillInfo(
+        
+        let unitFill: Fill = Fill.scanned(ScannedFillInfo(
             resultText: ImageText(
                 text: equivalentSize.amountText.text, imageId: id)
         ))
-        
         let weight: FieldValue.DoubleValue
         let volume: FieldValue.DoubleValue
         if let weightUnit = equivalentSizeUnit.weightFormUnit {
@@ -85,7 +84,7 @@ extension ScanResult {
                 double: equivalentSize.amount,
                 string: equivalentSize.amount.cleanAmount,
                 unit: weightUnit,
-                fill: fill)
+                fill: unitFill)
             guard let volumeUnit = servingUnit.volumeFormUnit else {
                 return nil
             }
@@ -93,13 +92,13 @@ extension ScanResult {
                 double: servingAmount,
                 string: servingAmount.cleanAmount,
                 unit: volumeUnit,
-                fill: fill)
+                fill: unitFill)
         } else if let weightUnit = servingUnit.weightFormUnit {
             weight = FieldValue.DoubleValue(
                 double: servingAmount,
                 string: servingAmount.cleanAmount,
                 unit: weightUnit,
-                fill: fill)
+                fill: unitFill)
             guard let volumeUnit = equivalentSizeUnit.volumeFormUnit else {
                 return nil
             }
@@ -107,10 +106,16 @@ extension ScanResult {
                 double: equivalentSize.amount,
                 string: equivalentSize.amount.cleanAmount,
                 unit: volumeUnit,
-                fill: fill)
+                fill: unitFill)
         } else {
             return nil
         }
+        
+        let fill: Fill = Fill.scanned(ScannedFillInfo(
+            resultText: ImageText(
+                text: equivalentSize.amountText.text, imageId: id),
+            densityValue: FieldValue.DensityValue(weight: weight, volume: volume, fill: unitFill)
+        ))
         return FieldValue.DensityValue(weight: weight, volume: volume, fill: fill)
     }
     

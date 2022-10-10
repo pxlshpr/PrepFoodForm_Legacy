@@ -41,7 +41,7 @@ extension FieldValue.DoubleValue {
         guard let textString = self.fill.text?.string else {
             return []
         }
-        return textString.values.filter({ $0 != self.value })
+        return textString.detectedValues.filter({ $0 != self.value })
     }
     
     var value: FoodLabelValue? {

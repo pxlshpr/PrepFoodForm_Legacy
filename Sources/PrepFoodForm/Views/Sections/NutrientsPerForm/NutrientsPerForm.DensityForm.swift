@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
+import VisionSugar
 
 struct DensityForm: View {
     
@@ -14,10 +15,12 @@ struct DensityForm: View {
 
     @Environment(\.dismiss) var dismiss
     
+    @State var showingTextPicker = false
     @State var showingWeightUnitPicker = false
     @State var showingVolumeUnitPicker = false
     @State var shouldAnimateOptions = false
     @State var doNotRegisterUserInput: Bool
+    @State var hasBecomeFirstResponder: Bool = false
     @FocusState var focusedField: FocusedField?
     
     let weightFirst: Bool
@@ -46,6 +49,9 @@ struct DensityForm: View {
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
                 doNotRegisterUserInput = false
             }
+        }
+        .sheet(isPresented: $showingTextPicker) {
+            textPicker
         }
     }
     
@@ -81,6 +87,65 @@ struct DensityForm: View {
         }
     }
     
+    var textPicker: some View {
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            selectedText: densityViewModel.fill.text,
+            selectedImageIndex: selectedImageIndex,
+            customTextFilter: textPickerFilter
+        ) { selectedImageTexts in
+            didSelectImageTexts(selectedImageTexts)
+        }
+        .onDisappear {
+            guard densityViewModel.isCroppingNextImage else {
+                return
+            }
+            densityViewModel.cropFilledImage()
+            doNotRegisterUserInput = false
+       }
+    }
+    
+    func textPickerFilter(_ text: RecognizedText) -> Bool {
+        text.densityValue != nil
+    }
+    
+    func didSelectImageTexts(_ imageTexts: [ImageText]) {
+        
+        guard let imageText = imageTexts.first else {
+            return
+        }
+
+        guard let densityValue = imageText.text.string.detectedValues.densityValue else {
+            return
+        }
+        
+        let fill = fill(for: imageText, with: densityValue)
+
+        doNotRegisterUserInput = true
+        
+        //Now set this fill on the density value
+        setDensityValue(densityValue)
+        densityViewModel.fieldValue.fill = fill
+        densityViewModel.isCroppingNextImage = true
+    }
+    
+    func fill(for imageText: ImageText,
+              with densityValue: FieldValue.DensityValue
+    ) -> Fill {
+        if let fill = viewModel.scannedFill(for: densityViewModel.fieldValue, with: densityValue) {
+            return fill
+        } else {
+            return .selection(.init(
+                imageTexts: [imageText],
+                densityValue: densityValue
+            ))
+        }
+    }
+
+    var selectedImageIndex: Int? {
+        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == densityViewModel.fill.resultId })
+    }
+
     var fillOptionsSections: some View {
         FillOptionsSections(
             fieldViewModel: densityViewModel,
@@ -97,7 +162,7 @@ struct DensityForm: View {
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
         case .chooseText:
-            break
+            didTapChooseButton()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
             
@@ -108,6 +173,21 @@ struct DensityForm: View {
                     return
                 }
                 setDensityValue(densityValue)
+            case .scanned(let info):
+                guard let densityValue = info.densityValue else {
+                    return
+                }
+                setDensityValue(densityValue)
+                
+                let previousFillType = densityViewModel.fieldValue.fill
+                densityViewModel.fieldValue.fill = fill
+                
+                //TODO: Write a more succinct helper for this
+                if fill.text?.id != previousFillType.text?.id {
+                    densityViewModel.isCroppingNextImage = true
+                    densityViewModel.cropFilledImage()
+                }
+
             default:
                 break
             }
@@ -116,6 +196,17 @@ struct DensityForm: View {
         }
     }
     
+    func didTapChooseButton() {
+        showTextPicker()
+    }
+    
+    func showTextPicker() {
+        Haptics.feedback(style: .soft)
+        doNotRegisterUserInput = true
+        focusedField = nil
+        showingTextPicker = true
+    }
+
     func setDensityValue(_ densityValue: FieldValue.DensityValue) {
         densityViewModel.fieldValue.weight.double = densityValue.weight.double
         densityViewModel.fieldValue.weight.unit = densityValue.weight.unit
@@ -211,6 +302,22 @@ struct DensityForm: View {
             .keyboardType(.decimalPad)
             .font(.title2)
             .focused($focusedField, equals: .weight)
+            .introspectTextField { uiTextfield in
+                introspectTextField(uiTextfield, for: .weight)
+            }
+    }
+    
+    func introspectTextField(_ uiTextField: UITextField, for field: FocusedField) {
+        guard ((field == .weight && weightFirst) || (field == .volume && !weightFirst)),
+              !hasBecomeFirstResponder else {
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            uiTextField.becomeFirstResponder()
+            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
+            hasBecomeFirstResponder = true
+        }
     }
     
     var weightUnitButton: some View {
@@ -246,6 +353,9 @@ struct DensityForm: View {
             .keyboardType(.decimalPad)
             .font(.title2)
             .focused($focusedField, equals: .volume)
+            .introspectTextField { uiTextfield in
+                introspectTextField(uiTextfield, for: .volume)
+            }
     }
     
     var volumeUnitButton: some View {
@@ -355,5 +465,53 @@ struct DensityFormPreview: View {
 struct DensityForm_Previews: PreviewProvider {
     static var previews: some View {
         DensityFormPreview()
+    }
+}
+
+import PrepUnits
+
+extension RecognizedText {
+    var densityValue: FieldValue.DensityValue? {
+        string.detectedValues.densityValue
+    }
+}
+
+extension Array where Element == FoodLabelValue {
+    var firstWeightValue: FoodLabelValue? {
+        first(where: { $0.unit?.unitType == .weight })
+    }
+    
+    var firstVolumeValue: FoodLabelValue? {
+        first(where: { $0.unit?.unitType == .volume })
+    }
+
+    var densityValue: FieldValue.DensityValue? {
+        guard let weightDoubleValue, let volumeDoubleValue else {
+            return nil
+        }
+        return FieldValue.DensityValue(
+            weight: weightDoubleValue,
+            volume: volumeDoubleValue,
+            fill: .userInput
+        )
+    }
+    
+    var weightDoubleValue: FieldValue.DoubleValue? {
+        firstWeightValue?.asDoubleValue
+    }
+    var volumeDoubleValue: FieldValue.DoubleValue? {
+        firstVolumeValue?.asDoubleValue
+    }
+}
+
+extension FoodLabelValue {
+    var asDoubleValue: FieldValue.DoubleValue? {
+        guard let formUnit = unit?.formUnit else { return nil }
+        return FieldValue.DoubleValue(
+            double: amount,
+            string: amount.cleanAmount,
+            unit: formUnit,
+            fill: .userInput
+        )
     }
 }

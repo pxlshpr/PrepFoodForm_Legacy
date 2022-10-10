@@ -2,43 +2,6 @@ import Foundation
 import PrepUnits
 import VisionSugar
 
-extension FieldValue {
-    
-    //MARK: Scanned
-    
-    var scannedFillOptions: [FillOption] {
-        var fillOptions: [FillOption] = []
-        guard let fieldValue = FoodFormViewModel.shared.scannedFieldValue(for: self),
-              case .scanned(let info) = fieldValue.fill
-        else {
-            return []
-        }
-        fillOptions.append(
-            FillOption(
-                string: fieldValue.fillButtonString,
-                systemImage: Fill.SystemImage.scanned,
-                //                isSelected: self.value == autofillFieldValue.value,
-                isSelected: self.value == fieldValue.fill.value,
-                type: .fill(fieldValue.fill)
-            )
-        )
-        
-        /// Show alts if selected (only check the text because it might have a different value attached to it)
-        for altValue in fieldValue.altValues {
-            fillOptions.append(
-                FillOption(
-                    string: altValue.fillOptionString,
-                    systemImage: Fill.SystemImage.scanned,
-                    isSelected: self.value == altValue && self.fill.isImageAutofill,
-                    type: .fill(.scanned(info.withAltValue(altValue)))
-                )
-            )
-        }
-        
-        return fillOptions
-    }
-}
-
 //MARK: Selection Options
 
 extension FieldValue {
@@ -111,7 +74,7 @@ extension FieldValue {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
         for candidate in primaryText.candidates {
-            for value in candidate.values {
+            for value in candidate.detectedValues {
                 
                 var compatibleValue = value
                 
@@ -134,7 +97,7 @@ extension FieldValue {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
         for candidate in text.candidates {
-            for value in candidate.values {
+            for value in candidate.detectedValues {
                 
                 let energyValue = value.withEnergyUnit
                 
@@ -155,7 +118,7 @@ extension FieldValue {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
         for candidate in text.candidates {
-            for value in candidate.values {
+            for value in candidate.detectedValues {
                 
                 let macroValue = value.withMacroUnit
                 
@@ -170,7 +133,7 @@ extension FieldValue {
         var values: [FoodLabelValue] = []
         /// Go through all the candidates provided by the Vision framework
         for candidate in text.candidates {
-            for value in candidate.values {
+            for value in candidate.detectedValues {
                 
                 let microValue = value.withMicroUnit(for: nutrientType)
                 
@@ -222,39 +185,6 @@ extension FoodLabelValue {
             return amount == other.amount
         }
         return self == other
-    }
-}
-
-extension FieldValue {
-    var fillButtonString: String {
-        switch self {
-//        case .name(let stringValue):
-//            <#code#>
-//        case .emoji(let stringValue):
-//            <#code#>
-//        case .brand(let stringValue):
-//            <#code#>
-//        case .barcode(let stringValue):
-//            <#code#>
-//        case .detail(let stringValue):
-//            <#code#>
-//        case .amount(let doubleValue):
-//            <#code#>
-//        case .serving(let doubleValue):
-//            <#code#>
-//        case .density(let densityValue):
-//            <#code#>
-        case .amount(let doubleValue), .serving(let doubleValue):
-            return doubleValue.description
-        case .energy(let energyValue):
-            return energyValue.description
-        case .macro(let macroValue):
-            return macroValue.description
-        case .micro(let microValue):
-            return microValue.description
-        default:
-            return "(not implemented)"
-        }
     }
 }
 

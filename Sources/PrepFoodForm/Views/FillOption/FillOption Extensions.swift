@@ -27,24 +27,3 @@ extension String {
         }
     }
 }
-
-extension RecognizedText {
-    func fillButtonString(for fieldValue: FieldValue) -> String {
-        switch fieldValue {
-        case .energy:
-            return string.energyValueDescription
-//        case .macro(let macroValue):
-//            <#code#>
-//        case .micro(let microValue):
-//            <#code#>
-//        case .density(let densityValue):
-//            <#code#>
-//        case .amount(let doubleValue):
-//            <#code#>
-//        case .serving(let doubleValue):
-//            <#code#>
-        default:
-            return string
-        }
-    }
-}

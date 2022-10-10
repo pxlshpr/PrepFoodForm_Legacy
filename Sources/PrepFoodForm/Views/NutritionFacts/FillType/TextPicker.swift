@@ -31,12 +31,15 @@ struct TextPicker: View {
     private let selectedBoundingBox: CGRect?
     let didSelectImageTexts: ([ImageText]) -> Void
     
+    let customTextFilter: ((RecognizedText) -> Bool)?
+    
     init(imageViewModels: [ImageViewModel],
          allowsMultipleSelection: Bool = false,
          selectedText: RecognizedText? = nil,
          selectedAttributeText: RecognizedText? = nil,
          selectedImageIndex: Int? = nil,
          onlyShowTextsWithValues: Bool = false,
+         customTextFilter: ((RecognizedText) -> Bool)? = nil,
          didSelectImageTexts: @escaping ([ImageText]) -> Void
     ) {
         self.imageViewModels = imageViewModels
@@ -44,6 +47,7 @@ struct TextPicker: View {
         _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
         _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
+        self.customTextFilter = customTextFilter
         self.selectedText = selectedText
         self.selectedAttributeText = selectedAttributeText
         self.selectedImageIndex = selectedImageIndex
@@ -52,7 +56,14 @@ struct TextPicker: View {
         if let selectedAttributeText, let selectedText, let selectedImageIndex {
             let union = selectedAttributeText.boundingBox.union(selectedText.boundingBox)
             let ivm = imageViewModels[selectedImageIndex]
-            let texts = onlyShowTextsWithValues ? ivm.textsWithValues : ivm.texts
+            
+            let texts: [RecognizedText]
+            if let customTextFilter {
+                texts = ivm.texts.filter(customTextFilter)
+            } else {
+                texts = onlyShowTextsWithValues ? ivm.textsWithValues : ivm.texts
+            }
+            
 
             /// Only show the union of the attribute and selected texts if the union of them both does not entirely cover any other texts we will be displaying.
             if !texts.contains(where: { union.contains($0.boundingBox )}) {
@@ -224,10 +235,10 @@ struct TextPicker: View {
     }
     
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
-        if onlyShowTextsWithValues {
-            return imageViewModel.textsWithValues
+        if let customTextFilter {
+            return imageViewModel.texts.filter(customTextFilter)
         } else {
-            return imageViewModel.texts
+            return onlyShowTextsWithValues ? imageViewModel.textsWithValues : imageViewModel.texts
         }
     }
     func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
@@ -436,11 +447,12 @@ struct TextPicker: View {
     }
     
     var textsForCurrentImage: [RecognizedText] {
-        if onlyShowTextsWithValues {
-            return imageViewModels[currentIndex].textsWithValues
-        } else {
-            return imageViewModels[currentIndex].texts
-        }
+        return texts(for: imageViewModels[currentIndex])
+//        if onlyShowTextsWithValues {
+//            return imageViewModels[currentIndex].textsWithValues
+//        } else {
+//            return imageViewModels[currentIndex].texts
+//        }
     }
     
     //MARK: - Helpers

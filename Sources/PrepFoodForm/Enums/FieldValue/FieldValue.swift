@@ -381,7 +381,14 @@ extension FieldValue {
         }
         return false
     }
-    
+
+    var isDensity: Bool {
+        if case .density = self {
+            return true
+        }
+        return false
+    }
+
     var isAmount: Bool {
         if case .amount = self {
             return true

@@ -35,11 +35,13 @@ struct ScannedFillInfo: Hashable {
     var imageText: ImageText
     var value: FoodLabelValue?
     var altValue: FoodLabelValue? = nil
-    
-    init(resultText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil) {
+    var densityValue: FieldValue.DensityValue? = nil
+
+    init(resultText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil) {
         self.value = value
         self.imageText = resultText
         self.altValue = altValue
+        self.densityValue = densityValue
     }
     
     init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
@@ -58,7 +60,8 @@ struct ScannedFillInfo: Hashable {
 struct SelectionFillInfo: Hashable {
     var imageTexts: [ImageText]
     var altValue: FoodLabelValue? = nil
-    
+    var densityValue: FieldValue.DensityValue? = nil
+
     func withAltValue(_ value: FoodLabelValue) -> SelectionFillInfo {
         var newInfo = self
         newInfo.altValue = value
@@ -272,7 +275,7 @@ extension Fill {
     }
     
     var detectedValues: [FoodLabelValue] {
-        text?.string.values ?? []
+        text?.string.detectedValues ?? []
     }
 }
 

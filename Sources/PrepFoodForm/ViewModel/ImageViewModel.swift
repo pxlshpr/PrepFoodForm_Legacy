@@ -11,15 +11,15 @@ extension RecognizedText {
      Returns the first detected `FoodLabelValue` in the string and all its candidates, if present.
      */
     var firstFoodLabelValue: FoodLabelValue? {
-        string.values.first ?? (candidates.first(where: { !$0.values.isEmpty }))?.values.first
+        string.detectedValues.first ?? (candidates.first(where: { !$0.detectedValues.isEmpty }))?.detectedValues.first
     }
     
     /**
      Returns true if the string or any of the other candidates contains `FoodLabelValues` in them.
      */
     var hasFoodLabelValues: Bool {
-        !string.values.isEmpty
-        || candidates.contains(where: { !$0.values.isEmpty })
+        !string.detectedValues.isEmpty
+        || candidates.contains(where: { !$0.detectedValues.isEmpty })
     }
 }
 class ImageViewModel: ObservableObject {
@@ -72,7 +72,7 @@ class ImageViewModel: ObservableObject {
                 
                 self.scanResult = result
                 self.texts = result.texts
-                self.textsWithValues = result.texts.filter({ !$0.string.values.isEmpty })
+                self.textsWithValues = result.texts.filter({ !$0.string.detectedValues.isEmpty })
                 
                 await MainActor.run {
                     self.status = .classified
