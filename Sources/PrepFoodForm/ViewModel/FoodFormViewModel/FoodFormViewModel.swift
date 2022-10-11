@@ -12,6 +12,8 @@ public class FoodFormViewModel: ObservableObject {
     
     public init() {}
     
+    var sizeBeingEdited: Size? = nil
+    
     @Published var pickedColumn: Int = 1 {
         didSet {
             withAnimation {

@@ -14,7 +14,7 @@ extension FieldValue {
     }
     var valueBasedSelectionFillOptions: [FillOption] {
         guard case .selection(let info) = fill,
-              info.imageText?.text != FoodFormViewModel.shared.scannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
+              info.imageText?.text != FoodFormViewModel.shared.firstScannedText(for: self) /// skip over selections of the autofilled text (although the picker shouldn't allow that to begin with)
         else {
             return []
         }

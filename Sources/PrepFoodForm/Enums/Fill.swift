@@ -36,12 +36,14 @@ struct ScannedFillInfo: Hashable {
     var value: FoodLabelValue?
     var altValue: FoodLabelValue? = nil
     var densityValue: FieldValue.DensityValue? = nil
+    var size: Size? = nil
 
-    init(resultText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil) {
+    init(imageText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil, size: Size? = nil) {
         self.value = value
-        self.imageText = resultText
+        self.imageText = imageText
         self.altValue = altValue
         self.densityValue = densityValue
+        self.size = size
     }
     
     init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
@@ -445,8 +447,6 @@ extension FieldViewModel {
     func appendComponentTexts(for imageText: ImageText) {
         for componentText in imageText.componentTexts {
             fieldValue.fill.appendComponentText(componentText)
-            /// Then create the addition and removal (using the contains function) of those components
-            /// Now think about if we need to generate the components in the fillOptions generator part or is it enough that we've selected the text and generated them here?
         }
     }
 }

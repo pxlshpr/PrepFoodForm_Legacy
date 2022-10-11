@@ -64,76 +64,6 @@ extension FoodLabelUnit {
 }
 extension ScanResult {
 
-    var equivalentSizeDensityValue: FieldValue.DensityValue? {
-        guard let equivalentSize,
-              let equivalentSizeUnit = equivalentSize.unit,
-              let servingUnit, let servingAmount,
-              servingUnit.isCompatibleForDensity(with: equivalentSizeUnit)
-        else {
-            return nil
-        }
-        
-        let unitFill: Fill = Fill.scanned(ScannedFillInfo(
-            resultText: ImageText(
-                text: equivalentSize.amountText.text, imageId: id)
-        ))
-        let weight: FieldValue.DoubleValue
-        let volume: FieldValue.DoubleValue
-        if let weightUnit = equivalentSizeUnit.weightFormUnit {
-            weight = FieldValue.DoubleValue(
-                double: equivalentSize.amount,
-                string: equivalentSize.amount.cleanAmount,
-                unit: weightUnit,
-                fill: unitFill)
-            guard let volumeUnit = servingUnit.volumeFormUnit else {
-                return nil
-            }
-            volume = FieldValue.DoubleValue(
-                double: servingAmount,
-                string: servingAmount.cleanAmount,
-                unit: volumeUnit,
-                fill: unitFill)
-        } else if let weightUnit = servingUnit.weightFormUnit {
-            weight = FieldValue.DoubleValue(
-                double: servingAmount,
-                string: servingAmount.cleanAmount,
-                unit: weightUnit,
-                fill: unitFill)
-            guard let volumeUnit = equivalentSizeUnit.volumeFormUnit else {
-                return nil
-            }
-            volume = FieldValue.DoubleValue(
-                double: equivalentSize.amount,
-                string: equivalentSize.amount.cleanAmount,
-                unit: volumeUnit,
-                fill: unitFill)
-        } else {
-            return nil
-        }
-        
-        let fill: Fill = Fill.scanned(ScannedFillInfo(
-            resultText: ImageText(
-                text: equivalentSize.amountText.text, imageId: id),
-            densityValue: FieldValue.DensityValue(weight: weight, volume: volume, fill: unitFill)
-        ))
-        return FieldValue.DensityValue(weight: weight, volume: volume, fill: fill)
-    }
-    
-    var headerEquivalentSizeDensityValue: FieldValue.DensityValue? {
-        return nil
-    }
-    
-    var densityFieldValue: FieldValue? {
-        /// Check if we have an equivalent serving size
-        if let equivalentSizeDensityValue {
-            return FieldValue.density(equivalentSizeDensityValue)
-        }
-        /// Otherwise check if we have a header equivalent size for any of the headers
-        if let headerEquivalentSizeDensityValue {
-            return FieldValue.density(headerEquivalentSizeDensityValue)
-        }
-        return nil
-    }
     
     func amountFieldValue(for column: Int) -> FieldValue? {
         if headerType(for: column) != .perServing {
@@ -141,7 +71,7 @@ extension ScanResult {
         } else {
             guard let valueText = amountValueText(for: column) else { return nil }
             return FieldValue.amount(FieldValue.DoubleValue(
-                double: 1, string: "1", unit: .serving, fill: autoFillType(
+                double: 1, string: "1", unit: .serving, fill: scannedFill(
                     for: valueText,
                     value: FoodLabelValue(amount: 1, unit: nil)
                 ))
@@ -159,8 +89,10 @@ extension ScanResult {
     
     func servingFieldValue(for column: Int) -> FieldValue? {
         /// If we have a header type for the column and it's not `.perServing`, return `nil` immediately
-        guard headerType(for: column) == .perServing else {
-            return nil
+        if let headerType = headerType(for: column) {
+            guard headerType == .perServing else {
+                return nil
+            }
         }
         
         if let servingAmount, let servingAmountValueText {
@@ -168,7 +100,7 @@ extension ScanResult {
                 double: servingAmount,
                 string: servingAmount.cleanAmount,
                 unit: servingFormUnit,
-                fill: autoFillType(
+                fill: scannedFill(
                     for: servingAmountValueText,
                     value: FoodLabelValue(
                         amount: servingAmount,
@@ -197,7 +129,7 @@ extension ScanResult {
             double: headerAmount,
             string: headerAmount.cleanAmount,
             unit: headerFormUnit(for: column),
-            fill: autoFillType(
+            fill: scannedFill(
                 for: headerValueText,
                 value: FoodLabelValue(
                     amount: headerAmount,
@@ -310,7 +242,7 @@ extension ScanResult {
             return servingUnit?.formUnit ?? .weight(.g)
         }
     }
-    
+
     var servingUnitAmount: Double {
         if let equivalentSize {
             return equivalentSize.amount

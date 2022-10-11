@@ -411,15 +411,7 @@ extension FieldValueForm {
             }
 
             if fieldValue.usesValueBasedTexts {
-                let previousFillType = fieldValue.fill
-                fieldViewModel.fieldValue.fill = fill
-                
-                //TODO: Write a more succinct helper for this
-                if fill.text?.id != previousFillType.text?.id {
-                    fieldViewModel.isCroppingNextImage = true
-                    fieldViewModel.cropFilledImage()
-                }
-                
+                fieldViewModel.assignNewScannedFill(fill)
                 doNotRegisterUserInput = false
                 saveAndDismiss()
             }
@@ -482,7 +474,7 @@ extension FieldValueForm {
     }
     
     func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
-        if let fill = viewModel.scannedFill(for: fieldValue, with: text) {
+        if let fill = viewModel.firstScannedFill(for: fieldValue, with: text) {
             return fill
         } else {
             return .selection(.init(imageText: ImageText(text: text, imageId: imageId)))

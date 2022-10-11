@@ -29,7 +29,7 @@ extension FoodFormViewModel {
 
         guard case .selection(let info) = fieldValue.fill,
               let selectedText = info.imageText?.text,
-              selectedText != FoodFormViewModel.shared.scannedText(for: fieldValue)
+              selectedText != FoodFormViewModel.shared.firstScannedText(for: fieldValue)
         else {
             return []
         }
@@ -45,34 +45,37 @@ extension FoodFormViewModel {
     }
     
     func scannedFillOptions(for fieldValue: FieldValue) -> [FillOption] {
+        let scannedFieldValues = FoodFormViewModel.shared.scannedFieldValues(for: fieldValue)
         var fillOptions: [FillOption] = []
-        guard let scannedFieldValue = FoodFormViewModel.shared.scannedFieldValue(for: fieldValue),
-              case .scanned(let info) = scannedFieldValue.fill
-        else {
-            return []
-        }
-        fillOptions.append(
-            FillOption(
-                string: fillButtonString(for: scannedFieldValue),
-                systemImage: Fill.SystemImage.scanned,
-                //                isSelected: self.value == autofillFieldValue.value,
-                isSelected: fieldValue.equalsScannedFieldValue(scannedFieldValue),
-                type: .fill(scannedFieldValue.fill)
-            )
-        )
         
-        /// Show alts if selected (only check the text because it might have a different value attached to it)
-        for altValue in scannedFieldValue.altValues {
+        for scannedFieldValue in scannedFieldValues {
+            guard case .scanned(let info) = scannedFieldValue.fill else {
+                continue
+            }
+            
             fillOptions.append(
                 FillOption(
-                    string: altValue.fillOptionString,
+                    string: fillButtonString(for: scannedFieldValue),
                     systemImage: Fill.SystemImage.scanned,
-                    isSelected: fieldValue.value == altValue && fieldValue.fill.isImageAutofill,
-                    type: .fill(.scanned(info.withAltValue(altValue)))
+                    //                isSelected: self.value == autofillFieldValue.value,
+                    isSelected: fieldValue.equalsScannedFieldValue(scannedFieldValue),
+                    type: .fill(scannedFieldValue.fill)
                 )
             )
+            
+            /// Show alts if selected (only check the text because it might have a different value attached to it)
+            for altValue in scannedFieldValue.altValues {
+                fillOptions.append(
+                    FillOption(
+                        string: altValue.fillOptionString,
+                        systemImage: Fill.SystemImage.scanned,
+                        isSelected: fieldValue.value == altValue && fieldValue.fill.isImageAutofill,
+                        type: .fill(.scanned(info.withAltValue(altValue)))
+                    )
+                )
+            }
         }
-        
+                
         return fillOptions
     }
 
@@ -104,6 +107,8 @@ extension FoodFormViewModel {
             return microValue.description
         case .density(let densityValue):
             return densityValue.description(weightFirst: isWeightBased)
+        case .size(let sizeValue):
+            return sizeValue.size.fullNameString
         default:
             return "(not implemented)"
         }
@@ -135,47 +140,71 @@ extension FoodFormViewModel {
         !fillOptions(for: fieldValue).isEmpty
     }
     
-    func scannedFieldValue(for fieldValue: FieldValue) -> FieldValue? {
+    func scannedFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
         
         switch fieldValue {
         case .energy:
-            return scannedFieldValues.first(where: { $0.isEnergy })
+            return scannedFieldValues.filter({ $0.isEnergy })
         case .macro(let macroValue):
-            return scannedFieldValues.first(where: { $0.isMacro && $0.macroValue.macro == macroValue.macro })
+            return scannedFieldValues.filter({ $0.isMacro && $0.macroValue.macro == macroValue.macro })
         case .micro(let microValue):
-            return scannedFieldValues.first(where: { $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
+            return scannedFieldValues.filter({ $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
         case .amount:
-            return scannedFieldValues.first(where: { $0.isAmount })
+            return scannedFieldValues.filter({ $0.isAmount })
         case .serving:
-            return scannedFieldValues.first(where: { $0.isServing })
+            return scannedFieldValues.filter({ $0.isServing })
         case .density:
-            return scannedFieldValues.first(where: { $0.isDensity })
+            return scannedFieldValues.filter({ $0.isDensity })
+        case .size:
+            return scannedSizeFieldValues(for: fieldValue)
 //        case .amount(let doubleValue):
 //            <#code#>
 //        case .serving(let doubleValue):
 //            <#code#>
         default:
-            return nil
+            return []
         }
     }
+    
+    func scannedSizeFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+        scannedFieldValues
+            .filter { $0.isSize }
+            .filter {
+                /// Always include the size that's being used by this fieldValue currently (so that we can see it toggled on)
+                guard fieldValue.size != $0.size, let size = $0.size else {
+                    return true
+                }
+                
+                /// If we're currently editing a size—it may not be filtered in as we'd want it to if the user has edited it slightly.
+                /// This is because it would not match the current `fieldValue.size` (since the user has edited it)
+                ///     while still being present in the `allSizes` array—as the user hasn't commited the change yet.
+                /// So we will always store the current size being edited here so that we can disregard the following check and include it anyway.
+                if let sizeBeingEdited, sizeBeingEdited == $0.size {
+                    return true
+                }
+                
+                /// Make sure we're not using it already
+                return !allSizes.contains(size)
+            }
+    }
 
-    func scannedText(for fieldValue: FieldValue) -> RecognizedText? {
-        guard let fill = scannedFieldValue(for: fieldValue)?.fill else {
+    func firstScannedText(for fieldValue: FieldValue) -> RecognizedText? {
+        guard let fill = scannedFieldValues(for: fieldValue).first?.fill else {
             return nil
         }
         return fill.text
     }
 
-    func scannedFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
-        guard let fill = scannedFieldValue(for: fieldValue)?.fill,
+    func firstScannedFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
+        guard let fill = scannedFieldValues(for: fieldValue).first?.fill,
               fill.text == text else {
             return nil
         }
         return fill
     }
     
-    func scannedFill(for fieldValue: FieldValue, with densityValue: FieldValue.DensityValue) -> Fill? {
-        guard let fill = scannedFieldValue(for: fieldValue)?.fill,
+    func firstScannedFill(for fieldValue: FieldValue, with densityValue: FieldValue.DensityValue) -> Fill? {
+        guard let fill = scannedFieldValues(for: fieldValue).first?.fill,
               let fillDensityValue = fill.densityValue,
               fillDensityValue.equalsValues(of: densityValue) else {
             return nil
@@ -250,6 +279,8 @@ extension FieldValue {
             return value == other.fill.value
         case .density(let densityValue):
             return densityValue == other.densityValue
+        case .size(let sizeValue):
+            return sizeValue.size == other.size
         default:
             return false
         }

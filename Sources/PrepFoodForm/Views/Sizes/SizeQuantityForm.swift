@@ -17,8 +17,8 @@ extension SizeQuantityForm {
                 }
             }
         }
-        .navigationTitle("Quantity")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Size Quantity")
+        .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.never)
         .introspectTextField(customize: introspectTextField)
         .toolbar { keyboardToolbarContents }

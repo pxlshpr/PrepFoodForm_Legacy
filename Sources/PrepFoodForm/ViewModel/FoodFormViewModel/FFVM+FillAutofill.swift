@@ -44,6 +44,8 @@ extension FoodFormViewModel {
             extractNutrient(nutrient, at: column)
         }
         
+        extractSizes()
+        
         extractServing(for: column)
         extractAmount(for: column)
         extractDensity()
@@ -54,6 +56,19 @@ extension FoodFormViewModel {
             for fieldViewModel in self.allFieldViewModels {
                 fieldViewModel.isCroppingNextImage = true
                 fieldViewModel.cropFilledImage()
+            }
+        }
+    }
+    
+    func extractSizes() {
+        for scanResult in scanResults {
+            for sizeViewModel in scanResult.allSizeViewModels {
+                /// If we were able to add this size view model (if it wasn't a duplicate) ...
+                guard add(sizeViewModel: sizeViewModel) else {
+                    continue
+                }
+                /// ... then go ahead and add it to the `scannedFieldValues` array as well
+                scannedFieldValues.append(sizeViewModel.fieldValue)
             }
         }
     }
@@ -148,17 +163,7 @@ extension FoodFormViewModel {
     func fieldValueFromScanResultsForServing(for column: Int) -> FieldValue? {
         /// **We're current returning the first one we find amongst the images**
         for scanResult in scanResults {
-
-            /// ** NOTE: MOCK—TO BE REMOVED**
-//            if let fieldValue = ScanResult.mockServing.servingFieldValue {
-//                let sizeViewModels = ScanResult.mockServing.servingSizeViewModels
-
             if let fieldValue = scanResult.servingFieldValue(for: column) {
-                let sizeViewModels = scanResult.servingSizeViewModels
-                for sizeViewModel in sizeViewModels {
-                    add(sizeViewModel: sizeViewModel)
-                    //TODO: Add sizes to a separate array (or the scanned one) here
-                }
                 return fieldValue
             }
         }

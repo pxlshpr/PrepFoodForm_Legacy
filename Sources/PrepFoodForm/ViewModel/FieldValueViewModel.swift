@@ -71,6 +71,16 @@ class FieldViewModel: ObservableObject, Identifiable {
         imageToDisplay = nil
     }
     
+    func assignNewScannedFill(_ fill: Fill) {
+        let previousFill = fieldValue.fill
+        fieldValue.fill = fill
+
+        if fill.text?.id != previousFill.text?.id {
+            isCroppingNextImage = true
+            cropFilledImage()
+        }
+    }
+    
     func cropFilledImage() {
         guard fieldValue.fill.usesImage else {
             withAnimation {
@@ -143,20 +153,6 @@ extension FieldViewModel {
         return info.fieldStrings.contains(fieldString)
     }
     
-//    func replaceExistingComponentText(with componentTexts: ComponentText) {
-//        //TODO: Replace this with components stuff
-//        guard case .selection(let info) = fieldValue.fill else {
-//            return
-//        }
-//        var newInfo = info
-//        for i in newInfo.componentTexts.indices {
-//            if newInfo.imageTexts[i].text == imageText.text {
-//                newInfo.imageTexts[i].pickedCandidate = imageText.pickedCandidate
-//            }
-//        }
-////        fieldValue.fill = .selection(newInfo)
-//    }
-    
     func imageTextMatchingText(of imageText: ImageText) -> ImageText? {
         nil
     }
@@ -166,7 +162,6 @@ extension FieldViewModel {
             fieldValue.fill.removeComponentText(componentText)
         } else {
             fieldValue.fill.appendComponentText(componentText)
-//            replaceExistingComponentText(with: componentText)
         }
     }
     

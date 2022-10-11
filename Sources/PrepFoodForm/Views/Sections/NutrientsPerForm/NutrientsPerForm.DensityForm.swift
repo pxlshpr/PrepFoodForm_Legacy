@@ -15,10 +15,10 @@ struct DensityForm: View {
 
     @Environment(\.dismiss) var dismiss
     
-    @State var showingTextPicker = false
     @State var showingWeightUnitPicker = false
     @State var showingVolumeUnitPicker = false
     @State var shouldAnimateOptions = false
+    @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool
     @State var hasBecomeFirstResponder: Bool = false
     @FocusState var focusedField: FocusedField?
@@ -132,7 +132,7 @@ struct DensityForm: View {
     func fill(for imageText: ImageText,
               with densityValue: FieldValue.DensityValue
     ) -> Fill {
-        if let fill = viewModel.scannedFill(for: densityViewModel.fieldValue, with: densityValue) {
+        if let fill = viewModel.firstScannedFill(for: densityViewModel.fieldValue, with: densityValue) {
             return fill
         } else {
             return .selection(.init(
@@ -178,16 +178,7 @@ struct DensityForm: View {
                     return
                 }
                 setDensityValue(densityValue)
-                
-                let previousFillType = densityViewModel.fieldValue.fill
-                densityViewModel.fieldValue.fill = fill
-                
-                //TODO: Write a more succinct helper for this
-                if fill.text?.id != previousFillType.text?.id {
-                    densityViewModel.isCroppingNextImage = true
-                    densityViewModel.cropFilledImage()
-                }
-
+                densityViewModel.assignNewScannedFill(fill)
             default:
                 break
             }
@@ -257,7 +248,12 @@ struct DensityForm: View {
         HStack {
 //            Spacer()
             weightTextField
-                .background(showColors ? .green : .clear)
+//                .background(showColors ? .green : .clear)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 5)
+                        .foregroundColor(Color(.systemGroupedBackground))
+                )
                 .fixedSize(horizontal: true, vertical: false)
                 .layoutPriority(1)
             weightUnitButton
@@ -273,7 +269,12 @@ struct DensityForm: View {
         HStack {
 //            Spacer()
             volumeTextField
-                .background(showColors ? .yellow : .clear)
+//                .background(showColors ? .yellow : .clear)
+                .padding(.vertical, 5)
+                .background(
+                    RoundedRectangle(cornerRadius: 5)
+                        .foregroundColor(Color(.systemGroupedBackground))
+                )
                 .fixedSize(horizontal: true, vertical: false)
                 .layoutPriority(1)
             volumeUnitButton

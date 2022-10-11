@@ -1,8 +1,14 @@
 import FoodLabelScanner
 
 extension ScanResult {
-    var servingSizeViewModels: [FieldViewModel] {
-        [servingUnitSizeViewModel, equivalentUnitSizeViewModel, perContainerSizeViewModel].compactMap { $0 }
+    var allSizeViewModels: [FieldViewModel] {
+        [servingUnitSizeViewModel,
+         equivalentUnitSizeViewModel,
+         perContainerSizeViewModel,
+         headerServingSizeViewModel,
+         headerEquivalentUnitSizeViewModel
+        ]
+            .compactMap { $0 }
     }
     
     var perContainerSizeViewModel: FieldViewModel? {
@@ -12,12 +18,10 @@ extension ScanResult {
         
         return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
             size: perContainerSize,
-            fill: autoFillType(
-                for: perContainerSizeValueText,
-                value: FoodLabelValue(amount: perContainerSize.amount ?? 0,
-                                      unit: perContainerSize.unit.foodLabelUnit)
-            ))
-        ))
+            fill: scannedFill(
+                for: perContainerSize,
+                in: ImageText(text: perContainerSizeValueText.text, imageId: id))
+        )))
     }
     
     var perContainerSize: Size? {
@@ -31,6 +35,37 @@ extension ScanResult {
             unit: .serving
         )
     }
+    
+    var headerServingSizeViewModel: FieldViewModel? {
+        guard let headerServingSize, let valueText = servingBasedHeaderText?.asValueText else {
+            return nil
+        }
+        
+        let fieldValue: FieldValue = .size(.init(
+            size: headerServingSize,
+            fill: scannedFill(
+                for: headerServingSize,
+                in: ImageText(text: valueText.text, imageId: id)
+            )
+        ))
+        return FieldViewModel(fieldValue: fieldValue)
+    }
+
+    var headerEquivalentUnitSizeViewModel: FieldViewModel? {
+        guard let headerEquivalentUnitSize, let valueText = servingBasedHeaderText?.asValueText else {
+            return nil
+        }
+        
+        let fieldValue: FieldValue = .size(.init(
+            size: headerEquivalentUnitSize,
+            fill: scannedFill(
+                for: headerEquivalentUnitSize,
+                in: ImageText(text: valueText.text, imageId: id)
+            )
+        ))
+        return FieldViewModel(fieldValue: fieldValue)
+    }
+
     var servingUnitSizeViewModel: FieldViewModel? {
         guard let servingUnitSize, let servingUnitSizeValueText else {
             return nil
@@ -38,12 +73,9 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: servingUnitSize,
-            fill: autoFillType(
-                for: servingUnitSizeValueText,
-                value: FoodLabelValue(
-                    amount: servingUnitSize.amount ?? 0,
-                    unit: servingUnitSize.unit.foodLabelUnit
-                )
+            fill: scannedFill(
+                for: servingUnitSize,
+                in: ImageText(text: servingUnitSizeValueText.text, imageId: id)
             )
         ))
         return FieldViewModel(fieldValue: fieldValue)
@@ -56,12 +88,9 @@ extension ScanResult {
         
         let fieldValue: FieldValue = .size(.init(
             size: equivalentUnitSize,
-            fill: autoFillType(
-                for: equivalentUnitSizeValueText,
-                value: FoodLabelValue(
-                    amount: equivalentUnitSize.amount ?? 0,
-                    unit: equivalentUnitSize.unit.foodLabelUnit
-                )
+            fill: scannedFill(
+                for: equivalentUnitSize,
+                in: ImageText(text: equivalentUnitSizeValueText.text, imageId: id)
             )
         ))
         return FieldViewModel(fieldValue: fieldValue)
@@ -69,6 +98,56 @@ extension ScanResult {
     
     //MARK: Units Sizes
     
+    var headerServingSize: Size? {
+        guard let headerServingUnitName,
+              let headerServingAmount, headerServingAmount > 0
+        else {
+            return nil
+        }
+        
+        let sizeAmount: Double
+        let sizeUnit: FormUnit
+        if let headerEquivalentSize {
+            if let headerEquivalentSizeUnitSize {
+                /// Foods that have a size for both the serving unit and equivalence
+                ///     e.g. 1 pack (5 pieces)
+                guard headerEquivalentSize.amount > 0 else {
+                    return nil
+                }
+//                sizeAmount = 1.0/amount/equivalentSize.amount
+                sizeAmount = headerEquivalentSize.amount/headerServingAmount
+                sizeUnit = .size(headerEquivalentSizeUnitSize, nil)
+            } else {
+                sizeAmount = headerEquivalentSize.amount/headerServingAmount
+                sizeUnit = headerEquivalentSize.unit?.formUnit ?? .weight(.g)
+            }
+        } else {
+            sizeAmount = 1.0/headerServingAmount
+            sizeUnit = .serving
+        }
+        return Size(
+            name: headerServingUnitName,
+            amount: sizeAmount,
+            unit: sizeUnit
+        )
+    }
+    
+    var headerEquivalentUnitSize: Size? {
+        guard let headerServingAmount, headerServingAmount > 0,
+              let headerEquivalentSize, headerEquivalentSize.amount > 0,
+              let unitName = headerEquivalentSize.unitName
+        else {
+            return nil
+        }
+        
+        return Size(
+            name: unitName,
+//            amount: 1.0/amount/equivalentSize.amount,
+            amount: headerServingAmount/headerEquivalentSize.amount,
+            unit: headerServingFormUnit
+        )
+    }
+ 
     var servingUnitSize: Size? {
         guard let servingUnitNameText,
               let servingAmount, servingAmount > 0
@@ -151,8 +230,12 @@ extension ScanResult {
     }
     
     //MARK: - Helpers
-    func autoFillType(for valueText: ValueText, value: FoodLabelValue) -> Fill {
+    func scannedFill(for valueText: ValueText, value: FoodLabelValue) -> Fill {
         .scanned(.init(valueText: valueText, imageId: id, altValue: value))
+    }
+    
+    func scannedFill(for size: Size, in imageText: ImageText) -> Fill {
+        .scanned(.init(imageText: imageText, size: size))
     }
 }
 

@@ -22,8 +22,8 @@ extension SizeAmountForm {
                 }
             }
         }
-        .navigationTitle("Amount")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle("Size Amount")
+        .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingUnitPicker) {
             unitPickerForAmount
         }

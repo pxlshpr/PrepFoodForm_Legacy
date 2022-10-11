@@ -396,6 +396,12 @@ extension FieldValue {
         return false
     }
 
+    var isSize: Bool {
+        if case .size = self {
+            return true
+        }
+        return false
+    }
 }
 
 extension FieldValue: CustomStringConvertible {

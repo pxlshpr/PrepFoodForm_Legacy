@@ -181,23 +181,43 @@ extension FoodFormViewModel {
     func add(size: Size) {
         withAnimation {
             if size.isVolumePrefixed {
+                guard volumePrefixedSizeViewModels.containsSizeNamed(size.name) else {
+                    return
+                }
                 volumePrefixedSizeViewModels.append(size.asFieldViewModelForUserInput)
             } else {
+                guard standardSizeViewModels.containsSizeNamed(size.name) else {
+                    return
+                }
                 standardSizeViewModels.append(size.asFieldViewModelForUserInput)
             }
         }
     }
 
-    func add(sizeViewModel: FieldViewModel) {
+    /// Returns true if the size was added
+    func add(sizeViewModel: FieldViewModel) -> Bool {
         /// Make sure it's actually got a size in it first
-        guard let size = sizeViewModel.size else { return }
-        withAnimation {
-            if size.isVolumePrefixed {
+        guard let size = sizeViewModel.size else { return false }
+        
+        if size.isVolumePrefixed {
+            ///Make sure we don't already have one with the name
+            guard !volumePrefixedSizeViewModels.containsSizeNamed(size.name) else {
+                return false
+            }
+            withAnimation {
                 volumePrefixedSizeViewModels.append(sizeViewModel)
-            } else {
+            }
+        } else {
+            ///Make sure we don't already have one with the name
+            guard !standardSizeViewModels.containsSizeNamed(size.name) else {
+                return false
+            }
+
+            withAnimation {
                 standardSizeViewModels.append(sizeViewModel)
             }
         }
+        return true
     }
     
     func editStandardSizeViewModel(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
@@ -508,3 +528,15 @@ extension FieldValue.MicroValue {
     }
 }
 
+
+extension Array where Element == FieldViewModel {
+    func containsSizeNamed(_ name: String) -> Bool {
+        contains(where: { $0.isSizeNamed(name) })
+    }
+}
+
+extension FieldViewModel {
+    func isSizeNamed(_ name: String) -> Bool {
+        size?.name == name
+    }
+}
