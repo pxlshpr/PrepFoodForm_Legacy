@@ -7,10 +7,14 @@ struct NutritionFactCell: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var fieldViewModel: FieldViewModel
     
+    @Binding var showImage: Bool
+    
     var body: some View {
         ZStack {
             content
-//            imageLayer
+            if showImage {
+                imageLayer
+            }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 13)

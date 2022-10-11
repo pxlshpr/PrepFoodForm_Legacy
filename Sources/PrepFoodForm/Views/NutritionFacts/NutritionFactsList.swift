@@ -5,16 +5,14 @@ import SwiftHaptics
 public struct NutritionFactsList: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.colorScheme) var colorScheme
-    
+    @State var showImages = false
+
     public var body: some View {
         scrollView
             .toolbar { navigationTrailingContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
-            .sheet(isPresented: $viewModel.showingMicronutrientsPicker) {
-                MicronutrientPicker()
-                    .environmentObject(viewModel)
-            }
+            .sheet(isPresented: $viewModel.showingMicronutrientsPicker) { microPicker }
     }
 
     var scrollView: some View {
@@ -29,12 +27,21 @@ public struct NutritionFactsList: View {
         .background(formBackgroundColor)
     }
     
+    var microPicker: some View {
+        MicroPicker { pickedNutrientTypes in
+            withAnimation {
+                viewModel.includeMicronutrients(for: pickedNutrientTypes)
+            }
+        }
+        .environmentObject(viewModel)
+    }
+    
     func macronutrientForm(for fieldViewModel: FieldViewModel) -> some View {
         NavigationLink {
             MacroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         } label: {
-            NutritionFactCell(fieldViewModel: fieldViewModel)
+            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
                 .environmentObject(viewModel)
         }
     }
@@ -44,7 +51,7 @@ public struct NutritionFactsList: View {
             MicroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         } label: {
-            NutritionFactCell(fieldViewModel: fieldViewModel)
+            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
                 .environmentObject(viewModel)
         }
     }
@@ -56,7 +63,7 @@ public struct NutritionFactsList: View {
             EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         } label: {
-            NutritionFactCell(fieldViewModel: viewModel.energyViewModel)
+            NutritionFactCell(fieldViewModel: viewModel.energyViewModel, showImage: $showImages)
                 .environmentObject(viewModel)
         }
     }
@@ -92,10 +99,10 @@ public struct NutritionFactsList: View {
         return Group {
             titleCell("Micronutrients")
             ForEach(viewModel.micronutrients.indices, id: \.self) { g in
-                if viewModel.hasNonEmptyFieldValuesInMicronutrientsGroup(at: g) {
+                if viewModel.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
                     subtitleCell(viewModel.micronutrients[g].group.description)
                     ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
-                        if !viewModel.micronutrients[g].fieldViewModels[f].fieldValue.isEmpty {
+                        if viewModel.micronutrients[g].fieldViewModels[f].fieldValue.microValue.isIncluded {
                             micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
                         }
                     }
@@ -146,7 +153,21 @@ public struct NutritionFactsList: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            addButton
+            HStack {
+                showImagesButton
+                addButton
+            }
+        }
+    }
+    
+    var showImagesButton: some View {
+        Button {
+            Haptics.feedback(style: .medium)
+            withAnimation {
+                showImages.toggle()
+            }
+        } label: {
+            Image(systemName: "photo.circle\(showImages ? ".fill" : "")")
         }
     }
     
@@ -156,7 +177,7 @@ public struct NutritionFactsList: View {
             viewModel.showingMicronutrientsPicker = true
         } label: {
             Image(systemName: "plus")
-                .padding(.all.subtracting(.trailing))
+                .padding(.horizontal)
 //                .background(.green)
         }
         .buttonStyle(.borderless)

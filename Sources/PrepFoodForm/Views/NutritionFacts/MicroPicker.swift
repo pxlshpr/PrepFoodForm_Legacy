@@ -3,17 +3,19 @@ import PrepUnits
 import SwiftHaptics
 //import Introspect
 
-public struct MicronutrientPicker: View {
+public struct MicroPicker: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-    
-    @State var showingMicroFieldViewModel: FieldViewModel?
     
     @State private var searchText = ""
     @State var showingSearchLayer: Bool = false
     @FocusState var isFocused: Bool
     @State var hasBecomeFirstResponder: Bool = false
+    
+    @State var pickedNutrientTypes: [NutrientType] = []
+    
+    let didAddNutrientTypes: ([NutrientType]) -> ()
     
     public var body: some View {
         NavigationView {
@@ -21,13 +23,10 @@ public struct MicronutrientPicker: View {
                 form
                 searchLayer
             }
-            .navigationTitle("Select Micronutrients")
+            .navigationTitle("Add Micronutrients")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { navigationLeadingContent }
-            .sheet(item: $showingMicroFieldViewModel) { fieldViewModel in
-                MicroForm(existingFieldViewModel: fieldViewModel)
-                    .environmentObject(viewModel)
-            }
+            .toolbar { navigationTrailingContent }
             .onAppear {
                 showingSearchLayer = true
             }
@@ -35,26 +34,30 @@ public struct MicronutrientPicker: View {
         }
     }
     
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            if !pickedNutrientTypes.isEmpty {
+                Button("Add \(pickedNutrientTypes.count)") {
+                    didAddNutrientTypes(pickedNutrientTypes)
+                    Haptics.successFeedback()
+                    dismiss()
+                }
+            }
+        }
+    }
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            Button("Done") {
+            Button(pickedNutrientTypes.isEmpty ? "Done" : "Cancel") {
+                Haptics.feedback(style: .soft)
                 dismiss()
             }
         }
     }
 
-    
-    func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
-        var searchBool: Bool
-        if !searchText.isEmpty {
-            searchBool = fieldViewModel.fieldValue.microValue.matchesSearchString(searchText)
-        } else {
-            searchBool = true
-        }
-        return Group {
-            if fieldViewModel.fieldValue.isEmpty, searchBool {
-                nutrientButton(for: fieldViewModel)
+    var form: some View {
+        Form {
+            ForEach(viewModel.micronutrients.indices, id: \.self) {
+                group(atIndex: $0)
             }
         }
     }
@@ -72,6 +75,45 @@ public struct MicronutrientPicker: View {
         }
     }
     
+    func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
+        let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
+        var searchBool: Bool
+        if !searchText.isEmpty {
+            searchBool = fieldViewModel.fieldValue.microValue.matchesSearchString(searchText)
+        } else {
+            searchBool = true
+        }
+        return Group {
+            if fieldViewModel.fieldValue.isEmpty, searchBool, let nutrientType = fieldViewModel.nutrientType {
+                nutrientButton(for: nutrientType)
+            }
+        }
+    }
+    
+
+    func nutrientButton(for nutrientType: NutrientType) -> some View {
+        Button {
+//            withAnimation {
+                if pickedNutrientTypes.contains(nutrientType) {
+                    pickedNutrientTypes.removeAll(where: { $0 == nutrientType })
+                } else {
+                    pickedNutrientTypes.append(nutrientType)
+                }
+//            }
+        } label: {
+            HStack {
+                Image(systemName: "checkmark")
+                    .opacity(pickedNutrientTypes.contains(nutrientType) ? 1 : 0)
+                    .animation(.default, value: pickedNutrientTypes)
+                Text(nutrientType.description)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+        }
+    }
+    
+    //MARK: - Search
     var searchLayer: some View {
         var keyboardColor: Color {
             colorScheme == .light ? Color(hex: colorHexKeyboardLight) : Color(hex: colorHexKeyboardDark)
@@ -162,24 +204,7 @@ public struct MicronutrientPicker: View {
         isFocused = false
     }
 
-    var form: some View {
-        Form {
-            ForEach(viewModel.micronutrients.indices, id: \.self) {
-                group(atIndex: $0)
-            }
-        }
-    }
-    
-    func nutrientButton(for fieldViewModel: FieldViewModel) -> some View {
-        Button {
-            showingMicroFieldViewModel = fieldViewModel
-        } label: {
-            Text(fieldViewModel.fieldValue.description)
-                .foregroundColor(.primary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-        }
-    }
+
 }
 
 extension FieldValue.MicroValue {
@@ -217,15 +242,18 @@ extension FoodFormViewModel {
         })
     }
     
-    func hasNonEmptyFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: { !$0.fieldValue.isEmpty })
+    func hasIncludedFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
+        micronutrients[index].fieldViewModels.contains(where: { $0.fieldValue.microValue.isIncluded })
     }
 }
 
 
 struct MicronutrientPickerPreview: View {
     var body: some View {
-        MicronutrientPicker()
+        MicroPicker { pickedNutrientTypes in
+            
+        }
+        .environmentObject(FoodFormViewModel.shared)
     }
 }
 

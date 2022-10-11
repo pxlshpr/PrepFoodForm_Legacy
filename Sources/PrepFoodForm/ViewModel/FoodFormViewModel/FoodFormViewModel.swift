@@ -134,6 +134,18 @@ public class FoodFormViewModel: ObservableObject {
 
 extension FoodFormViewModel {
     
+    func includeMicronutrients(for nutrientTypes: [NutrientType]) {
+        for g in micronutrients.indices {
+            for f in micronutrients[g].fieldViewModels.indices {
+                guard let nutrientType = micronutrients[g].fieldViewModels[f].nutrientType,
+                      nutrientTypes.contains(nutrientType) else {
+                    continue
+                }
+                micronutrients[g].fieldViewModels[f].fieldValue.microValue.isIncluded = true
+            }
+        }
+    }
+    
     func amountChanged() {
         updateShouldShowDensitiesSection()
         if amountViewModel.fieldValue.doubleValue.unit != .serving {

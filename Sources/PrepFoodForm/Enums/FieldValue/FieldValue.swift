@@ -30,11 +30,13 @@ extension FieldValue {
         var internalString: String
         var unit: NutrientUnit
         var fill: Fill
+        var isIncluded: Bool
 
-        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, fill: Fill = .userInput) {
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, isIncluded: Bool = false, fill: Fill = .userInput) {
             self.nutrientType = nutrientType
             self.internalDouble = double
             self.internalString = string
+            self.isIncluded = isIncluded
             self.unit = unit
             self.fill = fill
         }
@@ -490,7 +492,7 @@ extension FieldValue {
         case .macro(let macroValue):
             return macroValue.double?.cleanAmount ?? "Required"
         case .micro(let microValue):
-            return microValue.double?.cleanAmount ?? ""
+            return microValue.double?.cleanAmount ?? "Optional"
         default:
             return ""
         }
