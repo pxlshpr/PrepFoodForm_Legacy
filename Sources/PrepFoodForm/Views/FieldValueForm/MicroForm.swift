@@ -37,14 +37,16 @@ struct MicroForm: View {
     }
     
     var supplementaryViewHeaderString: String? {
-        if fieldViewModel.fieldValue.microValue.unit == .p {
+//        if fieldViewModel.fieldValue.microValue.unit == .p {
+        if fieldViewModel.fieldValue.microValue.convertedFromPercentage != nil {
             return "Equivalent Value"
         }
         return nil
     }
 
     var supplementaryViewFooterString: String? {
-        if fieldViewModel.fieldValue.microValue.unit == .p {
+//        if fieldViewModel.fieldValue.microValue.unit == .p {
+        if fieldViewModel.fieldValue.microValue.convertedFromPercentage != nil {
             return "% values will be converted and saved as their equivalent amounts."
         }
         

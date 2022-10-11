@@ -14,7 +14,7 @@ struct AmountForm: View {
     init(existingFieldViewModel: FieldViewModel) {
         self.existingFieldViewModel = existingFieldViewModel
         
-        let fieldViewModel = existingFieldViewModel.copy
+        let fieldViewModel = existingFieldViewModel
         _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
     }
 
@@ -24,8 +24,8 @@ struct AmountForm: View {
             fieldViewModel: fieldViewModel,
             existingFieldViewModel: existingFieldViewModel,
             unitView: unitButton,
-            headerString: headerString,
             footerString: footerString,
+            titleString: headerString,
             didSave: didSave,
             tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue

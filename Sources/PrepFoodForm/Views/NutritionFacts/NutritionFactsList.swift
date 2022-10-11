@@ -168,6 +168,7 @@ public struct NutritionFactsList: View {
             }
         } label: {
             Image(systemName: "photo.circle\(showImages ? ".fill" : "")")
+                .padding(.vertical)
         }
     }
     
@@ -177,7 +178,7 @@ public struct NutritionFactsList: View {
             viewModel.showingMicronutrientsPicker = true
         } label: {
             Image(systemName: "plus")
-                .padding(.horizontal)
+                .padding(.vertical)
 //                .background(.green)
         }
         .buttonStyle(.borderless)

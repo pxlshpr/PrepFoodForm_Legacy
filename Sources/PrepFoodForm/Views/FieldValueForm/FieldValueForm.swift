@@ -13,6 +13,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     var supplementaryViewHeaderString: String?
     let headerString: String?
     let footerString: String?
+    let titleString: String?
     let placeholderString: String
 
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -43,6 +44,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
          unitView: UnitView,
          headerString: String? = nil,
          footerString: String? = nil,
+         titleString: String? = nil,
          placeholderString: String = "Required",
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
@@ -58,6 +60,7 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
         self.unitView = unitView
         self.headerString = headerString
         self.footerString = footerString
+        self.titleString = titleString
         self.placeholderString = placeholderString
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
@@ -74,6 +77,7 @@ extension FieldValueForm where UnitView == EmptyView {
          existingFieldViewModel: FieldViewModel,
          headerString: String? = nil,
          footerString: String? = nil,
+         titleString: String? = nil,
          placeholderString: String = "Required",
          supplementaryView: SupplementaryView,
          supplementaryViewHeaderString: String?,
@@ -89,6 +93,7 @@ extension FieldValueForm where UnitView == EmptyView {
         self.unitView = nil
         self.headerString = headerString
         self.footerString = footerString
+        self.titleString = titleString
         self.placeholderString = placeholderString
         self.supplementaryView = supplementaryView
         self.supplementaryViewHeaderString = supplementaryViewHeaderString
@@ -105,6 +110,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
          unitView: UnitView,
          headerString: String? = nil,
          footerString: String? = nil,
+         titleString: String? = nil,
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
          tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
@@ -118,6 +124,7 @@ extension FieldValueForm where SupplementaryView == EmptyView {
         self.unitView = unitView
         self.headerString = headerString
         self.footerString = footerString
+        self.titleString = titleString
         self.placeholderString = placeholderString
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
@@ -133,6 +140,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          existingFieldViewModel: FieldViewModel,
          headerString: String? = nil,
          footerString: String? = nil,
+         titleString: String? = nil,
          placeholderString: String = "Required",
          didSave: (() -> ())? = nil,
          tappedPrefillFieldValue: ((FieldValue) -> ())? = nil,
@@ -146,6 +154,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
         self.unitView = nil
         self.headerString = headerString
         self.footerString = footerString
+        self.titleString = titleString
         self.placeholderString = placeholderString
         self.supplementaryView = nil
         self.supplementaryViewHeaderString = nil
@@ -160,7 +169,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
 extension FieldValueForm {
     var body: some View {
         content
-            .navigationTitle(fieldValue.description)
+            .navigationTitle(titleString ?? fieldValue.description)
             .sheet(isPresented: $showingTextPicker) {
                 textPicker
             }

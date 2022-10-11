@@ -9,7 +9,6 @@ struct EnergyForm: View {
     init(existingFieldViewModel: FieldViewModel) {
         self.existingFieldViewModel = existingFieldViewModel
         
-//        let fieldViewModel = existingFieldViewModel.copy
         let fieldViewModel = existingFieldViewModel
         _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
     }

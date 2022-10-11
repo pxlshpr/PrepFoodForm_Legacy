@@ -32,7 +32,7 @@ extension FieldValue {
         var fill: Fill
         var isIncluded: Bool
 
-        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, isIncluded: Bool = false, fill: Fill = .userInput) {
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, isIncluded: Bool = true, fill: Fill = .userInput) {
             self.nutrientType = nutrientType
             self.internalDouble = double
             self.internalString = string
@@ -350,7 +350,14 @@ extension FieldValue {
 
 extension FieldValue {
     init(micronutrient: NutrientType, fill: Fill = .userInput) {
-        let microValue = MicroValue(nutrientType: micronutrient, double: nil, string: "", unit: micronutrient.units.first ?? .g, fill: fill)
+        let microValue = MicroValue(
+            nutrientType: micronutrient,
+            double: nil,
+            string: "",
+            unit: micronutrient.units.first ?? .g,
+            isIncluded: false,
+            fill: fill
+        )
         self = .micro(microValue)
     }
 }

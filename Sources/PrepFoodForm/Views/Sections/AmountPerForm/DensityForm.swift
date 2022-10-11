@@ -28,7 +28,7 @@ struct DensityForm: View {
     init(densityViewModel: FieldViewModel, orderWeightFirst: Bool) {
         
         self.existingDensityViewModel = densityViewModel
-        _densityViewModel = StateObject(wrappedValue: densityViewModel.copy)
+        _densityViewModel = StateObject(wrappedValue: densityViewModel)
         
         self.weightFirst = orderWeightFirst
 //            _doNotRegisterUserInput = State(initialValue: !densityViewModel.fieldValue.isEmpty)
