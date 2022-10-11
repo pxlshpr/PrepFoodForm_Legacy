@@ -151,6 +151,7 @@ public struct NutritionFactsList: View {
     
     var addButton: some View {
         Button {
+            Haptics.feedback(style: .soft)
             viewModel.showingMicronutrientsPicker = true
         } label: {
             Image(systemName: "plus")
