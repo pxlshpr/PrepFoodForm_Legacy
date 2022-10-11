@@ -27,7 +27,6 @@ struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     @State var doNotRegisterUserInput: Bool
     @State var uiTextField: UITextField? = nil
     @State var hasBecomeFirstResponder: Bool = false
-    @State var refreshBool = false
     
     /// We're using this to delay animations to the `FlowLayout` used in the `FillOptionsGrid` until after the view appears—otherwise, we get a noticeable animation of its height expanding to fit its contents during the actual presentation animation—which looks a bit jarring.
     @State var shouldAnimateOptions = false
@@ -160,24 +159,26 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
 //MARK: - Views
 extension FieldValueForm {
     var body: some View {
-        NavigationView {
+//        NavigationView {
             content
                 .navigationTitle(fieldValue.description)
-                .toolbar { navigationLeadingContent }
-                .toolbar { navigationTrailingContent }
+//                .toolbar { navigationLeadingContent }
+//                .toolbar { navigationTrailingContent }
                 .sheet(isPresented: $showingTextPicker) {
                     textPicker
                 }
-        }
+//        }
         .onAppear {
+            isFocused = true
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                shouldAnimateOptions = true
+//                shouldAnimateOptions = true
                 
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
                 doNotRegisterUserInput = false
             }
         }
-        .interactiveDismissDisabled(isDirty)
+//        .interactiveDismissDisabled(isDirty)
     }
     
     /// Returns true if any of the fields have changed from what they initially were
@@ -258,7 +259,6 @@ extension FieldValueForm {
                 didTapFillOption(fillOption)
             })
         .environmentObject(viewModel)
-        .id(refreshBool)
     }
 
     @ViewBuilder
@@ -267,7 +267,6 @@ extension FieldValueForm {
             saveAndDismiss()
         }
         .disabled(!isDirty)
-        .id(refreshBool)
     }
     
     var navigationLeadingContent: some ToolbarContent {
@@ -331,7 +330,7 @@ extension FieldValueForm {
 //            .introspectTextField(customize: { textField in
 //                print("WE HERE")
 //            })
-            .introspectTextField(customize: introspectTextField)
+//            .introspectTextField(customize: introspectTextField)
     }
     
     var isForDecimalValue: Bool {
@@ -375,7 +374,6 @@ extension FieldValueForm {
             }
             fieldViewModel.cropFilledImage()
             doNotRegisterUserInput = false
-            refreshBool.toggle()
        }
     }
 
@@ -483,12 +481,6 @@ extension FieldValueForm {
     }
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {
-        
-        withAnimation {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                refreshBool.toggle()
-            }
-        }
         
         guard fieldValue.usesValueBasedTexts else {
             for imageText in imageTexts {

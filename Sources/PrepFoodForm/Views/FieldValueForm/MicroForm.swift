@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepUnits
 
-struct MicronutrientForm: View {
+struct MicroForm: View {
     
     @ObservedObject var existingFieldViewModel: FieldViewModel
     @StateObject var fieldViewModel: FieldViewModel
@@ -11,7 +11,7 @@ struct MicronutrientForm: View {
     init(existingFieldViewModel: FieldViewModel) {
         self.existingFieldViewModel = existingFieldViewModel
         
-        let fieldViewModel = existingFieldViewModel.copy
+        let fieldViewModel = existingFieldViewModel
         _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
         
         _unit = State(initialValue: existingFieldViewModel.fieldValue.microValue.unit)
@@ -125,7 +125,7 @@ struct MicronutrientFormPreview: View {
     }
     
     var body: some View {
-        MicronutrientForm(existingFieldViewModel: viewModel.micronutrientFieldViewModel(for: .vitaminC)!)
+        MicroForm(existingFieldViewModel: viewModel.micronutrientFieldViewModel(for: .vitaminC)!)
             .environmentObject(viewModel)
     }
 }

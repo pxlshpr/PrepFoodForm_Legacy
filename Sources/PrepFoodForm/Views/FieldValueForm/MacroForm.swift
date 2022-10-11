@@ -1,7 +1,7 @@
 import SwiftUI
 import PrepUnits
 
-struct MacronutrientForm: View {
+struct MacroForm: View {
     
     @ObservedObject var existingFieldViewModel: FieldViewModel
     @StateObject var fieldViewModel: FieldViewModel
@@ -9,7 +9,7 @@ struct MacronutrientForm: View {
     init(existingFieldViewModel: FieldViewModel) {
         self.existingFieldViewModel = existingFieldViewModel
         
-        let fieldViewModel = existingFieldViewModel.copy
+        let fieldViewModel = existingFieldViewModel
         _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
     }
 

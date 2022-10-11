@@ -33,7 +33,7 @@ extension FoodForm.NutritionFacts.MicronutrientPicker {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { navigationLeadingContent }
             .sheet(item: $showingMicroFieldViewModel) { fieldViewModel in
-                MicronutrientForm(existingFieldViewModel: fieldViewModel)
+                MicroForm(existingFieldViewModel: fieldViewModel)
                     .environmentObject(viewModel)
             }
             .onAppear {

@@ -57,19 +57,22 @@ public struct FillOptionsGridPreview: View {
     
     public var body: some View {
         NavigationView {
-            grid
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 15, style: .continuous)
-                        .foregroundColor(Color(.systemGroupedBackground))
-                )
-                .padding()
-                .toolbar {
-                    navigationTrailingToolbar
-                }
-                .onAppear {
-                    fillOptions = viewModel.fillOptions(for: viewModel.energyViewModel.fieldValue)
-                }
+            NavigationLink {
+                grid
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15, style: .continuous)
+                            .foregroundColor(Color(.systemGroupedBackground))
+                    )
+                    .padding()
+            } label: {
+                Text("Link")
+            }
+            .navigationTitle("Grid")
+            .navigationBarTitleDisplayMode(.large)
+        }
+        .onAppear {
+            fillOptions = viewModel.fillOptions(for: viewModel.energyViewModel.fieldValue)
         }
     }
     
@@ -83,7 +86,7 @@ public struct FillOptionsGridPreview: View {
 //        FillOptionsGrid(fieldValue: $viewModel.energy, fillOptions: $fillOptions)
         FillOptionsGrid(
             fieldViewModel: viewModel.energyViewModel,
-            shouldAnimate: $shouldAnimate
+            shouldAnimate: .constant(false)
         ) { fillOption in
             
         }

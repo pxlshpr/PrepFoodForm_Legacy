@@ -5,10 +5,6 @@ extension FoodForm {
     public struct NutritionFacts: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
-        
-        @State var showingEnergyForm = false
-        @State var showingMacroFieldViewModel: FieldViewModel?
-        @State var showingMicroFieldViewModel: FieldViewModel?
     }
 }
 
@@ -17,21 +13,9 @@ extension FoodForm.NutritionFacts {
         scrollView
             .toolbar { bottomToolbarContent }
             .navigationTitle("Nutrition Facts")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $viewModel.showingMicronutrientsPicker) {
                 MicronutrientPicker()
-                    .environmentObject(viewModel)
-            }
-            .sheet(item: $showingMicroFieldViewModel) { fieldViewModel in
-                MicronutrientForm(existingFieldViewModel: fieldViewModel)
-                    .environmentObject(viewModel)
-            }
-            .sheet(item: $showingMacroFieldViewModel) { fieldViewModel in
-                MacronutrientForm(existingFieldViewModel: fieldViewModel)
-                    .environmentObject(viewModel)
-            }
-            .sheet(isPresented: $showingEnergyForm) {
-                EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
                     .environmentObject(viewModel)
             }
     }
@@ -39,7 +23,6 @@ extension FoodForm.NutritionFacts {
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
-//                energyCell_navigationLink
                 energyCell
                 macronutrientsGroup
                 micronutrientsGroup
@@ -50,8 +33,9 @@ extension FoodForm.NutritionFacts {
     }
     
     func macronutrientForm(for fieldViewModel: FieldViewModel) -> some View {
-        Button {
-            showingMacroFieldViewModel = fieldViewModel
+        NavigationLink {
+            MacroForm(existingFieldViewModel: fieldViewModel)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
@@ -59,8 +43,9 @@ extension FoodForm.NutritionFacts {
     }
 
     func micronutrientCell(for fieldViewModel: FieldViewModel) -> some View {
-        Button {
-            showingMicroFieldViewModel = fieldViewModel
+        NavigationLink {
+            MicroForm(existingFieldViewModel: fieldViewModel)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
@@ -68,8 +53,11 @@ extension FoodForm.NutritionFacts {
     }
     
     var energyCell: some View {
-        Button {
-            showingEnergyForm = true
+//        Button {
+//            showingEnergyForm = true
+        NavigationLink {
+            EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
+                .environmentObject(viewModel)
         } label: {
             FoodForm.NutritionFacts.Cell(fieldViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
