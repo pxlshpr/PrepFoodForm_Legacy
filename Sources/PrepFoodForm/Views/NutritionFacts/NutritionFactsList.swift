@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepUnits
+import SwiftHaptics
 
 public struct NutritionFactsList: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
