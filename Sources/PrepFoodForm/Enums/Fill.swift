@@ -101,7 +101,7 @@ struct PrefillFillInfo: Hashable {
     var concatenated: String {
         fieldStrings
             .map { $0.string.capitalized }
-            .joined(separator: ", ")
+            .joined(separator: " ")
     }
 }
 

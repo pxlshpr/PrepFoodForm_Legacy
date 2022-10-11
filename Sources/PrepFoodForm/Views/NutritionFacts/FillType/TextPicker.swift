@@ -4,6 +4,7 @@ import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
 import ZoomableScrollView
+import ActivityIndicatorView
 
 struct TextPicker: View {
     @Environment(\.dismiss) var dismiss
@@ -416,7 +417,6 @@ struct TextPicker: View {
                 pageToImage(at: selectedImageIndex)
             }
 
-            
             sendFocusMessage(to: selectedImageIndex ?? 0, animated: false)
         }
     }
@@ -434,7 +434,11 @@ struct TextPicker: View {
             
             /// If we have a pre-selected text—zoom into it
             if let selectedBoundingBox, index == selectedImageIndex {
-                focusMessages[index] = FocusOnAreaMessage(boundingBox: selectedBoundingBox, imageSize: imageSize)
+                focusMessages[index] = FocusOnAreaMessage(
+                    boundingBox: selectedBoundingBox,
+                    animated: animated,
+                    imageSize: imageSize
+                )
             } else {
                 focusMessages[index] = FocusOnAreaMessage(
                     boundingBox: texts(at: index).boundingBox,

@@ -20,7 +20,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.40"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
-        .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.7"),
+        .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.181"),
         .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.68"),
