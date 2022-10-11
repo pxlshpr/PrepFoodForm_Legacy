@@ -1,17 +1,13 @@
 import SwiftUI
 import PrepUnits
 
-extension FoodForm {
-    public struct NutritionFacts: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @Environment(\.colorScheme) var colorScheme
-    }
-}
-
-extension FoodForm.NutritionFacts {
+public struct NutritionFactsList: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @Environment(\.colorScheme) var colorScheme
+    
     public var body: some View {
         scrollView
-            .toolbar { bottomToolbarContent }
+            .toolbar { navigationTrailingContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $viewModel.showingMicronutrientsPicker) {
@@ -147,11 +143,9 @@ extension FoodForm.NutritionFacts {
         Color(.systemGroupedBackground)
     }
     
-    var bottomToolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
             addButton
-            Spacer()
-            scanButton
         }
     }
     
@@ -160,15 +154,34 @@ extension FoodForm.NutritionFacts {
             viewModel.showingMicronutrientsPicker = true
         } label: {
             Image(systemName: "plus")
+                .padding(.all.subtracting(.trailing))
+//                .background(.green)
         }
         .buttonStyle(.borderless)
     }
+}
+
+
+struct NutritionFactsPreview: View {
     
-    var scanButton: some View {
-        Button {
-            
-        } label: {
-            Image(systemName: "text.viewfinder")
+    @StateObject var viewModel = FoodFormViewModel()
+    
+    public init() {
+        let viewModel = FoodFormViewModel.mock(for: .spinach)
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
+    var body: some View {
+        NavigationView {
+            NutritionFactsList()
+                .environmentObject(viewModel)
+                .navigationTitle("Nutrition Facts")
         }
+    }
+}
+
+struct NutritionFacts_Previews: PreviewProvider {
+    static var previews: some View {
+        NutritionFactsPreview()
     }
 }

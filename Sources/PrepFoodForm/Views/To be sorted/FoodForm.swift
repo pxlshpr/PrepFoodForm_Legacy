@@ -343,7 +343,7 @@ public struct FoodForm: View {
         
         return Section(header: header) {
             NavigationLink {
-                NutritionFacts()
+                NutritionFactsList()
                     .environmentObject(viewModel)
             } label: {
                 NutritionFactsCell()

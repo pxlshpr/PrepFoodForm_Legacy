@@ -66,31 +66,6 @@ struct FillOptionSections_Previews: PreviewProvider {
     }
 }
 
-
-struct NutritionFactsPreview: View {
-    
-    @StateObject var viewModel = FoodFormViewModel()
-    
-    public init() {
-        let viewModel = FoodFormViewModel.mock(for: .spinach)
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
-    var body: some View {
-        NavigationView {
-            FoodForm.NutritionFacts()
-                .environmentObject(viewModel)
-                .navigationTitle("Nutrition Facts")
-        }
-    }
-}
-
-struct EnergyForm_Previews: PreviewProvider {
-    static var previews: some View {
-        NutritionFactsPreview()
-    }
-}
-
 struct FoodFormPreview: View {
     
     @StateObject var viewModel = FoodFormViewModel()
