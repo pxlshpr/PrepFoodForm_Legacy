@@ -28,7 +28,7 @@ struct SourceImage: View {
 //            RoundedRectangle(cornerRadius: 10, style: .continuous)
             RoundedRectangle(cornerRadius: 6, style: .continuous)
         )
-        .shadow(radius: imageViewModel.status == .classifying ? 0 : 3, x: 0, y: 3)
+        .shadow(radius: imageViewModel.status == .scanning ? 0 : 3, x: 0, y: 3)
         .animation(.default, value: imageViewModel.status)
     }
     
@@ -54,10 +54,10 @@ struct SourceImage: View {
         @ViewBuilder
         var color: some View {
             switch imageViewModel.status {
-            case .classifying:
+            case .scanning:
                 Color(.darkGray)
                     .opacity(0.5)
-            case .classified:
+            case .scanned:
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color(.darkGray).opacity(0.9), location: 0),
@@ -74,7 +74,7 @@ struct SourceImage: View {
         
         @ViewBuilder
         var activityView: some View {
-            if imageViewModel.status == .classifying {
+            if imageViewModel.status == .scanning {
                 ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots(count: 3, inset: 2))
 //                ActivityIndicatorView(isVisible: .constant(true), type: .flickeringDots(count: 8))
 //                    .frame(width: 50, height: 50)
@@ -85,7 +85,7 @@ struct SourceImage: View {
         
         @ViewBuilder
         var checkmark: some View {
-            if imageViewModel.status == .classified {
+            if imageViewModel.status == .scanned {
                 VStack {
                     Spacer()
                     HStack {

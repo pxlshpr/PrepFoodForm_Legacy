@@ -34,6 +34,7 @@ public class FoodFormViewModel: ObservableObject {
         fatViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
         proteinViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
         micronutrients = DefaultMicronutrients()
+        scannedFieldValues = []
     }
     
     var availableColumns: [String]? {
@@ -207,8 +208,8 @@ extension FoodFormViewModel {
         return false
     }
     
-    func imageDidFinishClassifying(_ imageViewModel: ImageViewModel) {
-        guard imageSetStatus != .classified else {
+    func imageDidFinishScanning(_ imageViewModel: ImageViewModel) {
+        guard imageSetStatus != .scanned else {
             return
         }
         
@@ -217,23 +218,35 @@ extension FoodFormViewModel {
             imageViewModel.saveScanResultToJson()
         }
         
-        if imageViewModels.allSatisfy({ $0.status == .classified }) {
+        if imageViewModels.allSatisfy({ $0.status == .scanned }) {
             Haptics.successFeedback()
             DispatchQueue.main.async {
                 withAnimation {
-                    self.imageSetStatus = .classified
+                    self.imageSetStatus = .scanned
                     self.processScanResults()
                 }
             }
         }
     }
-    
-    var classifiedNutrientCount: Int {
+
+    func imageDidFinishLoading(_ imageViewModel: ImageViewModel) {
+        DispatchQueue.main.async {
+            withAnimation {
+                self.imageSetStatus = .scanning
+            }
+        }
+    }
+
+    var scannedNutrientCount: Int {
         imageViewModels.reduce(0) { partialResult, imageViewModel in
             partialResult + (imageViewModel.scanResult?.nutrients.rows.count ?? 0)
         }
     }
     
+    var scannedColumnCount: Int {
+        imageViewModels.first?.scanResult?.columnCount ?? 1
+    }
+
     func imageViewModel(forScanResultId scanResultId: UUID) -> ImageViewModel? {
         imageViewModels.first(where: { $0.scanResult?.id == scanResultId })
     }
@@ -243,6 +256,11 @@ extension FoodFormViewModel {
     }
 }
 
+extension ScanResult {
+    var columnCount: Int {
+        headers?.header2Type != nil ? 2 : 1
+    }
+}
 extension ImageViewModel {
     func saveScanResultToJson() {
         guard let scanResult else {

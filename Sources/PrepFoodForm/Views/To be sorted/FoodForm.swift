@@ -251,7 +251,7 @@ public struct FoodForm: View {
     var simulateButton: some View {
         Button {
             //            viewModel.simulateImageSelection()
-            viewModel.simulateImageClassification([9])
+            viewModel.simulateImageScanning([9])
         } label: {
             Label("Mock Photos", systemImage: "wand.and.rays")
                 .foregroundColor(.primary)
@@ -360,8 +360,7 @@ public struct FoodForm: View {
     }
     
     var sourceSection: some View {
-        FoodForm.SourceSection()
-            .environmentObject(viewModel)
+        SourceSection(viewModel: viewModel)
     }
     
     @ViewBuilder

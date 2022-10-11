@@ -1,13 +1,8 @@
 import SwiftUI
 import ActivityIndicatorView
 
-extension FoodForm {
-    struct SourceSection: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-    }
-}
-
-extension FoodForm.SourceSection {
+struct SourceSection: View {
+    @ObservedObject var viewModel: FoodFormViewModel
     
     var body: some View {
         Section(header: header, footer: footer) {
@@ -92,32 +87,64 @@ extension FoodForm.SourceSection {
 //        }
     }
     
+    var imageSetStatus: some View {
+        func numberView(_ int: Int) -> some View {
+            Text("\(int)")
+                .padding(.horizontal, 5)
+                .padding(.vertical, 1)
+                .background(
+                    RoundedRectangle(cornerRadius: 3, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemFill))
+                )
+        }
+        return HStack {
+            Group {
+                if viewModel.imageSetStatus == .scanned {
+                    Image(systemName: "text.viewfinder")
+                        .font(.headline)
+                        .fontWeight(.light)
+                        .foregroundColor(Color(.tertiaryLabel))
+                    numberView(viewModel.scannedNutrientCount)
+                    Text("facts in")
+                    numberView(viewModel.scannedColumnCount)
+                    Text("column\(viewModel.scannedColumnCount > 1 ? "s" : "")")
+                } else {
+                    Text(imageSetStatusString)
+                }
+            }
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+            if viewModel.imageSetStatus.isWorking {
+                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                    .frame(width: 12, height: 12)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .frame(minHeight: 35)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .foregroundColor(Color(.secondarySystemFill))
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
     var imageSetStatusString: String {
         switch viewModel.imageSetStatus {
         case .loading:
             return "Loading images"
-        case .classifying:
+        case .scanning:
             return "Detecting nutrition facts"
-        case .classified:
-            return "\(viewModel.classifiedNutrientCount) nutrition facts detected"
+        case .scanned:
+            return "facts detected"
         default:
             return "(not handled)"
         }
     }
+
     
-    var imageSetStatus: some View {
-        Text(imageSetStatusString)
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .foregroundColor(Color(.secondarySystemFill))
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
+
     var header: some View {
         Text("Source")
     }
@@ -182,22 +209,22 @@ extension FoodForm.SourceSection {
 //    }
 }
 
-struct SourceCellPreview: View {
+public struct SourceCellPreview: View {
     
-    @StateObject var viewModel = FoodFormViewModel()
+    @StateObject var viewModel: FoodFormViewModel
     
-    init() {
-        let viewModel = FoodFormViewModel()
+    public init() {
+        FoodFormViewModel.shared = FoodFormViewModel()
+        let viewModel = FoodFormViewModel.shared
         viewModel.simulateImageSelection()
 //        viewModel.isImporting = true
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
-    var body: some View {
+    public var body: some View {
         NavigationView {
             Form {
-                FoodForm.SourceSection()
-                    .environmentObject(viewModel)
+                SourceSection(viewModel: viewModel)
             }
             .navigationTitle("Source Cell Preview")
             .navigationBarTitleDisplayMode(.inline)
@@ -208,5 +235,16 @@ struct SourceCellPreview: View {
 struct SourceCell_Previews: PreviewProvider {
     static var previews: some View {
         SourceCellPreview()
+    }
+}
+
+extension ImageStatus {
+    var isWorking: Bool {
+        switch self {
+        case .loading, .scanning:
+            return true
+        default:
+            return false
+        }
     }
 }

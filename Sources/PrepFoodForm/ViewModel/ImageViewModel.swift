@@ -34,36 +34,36 @@ class ImageViewModel: ObservableObject {
 
     init(_ image: UIImage) {
         self.image = image
-        self.status = .notClassified
-        self.startClassifyTask(with: image)
-//        self.status = .classified
+        self.status = .notScanned
+        self.startScanTask(with: image)
+//        self.status = .scanned
     }
 
     init(photosPickerItem: PhotosPickerItem) {
         self.image = nil
         self.photosPickerItem = photosPickerItem
         self.status = .loading
-        self.startLoadingTask(with: photosPickerItem)
+        self.startLoadTask(with: photosPickerItem)
     }
     
     /// Used for testing purposes to manually create an `ImageViewModel` with a preloaded `UIImage` and `ScanResult`
     init(image: UIImage, scanResult: ScanResult) {
         self.image = image
-        self.status = .classified
+        self.status = .scanned
         self.photosPickerItem = nil
         self.scanResult = scanResult
         self.texts = scanResult.texts
         self.textsWithValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
     }
     
-    func startClassifyTask(with image: UIImage) {
-        self.status = .classifying
+    func startScanTask(with image: UIImage) {
+        self.status = .scanning
         Task(priority: .userInitiated) {
             
 //            try await taskSleep(Double.random(in: 1...6))
 //            await MainActor.run {
-//                self.status = .classified
-//                FoodFormViewModel.shared.imageDidFinishClassifying(self)
+//                self.status = .scanned
+//                FoodFormViewModel.shared.imageDidFinishScanning(self)
 //            }
             
             
@@ -75,14 +75,14 @@ class ImageViewModel: ObservableObject {
                 self.textsWithValues = result.texts.filter({ !$0.string.detectedValues.isEmpty })
                 
                 await MainActor.run {
-                    self.status = .classified
+                    self.status = .scanned
                 }
-                FoodFormViewModel.shared.imageDidFinishClassifying(self)
+                FoodFormViewModel.shared.imageDidFinishScanning(self)
             }
         }
     }
     
-    func startLoadingTask(with item: PhotosPickerItem) {
+    func startLoadTask(with item: PhotosPickerItem) {
         Task(priority: .userInitiated) {
             guard let image = try await loadImage(pickerItem: item) else {
                 return
@@ -90,8 +90,9 @@ class ImageViewModel: ObservableObject {
             
             await MainActor.run {
                 self.image = image
-                self.status = .notClassified
-                self.startClassifyTask(with: image)
+                self.status = .notScanned
+                self.startScanTask(with: image)
+                FoodFormViewModel.shared.imageDidFinishLoading(self)
             }
         }
     }

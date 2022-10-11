@@ -415,6 +415,7 @@ extension FoodFormViewModel {
         case pumpkinSeeds = "pumpkin_seeds"
         case iceCream = "ice_cream"
         case milk = "milk"
+        case yoghurt = "yoghurt"
         
         public var name: String {
             rawValue
@@ -429,7 +430,8 @@ extension FoodFormViewModel {
         public static var scannedMocks: [MockCase] = [
             .pumpkinSeeds,
             .iceCream,
-            .milk
+            .milk,
+            .yoghurt
         ]
         var image: UIImage? {
             sampleImage(imageFilename: rawValue)
@@ -459,7 +461,7 @@ extension FoodFormViewModel {
                 ImageViewModel(image: image, scanResult: scanResult)
             )
             viewModel.processScanResults()
-            viewModel.imageSetStatus = .classified
+            viewModel.imageSetStatus = .scanned
         }
         
         return viewModel
