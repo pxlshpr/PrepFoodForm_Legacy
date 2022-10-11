@@ -258,6 +258,7 @@ extension FieldValueForm {
                 didTapFillOption(fillOption)
             })
         .environmentObject(viewModel)
+        .id(refreshBool)
     }
 
     @ViewBuilder
@@ -482,6 +483,12 @@ extension FieldValueForm {
     }
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {
+        
+        withAnimation {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                refreshBool.toggle()
+            }
+        }
         
         guard fieldValue.usesValueBasedTexts else {
             for imageText in imageTexts {

@@ -96,6 +96,7 @@ struct PrefillFieldString: Hashable {
 struct PrefillFillInfo: Hashable {
     var fieldStrings: [PrefillFieldString] = []
     var densityValue: FieldValue.DensityValue? = nil
+    var size: Size? = nil
     
     var concatenated: String {
         fieldStrings

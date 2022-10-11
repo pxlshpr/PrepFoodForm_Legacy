@@ -788,6 +788,15 @@ extension FieldValue {
             }
         }
     }
+    
+    var supportsSelectingText: Bool {
+        switch self {
+        case .size:
+            return false
+        default:
+            return true
+        }
+    }
 }
 
 
@@ -954,7 +963,7 @@ extension FieldValue {
 extension FieldValue {
     var usesValueBasedTexts: Bool {
         switch self {
-        case .amount, .serving, .density, .energy, .macro, .micro:
+        case .amount, .serving, .density, .energy, .macro, .micro, .size:
             return true
         default:
             return false

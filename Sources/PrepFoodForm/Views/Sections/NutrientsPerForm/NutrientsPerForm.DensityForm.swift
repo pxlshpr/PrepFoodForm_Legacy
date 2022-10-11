@@ -92,7 +92,7 @@ struct DensityForm: View {
             imageViewModels: viewModel.imageViewModels,
             selectedText: densityViewModel.fill.text,
             selectedImageIndex: selectedImageIndex,
-            customTextFilter: textPickerFilter
+            customTextFilter: supportsText
         ) { selectedImageTexts in
             didSelectImageTexts(selectedImageTexts)
         }
@@ -105,7 +105,7 @@ struct DensityForm: View {
        }
     }
     
-    func textPickerFilter(_ text: RecognizedText) -> Bool {
+    func supportsText(_ text: RecognizedText) -> Bool {
         text.densityValue != nil
     }
     

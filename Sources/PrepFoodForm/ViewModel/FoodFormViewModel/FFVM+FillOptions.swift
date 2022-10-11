@@ -15,8 +15,8 @@ extension FoodFormViewModel {
         
 //        fillOptions.removeFillOptionValueDuplicates()
         
-        if let chooseOption = chooseOption(for: fieldValue) {
-            fillOptions .append(chooseOption)
+        if let selectFillOption = selectFillOption(for: fieldValue) {
+            fillOptions .append(selectFillOption)
         }
         
         return fillOptions
@@ -122,8 +122,10 @@ extension FoodFormViewModel {
     }
 
     //MARK: Choose
-    func chooseOption(for fieldValue: FieldValue) -> FillOption? {
-        guard hasAvailableTexts(for: fieldValue) else {
+    func selectFillOption(for fieldValue: FieldValue) -> FillOption? {
+        
+        guard fieldValue.supportsSelectingText,
+              hasAvailableTexts(for: fieldValue) else {
             return nil
         }
         return FillOption(
@@ -166,8 +168,8 @@ extension FoodFormViewModel {
         }
     }
     
-    func scannedSizeFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
-        scannedFieldValues
+    func prefillSizeOptionFieldValues(for fieldValue: FieldValue, from sizeFieldValues: [FieldValue]) -> [FieldValue] {
+        sizeFieldValues
             .filter { $0.isSize }
             .filter {
                 /// Always include the size that's being used by this fieldValue currently (so that we can see it toggled on)
@@ -179,13 +181,17 @@ extension FoodFormViewModel {
                 /// This is because it would not match the current `fieldValue.size` (since the user has edited it)
                 ///     while still being present in the `allSizes` array—as the user hasn't commited the change yet.
                 /// So we will always store the current size being edited here so that we can disregard the following check and include it anyway.
-                if let sizeBeingEdited, sizeBeingEdited == $0.size {
-                    return true
-                }
+//                if let sizeBeingEdited, sizeBeingEdited == $0.size {
+//                    return true
+//                }
                 
                 /// Make sure we're not using it already
-                return !allSizes.contains(size)
+                return !containsSize(withName: size.name, andVolumePrefixUnit: size.volumePrefixUnit, ignoring: sizeBeingEdited)
             }
+    }
+    
+    func scannedSizeFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+        prefillSizeOptionFieldValues(for: fieldValue, from: scannedFieldValues)
     }
 
     func firstScannedText(for fieldValue: FieldValue) -> RecognizedText? {

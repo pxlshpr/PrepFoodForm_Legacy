@@ -2,6 +2,7 @@ import SwiftUI
 import NamePicker
 import SwiftUISugar
 import SwiftHaptics
+import VisionSugar
 
 struct SizeForm: View {
 
@@ -17,7 +18,6 @@ struct SizeForm: View {
     @State var showingVolumePrefixToggle: Bool
 
     @State var shouldAnimateOptions = false
-    @State var showingTextPicker = false
     @State var doNotRegisterUserInput: Bool = true
 
     @State var refreshBool = false
@@ -87,7 +87,6 @@ struct SizeForm: View {
 //                doNotRegisterUserInput = true
             }
         }
-        .sheet(isPresented: $showingTextPicker) { textPicker }
         .sheet(isPresented: $formViewModel.showingQuantityForm) { quantityForm }
         .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
         .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
@@ -123,7 +122,6 @@ struct SizeForm: View {
             fieldViewModel: sizeViewModel,
             shouldAnimate: $shouldAnimateOptions,
             didTapImage: {
-                showTextPicker()
             }, didTapFillOption: { fillOption in
                 didTapFillOption(fillOption)
             })
@@ -203,65 +201,20 @@ struct SizeForm: View {
         .id(refreshBool)
     }
     
-    var textPicker: some View {
-        TextPicker(
-            imageViewModels: viewModel.imageViewModels,
-            selectedText: sizeViewModel.fill.text,
-            selectedImageIndex: selectedImageIndex
-//            customTextFilter: textPickerFilter
-        ) { selectedImageTexts in
-            didSelectImageTexts(selectedImageTexts)
-        }
-        .onDisappear {
-            guard sizeViewModel.isCroppingNextImage else {
-                return
-            }
-            sizeViewModel.cropFilledImage()
-            doNotRegisterUserInput = false
-       }
-    }
-    
     //MARK: - Actions
-    func didSelectImageTexts(_ imageTexts: [ImageText]) {
-        
-//        guard let imageText = imageTexts.first else {
-//            return
-//        }
-//
-//        guard let densityValue = imageText.text.string.detectedValues.densityValue else {
-//            return
-//        }
-//
-//        let fill = fill(for: imageText, with: densityValue)
-//
-//        doNotRegisterUserInput = true
-//
-//        //Now set this fill on the density value
-//        setDensityValue(densityValue)
-//        densityViewModel.fieldValue.fill = fill
-//        densityViewModel.isCroppingNextImage = true
-    }
     
-    func showTextPicker() {
-        Haptics.feedback(style: .soft)
-        doNotRegisterUserInput = true
-        showingTextPicker = true
-    }
-
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
         case .select:
-            didTapSelect()
+            break
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
             
             doNotRegisterUserInput = true
             switch fill {
-//            case .prefill(let info):
-//                guard let densityValue = info.densityValue else {
-//                    return
-//                }
-//                setDensityValue(densityValue)
+            case .prefill(let info):
+                guard let size = info.size else { return }
+                setSize(size)
             case .scanned(let info):
                 guard let size = info.size else { return }
                 setSize(size)
@@ -281,10 +234,6 @@ struct SizeForm: View {
         sizeViewModel.fieldValue.size?.unit = size.unit
     }
     
-    func didTapSelect() {
-        showTextPicker()
-    }
-
     func saveAndDismiss() {
         doNotRegisterUserInput = true
         
@@ -408,5 +357,13 @@ struct SizeForm_NewPreview: View {
 struct SizeForm_New_Previews: PreviewProvider {
     static var previews: some View {
         SizeForm_NewPreview()
+    }
+}
+
+extension RecognizedText {
+    /// Returns the first `Size` that can be extracted from this text
+    var size: Size? {
+        nil
+//        servingArtefacts.count > 0
     }
 }

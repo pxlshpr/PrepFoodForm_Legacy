@@ -11,7 +11,7 @@ extension FoodFormViewModel {
             let option = FillOption(
                 string: prefillString(for: prefillFieldValue),
                 systemImage: Fill.SystemImage.prefill,
-                isSelected: fieldValue.prefillFillContains(prefillFieldValue),
+                isSelected: fieldValue.shouldSelectFieldValue(prefillFieldValue),
                 disableWhenSelected: fieldValue.usesValueBasedTexts, /// disable selected value-based prefills (so not string-based ones that act as toggles)
                 type: .fill(.prefill(info))
             )
@@ -37,21 +37,18 @@ extension FoodFormViewModel {
             return stringValue.string
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.description
-//        case .density(let densityValue):
-//
+            
         case .energy(let energyValue):
             return energyValue.description
         case .macro(let macroValue):
             return macroValue.description
         case .micro(let microValue):
             return microValue.description
-//        case .size(let sizeValue):
-//
-        
         case .density(let densityValue):
             return densityValue.description(weightFirst: isWeightBased)
-        default:
-            return ""
+            
+        case .size(let sizeValue):
+            return sizeValue.size.fullNameString.lowercased()
         }
     }
     
@@ -65,7 +62,12 @@ extension FieldValue {
         return info.fieldStrings
     }
     
-    func prefillFillContains(_ prefillFieldValue: FieldValue) -> Bool {
+    func shouldSelectFieldValue(_ prefillFieldValue: FieldValue) -> Bool {
+        
+        /// If this is a size—check if they match up
+        guard !self.isSize else {
+            return self.size == prefillFieldValue.size
+        }
         
         /// If this a value based text (which would only ever have one prefill)—return true if its a prefill fill
         guard !self.usesValueBasedTexts else {
@@ -90,9 +92,7 @@ extension PrefillFieldString: Equatable {
 
 extension FoodFormViewModel {
     func prefillOptionFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
-        guard let food = prefilledFood else {
-            return []
-        }
+        guard let food = prefilledFood else { return [] }
         
         switch fieldValue {
         case .name, .detail, .brand:
@@ -109,6 +109,8 @@ extension FoodFormViewModel {
             return [food.amountFieldValue].compactMap { $0 }
         case .density:
             return [food.densityFieldValue].compactMap { $0 }
+        case .size:
+            return prefillOptionSizeFieldValues(for: fieldValue)
 //        case .size:
             
 //            return food.detail
@@ -119,6 +121,11 @@ extension FoodFormViewModel {
         default:
             return []
         }
+    }
+    
+    func prefillOptionSizeFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+        guard let food = prefilledFood else { return [] }
+        return prefillSizeOptionFieldValues(for: fieldValue, from: food.sizeFieldValues)
     }
 }
 
@@ -233,6 +240,31 @@ extension MFPProcessedFood {
                 fill: .prefill()),
             fill: .prefill()
         ))
+    }
+    
+    var sizeFieldValues: [FieldValue] {
+        sizes.compactMap { $0.sizeFieldValue }
+    }
+}
+
+extension MFPProcessedFood.Size {
+    var sizeFieldValue: FieldValue? {
+        guard let prepSize else { return nil }
+        return FieldValue.size(.init(
+            size: prepSize,
+            fill: .prefill(.init(size: prepSize))
+        ))
+    }
+    
+    var prepSize: PrepFoodForm.Size? {
+        guard !isDensity else { return nil }
+        return PrepFoodForm.Size(
+            quantity: quantity,
+            volumePrefixUnit: prefixVolumeUnit?.formUnit,
+            name: name.lowercased(),
+            amount: amount,
+            unit: amountUnit.formUnit
+        )
     }
 }
 

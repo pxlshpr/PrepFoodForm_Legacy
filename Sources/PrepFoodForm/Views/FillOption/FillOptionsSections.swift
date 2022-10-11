@@ -114,10 +114,7 @@ struct FillOptionsSections: View {
     }
     
     func croppedImageButton(for image: UIImage) -> some View {
-        Button {
-//            fieldFormViewModel.showingImageTextPicker = true
-            didTapImage()
-        } label: {
+        var label: some View {
             VStack {
                 HStack {
                     Spacer()
@@ -127,7 +124,22 @@ struct FillOptionsSections: View {
                 }
             }
         }
-        .buttonStyle(.borderless)
+        var button: some View {
+            Button {
+                didTapImage()
+            } label: {
+                label
+            }
+            .buttonStyle(.borderless)
+        }
+        
+        return Group {
+            if fieldViewModel.fieldValue.supportsSelectingText {
+                button
+            } else {
+                label
+            }
+        }
     }
     
     func imageView(for image: UIImage) -> some View {
