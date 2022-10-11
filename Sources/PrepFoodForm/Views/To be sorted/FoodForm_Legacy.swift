@@ -64,7 +64,7 @@
 ////    var servingSection: some View {
 ////        Section("Amount Per") {
 ////            NavigationLink {
-////                FoodForm.NutrientsPerForm()
+////                FoodForm.AmountPerForm()
 ////                    .environmentObject(viewModel)
 ////            } label: {
 ////                NutrientsPerCell()

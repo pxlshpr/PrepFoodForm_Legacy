@@ -40,9 +40,7 @@ struct DensityForm: View {
         .navigationTitle(navigationTitle)
         .toolbar { keyboardToolbarContents }
         .onAppear {
-//            focusedField = orderWeightFirst ? .weight : .volume
-        }
-        .onAppear {
+            focusedField = weightFirst ? .weight : .volume
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 shouldAnimateOptions = true
                 
@@ -303,9 +301,9 @@ struct DensityForm: View {
             .keyboardType(.decimalPad)
             .font(.title2)
             .focused($focusedField, equals: .weight)
-            .introspectTextField { uiTextfield in
-                introspectTextField(uiTextfield, for: .weight)
-            }
+//            .introspectTextField { uiTextfield in
+//                introspectTextField(uiTextfield, for: .weight)
+//            }
     }
     
     func introspectTextField(_ uiTextField: UITextField, for field: FocusedField) {
@@ -354,9 +352,9 @@ struct DensityForm: View {
             .keyboardType(.decimalPad)
             .font(.title2)
             .focused($focusedField, equals: .volume)
-            .introspectTextField { uiTextfield in
-                introspectTextField(uiTextfield, for: .volume)
-            }
+//            .introspectTextField { uiTextfield in
+//                introspectTextField(uiTextfield, for: .volume)
+//            }
     }
     
     var volumeUnitButton: some View {

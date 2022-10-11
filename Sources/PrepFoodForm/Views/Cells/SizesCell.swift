@@ -1,13 +1,8 @@
 import SwiftUI
 
-//MARK: - SizeCell
-extension FoodForm.NutrientsPerForm.SizesCell {
-    struct SizeCell: View {
-        @ObservedObject var fieldViewModel: FieldViewModel
-    }
-}
-
-extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
+struct SizeCell: View {
+    @ObservedObject var fieldViewModel: FieldViewModel
+    
     var body: some View {
         HStack {
             Text(name)
@@ -33,15 +28,9 @@ extension FoodForm.NutrientsPerForm.SizesCell.SizeCell {
     }
 }
 
-//MARK: - SizesCell
-extension FoodForm.NutrientsPerForm {
-    struct SizesCell: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        let maxNumberOfSizes = 4
-    }
-}
-
-extension FoodForm.NutrientsPerForm.SizesCell {
+struct SizesCell: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    let maxNumberOfSizes = 4
     
     var body: some View {
         content
@@ -125,7 +114,7 @@ struct SizesCellPreview: View {
                 Section {
                     NavigationLink {
                     } label: {
-                        FoodForm.NutrientsPerForm.SizesCell()
+                        SizesCell()
                             .environmentObject(viewModel)
                     }
                 }

@@ -37,7 +37,7 @@ extension FoodForm.NutritionFacts {
             MacroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
+            NutritionFactCell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -47,7 +47,7 @@ extension FoodForm.NutritionFacts {
             MicroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldViewModel: fieldViewModel)
+            NutritionFactCell(fieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
         }
     }
@@ -59,7 +59,7 @@ extension FoodForm.NutritionFacts {
             EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         } label: {
-            FoodForm.NutritionFacts.Cell(fieldViewModel: viewModel.energyViewModel)
+            NutritionFactCell(fieldViewModel: viewModel.energyViewModel)
                 .environmentObject(viewModel)
         }
     }

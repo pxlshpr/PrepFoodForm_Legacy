@@ -2,7 +2,7 @@
 //import PrepUnits
 //import SwiftHaptics
 //
-//extension FoodForm.NutrientsPerForm {
+//extension FoodForm.AmountPerForm {
 //    struct AmountFieldSection: View {
 //        @EnvironmentObject var viewModel: FoodFormViewModel
 //        @State var showingAmountUnits = false
@@ -10,7 +10,7 @@
 //    }
 //}
 //
-//extension FoodForm.NutrientsPerForm.AmountFieldSection {
+//extension FoodForm.AmountPerForm.AmountFieldSection {
 //    
 //    var body: some View {
 //        Section(header: header, footer: footer) {

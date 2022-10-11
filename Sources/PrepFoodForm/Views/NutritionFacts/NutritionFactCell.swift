@@ -2,15 +2,10 @@ import SwiftUI
 import PrepUnits
 import ActivityIndicatorView
 
-extension FoodForm.NutritionFacts {
-    struct Cell: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
-        @Environment(\.colorScheme) var colorScheme
-        @ObservedObject var fieldViewModel: FieldViewModel
-    }
-}
-
-extension FoodForm.NutritionFacts.Cell {
+struct NutritionFactCell: View {
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @Environment(\.colorScheme) var colorScheme
+    @ObservedObject var fieldViewModel: FieldViewModel
     
     var body: some View {
         ZStack {

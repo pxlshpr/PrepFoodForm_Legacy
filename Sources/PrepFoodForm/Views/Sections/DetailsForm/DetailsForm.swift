@@ -23,7 +23,7 @@ extension FoodForm.DetailsForm {
         form
         .toolbar { bottomToolbarContent }
         .navigationTitle("Details")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .sheet(isPresented: $showingNameForm) {
             StringFieldValueForm(existingFieldViewModel: nameViewModel)
                 .environmentObject(viewModel)

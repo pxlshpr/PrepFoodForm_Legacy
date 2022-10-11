@@ -14,7 +14,6 @@ public struct FoodForm: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
-    @State var showingAmountPer = false
     
     @State var showingPhotosPicker = true
     @State var selectedPhotos: [PhotosPickerItem] = []
@@ -323,25 +322,14 @@ public struct FoodForm: View {
     
     var servingSection: some View {
         Section("Amount Per") {
-//            NavigationLink {
-//                NutrientsPerForm()
-//                    .environmentObject(viewModel)
-//            } label: {
-//                NutrientsPerCell()
-//                    .environmentObject(viewModel)
-//            }
-            Button {
-                showingAmountPer = true
+            NavigationLink {
+                AmountPerForm(densityViewModel: viewModel.densityViewModel)
+                    .environmentObject(viewModel)
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
             }
             .frame(minHeight: 50)
-            .sheet(isPresented: $showingAmountPer) {
-                NutrientsPerForm(densityViewModel: viewModel.densityViewModel)
-                    .environmentObject(viewModel)
-                    .presentationDetents([.height(550), .large])
-            }
         }
     }
     
