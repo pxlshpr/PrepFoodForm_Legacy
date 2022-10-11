@@ -284,7 +284,7 @@ struct SizeForm: View {
             NamePicker(
                 name: binding,
                 showClearButton: true,
-                focusImmediately: true,
+                focusOnAppear: true,
                 lowercased: true,
                 title: "Size Name",
                 titleDisplayMode: .large,
