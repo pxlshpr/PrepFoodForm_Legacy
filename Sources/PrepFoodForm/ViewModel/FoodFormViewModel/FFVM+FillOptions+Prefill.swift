@@ -165,7 +165,6 @@ extension String {
                 .components(separatedBy: " ")
                 .filter { !$0.isEmpty }
                 .map { $0.capitalized }
-                .filter { $0.count > 1 }
         }
         .reduce([], +)
     }

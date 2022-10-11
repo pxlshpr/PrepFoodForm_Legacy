@@ -40,56 +40,29 @@ extension FieldValue {
         guard case .selection(let info) = fill else {
             return []
         }
-
-        func fillOption(for imageText: ImageText, with stringOverride: String? = nil) -> FillOption {
-            
-            let isSelected: Bool
-            let fillImageText: ImageText
-            let string: String
-            if let stringOverride {
-                fillImageText = ImageText(text: imageText.text, imageId: imageText.imageId, pickedCandidate: stringOverride)
-                //TODO: Replace this with components stuff
-                isSelected = false
-//                isSelected = info.imageTexts.contains(fillImageText)
-                string = stringOverride
-            } else {
-                isSelected = false
-//                isSelected = info.imageTexts.contains(imageText.withoutPickedCandidate)
-                fillImageText = imageText
-                string = imageText.text.string
-            }
-            
-            return FillOption(
-                string: string,
-                systemImage: Fill.SystemImage.selection,
-                isSelected: isSelected,
-                disableWhenSelected: false,
-                //TODO: Replace this with components stuff
-//                type: .fill(.selection(.init(imageTexts: [fillImageText])))
-                type: .fill(.selection(.init(imageText: nil)))
-            )
-        }
         
-
         var fillOptions: [FillOption] = []
-        //TODO: Here we need a helper that grabs the unique set of imageTexts from the componentsTexts
-//        for imageText in info.imageTexts {
-//            for component in imageText.text.string.selectionComponents {
-//                guard !fillOptions.contains(where: { $0.string == component }) else { continue }
-//                fillOptions.append(
-//                    fillOption(for: imageText, with: component)
-//                )
-//            }
+        
+        /// For each of the unique `ImageText`s that the `ComponentText`s are derived from
+        for imageText in info.componentImageTexts {
             
-//            for candidate in imageText.text.candidates {
-//                for component in candidate.components {
-//                    guard !fillOptions.contains(where: { $0.string == component }) else { continue }
-//                    fillOptions.append(
-//                        fillOption(for: imageText, with: component)
-//                    )
-//                }
-//            }
-//        }
+            /// For each of the possible `ComponentText`s of the `ImageText`
+            for componentText in imageText.componentTexts {
+                
+                /// Make sure we don't repeat the same string twice
+                guard !fillOptions.contains(string: componentText.componentString) else { continue }
+                
+                fillOptions.append(
+                    FillOption(
+                        string: componentText.componentString,
+                        systemImage: Fill.SystemImage.selection,
+                        isSelected: contains(componentText: componentText),
+                        disableWhenSelected: false,
+                        type: .fill(.selection(.init(componentTexts: [componentText])))
+                    )
+                )
+            }
+        }
         return fillOptions
     }
     

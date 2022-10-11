@@ -433,23 +433,22 @@ extension FieldValueForm {
     }
     
     func tappedSelectionFill(_ info: SelectionFillInfo) {
-        guard let imageText = info.imageText else {
-            return
-            
-        }
         if fieldValue.usesValueBasedTexts {
-            guard let value = info.altValue ?? imageText.text.string.detectedValues.first else {
+            guard let imageText = info.imageText, let value = info.altValue ?? imageText.text.string.detectedValues.first else {
                 return
             }
             if let setNewValue {
                 setNewValue(value)
             }
         } else {
-            withAnimation {
-                fieldViewModel.toggle(imageText)
+            guard let componentText = info.componentTexts?.first else {
+                doNotRegisterUserInput = false
+                return
             }
-            //TODO: If this is selected, deslect it
-            //TODO: Otherwise—replace the one that shares this
+            
+            withAnimation {
+                fieldViewModel.toggleComponentText(componentText)
+            }
             doNotRegisterUserInput = false
         }
     }
@@ -492,10 +491,8 @@ extension FieldValueForm {
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {
         
-        //TODO: Replace this with components stuff
         guard fieldValue.usesValueBasedTexts else {
             for imageText in imageTexts {
-//                fieldViewModel.fieldValue.stringValue.fill.appendImageText(imageText)
                 fieldViewModel.appendComponentTexts(for: imageText)
             }
             return

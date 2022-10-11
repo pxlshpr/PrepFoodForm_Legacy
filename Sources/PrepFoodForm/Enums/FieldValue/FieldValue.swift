@@ -291,7 +291,7 @@ extension FieldValue {
             get {
                 switch fill {
                 case .selection(let info):
-                    return info.concatenated
+                    return info.concatenatedComponentStrings
                 case .prefill(let info):
                     return info.concatenated
                 default:

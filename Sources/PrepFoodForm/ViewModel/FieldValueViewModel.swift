@@ -136,15 +136,6 @@ extension FieldViewModel {
 
 extension FieldViewModel {
     
-    func contains(_ imageText: ImageText) -> Bool {
-        //TODO: Replace this with components stuff
-        return false
-//        guard case .selection(let info) = fieldValue.fill else {
-//            return false
-//        }
-//        return info.imageTexts.contains(imageText)
-    }
-    
     func contains(_ fieldString: PrefillFieldString) -> Bool {
         guard case .prefill(let info) = fieldValue.fill else {
             return false
@@ -152,29 +143,30 @@ extension FieldViewModel {
         return info.fieldStrings.contains(fieldString)
     }
     
-    func replaceExistingImageText(with imageText: ImageText) {
-        //TODO: Replace this with components stuff
+//    func replaceExistingComponentText(with componentTexts: ComponentText) {
+//        //TODO: Replace this with components stuff
 //        guard case .selection(let info) = fieldValue.fill else {
 //            return
 //        }
 //        var newInfo = info
-//        for i in newInfo.imageTexts.indices {
+//        for i in newInfo.componentTexts.indices {
 //            if newInfo.imageTexts[i].text == imageText.text {
 //                newInfo.imageTexts[i].pickedCandidate = imageText.pickedCandidate
 //            }
 //        }
-//        fieldValue.fill = .selection(newInfo)
-    }
+////        fieldValue.fill = .selection(newInfo)
+//    }
     
     func imageTextMatchingText(of imageText: ImageText) -> ImageText? {
         nil
     }
     
-    func toggle(_ imageText: ImageText) {
-        if contains(imageText) {
-            fieldValue.fill.removeImageText(imageText)
+    func toggleComponentText(_ componentText: ComponentText) {
+        if fieldValue.contains(componentText: componentText) {
+            fieldValue.fill.removeComponentText(componentText)
         } else {
-            replaceExistingImageText(with: imageText)
+            fieldValue.fill.appendComponentText(componentText)
+//            replaceExistingComponentText(with: componentText)
         }
     }
     

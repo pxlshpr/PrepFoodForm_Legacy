@@ -78,12 +78,11 @@ struct SelectionFillInfo: Hashable {
         return newInfo
     }
     
-    var concatenated: String {
-        "TODO: Use componentTexts"
-//        imageTexts
-//            .map { $0.pickedCandidate ?? $0.text.string }
-//            .map { $0.capitalized }
-//            .joined(separator: ", ")
+    var concatenatedComponentStrings: String {
+        guard let componentTexts else { return "" }
+        return componentTexts
+            .map { $0.componentString }
+            .joined(separator: " ")
     }
 }
 
@@ -373,40 +372,81 @@ enum PrefillField {
 }
 
 extension Fill {
-    mutating func removeImageText(_ imageText: ImageText) {
-        //TODO: Replace this with components stuff
-//        guard case .selection(let info) = self else {
-//            return
-//        }
-//        var newInfo = info
-//        newInfo.imageTexts.removeAll(where: { $0 == imageText })
-//        self = .selection(newInfo)
+    mutating func removeComponentText(_ componentText: ComponentText) {
+        guard case .selection(let info) = self, let componentTexts = info.componentTexts else {
+            return
+        }
+        var newInfo = info
+        var newComponentTexts = componentTexts
+        newComponentTexts.removeAll(where: { $0 == componentText })
+        newInfo.componentTexts = newComponentTexts
+        self = .selection(newInfo)
     }
     
-    mutating func appendImageText(_ imageText: ImageText) {
-        //TODO: Replace this with components stuff
-//        let imageTexts: [ImageText]
-//        if case .selection(let info) = self {
-//            imageTexts = info.imageTexts + [imageText]
-//        } else {
-//            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
-//            imageTexts = [imageText]
-//        }
-//
-//        self = .selection(.init(imageTexts: imageTexts))
+    mutating func appendComponentText(_ componentText: ComponentText) {
+        let componentTexts: [ComponentText]
+        if case .selection(let info) = self, let existingComponentTexts = info.componentTexts {
+            componentTexts = existingComponentTexts + [componentText]
+        } else {
+            /// ** Note: ** This is now converting a possible `.scanned` Fill into a `.selection` one
+            componentTexts = [componentText]
+        }
+        
+        self = .selection(.init(componentTexts: componentTexts))
+    }
+}
+
+extension SelectionFillInfo {
+    var componentImageTexts: [ImageText] {
+        guard let componentTexts else { return [] }
+        return componentTexts
+            .map { $0.imageText }
+            .removingDuplicates()
+    }
+}
+
+extension FieldValue {
+    func contains(componentText: ComponentText) -> Bool {
+        guard let componentTexts else { return false }
+        return componentTexts.contains(componentText)
+    }
+    
+    var componentTexts: [ComponentText]? {
+        fill.componentTexts
+    }
+}
+
+extension Fill {
+    var componentTexts: [ComponentText]? {
+        guard case .selection(let info) = self else {
+            return nil
+        }
+        return info.componentTexts
+    }
+}
+
+extension ImageText {
+    var componentTexts: [ComponentText] {
+        text.string.selectionComponents.map {
+            ComponentText(
+                componentString: $0.capitalized,
+                imageText: self)
+        }
+    }
+}
+
+extension Array where Element == FillOption {
+    func contains(string: String) -> Bool {
+        contains(where: { $0.string == string })
     }
 }
 
 extension FieldViewModel {
     func appendComponentTexts(for imageText: ImageText) {
-        for component in imageText.text.string.selectionComponents {
-            print("TODO: Append component: \(component)")
-            /// After this, make sure fill options shows the components
-            /// Then handle how the string is created by concatenating the components
+        for componentText in imageText.componentTexts {
+            fieldValue.fill.appendComponentText(componentText)
             /// Then create the addition and removal (using the contains function) of those components
             /// Now think about if we need to generate the components in the fillOptions generator part or is it enough that we've selected the text and generated them here?
-            ///     Actually—if the user removes it, it should still appear
-            ///         So we would need to go through the components at the Selection FillOptions generation, and add any that isn't present in the componentTexts array without a selection, allowing the user to select it
         }
     }
 }
