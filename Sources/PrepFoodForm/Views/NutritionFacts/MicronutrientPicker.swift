@@ -19,11 +19,7 @@ public struct MicronutrientPicker: View {
         NavigationView {
             ZStack {
                 form
-//                if showingSearchLayer {
-                    ZStack {
-                        searchLayer
-                    }
-//                }
+                searchLayer
             }
             .navigationTitle("Select Micronutrients")
             .navigationBarTitleDisplayMode(.large)
@@ -34,38 +30,10 @@ public struct MicronutrientPicker: View {
             }
             .onAppear {
                 showingSearchLayer = true
-//                isFocused = true
             }
             .interactiveDismissDisabled(isFocused)
-//            .introspectTextField(customize: introspectTextField)
-//            .toolbar {
-//                ToolbarItemGroup(placement: .bottomBar) {
-//                    Spacer()
-//                    Button {
-//                        withAnimation {
-//                            showingSearchLayer = true
-//                        }
-//                        isFocused = true
-//                    } label: {
-//                        Image(systemName: "magnifyingglass")
-//                    }
-//                }
-//            }
         }
     }
-    
-    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
-//    func introspectTextField(_ uiTextField: UITextField) {
-//        guard !hasBecomeFirstResponder else {
-//            return
-//        }
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-//            uiTextField.becomeFirstResponder()
-//            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
-//            hasBecomeFirstResponder = true
-//        }
-//    }
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
