@@ -130,7 +130,7 @@ extension FoodFormViewModel {
             string: "Select",
             systemImage: Fill.SystemImage.selection,
             isSelected: false, /// never selected as we only use this to pop up the `TextPicker`
-            type: .chooseText
+            type: .select
         )
     }
     

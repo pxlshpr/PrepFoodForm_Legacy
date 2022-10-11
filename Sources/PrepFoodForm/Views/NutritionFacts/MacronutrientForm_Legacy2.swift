@@ -185,8 +185,8 @@
 //
 //    func didTapFillOption(_ fillOption: FillOption) {
 //        switch fillOption.type {
-//        case .chooseText:
-//            didTapChooseButton()
+//        case .select:
+//            didTapSelect()
 //        case .fill(let fill):
 //            didTapFillTypeButton(for: fill)
 //            doNotRegisterUserInput = true
@@ -194,7 +194,7 @@
 //        }
 //    }
 //
-//    func didTapChooseButton() {
+//    func didTapSelect() {
 //        Haptics.feedback(style: .soft)
 //        showingTextPicker = true
 //    }

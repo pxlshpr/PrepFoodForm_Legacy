@@ -161,8 +161,8 @@ struct DensityForm: View {
     
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
-        case .chooseText:
-            didTapChooseButton()
+        case .select:
+            didTapSelect()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
             
@@ -187,7 +187,7 @@ struct DensityForm: View {
         }
     }
     
-    func didTapChooseButton() {
+    func didTapSelect() {
         showTextPicker()
     }
     

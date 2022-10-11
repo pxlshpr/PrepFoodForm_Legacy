@@ -45,8 +45,9 @@ struct FillOptionButton: View {
 extension FillOption {
     var textColor: Color {
         switch type {
-        case .chooseText:
-            return .secondary
+        case .select:
+//            return .secondary
+            return .accentColor
         case .fill:
             return isSelected ? .white : .primary
         }
@@ -54,8 +55,9 @@ extension FillOption {
     
     var imageColor: Color {
         switch type {
-        case .chooseText:
-            return Color(.tertiaryLabel)
+        case .select:
+//            return Color(.tertiaryLabel)
+            return .accentColor
         case .fill:
             return isSelected ? .white : .secondary
         }
@@ -66,9 +68,9 @@ extension FillOption {
         let selectionColorLight = Color(hex: "959596")
 
         switch type {
-//        case .chooseText:
+//        case .select:
 //            return .accentColor
-        case .fill, .chooseText:
+        case .fill, .select:
             guard isSelected else {
                 return Color(.secondarySystemFill)
             }

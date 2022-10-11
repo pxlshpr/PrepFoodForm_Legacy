@@ -64,6 +64,7 @@ extension FoodForm.DetailsForm {
                 } else {
                     Text(nameViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
                 }
                 Spacer()
             }
@@ -82,6 +83,7 @@ extension FoodForm.DetailsForm {
                 } else {
                     Text(viewModel.detailViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
                 }
                 Spacer()
             }
@@ -100,6 +102,7 @@ extension FoodForm.DetailsForm {
                 } else {
                     Text(viewModel.brandViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
                 }
                 Spacer()
             }

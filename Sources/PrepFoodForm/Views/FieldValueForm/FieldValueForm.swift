@@ -392,8 +392,8 @@ extension FieldValueForm {
     
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
-        case .chooseText:
-            didTapChooseButton()
+        case .select:
+            didTapSelect()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
             
@@ -462,7 +462,7 @@ extension FieldValueForm {
         }
     }
     
-    func didTapChooseButton() {
+    func didTapSelect() {
         showTextPicker()
     }
     

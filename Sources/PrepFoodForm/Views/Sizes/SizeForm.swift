@@ -250,8 +250,8 @@ struct SizeForm: View {
 
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
-        case .chooseText:
-            didTapChooseButton()
+        case .select:
+            didTapSelect()
         case .fill(let fill):
             Haptics.feedback(style: .rigid)
             
@@ -281,7 +281,7 @@ struct SizeForm: View {
         sizeViewModel.fieldValue.size?.unit = size.unit
     }
     
-    func didTapChooseButton() {
+    func didTapSelect() {
         showTextPicker()
     }
 
@@ -293,8 +293,9 @@ struct SizeForm: View {
         if let existingSizeViewModel {
             viewModel.edit(existingSizeViewModel, with: sizeViewModel)
         } else {
-            viewModel.add(sizeViewModel: sizeViewModel)
-            if let didAddSizeViewModel = didAddSizeViewModel {
+            if viewModel.add(sizeViewModel: sizeViewModel),
+               let didAddSizeViewModel = didAddSizeViewModel
+            {
                 didAddSizeViewModel(sizeViewModel)
             }
         }

@@ -127,8 +127,8 @@
 //
 //    func didTapFillOption(_ fillOption: FillOption) {
 //        switch fillOption.type {
-//        case .chooseText:
-//            didTapChooseButton()
+//        case .select:
+//            didTapSelect()
 //        case .fill(let fill):
 //            Haptics.feedback(style: .rigid)
 //            changeFillType(to: fill)
@@ -173,7 +173,7 @@
 //        amountViewModel.fieldValue.doubleValue.unit = value.unit?.formUnit ?? .serving
 //    }
 //
-//    func didTapChooseButton() {
+//    func didTapSelect() {
 //        showTextPicker()
 //    }
 //
