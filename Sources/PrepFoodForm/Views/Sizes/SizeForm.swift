@@ -66,6 +66,7 @@ struct SizeForm: View {
 //        }
         .onChange(of: showingVolumePrefixToggle) { newValue in
             withAnimation {
+                sizeViewModel.registerUserInput()
                 formViewModel.showingVolumePrefix = showingVolumePrefixToggle
                 /// If we've turned it on and there's no volume prefix for the size—set it to cup
                 if showingVolumePrefixToggle {
@@ -232,6 +233,7 @@ struct SizeForm: View {
         sizeViewModel.fieldValue.size?.name = size.name
         sizeViewModel.fieldValue.size?.amount = size.amount
         sizeViewModel.fieldValue.size?.unit = size.unit
+        showingVolumePrefixToggle = sizeViewModel.fieldValue.size?.volumePrefixUnit != nil
     }
     
     func saveAndDismiss() {

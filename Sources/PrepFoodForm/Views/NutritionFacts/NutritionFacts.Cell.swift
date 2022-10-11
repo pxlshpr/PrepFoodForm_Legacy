@@ -15,7 +15,7 @@ extension FoodForm.NutritionFacts.Cell {
     var body: some View {
         ZStack {
             content
-            imageLayer
+//            imageLayer
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 13)

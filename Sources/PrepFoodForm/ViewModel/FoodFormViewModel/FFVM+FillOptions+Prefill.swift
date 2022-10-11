@@ -26,6 +26,8 @@ extension FoodFormViewModel {
             return PrefillFillInfo(fieldStrings: fieldValue.prefillFieldStrings)
         case .density(let densityValue):
             return PrefillFillInfo(densityValue: densityValue)
+        case .size(let sizeValue):
+            return PrefillFillInfo(size: sizeValue.size)
         default:
             return PrefillFillInfo()
         }

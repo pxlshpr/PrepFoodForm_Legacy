@@ -425,10 +425,26 @@ import MFPScraper
 extension FoodFormViewModel {
     
     public enum MockCase: String {
-        case spinachPrefilled = "spinach"
-        case pumpkinSeedsScanned = "pumpkin_seeds"
-        case iceCreamScanned = "ice_cream"
+        case spinach = "spinach"
+        case pumpkinSeeds = "pumpkin_seeds"
+        case iceCream = "ice_cream"
+        case milk = "milk"
         
+        public var name: String {
+            rawValue
+                .replacingOccurrences(of: "_", with: " ")
+                .capitalized
+        }
+        
+        public static var prefilledMocks: [MockCase] = [
+            .spinach
+        ]
+        
+        public static var scannedMocks: [MockCase] = [
+            .pumpkinSeeds,
+            .iceCream,
+            .milk
+        ]
         var image: UIImage? {
             sampleImage(imageFilename: rawValue)
         }
