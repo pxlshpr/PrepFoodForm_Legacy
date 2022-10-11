@@ -29,7 +29,8 @@ struct SizeCell: View {
 }
 
 struct SizesCell: View {
-    @EnvironmentObject var viewModel: FoodFormViewModel
+//    @EnvironmentObject var viewModel: FoodFormViewModel
+    @ObservedObject var viewModel: FoodFormViewModel
     let maxNumberOfSizes = 4
     
     var body: some View {
@@ -114,8 +115,8 @@ struct SizesCellPreview: View {
                 Section {
                     NavigationLink {
                     } label: {
-                        SizesCell()
-                            .environmentObject(viewModel)
+                        SizesCell(viewModel: viewModel)
+//                            .environmentObject(viewModel)
                     }
                 }
             }

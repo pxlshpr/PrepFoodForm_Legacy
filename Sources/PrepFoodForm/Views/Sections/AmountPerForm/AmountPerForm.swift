@@ -3,8 +3,9 @@ import SwiftUISugar
 
 public struct AmountPerForm: View {
 
-    @EnvironmentObject var viewModel: FoodFormViewModel
-    
+    @ObservedObject var viewModel: FoodFormViewModel
+    @ObservedObject var amountViewModel: FieldViewModel
+    @ObservedObject var servingViewModel: FieldViewModel
     @ObservedObject var densityViewModel: FieldViewModel
     
     @State var showingAddSizeForm = false
@@ -35,18 +36,6 @@ public struct AmountPerForm: View {
         }
     }
     
-    var form_legacy: some View {
-        Form {
-            fieldSection
-            if viewModel.shouldShowSizesSection {
-                sizesSection
-            }
-            if viewModel.shouldShowDensitiesSection {
-                densitySection
-            }
-        }
-    }
-    
     var servingForm: some View {
         ServingForm(existingFieldViewModel: viewModel.servingViewModel)
             .environmentObject(viewModel)
@@ -59,6 +48,7 @@ public struct AmountPerForm: View {
         SizeForm(fieldViewModel: sizeViewModel) { sizeViewModel in
             
         }
+        .environmentObject(viewModel)
     }
     
     var amountForm: some View {
@@ -177,33 +167,33 @@ public struct AmountPerForm: View {
                 FormStyledSection(header: header, footer: footer) {
                     addButton
                 }
-            } else if viewModel.allSizeViewModels.count == 1 {
-                FormStyledSection(header: header) {
-                    Button {
-                        if !viewModel.standardSizeViewModels.isEmpty {
-                            sizeToEdit = viewModel.standardSizeViewModels[0]
-                        } else {
-                            sizeToEdit = viewModel.volumePrefixedSizeViewModels[0]
-                        }
-                    } label: {
-                        SizesCell()
-                    }
-                }
-                FormStyledSection(footer: footer) {
-                    addButton
-                }
+//            } else if viewModel.allSizeViewModels.count == 1 {
+//                FormStyledSection(header: header) {
+//                    Button {
+//                        if !viewModel.standardSizeViewModels.isEmpty {
+//                            sizeToEdit = viewModel.standardSizeViewModels[0]
+//                        } else {
+//                            sizeToEdit = viewModel.volumePrefixedSizeViewModels[0]
+//                        }
+//                    } label: {
+//                        SizesCell(viewModel: viewModel)
+//                    }
+//                }
+//                FormStyledSection(footer: footer) {
+//                    addButton
+//                }
             } else {
                 FormStyledSection(header: header) {
                     NavigationLink {
                         SizesList()
                             .environmentObject(viewModel)
                     } label: {
-                        SizesCell()
+                        SizesCell(viewModel: viewModel)
                     }
                 }
-                FormStyledSection(footer: footer) {
-                    addButton
-                }
+//                FormStyledSection(footer: footer) {
+//                    addButton
+//                }
             }
         }
     }
@@ -229,24 +219,15 @@ public struct AmountPerForm: View {
         NavigationLink {
             amountForm
         } label: {
-            label(viewModel.amountDescription, placeholder: "Required")
+            label(amountViewModel.doubleValueDescription, placeholder: "Required")
         }
-    }
-    
-    var amountButton_legacy: some View {
-        NavigationLink {
-            amountForm
-        } label: {
-            label(viewModel.amountDescription, placeholder: "Required")
-        }
-        .buttonStyle(.borderless)
     }
     
     var servingButton: some View {
         NavigationLink {
             servingForm
         } label: {
-            label(viewModel.servingDescription, placeholder: "serving size")
+            label(servingViewModel.doubleValueDescription, placeholder: "serving size")
         }
         .buttonStyle(.borderless)
     }
@@ -278,8 +259,13 @@ struct AmountPerFormPreview: View {
 
     var body: some View {
         NavigationView {
-            AmountPerForm(densityViewModel: viewModel.densityViewModel)
-                .environmentObject(viewModel)
+            AmountPerForm(
+                viewModel: viewModel,
+                amountViewModel: viewModel.amountViewModel,
+                servingViewModel: viewModel.servingViewModel,
+                densityViewModel: viewModel.densityViewModel
+            )
+//            .environmentObject(viewModel)
         }
     }
 }

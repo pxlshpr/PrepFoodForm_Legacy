@@ -63,7 +63,7 @@ extension SizeAmountForm {
         UnitPicker(
             pickedUnit: sizeViewModel.sizeAmountUnit,
             includeServing: formViewModel.includeServing,
-            servingDescription: viewModel.servingDescription,
+            servingDescription: viewModel.servingViewModel.doubleValueDescription,
             allowAddSize: formViewModel.allowAddSize)
         {
             showingSizeForm = true

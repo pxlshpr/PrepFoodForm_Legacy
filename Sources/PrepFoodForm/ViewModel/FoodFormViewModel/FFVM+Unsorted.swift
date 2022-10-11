@@ -314,13 +314,6 @@ extension FoodFormViewModel {
         amountViewModel.fieldValue.doubleValue.unit == .serving
     }
     
-    var amountDescription: String {
-        guard !amountViewModel.fieldValue.isEmpty else {
-            return ""
-        }
-        return "\(amountViewModel.fieldValue.doubleValue.string) \(amountViewModel.fieldValue.doubleValue.unitDescription)"
-    }
-    
     var servingFormHeaderString: String {
         switch servingViewModel.fieldValue.doubleValue.unit {
         case .weight:
@@ -340,13 +333,6 @@ extension FoodFormViewModel {
     
     var servingUnitShortString: String {
         servingViewModel.fieldValue.doubleValue.unit.shortDescription
-    }
-    
-    var servingDescription: String {
-        guard !servingViewModel.fieldValue.isEmpty else {
-            return ""
-        }
-        return "\(servingViewModel.fieldValue.doubleValue.string) \(servingViewModel.fieldValue.doubleValue.unitDescription)"
     }
     
     var amountUnitString: String {
@@ -554,5 +540,14 @@ extension Array where Element == FieldViewModel {
 extension FieldViewModel {
     func isSizeNamed(_ name: String) -> Bool {
         size?.name == name
+    }
+}
+
+extension FieldViewModel {
+    var doubleValueDescription: String {
+        guard !fieldValue.isEmpty else {
+            return ""
+        }
+        return "\(fieldValue.doubleValue.string) \(fieldValue.doubleValue.unitDescription)"
     }
 }

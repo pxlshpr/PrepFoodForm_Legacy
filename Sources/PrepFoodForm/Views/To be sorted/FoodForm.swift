@@ -323,8 +323,13 @@ public struct FoodForm: View {
     var servingSection: some View {
         Section("Amount Per") {
             NavigationLink {
-                AmountPerForm(densityViewModel: viewModel.densityViewModel)
-                    .environmentObject(viewModel)
+                AmountPerForm(
+                    viewModel: viewModel,
+                    amountViewModel: viewModel.amountViewModel,
+                    servingViewModel: viewModel.servingViewModel,
+                    densityViewModel: viewModel.densityViewModel
+                )
+//                .environmentObject(viewModel)
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)

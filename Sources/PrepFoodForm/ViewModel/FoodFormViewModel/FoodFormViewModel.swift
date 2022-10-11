@@ -310,7 +310,7 @@ extension FoodFormViewModel: FoodLabelDataSource {
     }
     
     public var amountPerString: String {
-        amountDescription
+        amountViewModel.doubleValueDescription
     }
     
     public var carbAmount: Double {

@@ -11,10 +11,6 @@ extension FoodForm {
         @ObservedObject var brandViewModel: FieldViewModel
 
         @State var showingCodeScanner = false
-        
-        @State var showingNameForm = false
-        @State var showingDetailForm = false
-        @State var showingBrandForm = false
     }
 }
 
@@ -24,18 +20,6 @@ extension FoodForm.DetailsForm {
         .toolbar { bottomToolbarContent }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(isPresented: $showingNameForm) {
-            StringFieldValueForm(existingFieldViewModel: nameViewModel)
-                .environmentObject(viewModel)
-        }
-        .sheet(isPresented: $showingDetailForm) {
-            StringFieldValueForm(existingFieldViewModel: detailViewModel)
-                .environmentObject(viewModel)
-        }
-        .sheet(isPresented: $showingBrandForm) {
-            StringFieldValueForm(existingFieldViewModel: brandViewModel)
-                .environmentObject(viewModel)
-        }
         .sheet(isPresented: $showingCodeScanner) {
             CodeScanner { result in
                 showingCodeScanner = false
@@ -53,9 +37,14 @@ extension FoodForm.DetailsForm {
     }
     
 
+    func form(for fieldViewModel: FieldViewModel) -> some View {
+        StringFieldValueForm(existingFieldViewModel: fieldViewModel)
+            .environmentObject(viewModel)
+    }
+    
     var nameButton: some View {
-        Button {
-            showingNameForm = true
+        NavigationLink {
+            form(for: nameViewModel)
         } label: {
             HStack {
                 if nameViewModel.fieldValue.stringValue.string.isEmpty {
@@ -73,8 +62,8 @@ extension FoodForm.DetailsForm {
     }
     
     var detailButton: some View {
-        Button {
-            showingDetailForm = true
+        NavigationLink {
+            form(for: detailViewModel)
         } label: {
             HStack {
                 if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
@@ -92,8 +81,8 @@ extension FoodForm.DetailsForm {
     }
     
     var brandButton: some View {
-        Button {
-            showingBrandForm = true
+        NavigationLink {
+            form(for: brandViewModel)
         } label: {
             HStack {
                 if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {

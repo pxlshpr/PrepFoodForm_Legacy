@@ -92,8 +92,8 @@ struct SizeForm: View {
         .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
         .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
         .sheet(isPresented: $formViewModel.showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
-        .presentationDetents([.height(detentHeight), .large])
-        .presentationDragIndicator(.hidden)
+//        .presentationDetents([.height(detentHeight), .large])
+//        .presentationDragIndicator(.hidden)
         .interactiveDismissDisabled(isDirty && !isEmpty)
         .onChange(of: sizeViewModel.sizeAmountUnit) { newValue in
             if !sizeViewModel.sizeAmountIsValid || !newValue.isWeightBased {

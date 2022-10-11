@@ -5,6 +5,7 @@ import SwiftHaptics
 struct AmountForm: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
+    
     @ObservedObject var existingFieldViewModel: FieldViewModel
     @StateObject var fieldViewModel: FieldViewModel
 

@@ -71,7 +71,14 @@ public struct NutritionFactsList: View {
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
-            macronutrientForm(for: viewModel.carbViewModel)
+            NavigationLink {
+                MacroForm(existingFieldViewModel: viewModel.carbViewModel)
+                    .environmentObject(viewModel)
+            } label: {
+                NutritionFactCell(fieldViewModel: viewModel.carbViewModel, showImage: $showImages)
+                    .environmentObject(viewModel)
+            }
+//            macronutrientForm(for: viewModel.carbViewModel)
             macronutrientForm(for: viewModel.fatViewModel)
             macronutrientForm(for: viewModel.proteinViewModel)
         }
