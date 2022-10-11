@@ -94,6 +94,8 @@ class FieldViewModel: ObservableObject, Identifiable {
                 return
             }
 
+//            try await sleepTask(2)
+            
             await MainActor.run {
                 withAnimation {
                     print("✂️ Got cropped image for: \(self.fieldValue.description)")

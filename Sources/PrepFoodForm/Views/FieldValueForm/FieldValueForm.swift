@@ -159,26 +159,19 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
 //MARK: - Views
 extension FieldValueForm {
     var body: some View {
-//        NavigationView {
-            content
-                .navigationTitle(fieldValue.description)
-//                .toolbar { navigationLeadingContent }
-//                .toolbar { navigationTrailingContent }
-                .sheet(isPresented: $showingTextPicker) {
-                    textPicker
-                }
-//        }
+        content
+            .navigationTitle(fieldValue.description)
+            .sheet(isPresented: $showingTextPicker) {
+                textPicker
+            }
         .onAppear {
             isFocused = true
-            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-//                shouldAnimateOptions = true
-                
+                shouldAnimateOptions = true
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
                 doNotRegisterUserInput = false
             }
         }
-//        .interactiveDismissDisabled(isDirty)
     }
     
     /// Returns true if any of the fields have changed from what they initially were

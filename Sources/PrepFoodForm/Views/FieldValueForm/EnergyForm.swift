@@ -52,26 +52,3 @@ struct EnergyForm: View {
         }
     }
 }
-
-//MARK: - Preview
-
-struct EnergyFormPreview: View {
-    
-    @StateObject var viewModel = FoodFormViewModel()
-    
-    public init() {
-        let viewModel = FoodFormViewModel.mock
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
-    var body: some View {
-        EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
-            .environmentObject(viewModel)
-    }
-}
-
-struct EnergyForm_Previews: PreviewProvider {
-    static var previews: some View {
-        EnergyFormPreview()
-    }
-}

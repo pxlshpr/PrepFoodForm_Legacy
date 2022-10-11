@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
+
+
 //MARK: Grid
 struct FillOptionsGrid: View {
     
@@ -20,9 +22,17 @@ struct FillOptionsGrid: View {
             }
     }
     
+    var dummyFillOptions: [FillOption] {
+        [
+            FillOption(string: "Test1", systemImage: "face.smiling", isSelected: true, type: .fill(.userInput)),
+            FillOption(string: "Test2", systemImage: "face.smiling", isSelected: false, type: .fill(.userInput))
+        ]
+    }
+    
     var flowLayout: some View {
         FlowLayout(
             mode: .scrollable,
+//            items: dummyFillOptions,
             items: viewModel.fillOptions(for: fieldViewModel.fieldValue),
             itemSpacing: 4,
             shouldAnimateHeight: $shouldAnimate
@@ -46,7 +56,6 @@ public struct FillOptionsGridPreview: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var string: String
     @State var fillOptions: [FillOption] = []
-    @State var height: CGFloat = 200
     @State var shouldAnimate: Bool = true
     
     public init() {

@@ -104,19 +104,6 @@ struct SizeForm: View {
     
     //MARK: - Views
     
-    var form: some View {
-        FormStyledScrollView {
-            FormStyledSection {
-                SizeFormField(sizeViewModel: sizeViewModel, existingSizeViewModel: existingSizeViewModel)
-                .environmentObject(viewModel)
-                .environmentObject(formViewModel)
-            }
-            if sizeViewModel.sizeAmountUnit.unitType == .weight || !sizeViewModel.sizeAmountIsValid {
-                volumePrefixSection
-            }
-            fillOptionsSections
-        }
-    }
 
     var fillOptionsSections: some View {
         FillOptionsSections(

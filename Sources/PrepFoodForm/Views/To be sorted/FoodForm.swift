@@ -406,22 +406,3 @@ public struct FoodForm: View {
         Text("Add source")
     }
 }
-
-struct FoodFormPreview: View {
-    
-    @StateObject var viewModel = FoodFormViewModel.shared
-    
-    var body: some View {
-        FoodForm()
-            .environmentObject(viewModel)
-            .onAppear {
-                viewModel.prefill(MockProcessedFood.Banana)
-            }
-    }
-}
-
-struct FoodForm_Previews: PreviewProvider {
-    static var previews: some View {
-        FoodFormPreview()
-    }
-}

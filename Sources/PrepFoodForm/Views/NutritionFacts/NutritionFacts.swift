@@ -172,29 +172,3 @@ extension FoodForm.NutritionFacts {
         }
     }
 }
-
-//MARK: - Preview
-
-struct NutritionFactsPreview: View {
-    
-    @StateObject var viewModel = FoodFormViewModel()
-    
-    var body: some View {
-        NavigationView {
-            FoodForm.NutritionFacts()
-                .environmentObject(viewModel)
-        }
-        .onAppear {
-            populateData()
-        }
-    }
-    
-    func populateData() {
-    }
-}
-
-struct NutritionFacts_Previews: PreviewProvider {
-    static var previews: some View {
-        NutritionFactsPreview()
-    }
-}
