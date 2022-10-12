@@ -1,16 +1,9 @@
 import Foundation
 
-enum SourceType: CaseIterable {
+enum SourceType: Hashable {
     case images
-    case onlineSource
-    case link
+    case link(URL)
     case manualEntry
-}
-
-extension SourceType {
-    static var nonManualSources: [SourceType] {
-        allCases.filter { $0 != .manualEntry }
-    }
 }
 
 extension SourceType: CustomStringConvertible {
@@ -18,8 +11,6 @@ extension SourceType: CustomStringConvertible {
         switch self {
         case .images:
             return "Images"
-        case .onlineSource:
-            return "Online Source"
         case .link:
             return "Link"
         case .manualEntry:
@@ -35,8 +26,6 @@ extension SourceType {
 //            return "Scan Images"
         case .images:
             return "Provide Images"
-        case .onlineSource:
-            return "Import an online source"
         case .link:
             return "Provide a Link"
         case .manualEntry:
@@ -51,9 +40,9 @@ extension SourceType {
         case .images:
 //            return "Provide images that we will use to verify that this food is valid and the nutrition facts match up."
             return "Provide images of nutrition fact labels or screenshots of other apps. These will be processed to extract any data from them. They will also be used to verify this food."
-        case .onlineSource:
+//        case .onlineSource:
 //            return "Use data from a third-party source when you need to roughly estimate the nutrition facts for this food. This method is slow and the data can sometimes be unreliable."
-            return "Search and import from an online source. This relies on the third-party for search speed and correctness."
+//            return "Search and import from an online source. This relies on the third-party for search speed and correctness."
         case .link:
             return "Provide a link that we will use to verify this."
         case .manualEntry:
@@ -67,8 +56,8 @@ extension SourceType {
 //            return "text.viewfinder"
         case .images:
             return "photo.on.rectangle"
-        case .onlineSource:
-            return "magnifyingglass"
+//        case .onlineSource:
+//            return "magnifyingglass"
         case .link:
             return "link"
         case .manualEntry:
@@ -88,8 +77,8 @@ extension SourceType {
         switch self {
 //        case .scan:
 //            return "Choose images"
-        case .onlineSource:
-            return "Search online source"
+//        case .onlineSource:
+//            return "Search online source"
         case .images:
             return "Choose images"
         case .link:
@@ -103,8 +92,8 @@ extension SourceType {
         switch self {
 //        case .scan:
 //            return "Images"
-        case .onlineSource:
-            return "Online Source"
+//        case .onlineSource:
+//            return "Online Source"
         case .images:
             return "Image"
         case .link:

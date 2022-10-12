@@ -21,13 +21,11 @@ struct SourceForm: View {
     
     var form: some View {
         FormStyledScrollView {
-//        Form {
             switch viewModel.sourceType {
             case .images:
                 imageSections
-//                emptySections
-            case .link:
-                linkSections
+            case .link(let url):
+                linkSections(for: url)
             default:
                 emptySections
             }
@@ -45,8 +43,31 @@ struct SourceForm: View {
     var title: String {
         viewModel.sourceType == .manualEntry ? "Add a Source" : "Source"
     }
-    var linkSections: some View {
-        Color.clear
+    
+    func linkSections(for url: URL) -> some View {
+        Group {
+            linkPreviewSection(for: url)
+            removeLinkSection
+        }
+    }
+    
+    func linkPreviewSection(for url: URL) -> some View {
+        FormStyledSection(horizontalPadding: 0, verticalPadding: 0) {
+            SourceWebView(urlString: url.absoluteString)
+                .frame(height: 300)
+                .cornerRadius(15)
+        }
+    }
+    
+    var removeLinkSection: some View {
+        FormStyledSection {
+            Button(role: .destructive) {
+                viewModel.removeSourceLink()
+            } label: {
+                Text("Remove link")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
     }
     
     var emptySections: some View {
@@ -87,6 +108,8 @@ struct SourceForm: View {
             }
         }
     }
+    
+    //MARK: - Images
     
     var imagesSection: some View {
         FormStyledSection(
@@ -137,10 +160,7 @@ struct SourceForm: View {
     
 
     var removeAllImagesSection: some View {
-        FormStyledSection(
-            horizontalPadding: 17,
-            verticalPadding: 15
-        ) {
+        FormStyledSection {
             Button(role: .destructive) {
                 showingRemoveAllImagesConfirmation = true
             } label: {
@@ -168,6 +188,10 @@ struct SourceForm: View {
 }
 
 extension FoodFormViewModel {
+    func removeSourceLink() {
+        sourceType = .manualEntry
+    }
+    
     func deleteAllImages() {
         resetFillForAllFieldsUsingImages()
         imageViewModels = []

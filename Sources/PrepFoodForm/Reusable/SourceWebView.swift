@@ -31,22 +31,25 @@ struct SourceWebView: View {
     
     @ViewBuilder
     var body: some View {
-//        NavigationView {
-//            if hasAppeared {
-                WebView(url: URL(string: urlString)!, delegate: vm)
-                    .navigationBarTitle("Website")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar { navigationTrailingContent }
-                    .toolbar { navigationLeadingContent }
-                    .transition(.opacity)
-                    .edgesIgnoringSafeArea(.bottom)
-//            }
-//        }
-//        .onAppear {
-//            appeared()
-//        }
+        WebView(url: URL(string: urlString)!, delegate: vm)
+            .transition(.opacity)
+            .overlay(loadingOverlay)
+            .navigationBarTitle("Website")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { navigationTrailingContent }
+            .toolbar { navigationLeadingContent }
+            .edgesIgnoringSafeArea(.bottom)
     }
     
+    @ViewBuilder
+    var loadingOverlay: some View {
+        if !vm.hasStartedNavigating {
+            ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                    .foregroundColor(Color(.tertiaryLabel))
+                    .frame(width: 70, height: 70)
+                    .transition(.opacity)
+        }
+    }
     func appeared() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             withAnimation {
@@ -57,7 +60,7 @@ struct SourceWebView: View {
 
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
-            if vm.isLoading {
+            if vm.isNavigating {
                 ActivityIndicatorView(isVisible: .constant(true), type: .opacityDots())
                     .foregroundColor(.secondary)
                     .frame(width: 20, height: 20)
@@ -89,10 +92,20 @@ struct SourceWebView: View {
     
     class ViewModel: NSObject, ObservableObject, WKNavigationDelegate {
         
-        @Published var isLoading = true
-        
+        @Published var isNavigating = false
+        @Published var hasStartedNavigating = false
+
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            isLoading = false
+            withAnimation {
+                isNavigating = false
+            }
+        }
+        
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            withAnimation {
+                hasStartedNavigating = true
+                isNavigating = true
+            }
         }
     }
 }

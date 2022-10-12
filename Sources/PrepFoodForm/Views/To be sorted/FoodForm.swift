@@ -63,7 +63,7 @@ public struct FoodForm: View {
                         viewModel.showingEmojiPicker = false
                     }
                 }
-                /// These are requird to update the `FoodLabel` as a view update isn't triggered otherwise
+            /// These are requird to update the `FoodLabel` as a view update isn't triggered otherwise
                 .onReceive(viewModel.energyViewModel.$fieldValue) { publisher in
                     viewModel.energyValue = viewModel.energyViewModel.fieldValue.value ?? .zero
                 }
@@ -76,7 +76,7 @@ public struct FoodForm: View {
         }
         .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
     }
-  
+    
     var sourceMenuActionGroups: [[BottomMenuAction]] {
         [
             [
@@ -95,9 +95,11 @@ public struct FoodForm: View {
                     keyboardType: .URL,
                     submitString: "Add Link",
                     autocapitalization: .never,
-                    textInputHandler: { string in
-                    print("Got back: \(string)")
-                })
+                    textInputHandler:
+                        { string in
+                            viewModel.submittedSourceLink(string)
+                        }
+                )
             ]
         ]
     }
@@ -326,7 +328,7 @@ public struct FoodForm: View {
                     detailViewModel: viewModel.detailViewModel,
                     brandViewModel: viewModel.brandViewModel
                 )
-                    .environmentObject(viewModel)
+                .environmentObject(viewModel)
             } label: {
                 DetailsCell(nameViewModel: viewModel.nameViewModel)
                     .environmentObject(viewModel)
@@ -344,7 +346,7 @@ public struct FoodForm: View {
                     servingViewModel: viewModel.servingViewModel,
                     densityViewModel: viewModel.densityViewModel
                 )
-//                .environmentObject(viewModel)
+                //                .environmentObject(viewModel)
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
@@ -385,8 +387,11 @@ public struct FoodForm: View {
                 NavigationLink {
                     SourceWebView(urlString: url)
                 } label: {
-                    Label("MyFitnessPal", systemImage: "link")
-                        .foregroundColor(.accentColor)
+                    HStack {
+                        Label("MyFitnessPal", systemImage: "link")
+                            .foregroundColor(.accentColor)
+                        Spacer()
+                    }
                 }
             }
         }

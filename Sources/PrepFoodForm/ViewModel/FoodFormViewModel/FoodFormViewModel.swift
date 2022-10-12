@@ -86,8 +86,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var sourceType: SourceType = .manualEntry
     @Published var imageViewModels: [ImageViewModel] = []
     @Published var imageSetStatus: ImageStatus = .loading
-        
     @Published var prefilledFood: MFPProcessedFood? = nil
+    @Published var sourceLink: String? = nil
     
     //MARK: - View-related
     @Published var showingNutrientsPerAmountForm = false
@@ -120,7 +120,10 @@ extension FoodFormViewModel {
     }
     
     func submittedSourceLink(_ string: String) {
-        
+        guard let url = URL(string: string) else {
+            return
+        }
+        self.sourceType = .link(url)
     }
     
     func amountChanged() {

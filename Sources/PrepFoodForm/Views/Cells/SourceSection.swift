@@ -9,17 +9,11 @@ struct SourceSection: View {
     @State var showingPhotosPicker = false
     
     var body: some View {
-//        FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
         FormStyledSection(header: header, footer: footer) {
             if viewModel.sourceType == .manualEntry {
                 notChosenContent
             } else {
-                notChosenContent
-//                .padding(.vertical, 15)
-//                .padding(.horizontal, 17)
-//                .contentShape(Rectangle())
-//                .background(.green)
-//                chosenContent
+                chosenContent
             }
         }
         .photosPicker(
@@ -32,12 +26,10 @@ struct SourceSection: View {
     
     var notChosenContent: some View {
         Button {
-//            Haptics.transientHaptic()
             viewModel.showingSourceMenu = true
         } label: {
             Text("Select a source")
                 .frame(maxWidth: .infinity, alignment: .leading)
-//                .frame(maxHeight: .infinity)
         }
     }
     
@@ -51,6 +43,12 @@ struct SourceSection: View {
                 VStack(alignment: .leading, spacing: 15) {
                     imagesGrid
                     imageSetStatus
+                }
+            case .link(let url):
+                HStack {
+                    Label(url.absoluteString, systemImage: "link")
+                        .foregroundColor(.accentColor)
+                    Spacer()
                 }
             default:
                 Text("Not handled")
