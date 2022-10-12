@@ -11,6 +11,7 @@ extension FoodFormViewModel {
             let imageViewModel = ImageViewModel(photosPickerItem: item)
             imageViewModels.append(imageViewModel)
         }
+        selectedPhotos = []
     }
 
     func croppedImage(for fill: Fill) async -> UIImage? {

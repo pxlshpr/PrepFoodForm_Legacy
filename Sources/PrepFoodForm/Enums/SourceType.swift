@@ -79,8 +79,6 @@ extension SourceType {
         switch self {
         case .images:
             return true
-//        case .scan:
-//            return true
         default:
             return false
         }

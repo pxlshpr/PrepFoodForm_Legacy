@@ -5,6 +5,7 @@ import MFPScraper
 import SwiftHaptics
 import FoodLabelScanner
 import FoodLabel
+import PhotosUI
 
 public class FoodFormViewModel: ObservableObject {
     
@@ -85,39 +86,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var sourceType: SourceType = .manualEntry
     @Published var imageViewModels: [ImageViewModel] = []
     @Published var imageSetStatus: ImageStatus = .loading
-    
-    //MARK: Scan
-    var scanTask: Task<(), any Error>? = nil
-    
-    @Published var isScanning = false {
-        didSet {
-            if isScanning {
-                sourceType = .images
-            }
-            withAnimation {
-                DispatchQueue.main.async {
-//                    self.isClassifyingImage = self.isScanning || self.isImporting
-                }
-            }
-        }
-    }
-    
-    @Published var numberOfScannedImages: Int = 0
-    
-    @Published var numberOfScannedDataPoints: Int? = nil
-    
-    //MARK: - Import
-    @Published var isImporting = false {
-        didSet {
-            if isImporting {
-                sourceType = .onlineSource
-            }
-            withAnimation {
-//                isClassifyingImage = isScanning || isImporting
-            }
-        }
-    }
-    
+        
     @Published var prefilledFood: MFPProcessedFood? = nil
     
     //MARK: - View-related
@@ -131,6 +100,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingWizard = false
 
     @Published var shouldShowDensitiesSection = false
+    
+    @Published var selectedPhotos: [PhotosPickerItem] = []
 }
 
 extension FoodFormViewModel {

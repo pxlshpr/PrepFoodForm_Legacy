@@ -2,11 +2,6 @@ import SwiftUI
 import PrepUnits
 
 extension FoodFormViewModel {
-    func cancelScan() {
-        scanTask?.cancel()
-        isScanning = false
-    }
-    
     var hasEnoughData: Bool {
         !nameViewModel.fieldValue.isEmpty
 //        || !emojiViewModel.fieldValue.isEmpty
@@ -34,10 +29,6 @@ extension FoodFormViewModel {
             }
         }
         return true
-    }
-    
-    var sourceIncludesImages: Bool {
-        sourceType.includesImages
     }
     
     /// Prefill used for Previews

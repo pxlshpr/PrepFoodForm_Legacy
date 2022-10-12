@@ -1,16 +1,56 @@
 import SwiftUI
 import ActivityIndicatorView
+import PhotosUI
 
 struct SourceSection: View {
-    @ObservedObject var viewModel: FoodFormViewModel
-    
+    @EnvironmentObject var viewModel: FoodFormViewModel
+    @State var showingPhotosPicker = false
     var body: some View {
         Section(header: header, footer: footer) {
             if viewModel.sourceType == .manualEntry {
+//                photosPickerButton
                 notChosenContent
             } else {
                 chosenContent
             }
+        }
+        .photosPicker(
+            isPresented: $showingPhotosPicker,
+            selection: $viewModel.selectedPhotos,
+            maxSelectionCount: 5,
+            matching: .images
+        )
+    }
+    
+    var photosPickerButton: some View {
+        Button {
+            showingPhotosPicker = true
+        } label: {
+            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+        }
+//        PhotosPicker(selection: $viewModel.selectedPhotos,
+//                     maxSelectionCount: 5,
+//                     matching: .images)
+//        {
+//            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+//                .foregroundColor(.primary)
+//                .frame(maxWidth: .infinity, alignment: .leading)
+//        }
+    }
+    
+    var cameraButton: some View {
+        Button {
+            viewModel.showingCameraImagePicker = true
+        } label: {
+            Label("Take Photos", systemImage: "camera")
+        }
+    }
+    
+    var addALinkButton: some View {
+        Button {
+            
+        } label: {
+            Label("Add a Link", systemImage: "link")
         }
     }
     
@@ -24,29 +64,23 @@ struct SourceSection: View {
         }
         
         return Menu {
-            Button("Images") {
-                viewModel.sourceType = .images
-                //TODO: We need to pass this back to the form
-//                viewModel.path.append(.sourceForm)
-            }
-            Button("Link") {
-                viewModel.sourceType = .link
-                //TODO: We need to pass this back to the form
-//                viewModel.path.append(.sourceForm)
-            }
+            photosPickerButton
+            cameraButton
+            Divider()
+            addALinkButton
         } label: {
-            Text("Optional")
-                .foregroundColor(Color(.tertiaryLabel))
-            Spacer()
-            Text(title)
-                .foregroundColor(.accentColor)
-                .frame(maxWidth: .infinity, alignment: .trailing)
+            Text("Select a source")
+//                .foregroundColor(Color(.tertiaryLabel))
+//            Spacer()
+//            Text(title)
+//                .foregroundColor(.accentColor)
+//                .frame(maxWidth: .infinity, alignment: .trailing)
         }
     }
     
     var chosenContent: some View {
         NavigationLink {
-            FoodForm.SourceForm()
+            SourceForm()
                 .environmentObject(viewModel)
         } label: {
             switch viewModel.sourceType {
@@ -100,22 +134,20 @@ struct SourceSection: View {
         return HStack {
             Group {
                 if viewModel.imageSetStatus == .scanned {
-                    Image(systemName: "text.viewfinder")
-                        .font(.headline)
-                        .fontWeight(.light)
-                        .foregroundColor(Color(.tertiaryLabel))
+                    Text("Scan detected")
                     numberView(viewModel.scannedNutrientCount)
-                    Text("facts in")
-                    numberView(viewModel.scannedColumnCount)
-                    Text("column\(viewModel.scannedColumnCount > 1 ? "s" : "")")
+                    Text("nutrition facts")
                 } else {
-                    Text(imageSetStatusString)
+                    Text(viewModel.imageSetStatusString)
                 }
             }
             .font(.subheadline)
             .foregroundColor(.secondary)
             if viewModel.imageSetStatus.isWorking {
-                ActivityIndicatorView(isVisible: .constant(true), type: .arcs())
+                ActivityIndicatorView(
+                    isVisible: .constant(true),
+                    type: .arcs(count: 3, lineWidth: 1)
+                )
                     .frame(width: 12, height: 12)
                     .foregroundColor(.secondary)
             }
@@ -129,21 +161,6 @@ struct SourceSection: View {
         )
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-
-    var imageSetStatusString: String {
-        switch viewModel.imageSetStatus {
-        case .loading:
-            return "Loading images"
-        case .scanning:
-            return "Detecting nutrition facts"
-        case .scanned:
-            return "facts detected"
-        default:
-            return "(not handled)"
-        }
-    }
-
-    
 
     var header: some View {
         Text("Source")
@@ -165,48 +182,6 @@ struct SourceSection: View {
             }
         }
     }
-    
-//    @ViewBuilder
-//    var body: some View {
-//        if viewModel.sourceType != .manualEntry {
-//            content(for: viewModel.sourceType)
-//        } else {
-//            Text("Optional")
-//                .foregroundColor(Color(.quaternaryLabel))
-//        }
-//    }
-//
-//    @ViewBuilder
-//    func content(for source: SourceType) -> some View {
-//        switch source {
-////        case .scan:
-////            scanContent
-//        case .onlineSource:
-//            importContent
-//        case .images:
-//            Text("Image")
-//        case .link:
-//            Text("Link")
-//        case .manualEntry:
-//            Text("Manual Entry")
-//        }
-//    }
-//
-//    @ViewBuilder
-//    var scanContent: some View {
-//        if viewModel.isScanning {
-//            FormActivityButton(title: "Processing Images") {
-//            }
-//        }
-//    }
-//
-//    @ViewBuilder
-//    var importContent: some View {
-//        if viewModel.isImporting {
-//            FormActivityButton(title: "Importing Food") {
-//            }
-//        }
-//    }
 }
 
 public struct SourceCellPreview: View {
@@ -217,14 +192,14 @@ public struct SourceCellPreview: View {
         FoodFormViewModel.shared = FoodFormViewModel()
         let viewModel = FoodFormViewModel.shared
         viewModel.simulateImageSelection()
-//        viewModel.isImporting = true
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
         NavigationView {
             Form {
-                SourceSection(viewModel: viewModel)
+                SourceSection()
+                    .environmentObject(viewModel)
             }
             .navigationTitle("Source Cell Preview")
             .navigationBarTitleDisplayMode(.inline)

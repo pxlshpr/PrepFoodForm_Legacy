@@ -26,7 +26,7 @@ struct SourceImagesCarousel: View {
                 didTapViewOnImage?(index)
             }
             Button(role: .destructive) {
-                didTapViewOnImage?(index)
+                didTapDeleteOnImage?(index)
             } label: {
                 Text("Delete")
             }

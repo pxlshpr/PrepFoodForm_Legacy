@@ -16,7 +16,6 @@ public struct FoodForm: View {
     @State var showingThirdPartyInfo = false
     
     @State var showingPhotosPicker = true
-    @State var selectedPhotos: [PhotosPickerItem] = []
     
     public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
@@ -42,7 +41,7 @@ public struct FoodForm: View {
                         }
                     }
                 }
-                .onChange(of: selectedPhotos) { newValue in
+                .onChange(of: viewModel.selectedPhotos) { newValue in
                     viewModel.selectedPhotosChanged(to: newValue)
                     showingPhotosPicker = false
                     withAnimation {
@@ -219,16 +218,6 @@ public struct FoodForm: View {
             photosPickerButton
             cameraButton
         }
-        .sheet(isPresented: $showingScan) {
-            ScanForm()
-                .environmentObject(viewModel)
-                .onDisappear {
-                    if viewModel.isScanning {
-                        //TODO: Change this to new navigation layout
-                        //                        viewModel.path.append(.foodForm)
-                    }
-                }
-        }
     }
     
     var cameraButton: some View {
@@ -261,7 +250,7 @@ public struct FoodForm: View {
     }
     
     var photosPickerButton: some View {
-        PhotosPicker(selection: $selectedPhotos,
+        PhotosPicker(selection: $viewModel.selectedPhotos,
                      maxSelectionCount: 5,
                      matching: .images) {
             Label("Choose Photos", systemImage: SourceType.images.systemImage)
@@ -360,7 +349,8 @@ public struct FoodForm: View {
     }
     
     var sourceSection: some View {
-        SourceSection(viewModel: viewModel)
+        SourceSection()
+            .environmentObject(viewModel)
     }
     
     @ViewBuilder
