@@ -9,6 +9,7 @@ public struct BottomMenuAction: Hashable, Equatable {
     
     let textInputHandler: ((String) -> ())?
     let textInputPlaceholder: String
+    let textInputKeyboardType: UIKeyboardType
 
     init(title: String, systemImage: String, tapHandler: (() -> Void)?) {
         self.title = title
@@ -17,15 +18,17 @@ public struct BottomMenuAction: Hashable, Equatable {
         
         self.textInputHandler = nil
         self.textInputPlaceholder = ""
+        self.textInputKeyboardType = .default
     }
 
-    init(title: String, systemImage: String, placeholder: String = "", textInputHandler: ((String) -> Void)?) {
+    init(title: String, systemImage: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, textInputHandler: ((String) -> Void)?) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = nil
         
         self.textInputPlaceholder = placeholder
         self.textInputHandler = textInputHandler
+        self.textInputKeyboardType = keyboardType
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -139,6 +142,7 @@ public struct BottomMenuModifier: ViewModifier {
             ) { }
                 .focused($isFocused)
                 .padding()
+                .keyboardType(action.textInputKeyboardType)
                 .background(
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .strokeBorder(Color(.separator).opacity(0.5))

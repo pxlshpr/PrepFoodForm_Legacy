@@ -92,6 +92,7 @@ public struct FoodForm: View {
                     title: "Add a Link",
                     systemImage: "link",
                     placeholder: "https://fastfood.com/nutrition",
+                    keyboardType: .URL,
                     textInputHandler: { string in
                     print("Got back: \(string)")
                 })
