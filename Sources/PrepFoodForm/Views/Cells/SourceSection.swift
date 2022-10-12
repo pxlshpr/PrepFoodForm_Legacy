@@ -134,15 +134,16 @@ struct SourceSection: View {
             } label: {
                 VStack(spacing: 0) {
                     if viewModel.hasSourceImages {
-                        HStack(alignment: .top) {
+                        HStack(alignment: .top, spacing: 7) {
                             Image(systemName: "photo.on.rectangle.angled")
                                 .foregroundColor(.secondary)
+                                .frame(width: 20)
                             VStack(alignment: .leading, spacing: 15) {
                                 imagesGrid
                                 imageSetStatus
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, 17)
                         .padding(.vertical, 15)
                         if viewModel.hasSourceLink {
                             Divider()
