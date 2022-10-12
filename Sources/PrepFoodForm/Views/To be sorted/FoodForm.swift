@@ -80,16 +80,20 @@ public struct FoodForm: View {
     var sourceMenuActionGroups: [[BottomMenuAction]] {
         [
             [
-                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", action: {
+                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
                     showingPhotosPicker = true
                 }),
-                BottomMenuAction(title: "Take Photos", systemImage: "camera", action: {
+                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
                     viewModel.showingCamera = true
                 })
             ],
             [
-                BottomMenuAction(title: "Add a Link", systemImage: "link", action: {
-                    
+                BottomMenuAction(
+                    title: "Add a Link",
+                    systemImage: "link",
+                    placeholder: "https://fastfood.com/nutrition",
+                    textInputHandler: { string in
+                    print("Got back: \(string)")
                 })
             ]
         ]

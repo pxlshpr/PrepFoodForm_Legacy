@@ -5,8 +5,29 @@ import SwiftHaptics
 public struct BottomMenuAction: Hashable, Equatable {
     let title: String
     let systemImage: String
-    let action: () -> ()
+    let tapHandler: (() -> ())?
     
+    let textInputHandler: ((String) -> ())?
+    let textInputPlaceholder: String
+
+    init(title: String, systemImage: String, tapHandler: (() -> Void)?) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tapHandler = tapHandler
+        
+        self.textInputHandler = nil
+        self.textInputPlaceholder = ""
+    }
+
+    init(title: String, systemImage: String, placeholder: String = "", textInputHandler: ((String) -> Void)?) {
+        self.title = title
+        self.systemImage = systemImage
+        self.tapHandler = nil
+        
+        self.textInputPlaceholder = placeholder
+        self.textInputHandler = textInputHandler
+    }
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(title)
         hasher.combine(systemImage)
@@ -20,6 +41,10 @@ public struct BottomMenuAction: Hashable, Equatable {
 public struct BottomMenuModifier: ViewModifier {
     
     @State var animatedIsPresented: Bool = false
+    @State var actionToReceiveTextInputFor: BottomMenuAction? = nil
+    @FocusState var isFocused: Bool
+    
+    @State var inputText: String = ""
 
     @Binding var isPresented: Bool
     let actionGroups: [[BottomMenuAction]]
@@ -45,6 +70,7 @@ public struct BottomMenuModifier: ViewModifier {
                 dismiss()
             }
     }
+    
     var menuOverlay: some View {
         ZStack {
             if animatedIsPresented {
@@ -62,8 +88,76 @@ public struct BottomMenuModifier: ViewModifier {
     var buttonsLayer: some View {
         VStack(spacing: 10) {
             Spacer()
-            actionGroupSections
-            cancelButton
+            if let actionToReceiveTextInputFor {
+                inputSections(for: actionToReceiveTextInputFor)
+                    .transition(.move(edge: .leading))
+            } else {
+                actionGroupSections
+                    .transition(.move(edge: .trailing))
+            }
+            VStack(spacing: 0) {
+                if let actionToReceiveTextInputFor {
+                    Group {
+                        submitTextButton(for: actionToReceiveTextInputFor)
+                        Divider()
+                    }
+                    .transition(.move(edge: .bottom))
+                }
+                cancelButton
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .foregroundColor(Color(.secondarySystemGroupedBackground))
+            )
+            .padding(.bottom)
+            .padding(.horizontal)
+        }
+    }
+    
+    func submitTextButton(for action: BottomMenuAction) -> some View {
+        Button {
+            if let textInputHandler = action.textInputHandler {
+                textInputHandler(inputText)
+            }
+            dismiss()
+        } label: {
+            Text(action.title)
+                .font(.title3)
+                .fontWeight(.regular)
+                .foregroundColor(.accentColor)
+                .frame(maxWidth: .infinity)
+                .padding()
+        }
+    }
+    
+    func inputSections(for action: BottomMenuAction) -> some View {
+        VStack(spacing: 0) {
+            TextField(
+                text: $inputText,
+                prompt: Text(verbatim: action.textInputPlaceholder),
+                axis: .vertical
+            ) { }
+                .focused($isFocused)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        .strokeBorder(Color(.separator).opacity(0.5))
+                        .background (
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                                .foregroundColor(Color(.systemBackground))
+                        )
+                )
+                .frame(maxWidth: .infinity)
+                .padding(7)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color(.separator).opacity(0.2))
+                        .background (
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .foregroundColor(Color(.systemGroupedBackground))
+                        )
+                )
+                .padding(.horizontal)
         }
     }
     
@@ -93,8 +187,19 @@ public struct BottomMenuModifier: ViewModifier {
     
     func actionButton(for action: BottomMenuAction) -> some View {
         Button {
-            action.action()
-            isPresented = false
+            /// If this action has a tap handler, handle it and dismiss
+            if let tapHandler = action.tapHandler {
+                tapHandler()
+                dismiss()
+            }
+            
+            /// If this has a text input handler—change the UI to be able to recieve text input
+            if let textInputHandler = action.textInputHandler {
+                withAnimation {
+                    actionToReceiveTextInputFor = action
+                }
+                isFocused = true
+            }
         } label: {
             HStack {
                 Image(systemName: action.systemImage)
@@ -122,17 +227,14 @@ public struct BottomMenuModifier: ViewModifier {
                 .foregroundColor(.accentColor)
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .foregroundColor(Color(.secondarySystemGroupedBackground))
-//                        .padding()
-                )
-                .padding(.horizontal)
         }
     }
     
     func dismiss() {
         Haptics.feedback(style: .medium)
+        isFocused = false
+        actionToReceiveTextInputFor = nil
+        inputText = ""
         isPresented = false
     }
 }
@@ -171,16 +273,20 @@ public struct BottomMenuPreview: View {
     var menuActionGroups: [[BottomMenuAction]] {
         [
             [
-                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", action: {
+                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
                     
                 }),
-                BottomMenuAction(title: "Take Photos", systemImage: "camera", action: {
+                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
                     
                 })
             ],
             [
-                BottomMenuAction(title: "Add a Link", systemImage: "link", action: {
-                    
+                BottomMenuAction(
+                    title: "Add a Link",
+                    systemImage: "link",
+                    placeholder: "https://fastfood.com/nutrition",
+                    textInputHandler: { string in
+                    print("Got back: \(string)")
                 })
             ]
         ]
