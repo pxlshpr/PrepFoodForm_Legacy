@@ -1,6 +1,7 @@
 import SwiftUI
 import ActivityIndicatorView
 import PhotosUI
+import SwiftHaptics
 
 struct SourceSection: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -47,27 +48,20 @@ struct SourceSection: View {
         }
     }
     
+    @State var showingConfirmationDialog = false
+    
     var notChosenContent: some View {
-        var title: String {
-            if viewModel.sourceType == .manualEntry {
-                return "Choose"
-            } else {
-                return viewModel.sourceType.description
-            }
-        }
-        
-        return Menu {
-            photosPickerButton
-            cameraButton
-            Divider()
-            addALinkButton
+        Button {
+            Haptics.transientHaptic()
+            showingConfirmationDialog = true
         } label: {
             Text("Select a source")
-//                .foregroundColor(Color(.tertiaryLabel))
-//            Spacer()
-//            Text(title)
-//                .foregroundColor(.accentColor)
-//                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+        .confirmationDialog("", isPresented: $showingConfirmationDialog) {
+            photosPickerButton
+            cameraButton
+            addALinkButton
         }
     }
     
