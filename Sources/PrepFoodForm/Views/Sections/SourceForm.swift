@@ -79,7 +79,7 @@ struct LinkCell: View {
                         .font(.footnote)
                         .foregroundColor(detailColor)
                         .multilineTextAlignment(.leading)
-                        .padding(.leading, 27)
+                        .padding(.leading, LabelSpacing + LabelImageWidth)
 //                }
             }
             Spacer()

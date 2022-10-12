@@ -126,7 +126,7 @@ public struct FoodForm: View {
             form
                 .safeAreaInset(edge: .bottom) {
                     //TODO: Programmatically get this inset (67516AA6)
-                    Spacer().frame(height: 135)
+                    Spacer().frame(height: 150)
                 }
                 .overlay(
                     Color(.quaternarySystemFill)
@@ -146,6 +146,7 @@ public struct FoodForm: View {
                 Spacer()
                 saveButtons
             }
+            .edgesIgnoringSafeArea(.bottom)
         }
         .sheet(isPresented: $viewModel.showingThirdPartySearch) {
             MFPSearch()
@@ -209,6 +210,8 @@ public struct FoodForm: View {
                         .padding(.top)
                     }
                 }
+                /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+                .padding(.bottom, 30)
             }
             //            .background(Color(.systemGroupedBackground))
             .background(.thinMaterial)

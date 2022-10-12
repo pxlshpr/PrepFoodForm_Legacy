@@ -67,7 +67,9 @@ class LinkInfo: ObservableObject {
                 return
             }
             await MainActor.run {
-                self.title = String(htmlEncodedString: htmlTitle)
+                withAnimation {
+                    self.title = String(htmlEncodedString: htmlTitle)
+                }
             }
         }
     }
@@ -87,7 +89,9 @@ class LinkInfo: ObservableObject {
                 return
             }
             await MainActor.run {
-                self.faviconImage = image
+                withAnimation {
+                    self.faviconImage = image
+                }
             }
         }
     }
