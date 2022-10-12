@@ -119,6 +119,10 @@ extension FoodFormViewModel {
         }
     }
     
+    func submittedSourceLink(_ string: String) {
+        
+    }
+    
     func amountChanged() {
         updateShouldShowDensitiesSection()
         if amountViewModel.fieldValue.doubleValue.unit != .serving {

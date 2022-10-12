@@ -8,6 +8,7 @@ public struct BottomMenuAction: Hashable, Equatable {
     let tapHandler: (() -> ())?
     
     let textInputHandler: ((String) -> ())?
+    let textInputSubmitString: String
     let textInputPlaceholder: String
     let textInputKeyboardType: UIKeyboardType
     let textInputAutocapitalization: TextInputAutocapitalization
@@ -19,6 +20,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         
         self.textInputHandler = nil
         self.textInputPlaceholder = ""
+        self.textInputSubmitString = ""
         self.textInputKeyboardType = .default
         self.textInputAutocapitalization = .sentences
     }
@@ -28,6 +30,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         systemImage: String,
         placeholder: String = "",
         keyboardType: UIKeyboardType = .default,
+        submitString: String = "",
         autocapitalization: TextInputAutocapitalization = .sentences,
         textInputHandler: ((String) -> Void)?
     ) {
@@ -36,6 +39,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.tapHandler = nil
         
         self.textInputPlaceholder = placeholder
+        self.textInputSubmitString = submitString
         self.textInputHandler = textInputHandler
         self.textInputKeyboardType = keyboardType
         self.textInputAutocapitalization = autocapitalization
@@ -134,7 +138,7 @@ public struct BottomMenuModifier: ViewModifier {
             }
             dismiss()
         } label: {
-            Text(action.title)
+            Text(action.textInputSubmitString)
                 .font(.title3)
                 .fontWeight(.regular)
                 .foregroundColor(.accentColor)

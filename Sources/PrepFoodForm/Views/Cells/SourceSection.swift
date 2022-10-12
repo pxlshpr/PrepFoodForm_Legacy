@@ -9,12 +9,17 @@ struct SourceSection: View {
     @State var showingPhotosPicker = false
     
     var body: some View {
+//        FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
         FormStyledSection(header: header, footer: footer) {
             if viewModel.sourceType == .manualEntry {
-//                photosPickerButton
                 notChosenContent
             } else {
-                chosenContent
+                notChosenContent
+//                .padding(.vertical, 15)
+//                .padding(.horizontal, 17)
+//                .contentShape(Rectangle())
+//                .background(.green)
+//                chosenContent
             }
         }
         .photosPicker(
@@ -25,47 +30,15 @@ struct SourceSection: View {
         )
     }
     
-    var photosPickerButton: some View {
-        Button {
-            showingPhotosPicker = true
-        } label: {
-            Label("Choose Photos", systemImage: SourceType.images.systemImage)
-        }
-    }
-    
-    var cameraButton: some View {
-        Button {
-            viewModel.showingCamera = true
-        } label: {
-            Label("Take Photos", systemImage: "camera")
-        }
-    }
-    
-    var addALinkButton: some View {
-        Button {
-            
-        } label: {
-            Label("Add a Link", systemImage: "link")
-        }
-    }
-    
-    @State var showingConfirmationDialog = false
-    
     var notChosenContent: some View {
         Button {
 //            Haptics.transientHaptic()
             viewModel.showingSourceMenu = true
-//            showingConfirmationDialog = true
         } label: {
             Text("Select a source")
                 .frame(maxWidth: .infinity, alignment: .leading)
+//                .frame(maxHeight: .infinity)
         }
-        .contentShape(Rectangle())
-//        .confirmationDialog("", isPresented: $showingConfirmationDialog) {
-//            photosPickerButton
-//            cameraButton
-//            addALinkButton
-//        }
     }
     
     var chosenContent: some View {
@@ -98,6 +71,30 @@ struct SourceSection: View {
 //                }
 //                .foregroundColor(.secondary)
 //            }
+        }
+    }
+    
+    var photosPickerButton: some View {
+        Button {
+            showingPhotosPicker = true
+        } label: {
+            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+        }
+    }
+    
+    var cameraButton: some View {
+        Button {
+            viewModel.showingCamera = true
+        } label: {
+            Label("Take Photos", systemImage: "camera")
+        }
+    }
+    
+    var addALinkButton: some View {
+        Button {
+            
+        } label: {
+            Label("Add a Link", systemImage: "link")
         }
     }
     
@@ -188,7 +185,7 @@ public struct SourceCellPreview: View {
     
     public var body: some View {
         NavigationView {
-            Form {
+            FormStyledScrollView {
                 SourceSection()
                     .environmentObject(viewModel)
             }

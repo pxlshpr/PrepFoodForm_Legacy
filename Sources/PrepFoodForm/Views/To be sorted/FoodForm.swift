@@ -93,6 +93,7 @@ public struct FoodForm: View {
                     systemImage: "link",
                     placeholder: "https://fastfood.com/nutrition-facts.pdf",
                     keyboardType: .URL,
+                    submitString: "Add Link",
                     autocapitalization: .never,
                     textInputHandler: { string in
                     print("Got back: \(string)")
@@ -348,7 +349,6 @@ public struct FoodForm: View {
                 NutrientsPerCell()
                     .environmentObject(viewModel)
             }
-            .frame(minHeight: 50)
         }
     }
     
