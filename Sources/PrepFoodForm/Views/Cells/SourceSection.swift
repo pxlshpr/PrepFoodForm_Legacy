@@ -5,6 +5,7 @@ import PhotosUI
 struct SourceSection: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingPhotosPicker = false
+    
     var body: some View {
         Section(header: header, footer: footer) {
             if viewModel.sourceType == .manualEntry {
@@ -28,14 +29,6 @@ struct SourceSection: View {
         } label: {
             Label("Choose Photos", systemImage: SourceType.images.systemImage)
         }
-//        PhotosPicker(selection: $viewModel.selectedPhotos,
-//                     maxSelectionCount: 5,
-//                     matching: .images)
-//        {
-//            Label("Choose Photos", systemImage: SourceType.images.systemImage)
-//                .foregroundColor(.primary)
-//                .frame(maxWidth: .infinity, alignment: .leading)
-//        }
     }
     
     var cameraButton: some View {
@@ -134,7 +127,7 @@ struct SourceSection: View {
         return HStack {
             Group {
                 if viewModel.imageSetStatus == .scanned {
-                    Text("Scan detected")
+                    Text("Scanned")
                     numberView(viewModel.scannedNutrientCount)
                     Text("nutrition facts")
                 } else {

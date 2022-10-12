@@ -5,11 +5,18 @@ import SwiftUISugar
 struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
-    
+    @State var showingPhotosPicker = false
+
     var body: some View {
         form
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.large)
+        .photosPicker(
+            isPresented: $showingPhotosPicker,
+            selection: $viewModel.selectedPhotos,
+            maxSelectionCount: 5,
+            matching: .images
+        )
     }
     
     var form: some View {
@@ -30,6 +37,7 @@ struct SourceForm: View {
     var imageSections: some View {
         Group {
             imagesSection
+            addImagesSection
             removeAllImagesSection
         }
     }
@@ -95,6 +103,39 @@ struct SourceForm: View {
         }
     }
     
+    var addImagesSection: some View {
+        FormStyledSection(
+            horizontalPadding: 17,
+            verticalPadding: 15
+        ) {
+            Menu {
+                photosPickerButton
+                cameraButton
+            } label: {
+                Text("Add images")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+    }
+    
+    var photosPickerButton: some View {
+        Button {
+            showingPhotosPicker = true
+        } label: {
+            Label("Choose Photos", systemImage: SourceType.images.systemImage)
+        }
+    }
+    
+    var cameraButton: some View {
+        Button {
+            viewModel.showingCameraImagePicker = true
+        } label: {
+            Label("Take Photos", systemImage: "camera")
+        }
+    }
+    
+
     var removeAllImagesSection: some View {
         FormStyledSection(
             horizontalPadding: 17,
