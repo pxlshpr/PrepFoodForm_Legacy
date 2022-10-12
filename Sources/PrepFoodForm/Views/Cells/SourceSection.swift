@@ -151,7 +151,7 @@ struct SourceSection: View {
                         .padding(.vertical, 15)
                         if viewModel.hasSourceLink {
                             Divider()
-                            .padding(.leading, 17)
+                                .padding(.leading, 17)
                         }
                     }
                     if let linkInfo = viewModel.linkInfo {
@@ -163,31 +163,7 @@ struct SourceSection: View {
             }
         }
     }
-    
-    var photosPickerButton: some View {
-        Button {
-            showingPhotosPicker = true
-        } label: {
-            Label("Choose Photos", systemImage: SourceType.images.systemImage)
-        }
-    }
-    
-    var cameraButton: some View {
-        Button {
-            viewModel.showingCamera = true
-        } label: {
-            Label("Take Photo", systemImage: "camera")
-        }
-    }
-    
-    var addALinkButton: some View {
-        Button {
-            
-        } label: {
-            Label("Add a Link", systemImage: "link")
-        }
-    }
-    
+
     var imagesGrid: some View {
 //        GeometryReader { geometry in
             HStack {

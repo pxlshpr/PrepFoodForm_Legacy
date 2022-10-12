@@ -405,6 +405,15 @@ extension FoodFormViewModel {
     var hasSources: Bool {
         hasSourceImages || hasSourceLink
     }
+    
+    var shouldShowImagesButton: Bool {
+        for fieldViewModel in allFieldViewModels {
+            if fieldViewModel.fill.usesImage {
+                return true
+            }
+        }
+        return false
+    }
 }
 
 import FoodLabelScanner

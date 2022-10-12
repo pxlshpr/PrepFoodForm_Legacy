@@ -93,15 +93,26 @@ struct LinkCell: View {
     }
 }
 
+extension ImageViewModel: Identifiable {
+    var id: UUID {
+        scanResult?.id ?? UUID()
+    }
+}
+
 struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
+    @State var imageViewModelToShowTextPickerFor: ImageViewModel? = nil
     
     var body: some View {
         form
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
+//        .sheet(isPresented: $showingTextPicker) { textPicker }
+        .sheet(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
+            textPicker(for: imageViewModel)
+        }
         .photosPicker(
             isPresented: $showingPhotosPicker,
             selection: $viewModel.selectedPhotos,
@@ -169,9 +180,7 @@ struct SourceForm: View {
     var removeLinkButton: some View {
 //        Button(role: .destructive) {
         Button {
-            withAnimation {
-                viewModel.removeSourceLink()
-            }
+            viewModel.showingRemoveLinkConfirmation = true
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
@@ -189,7 +198,7 @@ struct SourceForm: View {
             verticalPadding: 15
         ) {
             Button {
-                
+                viewModel.showingAddLinkMenu = true
             } label: {
                 Label("Add a Link", systemImage: "link")
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -223,10 +232,22 @@ struct SourceForm: View {
         }
     }
     
+    @ViewBuilder
+    func textPicker(for imageViewModel: ImageViewModel) -> some View {
+        if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageViewModel.scanResult?.id})
+        {
+            TextPicker(
+                viewModel: viewModel,
+                selectedImageIndex: index
+            )
+        }
+    }
+    
     var imagesCarousel: some View {
         SourceImagesCarousel { index in
+            imageViewModelToShowTextPickerFor = viewModel.imageViewModels[index]
         } didTapDeleteOnImage: { index in
-            deleteImage(at: index)
+            removeImage(at: index)
         }
         .environmentObject(viewModel)
     }
@@ -274,7 +295,7 @@ struct SourceForm: View {
     var removeAllImagesButton: some View {
 //        Button(role: .destructive) {
         Button(role: .destructive) {
-            showingRemoveAllImagesConfirmation = true
+            viewModel.showingRemoveImagesConfirmation = true
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
@@ -284,21 +305,13 @@ struct SourceForm: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundColor(.secondary)
         }
-        .confirmationDialog("", isPresented: $showingRemoveAllImagesConfirmation) {
-            Button("Remove All Images", role: .destructive) {
-                Haptics.successFeedback()
-                withAnimation {
-                    viewModel.deleteAllImages()
-                }
-            }
-        }
     }
     
     //MARK: - Actions
-    func deleteImage(at index: Int) {
+    func removeImage(at index: Int) {
         Haptics.feedback(style: .rigid)
         withAnimation {
-            viewModel.deleteImage(at: index)
+            viewModel.removeImage(at: index)
         }
     }
 }
@@ -308,12 +321,12 @@ extension FoodFormViewModel {
         linkInfo = nil
     }
     
-    func deleteAllImages() {
+    func removeAllImages() {
         resetFillForAllFieldsUsingImages()
         imageViewModels = []
     }
     
-    func deleteImage(at index: Int) {
+    func removeImage(at index: Int) {
         /// Change all `.scanned` and `.selection` autofills that depend on this to `.userInput`
         resetFillForFieldsUsingImage(at: index)
 

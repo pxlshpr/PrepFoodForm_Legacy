@@ -96,8 +96,12 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingMicronutrientsPicker = false
     @Published var showingThirdPartySearch = false
     @Published var showingEmojiPicker = false
+    
     @Published var showingSourceMenu = false
     @Published var showingPhotosMenu = false
+    @Published var showingAddLinkMenu = false
+    @Published var showingRemoveImagesConfirmation = false
+    @Published var showingRemoveLinkConfirmation = false
 
     @Published var shouldShowWizard = true
     @Published var showingWizard = false

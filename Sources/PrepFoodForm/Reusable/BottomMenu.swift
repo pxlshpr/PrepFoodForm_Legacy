@@ -4,21 +4,25 @@ import SwiftHaptics
 
 public struct BottomMenuAction: Hashable, Equatable {
     let title: String
-    let systemImage: String
+    let systemImage: String?
+    let role: ButtonRole
     let tapHandler: (() -> ())?
     
     let textInputHandler: ((String) -> ())?
+    let textInputIsValid: ((String) -> Bool)?
     let textInputSubmitString: String
     let textInputPlaceholder: String
     let textInputKeyboardType: UIKeyboardType
     let textInputAutocapitalization: TextInputAutocapitalization
 
-    init(title: String, systemImage: String, tapHandler: (() -> Void)?) {
+    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)?) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = tapHandler
+        self.role = role
         
         self.textInputHandler = nil
+        self.textInputIsValid = nil
         self.textInputPlaceholder = ""
         self.textInputSubmitString = ""
         self.textInputKeyboardType = .default
@@ -27,22 +31,33 @@ public struct BottomMenuAction: Hashable, Equatable {
 
     init(
         title: String,
-        systemImage: String,
+        systemImage: String? = nil,
         placeholder: String = "",
         keyboardType: UIKeyboardType = .default,
         submitString: String = "",
         autocapitalization: TextInputAutocapitalization = .sentences,
+        textInputIsValid: ((String) -> Bool)? = nil,
         textInputHandler: ((String) -> Void)?
     ) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = nil
-        
+        self.role = .cancel
+
         self.textInputPlaceholder = placeholder
         self.textInputSubmitString = submitString
+        self.textInputIsValid = textInputIsValid
         self.textInputHandler = textInputHandler
         self.textInputKeyboardType = keyboardType
         self.textInputAutocapitalization = autocapitalization
+    }
+    
+    enum ActionType {
+        case button, textField
+    }
+    
+    var type: ActionType {
+        self.textInputHandler == nil ? .button : .textField
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -55,28 +70,71 @@ public struct BottomMenuAction: Hashable, Equatable {
     }
 }
 
+extension Array where Element == [BottomMenuAction] {
+    var singleTextInputAction: BottomMenuAction? {
+        guard count == 1,
+              self[0].count == 1,
+              let action = first?.first,
+              action.type == .textField
+        else {
+            return nil
+        }
+        return action
+    }
+}
+
 public struct BottomMenuModifier: ViewModifier {
     
     @State var animatedIsPresented: Bool = false
-    @State var actionToReceiveTextInputFor: BottomMenuAction? = nil
     @FocusState var isFocused: Bool
-    
     @State var inputText: String = ""
 
     @Binding var isPresented: Bool
     let actionGroups: [[BottomMenuAction]]
+    @State var actionToReceiveTextInputFor: BottomMenuAction?
+
+    init(isPresented: Binding<Bool>, actionGroups: [[BottomMenuAction]]) {
+        _isPresented = isPresented
+        self.actionGroups = actionGroups
+        
+        /// If we only have one action group that takes a text input—set it straight away so the user can input the text
+        if let singleTextInputAction = actionGroups.singleTextInputAction {
+            _actionToReceiveTextInputFor = State(initialValue: singleTextInputAction)
+        } else {
+            _actionToReceiveTextInputFor = State(initialValue: nil)
+        }
+    }
     
     public func body(content: Content) -> some View {
         content
             .overlay(menuOverlay)
             .onChange(of: isPresented) { newValue in
+                if newValue {
+                    resetForNextPresentation()
+                }
+
                 withAnimation(.interactiveSpring()) {
                     Haptics.feedback(style: .rigid)
                     animatedIsPresented = newValue
                 }
             }
+            .onAppear {
+                if actionToReceiveTextInputFor != nil && !isFocused {
+                    isFocused = true
+                }
+            }
     }
     
+    func resetForNextPresentation() {
+        if let singleTextInputAction = actionGroups.singleTextInputAction {
+            actionToReceiveTextInputFor = singleTextInputAction
+        } else {
+            actionToReceiveTextInputFor = nil
+        }
+        if actionToReceiveTextInputFor != nil && !isFocused {
+            isFocused = true
+        }
+    }
 
     var backgroundLayer: some View {
         Color(.quaternarySystemFill)
@@ -145,6 +203,14 @@ public struct BottomMenuModifier: ViewModifier {
                 .frame(maxWidth: .infinity)
                 .padding()
         }
+        .disabled(shouldDisableSubmitButton)
+    }
+    
+    var shouldDisableSubmitButton: Bool {
+        guard let textInputIsValid = actionToReceiveTextInputFor?.textInputIsValid else {
+            return false
+        }
+        return !textInputIsValid(inputText)
     }
     
     func inputSections(for action: BottomMenuAction) -> some View {
@@ -210,10 +276,8 @@ public struct BottomMenuModifier: ViewModifier {
             if let tapHandler = action.tapHandler {
                 tapHandler()
                 dismiss()
-            }
-            
-            /// If this has a text input handler—change the UI to be able to recieve text input
-            if let textInputHandler = action.textInputHandler {
+            } else if let _ = action.textInputHandler {
+                /// If this has a text input handler—change the UI to be able to recieve text input
                 withAnimation {
                     actionToReceiveTextInputFor = action
                 }
@@ -221,16 +285,20 @@ public struct BottomMenuModifier: ViewModifier {
             }
         } label: {
             HStack {
-                Image(systemName: action.systemImage)
-                    .imageScale(.large)
-                    .frame(width: 50)
-//                    .padding(.leading, 6)
-//                    .padding(.trailing, 8)
-                    .fontWeight(.medium)
+                if let systemImage = action.systemImage {
+                    Image(systemName: systemImage)
+                        .imageScale(.large)
+                        .frame(width: 50)
+                        .fontWeight(.medium)
+                        .foregroundColor(action.role == .destructive ? .red : .accentColor)
+                }
                 Text(action.title)
                     .font(.title3)
                     .fontWeight(.regular)
-                Spacer()
+                    .foregroundColor(action.role == .destructive ? .red : .accentColor)
+                if action.systemImage != nil {
+                    Spacer()
+                }
             }
         }
         .padding()
@@ -252,7 +320,10 @@ public struct BottomMenuModifier: ViewModifier {
     func dismiss() {
         Haptics.feedback(style: .medium)
         isFocused = false
-        actionToReceiveTextInputFor = nil
+        /// Reset `actionToReceiveTextInputFor` to nil only if the action groups has other actions besides the one expecting input
+        if actionGroups.singleTextInputAction != nil {
+            actionToReceiveTextInputFor = nil
+        }
         inputText = ""
         isPresented = false
     }
@@ -284,12 +355,39 @@ public struct BottomMenuPreview: View {
                     }
                     .navigationTitle("Form")
                 }
-                .bottomMenu(isPresented: $showingMenu, actionGroups: menuActionGroups)
+                .bottomMenu(isPresented: $showingMenu, actionGroups: removeAllImagesActionGroups)
                 .interactiveDismissDisabled(showingMenu)
 //            }
     }
-    
+
     var menuActionGroups: [[BottomMenuAction]] {
+        [
+            [
+                BottomMenuAction(
+                    title: "Add a Link",
+                    systemImage: "link",
+                    placeholder: "https://fastfood.com/nutrition",
+                    submitString: "Add Link",
+                    textInputHandler: { string in
+                    print("Got back: \(string)")
+                })
+            ]
+        ]
+    }
+
+    var removeAllImagesActionGroups: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "Remove All Images",
+//                systemImage: "trash",
+                role: .destructive,
+                tapHandler: {
+                }
+            )
+        ]]
+    }
+
+    var menuActionGroups2: [[BottomMenuAction]] {
         [
             [
                 BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
@@ -304,6 +402,7 @@ public struct BottomMenuPreview: View {
                     title: "Add a Link",
                     systemImage: "link",
                     placeholder: "https://fastfood.com/nutrition",
+                    submitString: "Add Link",
                     textInputHandler: { string in
                     print("Got back: \(string)")
                 })

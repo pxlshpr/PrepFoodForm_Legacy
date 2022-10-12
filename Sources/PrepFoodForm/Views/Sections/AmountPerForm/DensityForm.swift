@@ -87,13 +87,15 @@ struct DensityForm: View {
     
     var textPicker: some View {
         TextPicker(
-            imageViewModels: viewModel.imageViewModels,
+            viewModel: viewModel,
+//            imageViewModels: viewModel.imageViewModels,
             selectedText: densityViewModel.fill.text,
             selectedImageIndex: selectedImageIndex,
             customTextFilter: supportsText
         ) { selectedImageTexts in
             didSelectImageTexts(selectedImageTexts)
         }
+//        .environmentObject(viewModel)
         .onDisappear {
             guard densityViewModel.isCroppingNextImage else {
                 return

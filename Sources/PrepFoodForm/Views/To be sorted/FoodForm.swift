@@ -15,7 +15,6 @@ public struct FoodForm: View {
     @StateObject var viewModel: FoodFormViewModel
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
-    
     @State var showingPhotosPicker = false
     
     public init() {
@@ -76,6 +75,9 @@ public struct FoodForm: View {
         }
         .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
         .bottomMenu(isPresented: $viewModel.showingPhotosMenu, actionGroups: photosActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingAddLinkMenu, actionGroups: addLinkActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
     }
     
     var photosActionGroups: [[BottomMenuAction]] {
@@ -89,6 +91,57 @@ public struct FoodForm: View {
         ]]
     }
     
+    var addLinkActionGroups: [[BottomMenuAction]] {
+        [[addLinkMenuAction]]
+    }
+
+    var removeAllImagesActionGroups: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "Remove All Images",
+                role: .destructive,
+                tapHandler: {
+                    withAnimation {
+                        viewModel.removeAllImages()
+                    }
+                }
+            )
+        ]]
+    }
+
+    var removeLinkActionGroups: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "Remove Link",
+                role: .destructive,
+                tapHandler: {
+                    withAnimation {
+                        viewModel.removeSourceLink()
+                    }
+                }
+            )
+        ]]
+    }
+
+    var addLinkMenuAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "Add a Link",
+            systemImage: "link",
+            placeholder: "https://fastfood.com/nutrition-facts.pdf",
+            keyboardType: .URL,
+            submitString: "Add Link",
+            autocapitalization: .never,
+            textInputIsValid: textInputIsValidHandler,
+            textInputHandler:
+                { string in
+                    viewModel.submittedSourceLink(string)
+                }
+        )
+    }
+    
+    func textInputIsValidHandler(_ string: String) -> Bool {
+        string.isValidURL
+    }
 
     var sourceMenuActionGroups: [[BottomMenuAction]] {
         [
@@ -100,22 +153,10 @@ public struct FoodForm: View {
                     viewModel.showingCamera = true
                 })
             ],
-            [
-                BottomMenuAction(
-                    title: "Add a Link",
-                    systemImage: "link",
-                    placeholder: "https://fastfood.com/nutrition-facts.pdf",
-                    keyboardType: .URL,
-                    submitString: "Add Link",
-                    autocapitalization: .never,
-                    textInputHandler:
-                        { string in
-                            viewModel.submittedSourceLink(string)
-                        }
-                )
-            ]
+            [addLinkMenuAction]
         ]
     }
+
     
     var disableDismiss: Bool {
         viewModel.hasEnoughData || viewModel.showingSourceMenu

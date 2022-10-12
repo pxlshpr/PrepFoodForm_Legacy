@@ -8,10 +8,10 @@ import ActivityIndicatorView
 
 struct TextPicker: View {
     @Environment(\.dismiss) var dismiss
-//    @EnvironmentObject var viewModel: FoodFormViewModel
+    @ObservedObject var viewModel: FoodFormViewModel
     
-    var imageViewModels: [ImageViewModel]
-    
+//    var imageViewModels: [ImageViewModel]
+//
     @State var selectedImageTexts: [ImageText] = []
     
     @State var page: Page = .first()
@@ -24,39 +24,45 @@ struct TextPicker: View {
 
     @State var hasAppeared: Bool = false
     
+    @State var showingBoxes: Bool
+    
     let allowsMultipleSelection: Bool
     let onlyShowTextsWithValues: Bool
     let selectedText: RecognizedText?
     let selectedImageIndex: Int?
     let selectedAttributeText: RecognizedText?
     private let selectedBoundingBox: CGRect?
-    let didSelectImageTexts: ([ImageText]) -> Void
+    let didSelectImageTexts: (([ImageText]) -> Void)?
     
     let customTextFilter: ((RecognizedText) -> Bool)?
     
-    init(imageViewModels: [ImageViewModel],
-         allowsMultipleSelection: Bool = false,
-         selectedText: RecognizedText? = nil,
-         selectedAttributeText: RecognizedText? = nil,
-         selectedImageIndex: Int? = nil,
-         onlyShowTextsWithValues: Bool = false,
-         customTextFilter: ((RecognizedText) -> Bool)? = nil,
-         didSelectImageTexts: @escaping ([ImageText]) -> Void
+    init(
+        viewModel: FoodFormViewModel,
+//        imageViewModels: [ImageViewModel],
+        allowsMultipleSelection: Bool = false,
+        selectedText: RecognizedText? = nil,
+        selectedAttributeText: RecognizedText? = nil,
+        selectedImageIndex: Int? = nil,
+        onlyShowTextsWithValues: Bool = false,
+        customTextFilter: ((RecognizedText) -> Bool)? = nil,
+        didSelectImageTexts: (([ImageText]) -> Void)? = nil
     ) {
-        self.imageViewModels = imageViewModels
+        self.viewModel = viewModel
+//        self.imageViewModels = imageViewModels
         self.allowsMultipleSelection = allowsMultipleSelection
-        _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
-        _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
+        _focusMessages = State(initialValue: Array(repeating: nil, count: viewModel.imageViewModels.count))
+        _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: viewModel.imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.customTextFilter = customTextFilter
         self.selectedText = selectedText
         self.selectedAttributeText = selectedAttributeText
         self.selectedImageIndex = selectedImageIndex
         
+        _showingBoxes = State(initialValue: didSelectImageTexts == nil ? false : true)
         //TODO: Move all these computationally intensive stuff elsewhere
         if let selectedAttributeText, let selectedText, let selectedImageIndex {
             let union = selectedAttributeText.boundingBox.union(selectedText.boundingBox)
-            let ivm = imageViewModels[selectedImageIndex]
+            let ivm = viewModel.imageViewModels[selectedImageIndex]
             
             let texts: [RecognizedText]
             if let customTextFilter {
@@ -81,25 +87,62 @@ struct TextPicker: View {
     var body: some View {
         NavigationView {
             content
-                .navigationTitle("Select a text")
+                .navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar { bottomToolbar }
                 .toolbar(.visible, for: .bottomBar)
                 .toolbarBackground(.visible, for: .bottomBar)
-                .if(allowsMultipleSelection) { view in
-                    view
-                        .toolbar { navigationTrailingContents }
-                }
+                .toolbar { navigationLeadingContents }
+                .toolbar { navigationTrailingContents }
         }
         .onAppear(perform: appeared)
     }
     
+    var navigationLeadingContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button("Done") {
+                if let didSelectImageTexts {
+                    didSelectImageTexts(selectedImageTexts)
+                    Haptics.successFeedback()
+                }
+                dismiss()
+            }
+            if mode == .viewing {
+                Button {
+                    withAnimation {
+                        showingBoxes.toggle()
+                    }
+                } label: {
+                    Image(systemName: "text.viewfinder")
+                        .foregroundColor(showingBoxes ? .accentColor : .secondary)
+                }
+            }
+        }
+    }
+    
+    var title: String {
+        switch mode {
+        case .picking:
+            return allowsMultipleSelection ? "Select texts" : "Select a text"
+        case .viewing:
+            return "Source Images"
+        }
+    }
+    
     var navigationTrailingContents: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            Button("Done") {
-                didSelectImageTexts(selectedImageTexts)
-                Haptics.successFeedback()
-                dismiss()
+            if mode == .viewing {
+                Button {
+                    viewModel.removeImage(at: currentIndex)
+                    currentIndex -= 1
+                    Haptics.successFeedback()
+                    if viewModel.imageViewModels.isEmpty {
+                        dismiss()
+                    }
+                } label: {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
             }
         }
     }
@@ -109,7 +152,9 @@ struct TextPicker: View {
         if hasAppeared {
             ZStack {
                 pager
-                selectedTextsLayer
+                if allowsMultipleSelection {
+                    selectedTextsLayer
+                }
             }
             .transition(.opacity)
         }
@@ -173,6 +218,10 @@ struct TextPicker: View {
 //            .frame(width: .infinity)
             Spacer()
         }
+    }
+    
+    var imageViewModels: [ImageViewModel] {
+        viewModel.imageViewModels
     }
 
     //MARK: Pager
@@ -242,6 +291,8 @@ struct TextPicker: View {
             return onlyShowTextsWithValues ? imageViewModel.textsWithValues : imageViewModel.texts
         }
     }
+    
+    @ViewBuilder
     func boxesLayer(for imageViewModel: ImageViewModel) -> some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
@@ -297,7 +348,9 @@ struct TextPicker: View {
             if allowsMultipleSelection {
                 toggleSelection(of: imageText)
             } else {
-                didSelectImageTexts([imageText])
+                if let didSelectImageTexts {
+                    didSelectImageTexts([imageText])
+                }
                 dismiss()
             }
         }
@@ -321,6 +374,7 @@ struct TextPicker: View {
                         .opacity(0.8)
                 )
                 .shadow(radius: 3, x: 0, y: 2)
+                .opacity(showingBoxes ? 1 : 0)
         }
         
         var button: some View {
@@ -334,7 +388,11 @@ struct TextPicker: View {
         
         return HStack {
             VStack(alignment: .leading) {
-                button
+                if mode == .picking {
+                    button
+                } else {
+                    box
+                }
                 Spacer()
             }
             Spacer()
@@ -343,6 +401,13 @@ struct TextPicker: View {
                 y: boundingBox.rectForSize(size).minY)
     }
     
+    enum Mode {
+        case picking, viewing
+    }
+    
+    var mode: Mode {
+        didSelectImageTexts == nil ? .viewing : .picking
+    }
     
     @ViewBuilder
     func imageView(for imageViewModel: ImageViewModel) -> some View {
@@ -508,12 +573,13 @@ public struct ImageTextPickerPreview: View {
 
     var imageTextPicker: some View {
         TextPicker(
-            imageViewModels: viewModel.imageViewModels,
+            viewModel: viewModel,
+//            imageViewModels: viewModel.imageViewModels,
             allowsMultipleSelection: true
 //            selectedText: selectedText
         ) { selectedImageTexts in
         }
-        .environmentObject(viewModel)
+//        .environmentObject(viewModel)
     }
 }
 

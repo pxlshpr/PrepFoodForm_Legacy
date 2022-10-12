@@ -167,15 +167,20 @@ public struct NutritionFactsList: View {
         }
     }
     
+    @ViewBuilder
     var showImagesButton: some View {
-        Button {
-            Haptics.feedback(style: .medium)
-            withAnimation {
-                showImages.toggle()
+        if viewModel.shouldShowImagesButton {
+            Button {
+                Haptics.feedback(style: .medium)
+                withAnimation {
+                    showImages.toggle()
+                }
+            } label: {
+                Image(systemName: "text.viewfinder")
+                    .foregroundColor(showImages ? .accentColor : .secondary)
+                    .padding(.vertical)
+                    .padding(.trailing)
             }
-        } label: {
-            Image(systemName: "photo.circle\(showImages ? ".fill" : "")")
-                .padding(.vertical)
         }
     }
     
