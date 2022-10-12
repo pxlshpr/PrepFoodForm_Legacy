@@ -10,6 +10,7 @@ public struct BottomMenuAction: Hashable, Equatable {
     let textInputHandler: ((String) -> ())?
     let textInputPlaceholder: String
     let textInputKeyboardType: UIKeyboardType
+    let textInputAutocapitalization: TextInputAutocapitalization
 
     init(title: String, systemImage: String, tapHandler: (() -> Void)?) {
         self.title = title
@@ -19,9 +20,17 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.textInputHandler = nil
         self.textInputPlaceholder = ""
         self.textInputKeyboardType = .default
+        self.textInputAutocapitalization = .sentences
     }
 
-    init(title: String, systemImage: String, placeholder: String = "", keyboardType: UIKeyboardType = .default, textInputHandler: ((String) -> Void)?) {
+    init(
+        title: String,
+        systemImage: String,
+        placeholder: String = "",
+        keyboardType: UIKeyboardType = .default,
+        autocapitalization: TextInputAutocapitalization = .sentences,
+        textInputHandler: ((String) -> Void)?
+    ) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = nil
@@ -29,6 +38,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.textInputPlaceholder = placeholder
         self.textInputHandler = textInputHandler
         self.textInputKeyboardType = keyboardType
+        self.textInputAutocapitalization = autocapitalization
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -104,7 +114,7 @@ public struct BottomMenuModifier: ViewModifier {
                         submitTextButton(for: actionToReceiveTextInputFor)
                         Divider()
                     }
-                    .transition(.move(edge: .bottom))
+                    .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
                 }
                 cancelButton
             }
@@ -143,6 +153,7 @@ public struct BottomMenuModifier: ViewModifier {
                 .focused($isFocused)
                 .padding()
                 .keyboardType(action.textInputKeyboardType)
+                .textInputAutocapitalization(action.textInputAutocapitalization)
                 .background(
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .strokeBorder(Color(.separator).opacity(0.5))

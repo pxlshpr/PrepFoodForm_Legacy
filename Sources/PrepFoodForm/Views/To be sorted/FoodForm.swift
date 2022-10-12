@@ -91,8 +91,9 @@ public struct FoodForm: View {
                 BottomMenuAction(
                     title: "Add a Link",
                     systemImage: "link",
-                    placeholder: "https://fastfood.com/nutrition",
+                    placeholder: "https://fastfood.com/nutrition-facts.pdf",
                     keyboardType: .URL,
+                    autocapitalization: .never,
                     textInputHandler: { string in
                     print("Got back: \(string)")
                 })
