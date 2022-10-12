@@ -134,9 +134,13 @@ struct SourceSection: View {
             } label: {
                 VStack(spacing: 0) {
                     if viewModel.hasSourceImages {
-                        VStack(alignment: .leading, spacing: 15) {
-                            imagesGrid
-                            imageSetStatus
+                        HStack(alignment: .top) {
+                            Image(systemName: "photo.on.rectangle.angled")
+                                .foregroundColor(.secondary)
+                            VStack(alignment: .leading, spacing: 15) {
+                                imagesGrid
+                                imageSetStatus
+                            }
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
@@ -146,7 +150,7 @@ struct SourceSection: View {
                         }
                     }
                     if let linkInfo = viewModel.linkInfo {
-                        LinkCell(linkInfo)
+                        LinkCell(linkInfo, titleColor: .secondary, imageColor: .secondary, detailColor: Color(.tertiaryLabel))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 15)
                     }
