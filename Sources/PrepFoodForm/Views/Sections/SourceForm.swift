@@ -170,10 +170,13 @@ struct SourceForm: View {
                 viewModel.removeSourceLink()
             }
         } label: {
-            Label("Remove Link", systemImage: "trash")
-//            Text("Remove Link")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.secondary)
+            HStack(spacing: 7) {
+                Image(systemName: "trash")
+                    .frame(width: 20)
+                Text("Remove Link")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.secondary)
         }
     }
     
@@ -282,10 +285,14 @@ struct SourceForm: View {
             viewModel.showingPhotosMenu = true
         } label: {
 //            Text("Add Images")
-            Label("Add Images", systemImage: "plus")
+            HStack(spacing: 7) {
+                Image(systemName: "plus")
+                    .frame(width: 20)
+                Text("Add Images")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
     }
     
     var removeAllImagesButton: some View {
@@ -293,9 +300,13 @@ struct SourceForm: View {
         Button(role: .destructive) {
             showingRemoveAllImagesConfirmation = true
         } label: {
-            Label("Remove All Images", systemImage: "trash")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.secondary)
+            HStack(spacing: 7) {
+                Image(systemName: "trash")
+                    .frame(width: 20)
+                Text("Remove All Images")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .foregroundColor(.secondary)
         }
         .confirmationDialog("", isPresented: $showingRemoveAllImagesConfirmation) {
             Button("Remove All Images", role: .destructive) {
