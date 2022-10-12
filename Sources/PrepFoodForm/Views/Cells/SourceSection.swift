@@ -134,10 +134,10 @@ struct SourceSection: View {
             } label: {
                 VStack(spacing: 0) {
                     if viewModel.hasSourceImages {
-                        HStack(alignment: .top, spacing: 7) {
+                        HStack(alignment: .top, spacing: LabelSpacing) {
                             Image(systemName: "photo.on.rectangle.angled")
                                 .foregroundColor(.secondary)
-                                .frame(width: 20)
+                                .frame(width: LabelImageWidth)
                             VStack(alignment: .leading, spacing: 15) {
                                 imagesGrid
                                 imageSetStatus

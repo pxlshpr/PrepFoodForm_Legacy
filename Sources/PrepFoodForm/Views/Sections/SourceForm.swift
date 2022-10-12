@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
+let LabelSpacing: CGFloat = 10
+let LabelImageWidth: CGFloat = 20
+
 extension String {
     
     var htmlTitle: String? {
@@ -54,9 +57,9 @@ struct LinkCell: View {
             VStack(alignment: .leading, spacing: 5) {
                 Group {
                     if includeSymbol {
-                        HStack(alignment: .top, spacing: 7) {
+                        HStack(alignment: .top, spacing: LabelSpacing) {
                             Image(systemName: "link")
-                                .frame(width: 20)
+                                .frame(width: LabelImageWidth)
                                 .foregroundColor(imageColor)
                             Text(title)
                                 .multilineTextAlignment(.leading)
@@ -170,39 +173,13 @@ struct SourceForm: View {
                 viewModel.removeSourceLink()
             }
         } label: {
-            HStack(spacing: 7) {
+            HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
-                    .frame(width: 20)
+                    .frame(width: LabelImageWidth)
                 Text("Remove Link")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .foregroundColor(.secondary)
-        }
-    }
-    
-    var addPhotosSection: some View {
-        FormStyledSection(
-            horizontalPadding: 0,
-            verticalPadding: 15
-        ) {
-            VStack(spacing: 15) {
-                Button {
-                    
-                } label: {
-                    Label("Choose Photos", systemImage: SourceType.images.systemImage)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 17)
-                }
-                Divider()
-                    .padding(.leading, 50)
-                Button {
-                    
-                } label: {
-                    Label("Take Photo", systemImage: "camera")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 17)
-                }
-            }
         }
     }
     
@@ -279,15 +256,14 @@ struct SourceForm: View {
         }
     }
     
-
     var addImagesButton: some View {
         Button {
             viewModel.showingPhotosMenu = true
         } label: {
 //            Text("Add Images")
-            HStack(spacing: 7) {
+            HStack(spacing: LabelSpacing) {
                 Image(systemName: "plus")
-                    .frame(width: 20)
+                    .frame(width: LabelImageWidth)
                 Text("Add Images")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -300,9 +276,9 @@ struct SourceForm: View {
         Button(role: .destructive) {
             showingRemoveAllImagesConfirmation = true
         } label: {
-            HStack(spacing: 7) {
+            HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
-                    .frame(width: 20)
+                    .frame(width: LabelImageWidth)
                 Text("Remove All Images")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
