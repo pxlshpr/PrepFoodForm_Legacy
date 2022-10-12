@@ -27,6 +27,7 @@ extension FoodForm.NutritionFactsCell {
     var emptyContent: some View {
         Text("Required")
             .foregroundColor(Color(.tertiaryLabel))
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var foodLabel: some View {

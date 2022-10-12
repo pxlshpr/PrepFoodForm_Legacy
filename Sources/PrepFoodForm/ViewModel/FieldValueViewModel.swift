@@ -71,6 +71,16 @@ class FieldViewModel: ObservableObject, Identifiable {
         imageToDisplay = nil
     }
     
+    func resetFill() {
+        registerUserInput()
+    }
+    
+    func resetFillIfUsingImage(withId id: UUID) {
+        if fieldValue.fill.usesImage(with: id) {
+            resetFill()
+        }
+    }
+    
     func assignNewScannedFill(_ fill: Fill) {
         let previousFill = fieldValue.fill
         fieldValue.fill = fill

@@ -2,13 +2,14 @@ import SwiftUI
 import ActivityIndicatorView
 import PhotosUI
 import SwiftHaptics
+import SwiftUISugar
 
 struct SourceSection: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingPhotosPicker = false
     
     var body: some View {
-        Section(header: header, footer: footer) {
+        FormStyledSection(header: header, footer: footer) {
             if viewModel.sourceType == .manualEntry {
 //                photosPickerButton
                 notChosenContent
@@ -34,7 +35,7 @@ struct SourceSection: View {
     
     var cameraButton: some View {
         Button {
-            viewModel.showingCameraImagePicker = true
+            viewModel.showingCamera = true
         } label: {
             Label("Take Photos", systemImage: "camera")
         }
@@ -52,17 +53,19 @@ struct SourceSection: View {
     
     var notChosenContent: some View {
         Button {
-            Haptics.transientHaptic()
-            showingConfirmationDialog = true
+//            Haptics.transientHaptic()
+            viewModel.showingSourceMenu = true
+//            showingConfirmationDialog = true
         } label: {
             Text("Select a source")
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .confirmationDialog("", isPresented: $showingConfirmationDialog) {
-            photosPickerButton
-            cameraButton
-            addALinkButton
-        }
+        .contentShape(Rectangle())
+//        .confirmationDialog("", isPresented: $showingConfirmationDialog) {
+//            photosPickerButton
+//            cameraButton
+//            addALinkButton
+//        }
     }
     
     var chosenContent: some View {
@@ -164,6 +167,7 @@ struct SourceSection: View {
                         .foregroundColor(Color(.secondaryLabel))
                         .multilineTextAlignment(.leading)
                     Label("Learn more", systemImage: "info.circle")
+                        .foregroundColor(.accentColor)
                 }
                 .font(.footnote)
             }

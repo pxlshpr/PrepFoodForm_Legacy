@@ -83,6 +83,19 @@ extension FieldValue {
     }
 }
 
+extension Fill {
+    func usesImage(with id: UUID) -> Bool {
+        switch self {
+        case .scanned(let info):
+            return info.imageText.imageId == id
+        case .selection(let info):
+            return info.usesImage(with: id)
+        default:
+            return false
+        }
+    }
+}
+
 extension NutrientType {
     var supportedNutrientUnits: [NutrientUnit] {
         var units = units.map {

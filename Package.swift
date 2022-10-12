@@ -18,7 +18,7 @@ let package = Package(
          // Dependencies declare other packages that this package depends on.
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.18"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.40"),
-        .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.22"),
+        .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.23"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),

@@ -4,6 +4,7 @@ import PrepUnits
 import PhotosUI
 import Camera
 import EmojiPicker
+import SwiftUISugar
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
@@ -15,7 +16,7 @@ public struct FoodForm: View {
     @State var showingScan = false
     @State var showingThirdPartyInfo = false
     
-    @State var showingPhotosPicker = true
+    @State var showingPhotosPicker = false
     
     public init() {
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
@@ -25,7 +26,7 @@ public struct FoodForm: View {
         NavigationView {
             content
                 .navigationTitle("New Food")
-                .interactiveDismissDisabled(viewModel.hasEnoughData)
+                .interactiveDismissDisabled(disableDismiss)
                 .onAppear {
                     if viewModel.shouldShowWizard {
                         DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
@@ -43,12 +44,11 @@ public struct FoodForm: View {
                 }
                 .onChange(of: viewModel.selectedPhotos) { newValue in
                     viewModel.selectedPhotosChanged(to: newValue)
-                    showingPhotosPicker = false
                     withAnimation {
                         viewModel.showingWizard = false
                     }
                 }
-                .sheet(isPresented: $viewModel.showingCameraImagePicker) {
+                .sheet(isPresented: $viewModel.showingCamera) {
                     Camera { image in
                         viewModel.didCapture(image)
                     }
@@ -67,7 +67,36 @@ public struct FoodForm: View {
                 .onReceive(viewModel.energyViewModel.$fieldValue) { publisher in
                     viewModel.energyValue = viewModel.energyViewModel.fieldValue.value ?? .zero
                 }
+                .photosPicker(
+                    isPresented: $showingPhotosPicker,
+                    selection: $viewModel.selectedPhotos,
+                    maxSelectionCount: 5,
+                    matching: .images
+                )
         }
+        .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
+    }
+  
+    var sourceMenuActionGroups: [[BottomMenuAction]] {
+        [
+            [
+                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", action: {
+                    showingPhotosPicker = true
+                }),
+                BottomMenuAction(title: "Take Photos", systemImage: "camera", action: {
+                    viewModel.showingCamera = true
+                })
+            ],
+            [
+                BottomMenuAction(title: "Add a Link", systemImage: "link", action: {
+                    
+                })
+            ]
+        ]
+    }
+    
+    var disableDismiss: Bool {
+        viewModel.hasEnoughData || viewModel.showingSourceMenu
     }
     
     var content: some View {
@@ -166,19 +195,9 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var form: some View {
-        Form {
+        FormStyledScrollView {
             detailsSection
             servingSection
-            if let columns = viewModel.availableColumns {
-                Section {
-                    Picker("", selection: $viewModel.pickedColumn) {
-                        ForEach(columns.indices, id: \.self) { column in
-                            Text(columns[column]).tag(column+1)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-            }
             foodLabelSection
             sourceSection
             prefillSection
@@ -222,7 +241,7 @@ public struct FoodForm: View {
     
     var cameraButton: some View {
         Button {
-            viewModel.showingCameraImagePicker = true
+            viewModel.showingCamera = true
         } label: {
             Label("Take Photos", systemImage: "camera")
                 .foregroundColor(.primary)
@@ -250,9 +269,9 @@ public struct FoodForm: View {
     }
     
     var photosPickerButton: some View {
-        PhotosPicker(selection: $viewModel.selectedPhotos,
-                     maxSelectionCount: 5,
-                     matching: .images) {
+        Button {
+            showingPhotosPicker = true
+        } label: {
             Label("Choose Photos", systemImage: SourceType.images.systemImage)
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -293,7 +312,7 @@ public struct FoodForm: View {
     //MARK: - FoodForm Contents
     
     var detailsSection: some View {
-        Section("Details") {
+        FormStyledSection(header: Text("Details")) {
             NavigationLink {
                 DetailsForm(
                     nameViewModel: viewModel.nameViewModel,
@@ -310,7 +329,7 @@ public struct FoodForm: View {
     }
     
     var servingSection: some View {
-        Section("Amount Per") {
+        FormStyledSection(header: Text("Amount Per")) {
             NavigationLink {
                 AmountPerForm(
                     viewModel: viewModel,
@@ -335,7 +354,7 @@ public struct FoodForm: View {
             }
         }
         
-        return Section(header: header) {
+        return FormStyledSection(header: header) {
             NavigationLink {
                 NutritionFactsList()
                     .environmentObject(viewModel)
@@ -356,7 +375,7 @@ public struct FoodForm: View {
     @ViewBuilder
     var prefillSection: some View {
         if let url = viewModel.prefilledFood?.sourceUrl {
-            Section("Prefilled Food") {
+            FormStyledSection(header: Text("Prefilled Food")) {
                 NavigationLink {
                     SourceWebView(urlString: url)
                 } label: {

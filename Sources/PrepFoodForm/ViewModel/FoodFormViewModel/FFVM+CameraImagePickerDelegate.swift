@@ -4,7 +4,7 @@ extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
         sourceType = .images
         
-//        showingCameraImagePicker = false
+//        showingCamera = false
         withAnimation {
             showingWizard = false
         }

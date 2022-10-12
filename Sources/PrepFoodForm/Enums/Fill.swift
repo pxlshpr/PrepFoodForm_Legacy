@@ -86,6 +86,16 @@ struct SelectionFillInfo: Hashable {
             .map { $0.componentString }
             .joined(separator: " ")
     }
+    
+    func usesImage(with id: UUID) -> Bool {
+        if let imageText, imageText.imageId == id {
+            return true
+        }
+        if let componentTexts {
+            return componentTexts.contains(where: { $0.imageText.imageId == id })
+        }
+        return false
+    }
 }
 
 struct PrefillFieldString: Hashable {

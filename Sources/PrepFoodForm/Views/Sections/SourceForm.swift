@@ -129,7 +129,7 @@ struct SourceForm: View {
     
     var cameraButton: some View {
         Button {
-            viewModel.showingCameraImagePicker = true
+            viewModel.showingCamera = true
         } label: {
             Label("Take Photos", systemImage: "camera")
         }
@@ -188,7 +188,10 @@ extension FoodFormViewModel {
     }
     
     func resetFillForAllFieldsUsingImages() {
-        
+        for fieldViewModel in allFieldViewModels {
+            fieldViewModel.resetFill()
+        }
+        scannedFieldValues = []
     }
     
     func resetFillForFieldsUsingImage(at index: Int) {
@@ -196,6 +199,15 @@ extension FoodFormViewModel {
               let id = imageViewModels[index].scanResult?.id
         else {
             return
+        }
+        /// Selectively reset fills for fields that are using this image
+        for fieldViewModel in allFieldViewModels {
+            fieldViewModel.resetFillIfUsingImage(withId: id)
+        }
+        
+        /// Now remove the saved scanned field values that are also using this image
+        scannedFieldValues = scannedFieldValues.filter {
+            !$0.fill.usesImage(with: id)
         }
     }
 }
