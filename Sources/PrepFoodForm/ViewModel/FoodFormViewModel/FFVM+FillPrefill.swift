@@ -33,7 +33,7 @@ extension FoodFormViewModel {
     
     func simulateImageSelection() {
         
-        sourceType = .images
+//        sourceType = .images
         imageSetStatus = .scanning
         
         simulateAddingImage(9)
@@ -49,7 +49,7 @@ extension FoodFormViewModel {
     }
     
     func simulateImageScanning(_ indexes: [Int]) {
-        sourceType = .images
+//        sourceType = .images
         populateWithSampleImages(indexes)
         processScanResults()
         imageSetStatus = .scanned

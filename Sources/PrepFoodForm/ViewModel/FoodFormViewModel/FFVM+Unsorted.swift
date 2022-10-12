@@ -394,6 +394,17 @@ extension FoodFormViewModel {
         //TODO: only show if user includes a valid source
         true
     }
+    
+    var hasSourceImages: Bool {
+        !imageViewModels.isEmpty
+    }
+    var hasSourceLink: Bool {
+        linkInfo != nil
+    }
+    
+    var hasSources: Bool {
+        hasSourceImages || hasSourceLink
+    }
 }
 
 import FoodLabelScanner
@@ -401,12 +412,15 @@ import MFPScraper
 
 extension FoodFormViewModel {
     
-    public enum MockCase: String {
+    public enum MockCase: String, CaseIterable {
         case spinach = "spinach"
         case pumpkinSeeds = "pumpkin_seeds"
         case iceCream = "ice_cream"
         case milk = "milk"
         case yoghurt = "yoghurt"
+        case starbucks = "starbucks"
+        case mcdonalds = "mcdonalds"
+        case subway = "subway"
         
         public var name: String {
             rawValue
@@ -424,6 +438,10 @@ extension FoodFormViewModel {
             .milk,
             .yoghurt
         ]
+        
+        public static var linkMocks: [MockCase] {
+            allCases.filter { $0.linkUrlString != nil }
+        }
         var image: UIImage? {
             sampleImage(imageFilename: rawValue)
         }
@@ -434,6 +452,17 @@ extension FoodFormViewModel {
         
         var mfpProcessedFood: MFPProcessedFood? {
             sampleMFPProcessedFood(jsonFilename: "mfp_\(self.rawValue)")
+        }
+        
+        var linkUrlString: String? {
+            switch self {
+            case .starbucks: return "https://www.starbucks.com/menu/product/407/hot/nutrition"
+            case .mcdonalds: return "https://mcdonalds.com.au/maccas-food/nutrition"
+            case .pumpkinSeeds: return "https://store.edenfoods.com/pumpkin-seeds-organic-4-oz/"
+            case .subway: return "https://www.subway.com/en-AU/MenuNutrition/Nutrition"
+            default:
+                return nil
+            }
         }
     }
 
@@ -447,12 +476,15 @@ extension FoodFormViewModel {
         }
         
         if let image = mockCase.image, let scanResult = mockCase.scanResult {
-            viewModel.sourceType = .images
             viewModel.imageViewModels.append(
                 ImageViewModel(image: image, scanResult: scanResult)
             )
             viewModel.processScanResults()
             viewModel.imageSetStatus = .scanned
+        }
+        
+        if let linkUrlString = mockCase.linkUrlString {
+            viewModel.linkInfo = LinkInfo(linkUrlString)
         }
         
         return viewModel

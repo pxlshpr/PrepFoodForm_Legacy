@@ -6,7 +6,7 @@ import PhotosUI
 extension FoodFormViewModel {
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
         
-        sourceType = .images
+//        sourceType = .images
         for item in items {
             let imageViewModel = ImageViewModel(photosPickerItem: item)
             imageViewModels.append(imageViewModel)

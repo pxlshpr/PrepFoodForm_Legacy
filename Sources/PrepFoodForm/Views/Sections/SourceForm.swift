@@ -2,14 +2,79 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
+extension String {
+    
+    var htmlTitle: String? {
+        let openGraphPattern = #"og:title\"[^\"]*\"([^\"]*)"#
+        let htmlTitlePattern = #"<title>(.*)<\/title>"#
+        
+        return self.secondCapturedGroup(using: openGraphPattern) ?? self.secondCapturedGroup(using: htmlTitlePattern)
+    }
+}
+
+struct LinkCell: View {
+    
+    @ObservedObject var linkInfo: LinkInfo
+    let customTitle: String?
+    let includeSymbol: Bool
+    let alwaysIncludeUrl: Bool
+
+    init(_ linkInfo: LinkInfo, title: String? = nil, alwaysIncludeUrl: Bool = false, includeSymbol: Bool = true) {
+        self.linkInfo = linkInfo
+        self.customTitle = title
+        self.includeSymbol = includeSymbol
+        self.alwaysIncludeUrl = alwaysIncludeUrl
+    }
+    
+    var title: String {
+        guard let customTitle else {
+            return linkInfo.title ?? linkInfo.urlString
+        }
+        return customTitle
+    }
+    var haveTitle: Bool {
+        customTitle != nil || linkInfo.title != nil
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Group {
+                    if includeSymbol {
+                        Label(title, systemImage: "link")
+                            .multilineTextAlignment(.leading)
+                    } else {
+                        Text(title)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+                .foregroundColor(.accentColor)
+                if alwaysIncludeUrl, haveTitle {
+                    Text(linkInfo.urlDisplayString)
+                        .font(.footnote)
+                        .foregroundColor(Color(.secondaryLabel))
+                        .multilineTextAlignment(.leading)
+                }
+            }
+            Spacer()
+            if let image = linkInfo.faviconImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .frame(width: 21, height: 21)
+                    .transition(.opacity)
+            }
+        }
+    }
+}
+
 struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
-
+    
     var body: some View {
         form
-        .navigationTitle(title)
+        .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
         .photosPicker(
             isPresented: $showingPhotosPicker,
@@ -21,90 +86,110 @@ struct SourceForm: View {
     
     var form: some View {
         FormStyledScrollView {
-            switch viewModel.sourceType {
-            case .images:
+            if viewModel.hasSourceImages {
                 imageSections
-            case .link(let url):
-                linkSections(for: url)
-            default:
-                emptySections
+            } else {
+                addImagesSection
+            }
+            if let linkInfo = viewModel.linkInfo {
+                linkSections(for: linkInfo)
+            } else {
+                addLinkSection
             }
         }
     }
     
     var imageSections: some View {
-        Group {
+//        Group {
             imagesSection
-            addImagesSection
-            removeAllImagesSection
-        }
+//            imagesActionsSection
+//        }
     }
     
-    var title: String {
-        viewModel.sourceType == .manualEntry ? "Add a Source" : "Source"
-    }
-    
-    func linkSections(for url: URL) -> some View {
-        Group {
-            linkPreviewSection(for: url)
-            removeLinkSection
-        }
-    }
-    
-    func linkPreviewSection(for url: URL) -> some View {
+    var imagesActionsSection: some View {
         FormStyledSection(horizontalPadding: 0, verticalPadding: 0) {
-            SourceWebView(urlString: url.absoluteString)
-                .frame(height: 300)
-                .cornerRadius(15)
-        }
-    }
-    
-    var removeLinkSection: some View {
-        FormStyledSection {
-            Button(role: .destructive) {
-                viewModel.removeSourceLink()
-            } label: {
-                Text("Remove link")
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(spacing: 0) {
+                addImagesButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                Divider()
+                    .padding(.leading, 17)
+                removeAllImagesButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
             }
         }
     }
-    
-    var emptySections: some View {
-        Group {
-            FormStyledSection(
-                horizontalPadding: 0,
-                verticalPadding: 15
-            ) {
-                VStack(spacing: 15) {
-                    Button {
-                        
-                    } label: {
-                        Label("Choose Photos", systemImage: SourceType.images.systemImage)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 17)
-                    }
-                    Divider()
-                        .padding(.leading, 50)
-                    Button {
-                        
-                    } label: {
-                        Label("Take Photos", systemImage: "camera")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 17)
-                    }
+        
+    func linkSections(for linkInfo: LinkInfo) -> some View {
+        FormStyledSection(header: Text("Link"), horizontalPadding: 0, verticalPadding: 0) {
+            VStack(spacing: 0) {
+                NavigationLink {
+                    SourceWebView(urlString: linkInfo.urlString)
+                } label: {
+                    LinkCell(linkInfo, alwaysIncludeUrl: true, includeSymbol: true)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
                 }
+                Divider()
+                    .padding(.leading, 17)
+                removeLinkButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
             }
-            FormStyledSection(
-                horizontalPadding: 17,
-                verticalPadding: 15
-            ) {
+        }
+    }
+    
+    var removeLinkButton: some View {
+//        Button(role: .destructive) {
+        Button {
+            withAnimation {
+                viewModel.removeSourceLink()
+            }
+        } label: {
+            Label("Remove Link", systemImage: "trash")
+//            Text("Remove Link")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    var addPhotosSection: some View {
+        FormStyledSection(
+            horizontalPadding: 0,
+            verticalPadding: 15
+        ) {
+            VStack(spacing: 15) {
                 Button {
                     
                 } label: {
-                    Label("Add a Link", systemImage: "link")
+                    Label("Choose Photos", systemImage: SourceType.images.systemImage)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 17)
                 }
+                Divider()
+                    .padding(.leading, 50)
+                Button {
+                    
+                } label: {
+                    Label("Take Photo", systemImage: "camera")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 17)
+                }
+            }
+        }
+    }
+    
+    var addLinkSection: some View {
+        FormStyledSection(
+            horizontalPadding: 17,
+            verticalPadding: 15
+        ) {
+            Button {
+                
+            } label: {
+                Label("Add a Link", systemImage: "link")
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -117,13 +202,30 @@ struct SourceForm: View {
             horizontalPadding: 0,
             verticalPadding: 0
         ) {
-//        Section {
-            SourceImagesCarousel { index in
-            } didTapDeleteOnImage: { index in
-                deleteImage(at: index)
+            VStack(spacing: 0) {
+                imagesCarousel
+                    .padding(.vertical, 15)
+                Divider()
+//                    .padding(.leading, 17)
+                addImagesButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                Divider()
+                    .padding(.leading, 17)
+                removeAllImagesButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
             }
-            .environmentObject(viewModel)
+
         }
+    }
+    
+    var imagesCarousel: some View {
+        SourceImagesCarousel { index in
+        } didTapDeleteOnImage: { index in
+            deleteImage(at: index)
+        }
+        .environmentObject(viewModel)
     }
     
     var addImagesSection: some View {
@@ -131,14 +233,7 @@ struct SourceForm: View {
             horizontalPadding: 17,
             verticalPadding: 15
         ) {
-            Menu {
-                photosPickerButton
-                cameraButton
-            } label: {
-                Text("Add images")
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+            addImagesButton
         }
     }
     
@@ -154,25 +249,36 @@ struct SourceForm: View {
         Button {
             viewModel.showingCamera = true
         } label: {
-            Label("Take Photos", systemImage: "camera")
+            Label("Take Photo", systemImage: "camera")
         }
     }
     
 
-    var removeAllImagesSection: some View {
-        FormStyledSection {
-            Button(role: .destructive) {
-                showingRemoveAllImagesConfirmation = true
-            } label: {
-                Text("Remove all images")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .confirmationDialog("", isPresented: $showingRemoveAllImagesConfirmation) {
-                Button("Remove all images", role: .destructive) {
-                    Haptics.successFeedback()
-                    withAnimation {
-                        viewModel.deleteAllImages()
-                    }
+    var addImagesButton: some View {
+        Button {
+            viewModel.showingPhotosMenu = true
+        } label: {
+//            Text("Add Images")
+            Label("Add Images", systemImage: "plus")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+    }
+    
+    var removeAllImagesButton: some View {
+//        Button(role: .destructive) {
+        Button(role: .destructive) {
+            showingRemoveAllImagesConfirmation = true
+        } label: {
+            Label("Remove All Images", systemImage: "trash")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.secondary)
+        }
+        .confirmationDialog("", isPresented: $showingRemoveAllImagesConfirmation) {
+            Button("Remove All Images", role: .destructive) {
+                Haptics.successFeedback()
+                withAnimation {
+                    viewModel.deleteAllImages()
                 }
             }
         }
@@ -189,13 +295,12 @@ struct SourceForm: View {
 
 extension FoodFormViewModel {
     func removeSourceLink() {
-        sourceType = .manualEntry
+        linkInfo = nil
     }
     
     func deleteAllImages() {
         resetFillForAllFieldsUsingImages()
         imageViewModels = []
-        sourceType = .manualEntry
     }
     
     func deleteImage(at index: Int) {
@@ -206,9 +311,9 @@ extension FoodFormViewModel {
         imageViewModels.remove(at: index)
         
         /// If this was the last item in the array, reset the `sourceType` to `manualEntry`
-        if imageViewModels.isEmpty {
-            sourceType = .manualEntry
-        }
+//        if imageViewModels.isEmpty {
+//            sourceType = .manualEntry
+//        }
     }
     
     func resetFillForAllFieldsUsingImages() {

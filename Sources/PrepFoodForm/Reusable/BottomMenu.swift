@@ -295,7 +295,7 @@ public struct BottomMenuPreview: View {
                 BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
                     
                 }),
-                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
+                BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
                     
                 })
             ],

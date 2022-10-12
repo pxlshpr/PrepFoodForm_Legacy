@@ -83,12 +83,13 @@ public class FoodFormViewModel: ObservableObject {
     var scannedFieldValues: [FieldValue] = []
     
     //MARK: - Source
-    @Published var sourceType: SourceType = .manualEntry
+//    @Published var sourceType: SourceType = .manualEntry
     @Published var imageViewModels: [ImageViewModel] = []
     @Published var imageSetStatus: ImageStatus = .loading
+    @Published var linkInfo: LinkInfo? = nil
+
     @Published var prefilledFood: MFPProcessedFood? = nil
-    @Published var sourceLink: String? = nil
-    
+
     //MARK: - View-related
     @Published var showingNutrientsPerAmountForm = false
     @Published var showingNutrientsPerServingForm = false
@@ -96,7 +97,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingThirdPartySearch = false
     @Published var showingEmojiPicker = false
     @Published var showingSourceMenu = false
-    
+    @Published var showingPhotosMenu = false
+
     @Published var shouldShowWizard = true
     @Published var showingWizard = false
 
@@ -120,10 +122,8 @@ extension FoodFormViewModel {
     }
     
     func submittedSourceLink(_ string: String) {
-        guard let url = URL(string: string) else {
-            return
-        }
-        self.sourceType = .link(url)
+        //TODO: Validate link here before saving
+        self.linkInfo = LinkInfo(string)
     }
     
     func amountChanged() {

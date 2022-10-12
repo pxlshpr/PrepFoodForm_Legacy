@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
-        sourceType = .images
+//        sourceType = .images
         
 //        showingCamera = false
         withAnimation {

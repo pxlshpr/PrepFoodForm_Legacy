@@ -75,15 +75,28 @@ public struct FoodForm: View {
                 )
         }
         .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingPhotosMenu, actionGroups: photosActionGroups)
     }
     
+    var photosActionGroups: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(title: "Choose Photos", systemImage: SourceType.images.systemImage, tapHandler: {
+                showingPhotosPicker = true
+            }),
+            BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
+                viewModel.showingCamera = true
+            })
+        ]]
+    }
+    
+
     var sourceMenuActionGroups: [[BottomMenuAction]] {
         [
             [
                 BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
                     showingPhotosPicker = true
                 }),
-                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
+                BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
                     viewModel.showingCamera = true
                 })
             ],
@@ -252,7 +265,7 @@ public struct FoodForm: View {
         Button {
             viewModel.showingCamera = true
         } label: {
-            Label("Take Photos", systemImage: "camera")
+            Label("Take Photo", systemImage: "camera")
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -387,11 +400,7 @@ public struct FoodForm: View {
                 NavigationLink {
                     SourceWebView(urlString: url)
                 } label: {
-                    HStack {
-                        Label("MyFitnessPal", systemImage: "link")
-                            .foregroundColor(.accentColor)
-                        Spacer()
-                    }
+                    LinkCell(LinkInfo("https://myfitnesspal.com")!, title: "MyFitnessPal")
                 }
             }
         }

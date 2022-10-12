@@ -4,16 +4,107 @@ import PhotosUI
 import SwiftHaptics
 import SwiftUISugar
 
+struct FavIcon {
+    enum Size: Int, CaseIterable { case s = 16, m = 32, l = 64, xl = 128, xxl = 256, xxxl = 512 }
+    private let domain: String
+    init(_ domain: String) { self.domain = domain }
+    subscript(_ size: Size) -> String {
+        "https://www.google.com/s2/favicons?sz=32&domain=\(domain)"
+    }
+}
+
+extension String {
+
+    init?(htmlEncodedString: String) {
+
+        guard let data = htmlEncodedString.data(using: .utf8) else {
+            return nil
+        }
+
+        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+            .documentType: NSAttributedString.DocumentType.html,
+            .characterEncoding: String.Encoding.utf8.rawValue
+        ]
+
+        guard let attributedString = try? NSAttributedString(data: data, options: options, documentAttributes: nil) else {
+            return nil
+        }
+
+        self.init(attributedString.string)
+
+    }
+
+}
+
+class LinkInfo: ObservableObject {
+    let url: URL
+    @Published var title: String?
+    @Published var faviconImage: UIImage?
+    
+    var urlString: String {
+        url.absoluteString
+    }
+    
+    var urlDisplayString: String {
+        url.host ?? urlString
+    }
+    
+    init?(_ urlString: String) {
+        guard let url = URL(string: urlString) else {
+            return nil
+        }
+        self.url = url
+        self.title = nil
+        self.faviconImage = nil
+        getTitle()
+        getFavicon()
+    }
+    
+    func getTitle() {
+        Task {
+            let content = try String(contentsOf: url, encoding: .utf8)
+            guard let htmlTitle = content.htmlTitle else {
+                return
+            }
+            await MainActor.run {
+                self.title = String(htmlEncodedString: htmlTitle)
+            }
+        }
+    }
+    
+    func getFavicon() {
+        let urlString = "https://www.google.com/s2/favicons?sz=32&domain=\(urlString)"
+        guard let url = URL(string: urlString) else {
+            return
+        }
+        Task {
+            let request = URLRequest.init(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+                return
+            }
+            guard let image = UIImage(data: data) else {
+                return
+            }
+            await MainActor.run {
+                self.faviconImage = image
+            }
+        }
+    }
+    
+}
+
 struct SourceSection: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingPhotosPicker = false
     
     var body: some View {
-        FormStyledSection(header: header, footer: footer) {
-            if viewModel.sourceType == .manualEntry {
-                notChosenContent
+        
+        Group {
+            if viewModel.hasSources {
+                chosenContentSection
             } else {
-                chosenContent
+                notChosenContentSection
             }
         }
         .photosPicker(
@@ -24,51 +115,43 @@ struct SourceSection: View {
         )
     }
     
-    var notChosenContent: some View {
-        Button {
-            viewModel.showingSourceMenu = true
-        } label: {
-            Text("Add a source")
-                .frame(maxWidth: .infinity, alignment: .leading)
+    var notChosenContentSection: some View {
+        FormStyledSection(header: header, footer: footer) {
+            Button {
+                viewModel.showingSourceMenu = true
+            } label: {
+                Text("Add a source")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
     }
     
-    var chosenContent: some View {
-        NavigationLink {
-            SourceForm()
-                .environmentObject(viewModel)
-        } label: {
-            switch viewModel.sourceType {
-            case .images:
-                VStack(alignment: .leading, spacing: 15) {
-                    imagesGrid
-                    imageSetStatus
+    var chosenContentSection: some View {
+        FormStyledSection(header: header, footer: footer, horizontalPadding: 0, verticalPadding: 0) {
+            NavigationLink {
+                SourceForm()
+                    .environmentObject(viewModel)
+            } label: {
+                VStack(spacing: 0) {
+                    if viewModel.hasSourceImages {
+                        VStack(alignment: .leading, spacing: 15) {
+                            imagesGrid
+                            imageSetStatus
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        if viewModel.hasSourceLink {
+                            Divider()
+                            .padding(.leading, 17)
+                        }
+                    }
+                    if let linkInfo = viewModel.linkInfo {
+                        LinkCell(linkInfo)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 15)
+                    }
                 }
-            case .link(let url):
-                HStack {
-                    Label(url.absoluteString, systemImage: "link")
-                        .foregroundColor(.accentColor)
-                    Spacer()
-                }
-            default:
-                Text("Not handled")
             }
-//            HStack(alignment: .top) {
-//                Text(viewModel.sourceType.description)
-//                    .foregroundColor(.primary)
-//                Spacer()
-//                Group {
-//                    if viewModel.sourceType == .images {
-//                        Text("17 nutrition facts extracted")
-//                            .multilineTextAlignment(.trailing)
-//                    } else if viewModel.sourceType == .link {
-//                        Text(verbatim: "https://www.myfitnesspal.com/food/calories/banan-1511734581")
-//                            .lineLimit(1)
-////                            .frame(maxWidth: 200, alignment: .trailing)
-//                    }
-//                }
-//                .foregroundColor(.secondary)
-//            }
         }
     }
     
@@ -84,7 +167,7 @@ struct SourceSection: View {
         Button {
             viewModel.showingCamera = true
         } label: {
-            Label("Take Photos", systemImage: "camera")
+            Label("Take Photo", systemImage: "camera")
         }
     }
     
@@ -153,7 +236,7 @@ struct SourceSection: View {
     
     @ViewBuilder
     var footer: some View {
-        if viewModel.sourceType == .manualEntry {
+        if !viewModel.hasSources {
             Button {
                 
             } label: {
@@ -175,9 +258,8 @@ public struct SourceCellPreview: View {
     @StateObject var viewModel: FoodFormViewModel
     
     public init() {
-        FoodFormViewModel.shared = FoodFormViewModel()
+        FoodFormViewModel.shared = FoodFormViewModel.mock(for: .pumpkinSeeds)
         let viewModel = FoodFormViewModel.shared
-        viewModel.simulateImageSelection()
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     
