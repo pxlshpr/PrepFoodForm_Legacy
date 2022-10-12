@@ -28,7 +28,7 @@ struct SourceSection: View {
         Button {
             viewModel.showingSourceMenu = true
         } label: {
-            Text("Select a source")
+            Text("Add a source")
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -148,7 +148,7 @@ struct SourceSection: View {
     }
 
     var header: some View {
-        Text("Source")
+        Text("Sources")
     }
     
     @ViewBuilder
