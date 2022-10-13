@@ -430,7 +430,8 @@ extension FoodFormViewModel {
         case starbucks = "starbucks"
         case mcdonalds = "mcdonalds"
         case subway = "subway"
-        case googleEggs = "google-eggs"
+        case googleEggs = "google_eggs"
+        case vanillaFLour = "vanilla_flour"
         
         public var name: String {
             rawValue
