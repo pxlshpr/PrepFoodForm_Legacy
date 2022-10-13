@@ -9,6 +9,10 @@ extension FieldValue {
             return energyValue.altValues
         case .serving(let doubleValue), .amount(let doubleValue):
             return doubleValue.altValues
+        case .micro(let microValue):
+            return microValue.altValues
+        case .macro(let macroValue):
+            return macroValue.altValues
 //        case .macro(let macroValue):
 //            <#code#>
 //        case .micro(let microValue):
@@ -35,13 +39,48 @@ extension FieldValue {
     }
 }
 
+extension FieldValue.MicroValue {
+    var altValues: [FoodLabelValue] {
+        fill.detectedValues
+            .map { $0.withMicroUnit(for: nutrientType) }
+            .filter { $0 != self.value }
+            .removingDuplicates()
+    }
+    
+    var value: FoodLabelValue? {
+        guard let amount = double else { return nil }
+        return FoodLabelValue(amount: amount, unit: foodLabelUnit)
+    }
+    
+    var foodLabelUnit: FoodLabelUnit? {
+        unit.foodLabelUnit
+    }
+}
+
+extension FieldValue.MacroValue {
+    var altValues: [FoodLabelValue] {
+        fill.detectedValues
+            .map { $0.withMacroUnit }
+            .filter { $0 != self.value }
+            .removingDuplicates()
+    }
+    
+    var value: FoodLabelValue? {
+        guard let amount = double else { return nil }
+        return FoodLabelValue(amount: amount, unit: .g)
+    }
+}
+
 extension FieldValue.DoubleValue {
     /// Return all `FoodLabelValue`s detected in the recognized text of the `fill` that isn't the value attached to this fieldValue
     var altValues: [FoodLabelValue] {
-        guard let textString = self.fill.text?.string else {
-            return []
-        }
-        return textString.detectedValues.filter({ $0 != self.value })
+//        guard let textString = self.fill.text?.string else {
+//            return []
+//        }
+//        return textString.detectedValues.filter({ $0 != self.value })
+        fill.detectedValues
+            .filter { $0 != self.value }
+            .removingDuplicates()
     }
     
     var value: FoodLabelValue? {

@@ -430,6 +430,7 @@ extension FoodFormViewModel {
         case starbucks = "starbucks"
         case mcdonalds = "mcdonalds"
         case subway = "subway"
+        case googleEggs = "google-eggs"
         
         public var name: String {
             rawValue
@@ -437,20 +438,18 @@ extension FoodFormViewModel {
                 .capitalized
         }
         
-        public static var prefilledMocks: [MockCase] = [
-            .spinach
-        ]
+        public static var prefilledMocks: [MockCase] {
+            allCases.filter { $0.mfpProcessedFood != nil }
+        }
         
-        public static var scannedMocks: [MockCase] = [
-            .pumpkinSeeds,
-            .iceCream,
-            .milk,
-            .yoghurt
-        ]
+        public static var scannedMocks: [MockCase] {
+            allCases.filter { $0.scanResult != nil }
+        }
         
         public static var linkMocks: [MockCase] {
             allCases.filter { $0.linkUrlString != nil }
         }
+        
         var image: UIImage? {
             sampleImage(imageFilename: rawValue)
         }

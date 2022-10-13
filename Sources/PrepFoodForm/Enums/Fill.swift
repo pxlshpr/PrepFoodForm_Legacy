@@ -298,7 +298,8 @@ extension Fill {
     }
     
     var detectedValues: [FoodLabelValue] {
-        text?.string.detectedValues ?? []
+        guard let text else { return [] }
+        return text.candidates.map({$0.detectedValues}).reduce([], +)
     }
 }
 

@@ -300,6 +300,7 @@ public struct BottomMenuModifier: ViewModifier {
                     Spacer()
                 }
             }
+            .frame(maxWidth: .infinity)
         }
         .padding()
     }
