@@ -1,15 +1,24 @@
 import SwiftUI
+import FoodLabelScanner
 
 extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
-//        sourceType = .images
-        
-//        showingCamera = false
         withAnimation {
             showingWizard = false
         }
 
         imageViewModels.append(ImageViewModel(image))
+    }
+    
+    func didScan(_ image: UIImage, scanResult: ScanResult) {
+        imageViewModels.append(
+            ImageViewModel(image: image, scanResult: scanResult)
+        )
+        processScanResults()
+        imageSetStatus = .scanned
+        withAnimation {
+            showingWizard = false
+        }
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {

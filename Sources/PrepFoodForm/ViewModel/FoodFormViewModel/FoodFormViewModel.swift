@@ -55,8 +55,6 @@ public class FoodFormViewModel: ObservableObject {
     @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
     @Published var barcodeViewModel: FieldViewModel = FieldViewModel(fieldValue: .barcode())
     
-    @Published var showingCamera: Bool = false
-    
     //MARK: Amount Per
     @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
     
@@ -103,6 +101,9 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingRemoveImagesConfirmation = false
     @Published var showingRemoveLinkConfirmation = false
 
+    @Published var showingCamera: Bool = false
+    @Published var showingFoodLabelCamera: Bool = false
+    
     @Published var shouldShowWizard = true
     @Published var showingWizard = false
 

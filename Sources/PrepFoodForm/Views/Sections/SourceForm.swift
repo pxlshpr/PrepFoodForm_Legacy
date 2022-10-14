@@ -276,7 +276,15 @@ struct SourceForm: View {
             Label("Take Photo", systemImage: "camera")
         }
     }
-    
+
+    var foodLabelScannerButton: some View {
+        Button {
+            viewModel.showingFoodLabelCamera = true
+        } label: {
+            Label("Scan a Food Label", systemImage: "text.viewfinder")
+        }
+    }
+
     var addImagesButton: some View {
         Button {
             viewModel.showingPhotosMenu = true

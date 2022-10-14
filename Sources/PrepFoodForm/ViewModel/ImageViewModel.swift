@@ -46,7 +46,7 @@ class ImageViewModel: ObservableObject {
         self.startLoadTask(with: photosPickerItem)
     }
     
-    /// Used for testing purposes to manually create an `ImageViewModel` with a preloaded `UIImage` and `ScanResult`
+    /// Create this with a preset `ScanResult` to skip the scanning process entirely
     init(image: UIImage, scanResult: ScanResult) {
         self.image = image
         self.status = .scanned

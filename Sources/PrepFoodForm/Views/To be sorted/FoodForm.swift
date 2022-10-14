@@ -5,6 +5,7 @@ import PhotosUI
 import Camera
 import EmojiPicker
 import SwiftUISugar
+import FoodLabelCamera
 
 let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 
@@ -52,6 +53,11 @@ public struct FoodForm: View {
                         viewModel.didCapture(image)
                     }
                 }
+                .sheet(isPresented: $viewModel.showingFoodLabelCamera) {
+                    FoodLabelCamera { scanResult, image in
+                        viewModel.didScan(image, scanResult: scanResult)
+                    }
+                }
                 .sheet(isPresented: $viewModel.showingEmojiPicker) {
                     EmojiPicker(
                         categories: [.foodAndDrink, .animalsAndNature],
@@ -82,12 +88,15 @@ public struct FoodForm: View {
     
     var photosActionGroups: [[BottomMenuAction]] {
         [[
+            BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
+                viewModel.showingCamera = true
+            }),
+            BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
+                viewModel.showingCamera = true
+            }),
             BottomMenuAction(title: "Choose Photos", systemImage: SourceType.images.systemImage, tapHandler: {
                 showingPhotosPicker = true
             }),
-            BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
-                viewModel.showingCamera = true
-            })
         ]]
     }
     
@@ -146,12 +155,15 @@ public struct FoodForm: View {
     var sourceMenuActionGroups: [[BottomMenuAction]] {
         [
             [
+                BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
+                    viewModel.showingCamera = true
+                }),
+                BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
+                    viewModel.showingCamera = true
+                }),
                 BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
                     showingPhotosPicker = true
                 }),
-                BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
-                    viewModel.showingCamera = true
-                })
             ],
             [addLinkMenuAction]
         ]
@@ -213,7 +225,7 @@ public struct FoodForm: View {
                 //                .scrollContentBackground(.hidden)
                 //                .background(Color(.secondarySystemGroupedBackground))
                 .cornerRadius(20)
-                .frame(height: 400)
+                .frame(height: 420)
                 .frame(maxWidth: 350)
                 .padding(.horizontal, 30)
                 .shadow(color: colorScheme == .dark ? .black : .gray, radius: 30, x: 0, y: 0)
@@ -300,8 +312,9 @@ public struct FoodForm: View {
         }
         
         return Section(header: header) {
-            photosPickerButton
+            foodLabelCameraButton
             cameraButton
+            photosPickerButton
         }
     }
     
@@ -309,13 +322,24 @@ public struct FoodForm: View {
         Button {
             viewModel.showingCamera = true
         } label: {
-            Label("Take Photo", systemImage: "camera")
+            Label("Take a Photo", systemImage: "camera")
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .buttonStyle(.borderless)
     }
-    
+
+    var foodLabelCameraButton: some View {
+        Button {
+            viewModel.showingFoodLabelCamera = true
+        } label: {
+            Label("Scan a Food Label", systemImage: "text.viewfinder")
+                .foregroundColor(.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.borderless)
+    }
+
     var simulateSection: some View {
         Section {
             simulateButton
