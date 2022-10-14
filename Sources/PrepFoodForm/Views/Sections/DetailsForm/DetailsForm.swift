@@ -10,6 +10,7 @@ extension FoodForm {
         @ObservedObject var detailViewModel: FieldViewModel
         @ObservedObject var brandViewModel: FieldViewModel
         @ObservedObject var barcodeViewModel: FieldViewModel
+        @ObservedObject var emojiViewModel: FieldViewModel
 
         @State var showingCodeScanner = false
     }
@@ -67,11 +68,11 @@ extension FoodForm.DetailsForm {
             form(for: detailViewModel)
         } label: {
             HStack {
-                if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
+                if detailViewModel.fieldValue.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(viewModel.detailViewModel.fieldValue.stringValue.string)
+                    Text(detailViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -86,11 +87,11 @@ extension FoodForm.DetailsForm {
             form(for: brandViewModel)
         } label: {
             HStack {
-                if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {
+                if brandViewModel.fieldValue.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(viewModel.brandViewModel.fieldValue.stringValue.string)
+                    Text(brandViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -105,7 +106,7 @@ extension FoodForm.DetailsForm {
             showingCodeScanner = true
         } label: {
             HStack {
-                Text(viewModel.barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : viewModel.barcodeViewModel.fieldValue.stringValue.string)
+                Text(barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : barcodeViewModel.fieldValue.stringValue.string)
                 Spacer()
             }
             .contentShape(Rectangle())
@@ -136,11 +137,11 @@ extension FoodForm.DetailsForm {
     
     var emojiCell: some View {
         Group {
-            if viewModel.emojiViewModel.fieldValue.isEmpty {
+            if emojiViewModel.fieldValue.isEmpty {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             } else {
-                Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
+                Text(emojiViewModel.fieldValue.stringValue.string)
                     .font(Font.system(size: 50.0))
             }
         }
@@ -228,7 +229,8 @@ struct DetailsFormPreview: View {
             nameViewModel: viewModel.nameViewModel,
             detailViewModel: viewModel.detailViewModel,
             brandViewModel: viewModel.brandViewModel,
-            barcodeViewModel: viewModel.barcodeViewModel
+            barcodeViewModel: viewModel.barcodeViewModel,
+            emojiViewModel: viewModel.emojiViewModel
         )
             .environmentObject(viewModel)
     }

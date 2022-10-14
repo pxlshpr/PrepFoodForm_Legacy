@@ -91,7 +91,7 @@ public struct FoodForm: View {
             BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
                 viewModel.showingFoodLabelCamera = true
             }),
-            BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
+            BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
                 viewModel.showingCamera = true
             }),
             BottomMenuAction(title: "Choose Photos", systemImage: SourceType.images.systemImage, tapHandler: {
@@ -158,7 +158,7 @@ public struct FoodForm: View {
                 BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
                     viewModel.showingFoodLabelCamera = true
                 }),
-                BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
+                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
                     viewModel.showingCamera = true
                 }),
                 BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
@@ -322,7 +322,7 @@ public struct FoodForm: View {
         Button {
             viewModel.showingCamera = true
         } label: {
-            Label("Take a Photo", systemImage: "camera")
+            Label("Take Photos", systemImage: "camera")
                 .foregroundColor(.primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -407,11 +407,16 @@ public struct FoodForm: View {
                 DetailsForm(
                     nameViewModel: viewModel.nameViewModel,
                     detailViewModel: viewModel.detailViewModel,
-                    brandViewModel: viewModel.brandViewModel
+                    brandViewModel: viewModel.brandViewModel,
+                    barcodeViewModel: viewModel.barcodeViewModel,
+                    emojiViewModel: viewModel.emojiViewModel
                 )
                 .environmentObject(viewModel)
             } label: {
-                DetailsCell(nameViewModel: viewModel.nameViewModel)
+                DetailsCell(
+                    nameViewModel: viewModel.nameViewModel,
+                    barcodeViewModel: viewModel.barcodeViewModel
+                )
                     .environmentObject(viewModel)
                     .buttonStyle(.borderless)
             }

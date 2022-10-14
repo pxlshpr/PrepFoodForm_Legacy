@@ -6,6 +6,7 @@ extension FoodForm {
     struct DetailsCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @ObservedObject var nameViewModel: FieldViewModel
+        @ObservedObject var barcodeViewModel: FieldViewModel
     }
 }
 
@@ -65,8 +66,8 @@ extension FoodForm.DetailsCell {
         
         @ViewBuilder
         var barcode: some View {
-            if !viewModel.barcodeViewModel.fieldValue.isEmpty {
-                barcodeView(for: viewModel.barcodeViewModel.fieldValue.stringValue.string)
+            if !barcodeViewModel.fieldValue.isEmpty {
+                barcodeView(for: barcodeViewModel.fieldValue.stringValue.string)
             }
         }
 
@@ -124,7 +125,10 @@ struct DetailsCellPreview: View {
                 Section("Details") {
                     NavigationLink {
                     } label: {
-                        FoodForm.DetailsCell(nameViewModel: viewModel.nameViewModel)
+                        FoodForm.DetailsCell(
+                            nameViewModel: viewModel.nameViewModel,
+                            barcodeViewModel: viewModel.barcodeViewModel
+                        )
                             .environmentObject(viewModel)
                     }
                     .buttonStyle(.borderless)

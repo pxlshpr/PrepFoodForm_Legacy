@@ -65,6 +65,7 @@ extension FoodFormViewModel {
     func extractBarcode() {
         for scanResult in scanResults {
             if let first = scanResult.barcodes.first {
+                print("🍄 Setting barcode to be: \(first.string)")
                 self.barcodeViewModel.fieldValue.string = first.string
                 return
             }

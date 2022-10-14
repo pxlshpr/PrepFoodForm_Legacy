@@ -626,6 +626,11 @@ extension FieldValue {
                 var newStringValue = stringValue
                 newStringValue.string = newValue
                 self = .brand(newStringValue)
+                
+            case .barcode(let stringValue):
+                var newStringValue = stringValue
+                newStringValue.string = newValue
+                self = .barcode(newStringValue)
 
 //            case .emoji(let stringValue):
 //                <#code#>
