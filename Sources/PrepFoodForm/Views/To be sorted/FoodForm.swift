@@ -89,7 +89,7 @@ public struct FoodForm: View {
     var photosActionGroups: [[BottomMenuAction]] {
         [[
             BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
-                viewModel.showingCamera = true
+                viewModel.showingFoodLabelCamera = true
             }),
             BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
                 viewModel.showingCamera = true
@@ -156,7 +156,7 @@ public struct FoodForm: View {
         [
             [
                 BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
-                    viewModel.showingCamera = true
+                    viewModel.showingFoodLabelCamera = true
                 }),
                 BottomMenuAction(title: "Take a Photo", systemImage: "camera", tapHandler: {
                     viewModel.showingCamera = true
