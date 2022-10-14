@@ -50,12 +50,23 @@ extension FoodFormViewModel {
         extractAmount(for: column)
         extractDensity()
         
+        extractBarcode()
+        
         updateShouldShowDensitiesSection()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             for fieldViewModel in self.allFieldViewModels {
                 fieldViewModel.isCroppingNextImage = true
                 fieldViewModel.cropFilledImage()
+            }
+        }
+    }
+    
+    func extractBarcode() {
+        for scanResult in scanResults {
+            if let first = scanResult.barcodes.first {
+                self.barcodeViewModel.fieldValue.string = first.string
+                return
             }
         }
     }
@@ -538,6 +549,8 @@ extension ScanResult {
             serving: serving,
             headers: nil,
             nutrients: Nutrients(rows: []),
-            texts: [])
+            texts: [],
+            barcodes: []
+        )
     }
 }

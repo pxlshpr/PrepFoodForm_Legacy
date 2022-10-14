@@ -9,6 +9,7 @@ extension FoodForm {
         @ObservedObject var nameViewModel: FieldViewModel
         @ObservedObject var detailViewModel: FieldViewModel
         @ObservedObject var brandViewModel: FieldViewModel
+        @ObservedObject var barcodeViewModel: FieldViewModel
 
         @State var showingCodeScanner = false
     }
@@ -226,7 +227,8 @@ struct DetailsFormPreview: View {
         FoodForm.DetailsForm(
             nameViewModel: viewModel.nameViewModel,
             detailViewModel: viewModel.detailViewModel,
-            brandViewModel: viewModel.brandViewModel
+            brandViewModel: viewModel.brandViewModel,
+            barcodeViewModel: viewModel.barcodeViewModel
         )
             .environmentObject(viewModel)
     }
