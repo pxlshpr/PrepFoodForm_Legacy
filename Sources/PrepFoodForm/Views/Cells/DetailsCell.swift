@@ -43,6 +43,7 @@ extension FoodForm.DetailsCell {
             if !viewModel.nameViewModel.fieldValue.isEmpty {
                 Text(viewModel.nameViewModel.fieldValue.stringValue.string)
                     .bold()
+                    .multilineTextAlignment(.leading)
             } else {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
@@ -53,6 +54,7 @@ extension FoodForm.DetailsCell {
         var detail: some View {
             if !viewModel.detailViewModel.fieldValue.isEmpty {
                 Text(viewModel.detailViewModel.fieldValue.stringValue.string)
+                    .multilineTextAlignment(.leading)
             }
         }
 
@@ -60,6 +62,7 @@ extension FoodForm.DetailsCell {
         var brand: some View {
             if !viewModel.brandViewModel.fieldValue.isEmpty {
                 Text(viewModel.brandViewModel.fieldValue.stringValue.string)
+                    .multilineTextAlignment(.leading)
             }
         }
         
@@ -108,12 +111,37 @@ extension FoodForm.DetailsCell {
 extension FoodFormViewModel {
     var primaryBarcodeValue: FieldValue.BarcodeValue? {
         barcodeViewModels
-            .filter({ $0.fieldValue.barcodeValue?.payloadString != "" })
-            .first?.fieldValue.barcodeValue
+            .compactMap { $0.barcodeValue }
+            .filter({ $0.payloadString != "" })
+            .sorted(by: { $0.symbology.preferenceRank < $1.symbology.preferenceRank })
+            .first
     }
 }
+
+extension FieldViewModel {
+    var barcodeValue: FieldValue.BarcodeValue? {
+        fieldValue.barcodeValue
+    }
+}
+
 extension VNBarcodeSymbology {
 
+    var preferenceRank: Int {
+        switch self {
+        case .code128: return 1
+        case .upce: return 1
+        case .code39: return 1
+        case .ean8: return 1
+        case .ean13: return 1
+        case .code93: return 1
+        case .pdf417: return 1
+        case .qr: return 2
+        case .aztec: return 3
+        default:
+            return 4
+        }
+    }
+    
     var objectType: AVMetadataObject.ObjectType {
         switch self {
         case .code128: return .code128
