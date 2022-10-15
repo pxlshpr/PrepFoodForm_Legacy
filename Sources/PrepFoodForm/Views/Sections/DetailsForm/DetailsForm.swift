@@ -5,7 +5,7 @@ import Camera
 
 extension FoodForm {
     struct DetailsForm: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
+        @ObservedObject var viewModel: FoodFormViewModel
         @ObservedObject var nameViewModel: FieldViewModel
         @ObservedObject var detailViewModel: FieldViewModel
         @ObservedObject var brandViewModel: FieldViewModel
@@ -46,7 +46,9 @@ extension FoodForm.DetailsForm {
     
     var nameButton: some View {
         NavigationLink {
-            form(for: nameViewModel)
+            StringFieldValueForm(existingFieldViewModel: viewModel.nameViewModel)
+                .environmentObject(viewModel)
+//            form(for: nameViewModel)
         } label: {
             HStack {
                 if nameViewModel.fieldValue.stringValue.string.isEmpty {
@@ -226,13 +228,14 @@ struct DetailsFormPreview: View {
     
     var body: some View {
         FoodForm.DetailsForm(
+            viewModel: viewModel,
             nameViewModel: viewModel.nameViewModel,
             detailViewModel: viewModel.detailViewModel,
             brandViewModel: viewModel.brandViewModel,
             barcodeViewModel: viewModel.barcodeViewModel,
             emojiViewModel: viewModel.emojiViewModel
         )
-            .environmentObject(viewModel)
+//        .environmentObject(viewModel)
     }
 }
 

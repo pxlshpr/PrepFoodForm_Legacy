@@ -12,12 +12,18 @@ extension FieldViewModel: Hashable {
 
 extension FieldViewModel: Equatable {
     static func ==(lhs: FieldViewModel, rhs: FieldViewModel) -> Bool {
-        lhs.hashValue == rhs.hashValue
+//        lhs.hashValue == rhs.hashValue
+        lhs.id == rhs.id
+        && lhs.fieldValue == rhs.fieldValue
+        && lhs.imageToDisplay == rhs.imageToDisplay
+        && lhs.isCroppingNextImage == rhs.isCroppingNextImage
+        && lhs.prefillUrl == rhs.prefillUrl
+        && lhs.isPrefilled == rhs.isPrefilled
     }
 }
 
 class FieldViewModel: ObservableObject, Identifiable {
-    let id = UUID()
+    @Published var id = UUID()
     @Published var fieldValue: FieldValue {
         didSet {
            withAnimation {

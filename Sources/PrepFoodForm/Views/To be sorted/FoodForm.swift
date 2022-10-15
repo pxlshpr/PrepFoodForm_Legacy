@@ -405,20 +405,22 @@ public struct FoodForm: View {
         FormStyledSection(header: Text("Details")) {
             NavigationLink {
                 DetailsForm(
+                    viewModel: viewModel,
                     nameViewModel: viewModel.nameViewModel,
                     detailViewModel: viewModel.detailViewModel,
                     brandViewModel: viewModel.brandViewModel,
                     barcodeViewModel: viewModel.barcodeViewModel,
                     emojiViewModel: viewModel.emojiViewModel
                 )
-                .environmentObject(viewModel)
+//                .environmentObject(viewModel)
             } label: {
                 DetailsCell(
+                    viewModel: viewModel,
                     nameViewModel: viewModel.nameViewModel,
                     barcodeViewModel: viewModel.barcodeViewModel
                 )
-                    .environmentObject(viewModel)
-                    .buttonStyle(.borderless)
+//                    .environmentObject(viewModel)
+                .buttonStyle(.borderless)
             }
         }
     }

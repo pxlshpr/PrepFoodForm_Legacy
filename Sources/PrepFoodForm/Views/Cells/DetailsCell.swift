@@ -4,7 +4,7 @@ import AVFoundation
 
 extension FoodForm {
     struct DetailsCell: View {
-        @EnvironmentObject var viewModel: FoodFormViewModel
+        @ObservedObject var viewModel: FoodFormViewModel
         @ObservedObject var nameViewModel: FieldViewModel
         @ObservedObject var barcodeViewModel: FieldViewModel
     }
@@ -126,10 +126,11 @@ struct DetailsCellPreview: View {
                     NavigationLink {
                     } label: {
                         FoodForm.DetailsCell(
+                            viewModel: viewModel,
                             nameViewModel: viewModel.nameViewModel,
                             barcodeViewModel: viewModel.barcodeViewModel
                         )
-                            .environmentObject(viewModel)
+//                        .environmentObject(viewModel)
                     }
                     .buttonStyle(.borderless)
                 }
