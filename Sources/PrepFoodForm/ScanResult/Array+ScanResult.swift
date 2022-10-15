@@ -63,6 +63,12 @@ extension Array where Element == ScanResult {
 
 extension Array where Element == ScanResult {
     
+    var allBarcodeViewModels: [FieldViewModel] {
+        reduce([]) { partialResult, scanResult in
+            partialResult + scanResult.barcodeFieldValues.map { FieldViewModel(fieldValue: $0) }
+        }
+    }
+    
     var allSizeViewModels: [FieldViewModel] {
         guard let bestScanResult else { return [] }
         var sizeViewModels: [FieldViewModel] = []

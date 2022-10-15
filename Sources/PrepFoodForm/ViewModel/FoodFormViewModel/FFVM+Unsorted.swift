@@ -215,6 +215,21 @@ extension FoodFormViewModel {
         return true
     }
     
+    func add(barcodeViewModel: FieldViewModel) -> Bool {
+        guard let barcodeValue = barcodeViewModel.fieldValue.barcodeValue else { return false }
+        
+        guard !barcodeViewModels.contains(where: {
+            $0.fieldValue.barcodeValue?.payloadString == barcodeValue.payloadString
+        }) else {
+            return false
+        }
+        
+        withAnimation {
+            addBarcodeViewModel(barcodeViewModel)
+        }
+        return true
+    }
+    
     func editStandardSizeViewModel(_ sizeViewModel: FieldViewModel, with newSizeViewModel: FieldViewModel) {
         if newSizeViewModel.size?.isVolumePrefixed == true {
             /// Remove it from the standard list
@@ -599,6 +614,11 @@ extension FoodFormViewModel {
     func addStandardSizeViewModel(_ sizeViewModel: FieldViewModel) {
         addSubscription(for: sizeViewModel)
         standardSizeViewModels.append(sizeViewModel)
+    }
+    
+    func addBarcodeViewModel(_ barcodeViewModel: FieldViewModel) {
+        addSubscription(for: barcodeViewModel)
+        barcodeViewModels.append(barcodeViewModel)
     }
 
     func addVolumePrefixedSizeViewModel(_ sizeViewModel: FieldViewModel) {

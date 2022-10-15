@@ -33,7 +33,14 @@ extension FoodFormViewModel {
             replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
         }
 
-        //TODO: Extract Barcodes
+        /// Get Barcodes from all images
+        for barcodeViewModel in scanResults.allBarcodeViewModels {
+            guard add(barcodeViewModel: barcodeViewModel) else {
+                continue
+            }
+            barcodeViewModel.resetAndCropImage()
+            replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
+        }
         
         updateShouldShowDensitiesSection()
 
@@ -126,8 +133,6 @@ extension FoodFormViewModel {
             scannedFieldValues.removeAll(where: { $0.isServing })
         case .density:
             scannedFieldValues.removeAll(where: { $0.isDensity })
-        case .barcode:
-            scannedFieldValues.removeAll(where: { $0.isBarcode })
         case .energy:
             scannedFieldValues.removeAll(where: { $0.isEnergy })
         case .macro(let macroValue):
@@ -135,9 +140,16 @@ extension FoodFormViewModel {
         case .micro(let microValue):
             scannedFieldValues.removeAll(where: { $0.isMicro(microValue.nutrientType)})
         case .size(let sizeValue):
+            /// Make sure we never have two sizes with the same name and volume-prefix in the `scannedFieldValues` array at any given time
             scannedFieldValues.removeAll(where: {
                 guard let size = $0.size else { return false }
                 return size.conflictsWith(sizeValue.size)
+            })
+        case .barcode(let barcodeValue):
+            /// Make sure we never have two barcodes with the same payload string in `scannedFieldValues`
+            scannedFieldValues.removeAll(where: {
+                guard let otherBarcodeValue = $0.barcodeValue else { return false }
+                return barcodeValue.payloadString == otherBarcodeValue.payloadString
             })
         default:
             break

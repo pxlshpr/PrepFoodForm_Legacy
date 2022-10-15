@@ -1,5 +1,7 @@
 import FoodLabelScanner
 import PrepUnits
+import VisionSugar
+import SwiftUI
 
 extension ScanResult {
         
@@ -46,6 +48,23 @@ extension ScanResult {
         //        }
         else {
             return headerFieldValue(for: column)
+        }
+    }
+    
+    var barcodeFieldValues: [FieldValue] {
+        barcodes.map {
+            //TODO: Clean this up by first moving text creator into FoodLabelScanner embedding it into RecognizedBarcode
+            //TODO: Eventually though—make .scanned Fills support a bounding box alone (not necessarily a ValueText)—but do this when we have the rest in place.
+            let text = RecognizedText(
+                observation: .init(boundingBox: $0.boundingBox),
+                rect: $0.boundingBox.rectForSize(UIScreen.main.bounds.size),
+                boundingBox: $0.boundingBox)
+            let valueText = ValueText(value: .zero, text: text)
+            return FieldValue.barcode(.init(
+                payloadString: $0.string,
+                symbology: $0.symbology,
+                fill: .scanned(.init(valueText: valueText, imageId: id))
+            ))
         }
     }
     
