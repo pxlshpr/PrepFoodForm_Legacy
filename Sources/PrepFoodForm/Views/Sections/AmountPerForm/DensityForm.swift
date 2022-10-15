@@ -250,10 +250,10 @@ struct DensityForm: View {
             weightTextField
 //                .background(showColors ? .green : .clear)
                 .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(Color(.systemGroupedBackground))
-                )
+//                .background(
+//                    RoundedRectangle(cornerRadius: 5)
+//                        .foregroundColor(Color(.systemGroupedBackground))
+//                )
                 .fixedSize(horizontal: true, vertical: false)
                 .layoutPriority(1)
             weightUnitButton
@@ -271,10 +271,10 @@ struct DensityForm: View {
             volumeTextField
 //                .background(showColors ? .yellow : .clear)
                 .padding(.vertical, 5)
-                .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .foregroundColor(Color(.systemGroupedBackground))
-                )
+//                .background(
+//                    RoundedRectangle(cornerRadius: 5)
+//                        .foregroundColor(Color(.systemGroupedBackground))
+//                )
                 .fixedSize(horizontal: true, vertical: false)
                 .layoutPriority(1)
             volumeUnitButton
