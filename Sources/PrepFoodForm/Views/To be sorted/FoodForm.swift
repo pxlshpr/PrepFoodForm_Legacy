@@ -84,6 +84,7 @@ public struct FoodForm: View {
         .bottomMenu(isPresented: $viewModel.showingAddLinkMenu, actionGroups: addLinkActionGroups)
         .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
         .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
     }
     
     var photosActionGroups: [[BottomMenuAction]] {
@@ -99,7 +100,19 @@ public struct FoodForm: View {
             }),
         ]]
     }
-    
+
+    var autofillActionGroups: [[BottomMenuAction]] {
+        //TODO: If we have two columns, ask the user which column they want to choose first—then drill down to the confirmation saying they will lose any data in fields that are being autofilled.
+        [[
+            BottomMenuAction(title: #""Per Serving" Column"#, systemImage: "circle.grid.2x1.left.filled", tapHandler: {
+                viewModel.showingFoodLabelCamera = true
+            }),
+            BottomMenuAction(title: #""Per 100 g" Column"#, systemImage: "circle.grid.2x1.right.filled", tapHandler: {
+                viewModel.showingCamera = true
+            }),
+        ]]
+    }
+
     var addLinkActionGroups: [[BottomMenuAction]] {
         [[addLinkMenuAction]]
     }

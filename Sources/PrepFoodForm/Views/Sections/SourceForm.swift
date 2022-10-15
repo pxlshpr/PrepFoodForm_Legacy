@@ -124,7 +124,7 @@ struct SourceForm: View {
     var form: some View {
         FormStyledScrollView {
             if viewModel.hasSourceImages {
-                imageSections
+                imagesSection
             } else {
                 addImagesSection
             }
@@ -136,28 +136,6 @@ struct SourceForm: View {
         }
     }
     
-    var imageSections: some View {
-//        Group {
-            imagesSection
-//            imagesActionsSection
-//        }
-    }
-    
-    var imagesActionsSection: some View {
-        FormStyledSection(horizontalPadding: 0, verticalPadding: 0) {
-            VStack(spacing: 0) {
-                addImagesButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                Divider()
-                    .padding(.leading, 17)
-                removeAllImagesButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-            }
-        }
-    }
-        
     func linkSections(for linkInfo: LinkInfo) -> some View {
         FormStyledSection(header: Text("Link"), horizontalPadding: 0, verticalPadding: 0) {
             VStack(spacing: 0) {
@@ -169,7 +147,7 @@ struct SourceForm: View {
                         .padding(.vertical, 15)
                 }
                 Divider()
-                    .padding(.leading, 17)
+                    .padding(.leading, 50)
                 removeLinkButton
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
@@ -188,7 +166,7 @@ struct SourceForm: View {
                 Text("Remove Link")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(.secondary)
+//            .foregroundColor(.secondary)
         }
     }
     
@@ -219,11 +197,16 @@ struct SourceForm: View {
                     .padding(.vertical, 15)
                 Divider()
 //                    .padding(.leading, 17)
+                autofillButton
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                Divider()
+                    .padding(.leading, 50)
                 addImagesButton
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
                 Divider()
-                    .padding(.leading, 17)
+                    .padding(.leading, 50)
                 removeAllImagesButton
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
@@ -299,6 +282,20 @@ struct SourceForm: View {
             .contentShape(Rectangle())
         }
     }
+
+    var autofillButton: some View {
+        Button {
+            viewModel.showingAutofillMenu = true
+        } label: {
+            HStack(spacing: LabelSpacing) {
+                Image(systemName: "text.viewfinder")
+                    .frame(width: LabelImageWidth)
+                Text("AutoFill Scanned Nutrients")
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+        }
+    }
     
     var removeAllImagesButton: some View {
 //        Button(role: .destructive) {
@@ -311,7 +308,8 @@ struct SourceForm: View {
                 Text("Remove All Images")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundColor(.secondary)
+//            .foregroundColor(.secondary)
+//            .foregroundColor(.red)
         }
     }
     
