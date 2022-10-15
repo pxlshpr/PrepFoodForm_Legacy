@@ -92,7 +92,6 @@ public class FoodFormViewModel: ObservableObject {
     @Published var emojiViewModel: FieldViewModel = FieldViewModel(fieldValue: .emoji())
     @Published var detailViewModel: FieldViewModel = FieldViewModel(fieldValue: .detail())
     @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
-    @Published var barcodeViewModel: FieldViewModel = FieldViewModel(fieldValue: .barcode())
     @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
     @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
     @Published var energyViewModel: FieldViewModel = .init(fieldValue: .energy())
@@ -104,6 +103,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var standardSizeViewModels: [FieldViewModel] = []
     @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
     @Published var micronutrients: [MicroGroupTuple] = DefaultMicronutrients()
+
+    @Published var barcodeViewModels: [FieldViewModel] = []
 
     var scannedFieldValues: [FieldValue] = []
     
@@ -195,7 +196,7 @@ extension FoodFormViewModel {
 
     var allSingleFieldViewModels: [FieldViewModel] {
         [
-            nameViewModel, emojiViewModel, detailViewModel, brandViewModel, barcodeViewModel,
+            nameViewModel, emojiViewModel, detailViewModel, brandViewModel,
             amountViewModel, servingViewModel, densityViewModel,
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
         ]
@@ -206,6 +207,7 @@ extension FoodFormViewModel {
         + allMicronutrientFieldViewModels
         + standardSizeViewModels
         + volumePrefixedSizeViewModels
+        + barcodeViewModels
     }
     
     var allSizeViewModels: [FieldViewModel] {

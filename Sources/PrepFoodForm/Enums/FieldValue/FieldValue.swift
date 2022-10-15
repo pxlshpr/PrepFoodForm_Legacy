@@ -1,6 +1,7 @@
 import SwiftUI
 import PrepUnits
 import FoodLabelScanner
+import Vision
 
 extension FieldValue: Equatable {
     static func ==(lhs: FieldValue, rhs: FieldValue) -> Bool {
@@ -39,7 +40,6 @@ enum FieldValue: Hashable {
     case name(StringValue = StringValue())
     case emoji(StringValue = StringValue(string: randomFoodEmoji()))
     case brand(StringValue = StringValue())
-    case barcode(StringValue = StringValue())
     case detail(StringValue = StringValue())
     case amount(DoubleValue = DoubleValue(unit: .serving))
     case serving(DoubleValue = DoubleValue(unit: .weight(.g)))
@@ -48,11 +48,19 @@ enum FieldValue: Hashable {
     case macro(MacroValue)
     case micro(MicroValue)
     case size(SizeValue)
+    case barcode(BarcodeValue)
 }
 
 extension FieldValue {
     struct SizeValue: Hashable {
         var size: Size
+        var fill: Fill
+    }
+}
+extension FieldValue {
+    struct BarcodeValue: Hashable {
+        var payloadString: String
+        var symbology: VNBarcodeSymbology
         var fill: Fill
     }
 }
@@ -517,7 +525,7 @@ extension FieldValue: CustomStringConvertible {
 extension FieldValue {
     var isEmpty: Bool {
         switch self {
-        case .name(let stringValue), .detail(let stringValue), .brand(let stringValue), .barcode(let stringValue), .emoji(let stringValue):
+        case .name(let stringValue), .detail(let stringValue), .brand(let stringValue), .emoji(let stringValue):
             return stringValue.isEmpty
             
         case .amount(let doubleValue), .serving(let doubleValue):
@@ -536,6 +544,9 @@ extension FieldValue {
             
         case .size(let sizeValue):
             return sizeValue.size.isEmpty
+            
+        case .barcode(let barcodeValue):
+            return barcodeValue.payloadString.isEmpty
         }
     }
 }
@@ -622,7 +633,7 @@ extension FieldValue {
     var string: String {
         get {
             switch self {
-            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .detail(let stringValue):
                 
                 return stringValue.string
                 
@@ -638,6 +649,8 @@ extension FieldValue {
                 return microValue.string
             case .size(let sizeValue):
                 return sizeValue.size.name
+            case .barcode(let barcodeValue):
+                return barcodeValue.payloadString
             }
         }
         set {
@@ -682,10 +695,10 @@ extension FieldValue {
                 newStringValue.string = newValue
                 self = .brand(newStringValue)
                 
-            case .barcode(let stringValue):
-                var newStringValue = stringValue
-                newStringValue.string = newValue
-                self = .barcode(newStringValue)
+            case .barcode(let barcodeValue):
+                var newBarcodeValue = barcodeValue
+                newBarcodeValue.payloadString = newValue
+                self = .barcode(newBarcodeValue)
 
 //            case .emoji(let stringValue):
 //                <#code#>
@@ -801,7 +814,7 @@ extension FieldValue {
                 return macroValue.fill
             case .micro(let microValue):
                 return microValue.fill
-            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+            case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .detail(let stringValue):
                 return stringValue.fill
             case .amount(let doubleValue), .serving(let doubleValue):
                 return doubleValue.fill
@@ -809,6 +822,8 @@ extension FieldValue {
                 return density.fill
             case .size(let sizeValue):
                 return sizeValue.fill
+            case .barcode(let barcodeValue):
+                return barcodeValue.fill
             }
         }
         set {
@@ -819,10 +834,14 @@ extension FieldValue {
                 self = .emoji(StringValue(string: stringValue.string, fill: newValue))
             case .brand(let stringValue):
                 self = .brand(StringValue(string: stringValue.string, fill: newValue))
-            case .barcode(let stringValue):
-                self = .barcode(StringValue(string: stringValue.string, fill: newValue))
             case .detail(let stringValue):
                 self = .detail(StringValue(string: stringValue.string, fill: newValue))
+            case .barcode(let barcodeValue):
+                self = .barcode(BarcodeValue(
+                    payloadString: barcodeValue.payloadString,
+                    symbology: barcodeValue.symbology,
+                    fill: newValue)
+                )
             case .amount(let doubleValue):
                 self = .amount(DoubleValue(
                     double: doubleValue.double,
@@ -904,10 +923,30 @@ extension FieldValue {
         }
     }
     
+    var barcodeValue: BarcodeValue? {
+        get {
+            switch self {
+            case .barcode(let barcodeValue):
+                return barcodeValue
+            default:
+                return nil
+            }
+        }
+        set {
+            guard let newValue else { return }
+            switch self {
+            case .barcode:
+                self = .barcode(newValue)
+            default:
+                break
+            }
+        }
+    }
+    
     var stringValue: StringValue {
         get {
             switch self {
-            case .name(let stringValue), .barcode(let stringValue), .detail(let stringValue), .brand(let stringValue), .emoji(let stringValue):
+            case .name(let stringValue), .detail(let stringValue), .brand(let stringValue), .emoji(let stringValue):
                 return stringValue
             default:
                 return StringValue()
@@ -923,8 +962,6 @@ extension FieldValue {
                 self = .emoji(newValue)
             case .detail:
                 self = .detail(newValue)
-            case .barcode:
-                self = .barcode(newValue)
             default:
                 break
             }

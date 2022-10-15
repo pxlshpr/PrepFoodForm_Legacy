@@ -11,8 +11,7 @@ extension FoodFormViewModel {
         
         let fieldViewModelsToExtract = [
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
-            amountViewModel, servingViewModel, densityViewModel,
-            barcodeViewModel
+            amountViewModel, servingViewModel, densityViewModel
         ] + allMicronutrientFieldViewModels
         
         for fieldViewModel in fieldViewModelsToExtract {
@@ -103,8 +102,6 @@ extension FoodFormViewModel {
             servingViewModel.fillScannedFieldValue(fieldValue)
         case .density:
             densityViewModel.fillScannedFieldValue(fieldValue)
-        case .barcode:
-            barcodeViewModel.fillScannedFieldValue(fieldValue)
         case .energy:
             energyViewModel.fillScannedFieldValue(fieldValue)
         case .macro(let macroValue):

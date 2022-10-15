@@ -1,6 +1,7 @@
 import SwiftUI
 import RSBarcodes_Swift
 import AVFoundation
+import Vision
 
 extension FoodForm {
     struct DetailsCell: View {
@@ -64,8 +65,8 @@ extension FoodForm.DetailsCell {
         
         @ViewBuilder
         var barcode: some View {
-            if !viewModel.barcodeViewModel.fieldValue.isEmpty {
-                barcodeView(for: viewModel.barcodeViewModel.fieldValue.stringValue.string)
+            if let firstBarcodeValue = viewModel.primaryBarcodeValue {
+                barcodeView(for: firstBarcodeValue)
             }
         }
 
@@ -87,9 +88,11 @@ extension FoodForm.DetailsCell {
             .foregroundColor(.primary)
     }
     
-    func barcodeView(for barcode: String) -> some View {
+    func barcodeView(for barcodeValue: FieldValue.BarcodeValue) -> some View {
         Group {
-            if let image = RSUnifiedCodeGenerator.shared.generateCode(barcode, machineReadableCodeObjectType: AVMetadataObject.ObjectType.code128.rawValue)
+            if let image = RSUnifiedCodeGenerator.shared.generateCode(
+                barcodeValue.payloadString,
+                machineReadableCodeObjectType: barcodeValue.symbology.objectType.rawValue)
             {
                 Image(uiImage: image)
                     .resizable()
@@ -98,6 +101,32 @@ extension FoodForm.DetailsCell {
             } else {
                 EmptyView()
             }
+        }
+    }
+}
+
+extension FoodFormViewModel {
+    var primaryBarcodeValue: FieldValue.BarcodeValue? {
+        barcodeViewModels
+            .filter({ $0.fieldValue.barcodeValue?.payloadString != "" })
+            .first?.fieldValue.barcodeValue
+    }
+}
+extension VNBarcodeSymbology {
+
+    var objectType: AVMetadataObject.ObjectType {
+        switch self {
+        case .code128: return .code128
+        case .upce: return .upce
+        case .code39: return .code39
+        case .ean8: return .ean8
+        case .ean13: return .ean13
+        case .code93: return .code93
+        case .pdf417: return .pdf417
+        case .qr: return .qr
+        case .aztec: return .aztec
+        default:
+            return .code128
         }
     }
 }
@@ -140,7 +169,7 @@ struct DetailsCellPreview: View {
         viewModel.nameViewModel.fieldValue = FieldValue.name(FieldValue.StringValue(string: "Butter"))
         viewModel.detailViewModel.fieldValue = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
         viewModel.brandViewModel.fieldValue = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
-        viewModel.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
+//        viewModel.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
 //        viewModel.barcode = "2166529V"
     }
 }

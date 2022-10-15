@@ -35,7 +35,7 @@ extension FoodFormViewModel {
     
     func prefillString(for fieldValue: FieldValue) -> String {
         switch fieldValue {
-        case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .barcode(let stringValue), .detail(let stringValue):
+        case .name(let stringValue), .emoji(let stringValue), .brand(let stringValue), .detail(let stringValue):
             return stringValue.string
         case .amount(let doubleValue), .serving(let doubleValue):
             return doubleValue.description
@@ -51,6 +51,9 @@ extension FoodFormViewModel {
             
         case .size(let sizeValue):
             return sizeValue.size.fullNameString.lowercased()
+            
+        case .barcode(let barcodeValue):
+            return "(barcodes prefill not supported)"
         }
     }
     

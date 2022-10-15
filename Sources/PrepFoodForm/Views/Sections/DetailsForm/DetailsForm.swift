@@ -16,18 +16,6 @@ extension FoodForm.DetailsForm {
         .toolbar { bottomToolbarContent }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(isPresented: $showingCodeScanner) {
-            CodeScanner { result in
-                showingCodeScanner = false
-                
-                switch result {
-                case .success(let code):
-                    viewModel.barcodeViewModel.fieldValue.stringValue.string = code
-                case .failure(let error):
-                    print("Scanning failed: \(error)")
-                }
-            }
-        }
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled()
     }
@@ -102,7 +90,11 @@ extension FoodForm.DetailsForm {
             showingCodeScanner = true
         } label: {
             HStack {
-                Text(viewModel.barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : viewModel.barcodeViewModel.fieldValue.stringValue.string)
+                if let barcodeValue = viewModel.primaryBarcodeValue {
+                    Text(barcodeValue.payloadString)
+                } else {
+                    Text("Scan a barcode")
+                }
                 Spacer()
             }
             .contentShape(Rectangle())

@@ -7,7 +7,7 @@ extension FoodFormViewModel {
 //        || !emojiViewModel.fieldValue.isEmpty
         || !detailViewModel.fieldValue.isEmpty
         || !brandViewModel.fieldValue.isEmpty
-        || !barcodeViewModel.fieldValue.isEmpty
+//        || !barcodeViewModel.fieldValue.isEmpty
 //        || !amountViewModel.fieldValue.isEmpty
         || !servingViewModel.fieldValue.isEmpty
         || !standardSizeViewModels.isEmpty
@@ -52,7 +52,7 @@ extension FoodFormViewModel {
             self.emojiViewModel.fieldValue = FieldValue.emoji(FieldValue.StringValue(string: "🥕"))
             self.detailViewModel.fieldValue = FieldValue.detail(FieldValue.StringValue(string: "Baby"))
             self.brandViewModel.fieldValue = FieldValue.brand(FieldValue.StringValue(string: "Woolworths"))
-            self.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
+//            self.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "5012345678900"))
             
             self.amountViewModel.fieldValue = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
             self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 50, string: "50", unit: .weight(.g)))
