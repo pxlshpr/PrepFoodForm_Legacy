@@ -349,7 +349,7 @@ extension FoodFormViewModel {
     
     func resetFillForAllFieldsUsingImages() {
         for fieldViewModel in allFieldViewModels {
-            fieldViewModel.resetFill()
+            fieldViewModel.registerDiscardedScan()
         }
         scannedFieldValues = []
     }
@@ -362,7 +362,7 @@ extension FoodFormViewModel {
         }
         /// Selectively reset fills for fields that are using this image
         for fieldViewModel in allFieldViewModels {
-            fieldViewModel.resetFillIfUsingImage(withId: id)
+            fieldViewModel.registerDiscardScanIfUsingImage(withId: id)
         }
         
         /// Now remove the saved scanned field values that are also using this image

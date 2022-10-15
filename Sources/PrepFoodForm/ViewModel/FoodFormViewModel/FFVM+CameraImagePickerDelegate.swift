@@ -14,7 +14,7 @@ extension FoodFormViewModel {
         imageViewModels.append(
             ImageViewModel(image: image, scanResult: scanResult)
         )
-        processScanResults()
+        extractFieldValues(from: scanResult)
         imageSetStatus = .scanned
         withAnimation {
             showingWizard = false

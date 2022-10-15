@@ -77,13 +77,14 @@ class FieldViewModel: ObservableObject, Identifiable {
         imageToDisplay = nil
     }
     
-    func resetFill() {
-        registerUserInput()
+    func registerDiscardedScan() {
+        fieldValue.fill = .discardedScan
+        imageToDisplay = nil
     }
     
-    func resetFillIfUsingImage(withId id: UUID) {
+    func registerDiscardScanIfUsingImage(withId id: UUID) {
         if fieldValue.fill.usesImage(with: id) {
-            resetFill()
+            registerDiscardedScan()
         }
     }
     

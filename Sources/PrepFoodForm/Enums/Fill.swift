@@ -4,117 +4,6 @@ import VisionSugar
 import UIKit
 import PrepUnits
 
-struct ImageText: Hashable {
-    let text: RecognizedText
-    let attributeText: RecognizedText?
-    let imageId: UUID
-    var pickedCandidate: String?
-    
-    init(text: RecognizedText, attributeText: RecognizedText? = nil, imageId: UUID, pickedCandidate: String? = nil) {
-        self.text = text
-        self.imageId = imageId
-        self.attributeText = attributeText
-        self.pickedCandidate = pickedCandidate
-    }
-    
-    init(valueText: ValueText, imageId: UUID, pickedCandidate: String? = nil) {
-        self.text = valueText.text
-        self.attributeText = valueText.attributeText
-        self.imageId = imageId
-        self.pickedCandidate = pickedCandidate
-    }
-    
-    var withoutPickedCandidate: ImageText {
-        var newImageText = self
-        newImageText.pickedCandidate = nil
-        return newImageText
-    }
-}
-
-struct ScannedFillInfo: Hashable {
-    var imageText: ImageText
-    var value: FoodLabelValue?
-    var altValue: FoodLabelValue? = nil
-    var densityValue: FieldValue.DensityValue? = nil
-    var size: Size? = nil
-
-    init(imageText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil, size: Size? = nil) {
-        self.value = value
-        self.imageText = imageText
-        self.altValue = altValue
-        self.densityValue = densityValue
-        self.size = size
-    }
-    
-    init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
-        self.value = valueText.value
-        self.imageText = ImageText(valueText: valueText, imageId: imageId)
-        self.altValue = altValue
-    }
-    
-    func withAltValue(_ value: FoodLabelValue) -> ScannedFillInfo {
-        var newInfo = self
-        newInfo.altValue = value
-        return newInfo
-    }
-}
-
-struct ComponentText: Hashable {
-    let componentString: String
-    let imageText: ImageText
-}
-
-struct SelectionFillInfo: Hashable {
-    
-    /// This indicates the `ImageText` that was selected by the user.
-    var imageText: ImageText?
-    
-    var componentTexts: [ComponentText]?
-    
-    var altValue: FoodLabelValue? = nil
-    var densityValue: FieldValue.DensityValue? = nil
-
-    func withAltValue(_ value: FoodLabelValue) -> SelectionFillInfo {
-        var newInfo = self
-        newInfo.altValue = value
-        return newInfo
-    }
-    
-    var concatenatedComponentStrings: String {
-        guard let componentTexts else { return "" }
-        return componentTexts
-            .map { $0.componentString }
-            .joined(separator: " ")
-    }
-    
-    func usesImage(with id: UUID) -> Bool {
-        if let imageText, imageText.imageId == id {
-            return true
-        }
-        if let componentTexts {
-            return componentTexts.contains(where: { $0.imageText.imageId == id })
-        }
-        return false
-    }
-}
-
-struct PrefillFieldString: Hashable {
-    let string: String
-    let field: PrefillField
-}
-
-struct PrefillFillInfo: Hashable {
-    var fieldStrings: [PrefillFieldString] = []
-    var densityValue: FieldValue.DensityValue? = nil
-    var size: Size? = nil
-    
-    var concatenated: String {
-        fieldStrings
-            .map { $0.string.capitalized }
-            .joined(separator: " ")
-    }
-}
-
 indirect enum Fill: Hashable {
     
     case scanned(ScannedFillInfo)
@@ -122,19 +11,20 @@ indirect enum Fill: Hashable {
     
     case prefill(PrefillFillInfo = .init())
     case userInput
-    case calculated
-    case barcodeScan
+    
+    /// Use when a `ScanResult` is discarded (by deleting the image)—and we've lost the associated fill data,
+    /// but still want to differentiate this from `.userInput` (as its not been edited since the user scanned it in).
+    /// This is so that we can identify fields marked with this as `discardable` when new scans come in.
+    case discardedScan
 }
 
 extension Fill {
     
     struct SystemImage {
         static let scanned = "text.viewfinder"
-        static let selection = "hand.tap"
         static let prefill = "link"
         static let userInput = "keyboard"
-        static let calculated = "function"
-        static let barcodeScan = "barcode.viewfinder"
+        static let selection = "hand.tap"
     }
     
     var iconSystemImage: String {
@@ -143,14 +33,12 @@ extension Fill {
             return SystemImage.userInput
         case .selection:
             return SystemImage.selection
-        case .calculated:
-            return SystemImage.calculated
         case .scanned:
             return SystemImage.scanned
         case .prefill:
             return SystemImage.prefill
-        case .barcodeScan:
-            return SystemImage.barcodeScan
+        case .discardedScan:
+            return "viewfinder"
         }
     }
     
@@ -176,8 +64,6 @@ extension Fill {
             return "Copied from third-pary food"
         case .scanned:
             return "Auto-filled from image"
-        case .calculated:
-            return "Calculated"
         case .selection:
             return "Selected from image"
         case .userInput:
@@ -189,15 +75,6 @@ extension Fill {
             break
         }
         return ""
-    }
-    
-    var isCalculated: Bool {
-        switch self {
-        case .calculated:
-            return true
-        default:
-            return false
-        }
     }
     
     var isPrefill: Bool {
@@ -316,9 +193,6 @@ extension Fill {
             return info.altValue ?? info.value
         case .selection(let info):
             return info.altValue ?? info.imageText?.text.firstFoodLabelValue
-        case .calculated:
-            //TODO: Do this
-            return nil
         default:
             return nil
         }
@@ -483,5 +357,127 @@ extension Fill {
         var newInfo = info
         newInfo.fieldStrings.removeAll(where: { $0 == fieldString })
         self = .prefill(newInfo)
+    }
+}
+
+//TODO: Sort these
+
+struct ImageText: Hashable {
+    let text: RecognizedText
+    let attributeText: RecognizedText?
+    let imageId: UUID
+    var pickedCandidate: String?
+    
+    init(text: RecognizedText, attributeText: RecognizedText? = nil, imageId: UUID, pickedCandidate: String? = nil) {
+        self.text = text
+        self.imageId = imageId
+        self.attributeText = attributeText
+        self.pickedCandidate = pickedCandidate
+    }
+    
+    init(valueText: ValueText, imageId: UUID, pickedCandidate: String? = nil) {
+        self.text = valueText.text
+        self.attributeText = valueText.attributeText
+        self.imageId = imageId
+        self.pickedCandidate = pickedCandidate
+    }
+    
+    var withoutPickedCandidate: ImageText {
+        var newImageText = self
+        newImageText.pickedCandidate = nil
+        return newImageText
+    }
+}
+
+struct ScannedFillInfo: Hashable {
+    var imageText: ImageText
+    var value: FoodLabelValue?
+    var altValue: FoodLabelValue? = nil
+    var densityValue: FieldValue.DensityValue? = nil
+    var size: Size? = nil
+
+    init(imageText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil, size: Size? = nil) {
+        self.value = value
+        self.imageText = imageText
+        self.altValue = altValue
+        self.densityValue = densityValue
+        self.size = size
+    }
+    
+    init(valueText: ValueText, imageId: UUID, altValue: FoodLabelValue? = nil) {
+        self.value = valueText.value
+        self.imageText = ImageText(valueText: valueText, imageId: imageId)
+        self.altValue = altValue
+    }
+    
+    func withAltValue(_ value: FoodLabelValue) -> ScannedFillInfo {
+        var newInfo = self
+        newInfo.altValue = value
+        return newInfo
+    }
+}
+
+struct ComponentText: Hashable {
+    let componentString: String
+    let imageText: ImageText
+}
+
+enum SelectionFillType: Hashable {
+    case primaryValue
+    case altValue
+    case unitConversion
+}
+
+struct SelectionFillInfo: Hashable {
+    
+    /// This indicates the `ImageText` that was selected by the user.
+    var imageText: ImageText?
+    
+    var componentTexts: [ComponentText]?
+    
+    //TODO: Add a 'calculationType' or selectionType here, which has cases like .calculatedUsingEnergyEquation, .convertedUnit, .otherCandidate, or .primaryCandidate which identifies the type of selection
+    var type: SelectionFillType = .primaryValue
+    
+    var altValue: FoodLabelValue? = nil
+    var densityValue: FieldValue.DensityValue? = nil
+
+    func withAltValue(_ value: FoodLabelValue) -> SelectionFillInfo {
+        var newInfo = self
+        newInfo.altValue = value
+        return newInfo
+    }
+    
+    var concatenatedComponentStrings: String {
+        guard let componentTexts else { return "" }
+        return componentTexts
+            .map { $0.componentString }
+            .joined(separator: " ")
+    }
+    
+    func usesImage(with id: UUID) -> Bool {
+        if let imageText, imageText.imageId == id {
+            return true
+        }
+        if let componentTexts {
+            return componentTexts.contains(where: { $0.imageText.imageId == id })
+        }
+        return false
+    }
+}
+
+struct PrefillFieldString: Hashable {
+    let string: String
+    let field: PrefillField
+}
+
+struct PrefillFillInfo: Hashable {
+    var fieldStrings: [PrefillFieldString] = []
+    var densityValue: FieldValue.DensityValue? = nil
+    var size: Size? = nil
+    
+    var concatenated: String {
+        fieldStrings
+            .map { $0.string.capitalized }
+            .joined(separator: " ")
     }
 }

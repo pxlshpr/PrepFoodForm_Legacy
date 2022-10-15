@@ -87,14 +87,15 @@ extension FoodFormViewModel {
     }
     
     func prefillDetails(from food: MFPProcessedFood) {
+        /// We only ever prefill it at the beginning, so we can be sure there aren't any user-input values already
         if let fieldValue = food.nameFieldValue {
-            nameViewModel = .init(fieldValue: fieldValue)
+            nameViewModel.fieldValue = fieldValue
         }
         if let fieldValue = food.detailFieldValue {
-            detailViewModel = .init(fieldValue: fieldValue)
+            detailViewModel.fieldValue = fieldValue
         }
         if let fieldValue = food.brandFieldValue {
-            brandViewModel = .init(fieldValue: fieldValue)
+            brandViewModel.fieldValue = fieldValue
         }
     }
 
@@ -142,7 +143,7 @@ extension FoodFormViewModel {
 //            prefillSize(size)
 //        }
         
-        self.amountViewModel = .init(fieldValue: fieldValue)
+        amountViewModel.fieldValue = fieldValue
     }
     
     func prefillServing(from food: MFPProcessedFood) {

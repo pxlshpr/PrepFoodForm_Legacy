@@ -10,51 +10,53 @@ extension Array where Element == ScanResult {
 }
 extension FoodFormViewModel {
 
-    func fieldValueFromScanResults(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
-        switch fieldValue {
-        case .energy:
-            return fieldValueFromScanResults(for: .energy, at: column)
-        case .macro(let macroValue):
-            switch macroValue.macro {
-            case .carb:
-                return fieldValueFromScanResults(for: .carbohydrate, at: column)
-            case .fat:
-                return fieldValueFromScanResults(for: .fat, at: column)
-            case .protein:
-                return fieldValueFromScanResults(for: .protein, at: column)
-            }
-        case .micro(let microValue):
-            return fieldValueFromScanResults(for: microValue.nutrientType, at: column)
-        default:
-            return nil
-        }
-    }
+//    func fieldValueFromScanResults(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
+//        switch fieldValue {
+//        case .energy:
+//            return fieldValueFromScanResults(for: .energy, at: column)
+//        case .macro(let macroValue):
+//            switch macroValue.macro {
+//            case .carb:
+//                return fieldValueFromScanResults(for: .carbohydrate, at: column)
+//            case .fat:
+//                return fieldValueFromScanResults(for: .fat, at: column)
+//            case .protein:
+//                return fieldValueFromScanResults(for: .protein, at: column)
+//            }
+//        case .micro(let microValue):
+//            return fieldValueFromScanResults(for: microValue.nutrientType, at: column)
+//        default:
+//            return nil
+//        }
+//    }
     
     var scanResults: [ScanResult] {
         imageViewModels.compactMap { $0.scanResult }
     }
 
-    func processScanResults(column: Int? = nil) {
-        let column = column ?? scanResults.bestColumn
-        extractEnergy(at: column)
-        extractMacro(.carb, at: column)
-        extractMacro(.protein, at: column)
-        extractMacro(.fat, at: column)
+    //TODO: Change this to take in a scan result as the parameter and process them as they come in
+    func extractFieldValues(from scanResult: ScanResult) {
+        let column = scanResults.bestColumn
+        extractEnergy(from: scanResult, at: column)
+        extractMacro(.carb, from: scanResult, at: column)
+        extractMacro(.protein, from: scanResult, at: column)
+        extractMacro(.fat, from: scanResult, at: column)
         for nutrient in NutrientType.allCases {
-            extractNutrient(nutrient, at: column)
+            extractNutrient(nutrient, from: scanResult, at: column)
         }
         
-        extractSizes()
+        extractSizes(from: scanResult)
         
-        extractServing(for: column)
-        extractAmount(for: column)
-        extractDensity()
+        extractServing(from: scanResult, for: column)
+        extractAmount(from: scanResult, for: column)
+        extractDensity(from: scanResult)
         
-        extractBarcode()
+        extractBarcode(from: scanResult)
         
         updateShouldShowDensitiesSection()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            //TODO: Only do this to if we actually extract the values
             for fieldViewModel in self.allFieldViewModels {
                 fieldViewModel.isCroppingNextImage = true
                 fieldViewModel.cropFilledImage()
@@ -62,40 +64,66 @@ extension FoodFormViewModel {
         }
     }
     
-    func extractBarcode() {
+    func processScanResults() {
         for scanResult in scanResults {
-            if let first = scanResult.barcodes.first {
-                print("🍄 Setting barcode to be: \(first.string)")
-                self.barcodeViewModel.fieldValue.string = first.string
-                return
-            }
+            extractFieldValues(from: scanResult)
         }
     }
     
-    func extractSizes() {
-        for scanResult in scanResults {
-            for sizeViewModel in scanResult.allSizeViewModels {
-                /// If we were able to add this size view model (if it wasn't a duplicate) ...
-                guard add(sizeViewModel: sizeViewModel) else {
-                    continue
-                }
-                /// ... then go ahead and add it to the `scannedFieldValues` array as well
-                scannedFieldValues.append(sizeViewModel.fieldValue)
-            }
-        }
-    }
-    
-    func extractEnergy(at column: Int) {
-        guard let fieldValue = fieldValueFromScanResults(for: .energy, at: column) else {
+    func extractBarcode(from scanResult: ScanResult) {
+        guard let first = scanResult.barcodes.first else {
             return
         }
-        //TODO: Only do this if user hasn't already got a value in there
-        energyViewModel = .init(fieldValue: fieldValue)
+        print("🍄 Setting barcode to be: \(first.string)")
+        self.barcodeViewModel.fieldValue.string = first.string
+    }
+    
+    func extractSizes(from scanResult: ScanResult) {
+        for sizeViewModel in scanResult.allSizeViewModels {
+            /// If we were able to add this size view model (if it wasn't a duplicate) ...
+            guard add(sizeViewModel: sizeViewModel) else {
+                continue
+            }
+            /// ... then go ahead and add it to the `scannedFieldValues` array as well
+            scannedFieldValues.append(sizeViewModel.fieldValue)
+        }
+    }
+    
+    func extractEnergy(from scanResult: ScanResult, at column: Int) {
+        guard let fieldValue = scanResult.energyFieldValue(at: column) else { return }
+        
+        switch energyViewModel.fill {
+        case .userInput:
+            if energyViewModel.fieldValue.isEmpty {
+                print("👑 It's empty — filling it")
+                energyViewModel = .init(fieldValue: fieldValue)
+                addSubscription(for: energyViewModel)
+            } else {
+                print("👑 We have user input: \(energyViewModel.fieldValue.string)")
+            }
+        case .selection:
+            print("👑 We have a user-selected value, don't replace it")
+        case .scanned(let info):
+            //TODO: overwrite this if from a better scanResult
+            // We could do this from the processResults() func and pick the best scanResult and only extract that
+            // but that will ignore the scanResults that aren't the best that might have missing values
+            //ALSO—revisit calling the entire processResults() each time an image is added
+            //Maybe we should add them as they come in (not re-extracting previous ones)
+            //  But we don't want to keep extracting as images are extracted because the food label will keep changing
+            //  so if we're doing that—grab all the scanresults while we wait for all images to finish and then do it at the end
+            print("👑 We have a scanned value")
+        case .prefill(let info):
+            //TODO: What do we do when have a prefilled value? Maybe overwrite it
+            print("👑 We have a prefilled value")
+        default:
+            print("👑 We have an unhandle fill type")
+        }
+        //TODO: We keep duplicating values here—check for dupes each time
         scannedFieldValues.append(fieldValue)
     }
     
-    func extractMacro(_ macro: Macro, at column: Int) {
-        guard let fieldValue = fieldValueFromScanResults(for: macro.attribute, at: column) else {
+    func extractMacro(_ macro: Macro, from scanResult: ScanResult, at column: Int) {
+        guard let fieldValue = scanResult.macroFieldValue(for: macro, at: column) else {
             return
         }
         //TODO: Only do this if user hasn't already got a value in there
@@ -110,8 +138,8 @@ extension FoodFormViewModel {
         scannedFieldValues.append(fieldValue)
     }
     
-    func extractNutrient(_ nutrientType: NutrientType, at column: Int) {
-        guard let fieldValue = fieldValueFromScanResults(for: nutrientType, at: column) else {
+    func extractNutrient(_ nutrientType: NutrientType, from scanResult: ScanResult, at column: Int) {
+        guard let fieldValue = scanResult.microFieldValue(for: nutrientType, at: column) else {
             return
         }
         
@@ -119,6 +147,35 @@ extension FoodFormViewModel {
         setMicronutrient(nutrientType, with: fieldValue)
     }
     
+    func extractServing(from scanResult: ScanResult, for column: Int) {
+        guard let fieldValue = scanResult.servingFieldValue(for: column) else {
+            return
+        }
+        //TODO: Only do this if user hasn't already got a value in there
+        servingViewModel = .init(fieldValue: fieldValue)
+        scannedFieldValues.append(fieldValue)
+    }
+
+    func extractAmount(from scanResult: ScanResult, for column: Int) {
+        guard let fieldValue = scanResult.amountFieldValue(for: column) else {
+            return
+        }
+        //TODO: Only do this if user hasn't already got a value in there
+        //TODO: Also consider if we're doing this with a new image with possibly better results
+        amountViewModel = .init(fieldValue: fieldValue)
+        scannedFieldValues.append(fieldValue)
+    }
+    
+    func extractDensity(from scanResult: ScanResult) {
+        guard let fieldValue = scanResult.densityFieldValue else {
+            return
+        }
+        densityViewModel = .init(fieldValue: fieldValue)
+        scannedFieldValues.append(fieldValue)
+    }
+}
+
+extension FoodFormViewModel {
     func setMicronutrient(_ nutrientType: NutrientType, with fieldValue: FieldValue) {
         guard let indexes = micronutrientIndexes(for: nutrientType) else {
             print("Couldn't find indexes for nutrientType: \(nutrientType) in micronutrients array")
@@ -136,110 +193,6 @@ extension FoodFormViewModel {
             return nil
         }
         return (groupIndex, fieldIndex)
-    }
-
-    func fieldValueFromScanResults(for attribute: Attribute? = nil, at column: Int) -> FieldValue? {
-        fieldValueFromScanResults(for: attribute, orNutrientType: nil, at: column)
-    }
-
-    func fieldValueFromScanResults(for nutrientType: NutrientType? = nil, at column: Int) -> FieldValue? {
-        fieldValueFromScanResults(for: nil, orNutrientType: nutrientType, at: column)
-    }
-    
-    func extractServing(for column: Int) {
-        guard let fieldValue = fieldValueFromScanResultsForServing(for: column) else {
-            return
-        }
-        //TODO: Only do this if user hasn't already got a value in there
-        servingViewModel = .init(fieldValue: fieldValue)
-        scannedFieldValues.append(fieldValue)
-    }
-
-    func extractAmount(for column: Int) {
-        guard let fieldValue = fieldValueFromScanResultsForAmount(for: column) else {
-            return
-        }
-        //TODO: Only do this if user hasn't already got a value in there
-        amountViewModel = .init(fieldValue: fieldValue)
-        scannedFieldValues.append(fieldValue)
-    }
-    
-    func extractDensity() {
-        guard let fieldValue = fieldValueFromScanResultsForDensity() else {
-            return
-        }
-        densityViewModel = .init(fieldValue: fieldValue)
-        scannedFieldValues.append(fieldValue)
-    }
-
-    func fieldValueFromScanResultsForServing(for column: Int) -> FieldValue? {
-        /// **We're current returning the first one we find amongst the images**
-        for scanResult in scanResults {
-            if let fieldValue = scanResult.servingFieldValue(for: column) {
-                return fieldValue
-            }
-        }
-        return nil
-    }
-    
-    func fieldValueFromScanResultsForAmount(for column: Int) -> FieldValue? {
-        /// **We're current returning the first one we find amongst the images**
-        for scanResult in scanResults {
-
-            if let fieldValue = scanResult.amountFieldValue(for: column) {
-                //TODO: Revisit this if need be
-                //TODO: Make sure these are added
-//                let sizeViewModels = scanResult.amountSizeViewModels
-//                for sizeViewModel in sizeViewModels {
-//                    add(sizeViewModel: sizeViewModel)
-//                }
-                return fieldValue
-            }
-        }
-        return nil
-    }
-    
-    func fieldValueFromScanResultsForDensity() -> FieldValue? {
-        for scanResult in scanResults {
-            if let fieldValue = scanResult.densityFieldValue {
-                return fieldValue
-            }
-        }
-        return nil
-    }
-    
-    func fieldValueFromScanResults(for attribute: Attribute? = nil, orNutrientType nutrientType: NutrientType? = nil, at column: Int) -> FieldValue? {
-        
-        guard attribute != nil || nutrientType != nil else {
-            return nil
-        }
-        
-        var candidate: FieldValue? = nil
-        var nutrientCountOfArrayContainingCandidate = 0
-        for scanResult in scanResults {
-            
-            let fieldValue: FieldValue?
-            if let attribute {
-                fieldValue = scanResult.fieldValue(for: attribute, at: column)
-            } else if let nutrientType {
-                fieldValue = scanResult.microFieldValue(for: nutrientType, at: column)
-            } else {
-                fieldValue = nil
-            }
-            
-            guard let fieldValue else {
-                continue
-            }
-            
-            /// Keep picking the candidate that comes from the scanResult with the largest set of nutrients in case of duplicates (for now)
-            //TODO: Improve this
-            if scanResult.nutrients.rows.count > nutrientCountOfArrayContainingCandidate {
-                nutrientCountOfArrayContainingCandidate = scanResult.nutrients.rows.count
-                candidate = fieldValue
-            }
-        }
-        
-        return candidate
     }
 }
 
@@ -263,96 +216,6 @@ extension FoodLabelUnit {
         default:
             return nil
         }
-    }
-}
-
-extension ScanResult {
-    
-    func fieldValue(for attribute: Attribute, at column: Int) -> FieldValue? {
-        switch attribute {
-        case .energy:
-            return energyFieldValue(at: column)
-        case .carbohydrate, .protein, .fat:
-            return macroFieldValue(for: attribute, at: column)
-        default:
-            return nil
-        }
-    }
-    
-    func energyFieldValue(at column: Int) -> FieldValue? {
-        guard let row = row(for: .energy),
-              let valueText = row.valueText(at: column),
-              let value = row.value(at: column)
-        else {
-            return nil
-        }
-        let fill: Fill
-        if valueText.text.id == defaultUUID {
-            fill = .calculated
-        } else {
-            fill = .scanned(.init(valueText: valueText, imageId: id))
-        }
-        return FieldValue.energy(FieldValue.EnergyValue(
-            double: value.amount,
-            string: value.amount.cleanAmount,
-            unit: value.unit?.energyUnit ?? .kcal,
-            fill: fill)
-        )
-    }
-    
-    func macroFieldValue(for attribute: Attribute, at column: Int) -> FieldValue? {
-        guard let row = row(for: attribute),
-              let valueText = row.valueText(at: column),
-              let value = row.value(at: column),
-              let macro = attribute.macro
-        else {
-            return nil
-        }
-        
-        let fill: Fill
-        if valueText.text.id == defaultUUID {
-            fill = .calculated
-        } else {
-            fill = .scanned(.init(valueText: valueText, imageId: id))
-        }
-        return FieldValue.macro(FieldValue.MacroValue(
-            macro: macro,
-            double: value.amount,
-            string: value.amount.cleanAmount,
-            fill: fill)
-        )
-    }
-
-    func microFieldValue(for nutrientType: NutrientType, at column: Int) -> FieldValue? {
-        guard let attribute = nutrientType.attribute,
-              let row = row(for: attribute),
-              let valueText = row.valueText(at: column),
-              let value = row.value(at: column)
-        else {
-            return nil
-        }
-        
-        let fill: Fill
-        if valueText.text.id == defaultUUID {
-            fill = .calculated
-        } else {
-            fill = .scanned(.init(valueText: valueText, imageId: id))
-        }
-
-        let unit = value.unit?.nutrientUnit(for: nutrientType) ?? nutrientType.defaultUnit
-        
-        return FieldValue.micro(FieldValue.MicroValue(
-            nutrientType: nutrientType,
-            double: value.amount,
-            string: value.amount.cleanAmount,
-            unit: unit,
-            fill: fill)
-        )
-    }
-
-    
-    func row(for attribute: Attribute) -> ScanResult.Nutrients.Row? {
-        nutrients.rows.first(where: { $0.attribute == attribute })
     }
 }
 

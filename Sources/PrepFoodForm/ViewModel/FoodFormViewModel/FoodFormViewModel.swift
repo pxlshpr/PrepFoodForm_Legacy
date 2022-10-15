@@ -13,26 +13,20 @@ public class FoodFormViewModel: ObservableObject {
     
     var sizeBeingEdited: Size? = nil
     
-    @Published var pickedColumn: Int = 1 {
-        didSet {
-            withAnimation {
-                clearFieldModels()
-                processScanResults(column: pickedColumn)
-            }
-        }
-    }
-    
     func clearFieldModels() {
-        amountViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
-        servingViewModel = FieldViewModel(fieldValue: .serving())
-        standardSizeViewModels = []
-        volumePrefixedSizeViewModels = []
-        densityViewModel = FieldViewModel(fieldValue: FieldValue.density())
+        amountViewModel = .init(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
+        servingViewModel = .init(fieldValue: .serving())
+        densityViewModel = .init(fieldValue: FieldValue.density())
         energyViewModel = .init(fieldValue: .energy())
         carbViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
         fatViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
         proteinViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
         micronutrients = DefaultMicronutrients()
+        standardSizeViewModels = []
+        volumePrefixedSizeViewModels = []
+        
+        addSubscriptionsForAllFieldViewModels()
+        
         scannedFieldValues = []
     }
     
@@ -48,40 +42,48 @@ public class FoodFormViewModel: ObservableObject {
     
     var subscriptions: [AnyCancellable] = []
     
+    func addSubscriptionsForAllFieldViewModels() {
+        for viewModel in allFieldViewModels {
+            addSubscription(for: viewModel)
+        }
+    }
+    
     public init() {
-        subscriptions.append(
-            contentsOf: [
-                nameViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                emojiViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                detailViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                brandViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                barcodeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                amountViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                servingViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                energyViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                carbViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                fatViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                proteinViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-                densityViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
-            ]
-        )
-        for sizeViewModel in standardSizeViewModels {
-            subscriptions.append(
-                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
-            )
-        }
-        for sizeViewModel in volumePrefixedSizeViewModels {
-            subscriptions.append(
-                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
-            )
-        }
-        for group in micronutrients {
-            for fieldViewModel in group.fieldViewModels {
-                subscriptions.append(
-                    fieldViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
-                )
-            }
-        }
+        /// We add subscriptions to all field values except for sizes (as will have none to begin with—those will be set as they get added)
+        addSubscriptionsForAllFieldViewModels()
+//        subscriptions.append(
+//            contentsOf: [
+//                nameViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                emojiViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                detailViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                brandViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                barcodeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                amountViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                servingViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                energyViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                carbViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                fatViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                proteinViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//                densityViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+//            ]
+//        )
+//        for sizeViewModel in standardSizeViewModels {
+//            subscriptions.append(
+//                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+//            )
+//        }
+//        for sizeViewModel in volumePrefixedSizeViewModels {
+//            subscriptions.append(
+//                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+//            )
+//        }
+//        for group in micronutrients {
+//            for fieldViewModel in group.fieldViewModels {
+//                subscriptions.append(
+//                    fieldViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+//                )
+//            }
+//        }
     }
     
 
@@ -189,13 +191,17 @@ extension FoodFormViewModel {
     var allFieldValues: [FieldValue] {
         allFieldViewModels.map { $0.fieldValue }
     }
-    
-    var allFieldViewModels: [FieldViewModel] {
+
+    var allSingleFieldViewModels: [FieldViewModel] {
         [
             nameViewModel, emojiViewModel, detailViewModel, brandViewModel, barcodeViewModel,
             amountViewModel, servingViewModel, densityViewModel,
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
         ]
+    }
+
+    var allFieldViewModels: [FieldViewModel] {
+        allSingleFieldViewModels
         + allMicronutrientFieldViewModels
         + standardSizeViewModels
         + volumePrefixedSizeViewModels
