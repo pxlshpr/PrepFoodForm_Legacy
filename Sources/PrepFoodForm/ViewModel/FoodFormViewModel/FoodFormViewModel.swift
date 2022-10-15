@@ -6,12 +6,10 @@ import SwiftHaptics
 import FoodLabelScanner
 import FoodLabel
 import PhotosUI
-
+import Combine
 public class FoodFormViewModel: ObservableObject {
     
     static public var shared = FoodFormViewModel()
-    
-    public init() {}
     
     var sizeBeingEdited: Size? = nil
     
@@ -48,38 +46,68 @@ public class FoodFormViewModel: ObservableObject {
         return nil
     }
     
+    var subscriptions: [AnyCancellable] = []
+    
+    public init() {
+        subscriptions.append(
+            contentsOf: [
+                nameViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                emojiViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                detailViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                brandViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                barcodeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                amountViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                servingViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                energyViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                carbViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                fatViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                proteinViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+                densityViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() },
+            ]
+        )
+        for sizeViewModel in standardSizeViewModels {
+            subscriptions.append(
+                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+            )
+        }
+        for sizeViewModel in volumePrefixedSizeViewModels {
+            subscriptions.append(
+                sizeViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+            )
+        }
+        for group in micronutrients {
+            for fieldViewModel in group.fieldViewModels {
+                subscriptions.append(
+                    fieldViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+                )
+            }
+        }
+    }
+    
+
     //MARK: - Food Details
     @Published var nameViewModel: FieldViewModel = FieldViewModel(fieldValue: .name())
     @Published var emojiViewModel: FieldViewModel = FieldViewModel(fieldValue: .emoji())
     @Published var detailViewModel: FieldViewModel = FieldViewModel(fieldValue: .detail())
     @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
     @Published var barcodeViewModel: FieldViewModel = FieldViewModel(fieldValue: .barcode())
-    
-    //MARK: Amount Per
     @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
-    
     @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
-    
-    //MARK: Sizes
-    @Published var standardSizeViewModels: [FieldViewModel] = []
-    @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
-
-    //MARK: Density
-    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density(FieldValue.DensityValue()))
-
-    //TODO: Do we need this?
-    /// These are used for the FoodLabel
-    @Published public var energyValue: FoodLabelValue = .zero
-
-    //MARK: Nutrition Facts
     @Published var energyViewModel: FieldViewModel = .init(fieldValue: .energy())
     @Published var carbViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
     @Published var fatViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
     @Published var proteinViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
+    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density(FieldValue.DensityValue()))
+
+    @Published var standardSizeViewModels: [FieldViewModel] = []
+    @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
     @Published var micronutrients: [MicroGroupTuple] = DefaultMicronutrients()
 
     var scannedFieldValues: [FieldValue] = []
     
+    /// These are used for the FoodLabel
+    @Published public var energyValue: FoodLabelValue = .zero
+
     //MARK: - Source
 //    @Published var sourceType: SourceType = .manualEntry
     @Published var imageViewModels: [ImageViewModel] = []

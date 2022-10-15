@@ -29,8 +29,7 @@ struct SizeCell: View {
 }
 
 struct SizesCell: View {
-//    @EnvironmentObject var viewModel: FoodFormViewModel
-    @ObservedObject var viewModel: FoodFormViewModel
+    @EnvironmentObject var viewModel: FoodFormViewModel
     let maxNumberOfSizes = 4
     
     var body: some View {
@@ -115,8 +114,8 @@ struct SizesCellPreview: View {
                 Section {
                     NavigationLink {
                     } label: {
-                        SizesCell(viewModel: viewModel)
-//                            .environmentObject(viewModel)
+                        SizesCell()
+                            .environmentObject(viewModel)
                     }
                 }
             }
@@ -129,6 +128,7 @@ struct SizesCellPreview: View {
     func populateData() {
         viewModel.standardSizeViewModels = mockStandardSizes.fieldViewModels
         viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
+        viewModel.addSubscriptionsForSizeViewModels()
     }
 }
 

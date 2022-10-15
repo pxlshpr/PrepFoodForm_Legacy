@@ -107,18 +107,18 @@ extension FoodFormViewModel {
     func prefillSize(_ processedSize: MFPProcessedFood.Size) {
         let fieldViewModel: FieldViewModel = .init(fieldValue: processedSize.fieldValue)
         if processedSize.isVolumePrefixed {
-            volumePrefixedSizeViewModels.append(fieldViewModel)
+            addVolumePrefixedSizeViewModel(fieldViewModel)
         } else {
-            standardSizeViewModels.append(fieldViewModel)
+            addStandardSizeViewModel(fieldViewModel)
         }
     }
-
+    
     func prefillSize(_ size: Size) {
         let fieldViewModel: FieldViewModel = .init(fieldValue: size.fieldValue)
         if size.isVolumePrefixed {
-            volumePrefixedSizeViewModels.append(fieldViewModel)
+            addVolumePrefixedSizeViewModel(fieldViewModel)
         } else {
-            standardSizeViewModels.append(fieldViewModel)
+            addStandardSizeViewModel(fieldViewModel)
         }
     }
 

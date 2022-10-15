@@ -176,11 +176,23 @@ public struct SizesListPreview: View {
     func populateData() {
         viewModel.standardSizeViewModels = mockStandardSizes.fieldViewModels
         viewModel.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
+        viewModel.addSubscriptionsForSizeViewModels()
     }
 }
 
 struct SizesList_Previews: PreviewProvider {
     static var previews: some View {
         SizesListPreview()
+    }
+}
+
+extension FoodFormViewModel {
+    func addSubscriptionsForSizeViewModels() {
+        for sizeViewModel in standardSizeViewModels {
+            addSubscription(for: sizeViewModel)
+        }
+        for sizeViewModel in volumePrefixedSizeViewModels {
+            addSubscription(for: sizeViewModel)
+        }
     }
 }

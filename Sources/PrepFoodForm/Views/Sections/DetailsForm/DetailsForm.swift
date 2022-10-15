@@ -5,13 +5,7 @@ import Camera
 
 extension FoodForm {
     struct DetailsForm: View {
-        @ObservedObject var viewModel: FoodFormViewModel
-        @ObservedObject var nameViewModel: FieldViewModel
-        @ObservedObject var detailViewModel: FieldViewModel
-        @ObservedObject var brandViewModel: FieldViewModel
-        @ObservedObject var barcodeViewModel: FieldViewModel
-        @ObservedObject var emojiViewModel: FieldViewModel
-
+        @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingCodeScanner = false
     }
 }
@@ -51,11 +45,11 @@ extension FoodForm.DetailsForm {
 //            form(for: nameViewModel)
         } label: {
             HStack {
-                if nameViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.nameViewModel.fieldValue.stringValue.string.isEmpty {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
                 } else {
-                    Text(nameViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.nameViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -67,14 +61,14 @@ extension FoodForm.DetailsForm {
     
     var detailButton: some View {
         NavigationLink {
-            form(for: detailViewModel)
+            form(for: viewModel.detailViewModel)
         } label: {
             HStack {
-                if detailViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(detailViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.detailViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -86,14 +80,14 @@ extension FoodForm.DetailsForm {
     
     var brandButton: some View {
         NavigationLink {
-            form(for: brandViewModel)
+            form(for: viewModel.brandViewModel)
         } label: {
             HStack {
-                if brandViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(brandViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.brandViewModel.fieldValue.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -108,7 +102,7 @@ extension FoodForm.DetailsForm {
             showingCodeScanner = true
         } label: {
             HStack {
-                Text(barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : barcodeViewModel.fieldValue.stringValue.string)
+                Text(viewModel.barcodeViewModel.fieldValue.isEmpty ? "Scan a barcode" : viewModel.barcodeViewModel.fieldValue.stringValue.string)
                 Spacer()
             }
             .contentShape(Rectangle())
@@ -139,11 +133,11 @@ extension FoodForm.DetailsForm {
     
     var emojiCell: some View {
         Group {
-            if emojiViewModel.fieldValue.isEmpty {
+            if viewModel.emojiViewModel.fieldValue.isEmpty {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             } else {
-                Text(emojiViewModel.fieldValue.stringValue.string)
+                Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
                     .font(Font.system(size: 50.0))
             }
         }
@@ -227,15 +221,8 @@ struct DetailsFormPreview: View {
     @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
-        FoodForm.DetailsForm(
-            viewModel: viewModel,
-            nameViewModel: viewModel.nameViewModel,
-            detailViewModel: viewModel.detailViewModel,
-            brandViewModel: viewModel.brandViewModel,
-            barcodeViewModel: viewModel.barcodeViewModel,
-            emojiViewModel: viewModel.emojiViewModel
-        )
-//        .environmentObject(viewModel)
+        FoodForm.DetailsForm()
+        .environmentObject(viewModel)
     }
 }
 

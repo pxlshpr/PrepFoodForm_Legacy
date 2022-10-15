@@ -3,10 +3,7 @@ import SwiftUISugar
 
 public struct AmountPerForm: View {
 
-    @ObservedObject var viewModel: FoodFormViewModel
-    @ObservedObject var amountViewModel: FieldViewModel
-    @ObservedObject var servingViewModel: FieldViewModel
-    @ObservedObject var densityViewModel: FieldViewModel
+    @EnvironmentObject var viewModel: FoodFormViewModel
     
     @State var showingAddSizeForm = false
     @State var showingDensityForm = false
@@ -188,7 +185,8 @@ public struct AmountPerForm: View {
                         SizesList()
                             .environmentObject(viewModel)
                     } label: {
-                        SizesCell(viewModel: viewModel)
+                        SizesCell()
+                            .environmentObject(viewModel)
                     }
                 }
 //                FormStyledSection(footer: footer) {
@@ -219,7 +217,7 @@ public struct AmountPerForm: View {
         NavigationLink {
             amountForm
         } label: {
-            label(amountViewModel.doubleValueDescription, placeholder: "Required")
+            label(viewModel.amountViewModel.doubleValueDescription, placeholder: "Required")
         }
     }
     
@@ -227,7 +225,7 @@ public struct AmountPerForm: View {
         NavigationLink {
             servingForm
         } label: {
-            label(servingViewModel.doubleValueDescription, placeholder: "serving size")
+            label(viewModel.servingViewModel.doubleValueDescription, placeholder: "serving size")
         }
         .buttonStyle(.borderless)
     }
@@ -259,13 +257,8 @@ struct AmountPerFormPreview: View {
 
     var body: some View {
         NavigationView {
-            AmountPerForm(
-                viewModel: viewModel,
-                amountViewModel: viewModel.amountViewModel,
-                servingViewModel: viewModel.servingViewModel,
-                densityViewModel: viewModel.densityViewModel
-            )
-//            .environmentObject(viewModel)
+            AmountPerForm()
+            .environmentObject(viewModel)
         }
     }
 }

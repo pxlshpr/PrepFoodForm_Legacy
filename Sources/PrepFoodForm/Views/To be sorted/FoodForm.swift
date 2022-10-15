@@ -404,23 +404,12 @@ public struct FoodForm: View {
     var detailsSection: some View {
         FormStyledSection(header: Text("Details")) {
             NavigationLink {
-                DetailsForm(
-                    viewModel: viewModel,
-                    nameViewModel: viewModel.nameViewModel,
-                    detailViewModel: viewModel.detailViewModel,
-                    brandViewModel: viewModel.brandViewModel,
-                    barcodeViewModel: viewModel.barcodeViewModel,
-                    emojiViewModel: viewModel.emojiViewModel
-                )
-//                .environmentObject(viewModel)
+                DetailsForm()
+                .environmentObject(viewModel)
             } label: {
-                DetailsCell(
-                    viewModel: viewModel,
-                    nameViewModel: viewModel.nameViewModel,
-                    barcodeViewModel: viewModel.barcodeViewModel
-                )
-//                    .environmentObject(viewModel)
-                .buttonStyle(.borderless)
+                DetailsCell()
+                    .environmentObject(viewModel)
+                    .buttonStyle(.borderless)
             }
         }
     }
@@ -428,13 +417,8 @@ public struct FoodForm: View {
     var servingSection: some View {
         FormStyledSection(header: Text("Amount Per")) {
             NavigationLink {
-                AmountPerForm(
-                    viewModel: viewModel,
-                    amountViewModel: viewModel.amountViewModel,
-                    servingViewModel: viewModel.servingViewModel,
-                    densityViewModel: viewModel.densityViewModel
-                )
-                //                .environmentObject(viewModel)
+                AmountPerForm()
+                    .environmentObject(viewModel)
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)

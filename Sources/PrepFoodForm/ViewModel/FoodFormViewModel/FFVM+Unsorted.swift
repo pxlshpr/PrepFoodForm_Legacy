@@ -41,6 +41,9 @@ extension FoodFormViewModel {
             ]
             
             self.standardSizeViewModels = sizeViewModels
+            for sizeViewModel in sizeViewModels {
+                addSubscription(for: sizeViewModel)
+            }
 
             self.amountViewModel.fieldValue = FieldValue.amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving))
             self.servingViewModel.fieldValue = FieldValue.serving(FieldValue.DoubleValue(double: 0.2, string: "0.2", unit: .size(size, nil)))
@@ -61,7 +64,8 @@ extension FoodFormViewModel {
             
             self.standardSizeViewModels = mockStandardSizes.fieldViewModels
             self.volumePrefixedSizeViewModels = mockVolumePrefixedSizes.fieldViewModels
-            
+            self.addSubscriptionsForSizeViewModels()
+
             self.energyViewModel.fieldValue = FieldValue.energy(FieldValue.EnergyValue(double: 125, string: "125", unit: .kJ))
             self.carbViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .carb, double: 23, string: "23"))
             self.fatViewModel.fieldValue = FieldValue.macro(FieldValue.MacroValue(macro: .fat, double: 8, string: "8"))
@@ -175,12 +179,12 @@ extension FoodFormViewModel {
                 guard volumePrefixedSizeViewModels.containsSizeNamed(size.name) else {
                     return
                 }
-                volumePrefixedSizeViewModels.append(size.asFieldViewModelForUserInput)
+                addVolumePrefixedSizeViewModel(size.asFieldViewModelForUserInput)
             } else {
                 guard standardSizeViewModels.containsSizeNamed(size.name) else {
                     return
                 }
-                standardSizeViewModels.append(size.asFieldViewModelForUserInput)
+                addStandardSizeViewModel(size.asFieldViewModelForUserInput)
             }
         }
     }
@@ -196,7 +200,7 @@ extension FoodFormViewModel {
                 return false
             }
             withAnimation {
-                volumePrefixedSizeViewModels.append(sizeViewModel)
+                addVolumePrefixedSizeViewModel(sizeViewModel)
             }
         } else {
             ///Make sure we don't already have one with the name
@@ -205,7 +209,7 @@ extension FoodFormViewModel {
             }
 
             withAnimation {
-                standardSizeViewModels.append(sizeViewModel)
+                addStandardSizeViewModel(sizeViewModel)
             }
         }
         return true
@@ -217,7 +221,7 @@ extension FoodFormViewModel {
             standardSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
             
             /// Append the new one to the volume based list
-            volumePrefixedSizeViewModels.append(newSizeViewModel)
+            addVolumePrefixedSizeViewModel(newSizeViewModel)
             //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
         } else {
             guard let index = standardSizeViewModels.firstIndex(where: { $0.id == sizeViewModel.id }) else {
@@ -234,7 +238,7 @@ extension FoodFormViewModel {
             volumePrefixedSizeViewModels.removeAll(where: { $0.id == sizeViewModel.id })
             
             /// Append the new one to the volume based list
-            standardSizeViewModels.append(newSizeViewModel)
+            addStandardSizeViewModel(newSizeViewModel)
             //TODO: We'll also need to cases where other form fields are dependent on this here—requiring user confirmation first
         } else {
             guard let index = volumePrefixedSizeViewModels.firstIndex(where: { $0.id == sizeViewModel.id }) else {
@@ -585,5 +589,26 @@ extension FieldViewModel {
             return ""
         }
         return "\(fieldValue.doubleValue.string) \(fieldValue.doubleValue.unitDescription)"
+    }
+}
+
+//MARK: - Subscriptions
+extension FoodFormViewModel {
+    
+    /// We use this helper so that we ensure the view model subscribes to changes in the `FieldViewModel` instance.
+    func addStandardSizeViewModel(_ sizeViewModel: FieldViewModel) {
+        addSubscription(for: sizeViewModel)
+        standardSizeViewModels.append(sizeViewModel)
+    }
+
+    func addVolumePrefixedSizeViewModel(_ sizeViewModel: FieldViewModel) {
+        addSubscription(for: sizeViewModel)
+        volumePrefixedSizeViewModels.append(sizeViewModel)
+    }
+
+    func addSubscription(for fieldViewModel: FieldViewModel) {
+        subscriptions.append(
+            fieldViewModel.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        )
     }
 }
