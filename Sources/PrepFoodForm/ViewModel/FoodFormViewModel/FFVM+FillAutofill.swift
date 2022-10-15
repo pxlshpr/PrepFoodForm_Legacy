@@ -3,11 +3,6 @@ import FoodLabelScanner
 import SwiftHaptics
 import PrepUnits
 
-extension Array where Element == ScanResult {
-    var bestColumn: Int {
-        1
-    }
-}
 extension FoodFormViewModel {
 
 //    func fieldValueFromScanResults(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
@@ -33,42 +28,6 @@ extension FoodFormViewModel {
     var scanResults: [ScanResult] {
         imageViewModels.compactMap { $0.scanResult }
     }
-
-    //TODO: Change this to take in a scan result as the parameter and process them as they come in
-    func extractFieldValues(from scanResult: ScanResult) {
-        let column = scanResults.bestColumn
-        extractEnergy(from: scanResult, at: column)
-        extractMacro(.carb, from: scanResult, at: column)
-        extractMacro(.protein, from: scanResult, at: column)
-        extractMacro(.fat, from: scanResult, at: column)
-        for nutrient in NutrientType.allCases {
-            extractNutrient(nutrient, from: scanResult, at: column)
-        }
-        
-        extractSizes(from: scanResult)
-        
-        extractServing(from: scanResult, for: column)
-        extractAmount(from: scanResult, for: column)
-        extractDensity(from: scanResult)
-        
-        extractBarcode(from: scanResult)
-        
-        updateShouldShowDensitiesSection()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            //TODO: Only do this to if we actually extract the values
-            for fieldViewModel in self.allFieldViewModels {
-                fieldViewModel.isCroppingNextImage = true
-                fieldViewModel.cropFilledImage()
-            }
-        }
-    }
-    
-    func processScanResults() {
-        for scanResult in scanResults {
-            extractFieldValues(from: scanResult)
-        }
-    }
     
     func extractBarcode(from scanResult: ScanResult) {
         guard let first = scanResult.barcodes.first else {
@@ -88,8 +47,8 @@ extension FoodFormViewModel {
             scannedFieldValues.append(sizeViewModel.fieldValue)
         }
     }
-    
-    func extractEnergy(from scanResult: ScanResult, at column: Int) {
+
+    func extractEnergy_legacy(from scanResult: ScanResult, at column: Int) {
         guard let fieldValue = scanResult.energyFieldValue(at: column) else { return }
         
         switch energyViewModel.fill {

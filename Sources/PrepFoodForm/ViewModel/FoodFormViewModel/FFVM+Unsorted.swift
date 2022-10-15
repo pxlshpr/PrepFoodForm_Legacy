@@ -494,7 +494,7 @@ extension FoodFormViewModel {
             viewModel.imageViewModels.append(
                 ImageViewModel(image: image, scanResult: scanResult)
             )
-            viewModel.extractFieldValues(from: scanResult)
+            viewModel.processScanResults()
             viewModel.imageSetStatus = .scanned
         }
         

@@ -34,9 +34,23 @@ class FieldViewModel: ObservableObject, Identifiable {
     @Published var imageToDisplay: UIImage? = nil
     @Published var isCroppingNextImage: Bool = false
 
+    //TODO: Don't store this here, we only need one copy if FFVM
     @Published var prefillUrl: String? = nil
     @Published var isPrefilled: Bool = false
 
+    func fillScannedFieldValue(_ fieldValue: FieldValue) {
+        self.fieldValue = fieldValue
+        resetAndCropImage()
+    }
+    
+    func resetAndCropImage() {
+        prefillUrl = nil
+        isPrefilled = false
+        imageToDisplay = nil
+        
+        isCroppingNextImage = true
+        cropFilledImage()
+    }
     init(fieldValue: FieldValue) {
         self.fieldValue = fieldValue
         

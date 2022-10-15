@@ -69,9 +69,9 @@ public struct FoodForm: View {
                     }
                 }
             /// These are requird to update the `FoodLabel` as a view update isn't triggered otherwise
-                .onReceive(viewModel.energyViewModel.$fieldValue) { publisher in
-                    viewModel.energyValue = viewModel.energyViewModel.fieldValue.value ?? .zero
-                }
+//                .onReceive(viewModel.energyViewModel.$fieldValue) { publisher in
+//                    viewModel.energyValue = viewModel.energyViewModel.fieldValue.value ?? .zero
+//                }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $viewModel.selectedPhotos,

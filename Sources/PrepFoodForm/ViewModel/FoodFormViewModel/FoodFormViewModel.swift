@@ -108,7 +108,7 @@ public class FoodFormViewModel: ObservableObject {
     var scannedFieldValues: [FieldValue] = []
     
     /// These are used for the FoodLabel
-    @Published public var energyValue: FoodLabelValue = .zero
+//    @Published public var energyValue: FoodLabelValue = .zero
 
     //MARK: - Source
 //    @Published var sourceType: SourceType = .manualEntry
@@ -275,11 +275,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension ScanResult {
-    var columnCount: Int {
-        headers?.header2Type != nil ? 2 : 1
-    }
-}
 extension ImageViewModel {
     func saveScanResultToJson() {
         guard let scanResult else {
@@ -362,9 +357,9 @@ extension FoodFormViewModel: FoodLabelDataSource {
         fatViewModel.fieldValue.double ?? 0
     }
     
-//    public var energyAmount: Double {
-//        energyViewModel.fieldValue.double ?? 0
-//    }
+    public var energyValue: FoodLabelValue {
+        energyViewModel.fieldValue.value ?? .init(amount: 0, unit: .kcal)
+    }
 }
 
 typealias MicroGroupTuple = (group: NutrientTypeGroup, fieldViewModels: [FieldViewModel])

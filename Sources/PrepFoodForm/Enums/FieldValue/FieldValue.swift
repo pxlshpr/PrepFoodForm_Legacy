@@ -422,10 +422,32 @@ extension FieldValue {
         }
         return false
     }
+
+    func isMacro(_ macro: Macro) -> Bool {
+        if case .macro(let macroValue) = self {
+            return macroValue.macro == macro
+        }
+        return false
+    }
+
     
     var isMicro: Bool {
         if case .micro = self {
             return true
+        }
+        return false
+    }
+    
+    var isBarcode: Bool {
+        if case .barcode = self {
+            return true
+        }
+        return false
+    }
+
+    func isMicro(_ nutrientType: NutrientType) -> Bool {
+        if case .micro(let microValue) = self {
+            return microValue.nutrientType == nutrientType
         }
         return false
     }
