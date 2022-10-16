@@ -454,6 +454,7 @@ extension FoodFormViewModel {
         case vanillaFlour = "vanilla_flour"
         
         case phillyCheese = "philly_cheese"
+        case chocolate = "chocolate"
         
         public var name: String {
             rawValue
@@ -522,12 +523,16 @@ extension FoodFormViewModel {
     }
     
     public static var mockWith5Images: FoodFormViewModel {
+        mockWithCases([.phillyCheese, .pumpkinSeeds, .googleEggs, .vanillaFlour, .starbucks])
+    }
+    
+    public static func mockWithCases(_ cases: [MockCase]) -> FoodFormViewModel {
+        
         let viewModel = FoodFormViewModel()
         
         viewModel.shouldShowWizard = false
         
-        let mocks: [MockCase] = [.phillyCheese, .pumpkinSeeds, .googleEggs, .vanillaFlour, .starbucks]
-        for mockCase in mocks {
+        for mockCase in cases {
             guard let image = mockCase.image, let scanResult = mockCase.scanResult else {
                 continue
             }
@@ -535,11 +540,12 @@ extension FoodFormViewModel {
                 ImageViewModel(image: image, scanResult: scanResult)
             )
         }
-//        viewModel.processScanResults()
+        viewModel.processScanResults()
         viewModel.imageSetStatus = .scanned
 
         return viewModel
     }
+
     
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()

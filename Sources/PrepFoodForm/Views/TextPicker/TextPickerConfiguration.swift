@@ -108,7 +108,7 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func selectedBoundingBox(forImageAt index: Int) -> CGRect? {
-        guard let singleSelectedImageText, singleSelectedImageText.imageId == currentScanResultId else {
+        guard let singleSelectedImageText, singleSelectedImageText.imageId == imageViewModels[index].id else {
             return nil
         }
         
