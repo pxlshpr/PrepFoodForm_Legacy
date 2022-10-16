@@ -119,6 +119,7 @@ extension FoodFormViewModel {
     }
     
     func updateShouldShowDensitiesSection() {
+        
         withAnimation {
             shouldShowDensitiesSection =
             (amountViewModel.fieldValue.doubleValue.unit.isMeasurementBased && (amountViewModel.fieldValue.doubleValue.double ?? 0) > 0)
@@ -500,11 +501,11 @@ extension FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
         viewModel.shouldShowWizard = false
-        
+
         if let processedFood = mockCase.mfpProcessedFood {
             viewModel.prefill(processedFood)
         }
-        
+
         if let image = mockCase.image, let scanResult = mockCase.scanResult {
             viewModel.imageViewModels.append(
                 ImageViewModel(image: image, scanResult: scanResult)
@@ -512,11 +513,31 @@ extension FoodFormViewModel {
             viewModel.processScanResults()
             viewModel.imageSetStatus = .scanned
         }
-        
+
         if let linkUrlString = mockCase.linkUrlString {
             viewModel.linkInfo = LinkInfo(linkUrlString)
         }
         
+        return viewModel
+    }
+    
+    public static var mockWith5Images: FoodFormViewModel {
+        let viewModel = FoodFormViewModel()
+        
+        viewModel.shouldShowWizard = false
+        
+        let mocks: [MockCase] = [.phillyCheese, .pumpkinSeeds, .googleEggs, .vanillaFlour, .starbucks]
+        for mockCase in mocks {
+            guard let image = mockCase.image, let scanResult = mockCase.scanResult else {
+                continue
+            }
+            viewModel.imageViewModels.append(
+                ImageViewModel(image: image, scanResult: scanResult)
+            )
+        }
+//        viewModel.processScanResults()
+        viewModel.imageSetStatus = .scanned
+
         return viewModel
     }
     

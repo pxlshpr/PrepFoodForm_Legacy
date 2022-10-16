@@ -5,73 +5,51 @@ import PrepUnits
 
 extension FoodFormViewModel {
     func processScanResults(column pickedColumn: Int? = nil) {
-        guard let relevantScanResults = scanResults.relevantScanResults else { return }
-        let isUserInitiated = pickedColumn != nil
-        let column = pickedColumn ?? relevantScanResults.columnWithTheMostNutrients
-        
-        let fieldViewModelsToExtract = [
-            energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
-            amountViewModel, servingViewModel, densityViewModel
-        ] + allMicronutrientFieldViewModels
-        
-        for fieldViewModel in fieldViewModelsToExtract {
-            extractField(for: fieldViewModel,
-                         at: column,
-                         from: relevantScanResults,
-                         isUserInitiated: isUserInitiated
-            )
-        }
-        
-        /// For each of the size view models in ALL the scan results
-        for sizeViewModel in relevantScanResults.allSizeViewModels {
-            /// If we were able to add this size view model (if it wasn't a duplicate) ...
-            guard add(sizeViewModel: sizeViewModel) else {
-                continue
+//        Task {
+            
+            guard let relevantScanResults = scanResults.relevantScanResults else { return }
+            let isUserInitiated = pickedColumn != nil
+            let column = pickedColumn ?? relevantScanResults.columnWithTheMostNutrients
+            
+            let fieldViewModelsToExtract = [
+                energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
+                amountViewModel, servingViewModel, densityViewModel
+            ] + allMicronutrientFieldViewModels
+            
+            for fieldViewModel in fieldViewModelsToExtract {
+                extractField(for: fieldViewModel,
+                             at: column,
+                             from: relevantScanResults,
+                             isUserInitiated: isUserInitiated
+                )
             }
-            sizeViewModel.resetAndCropImage()
-            /// ... then go ahead and add it to the `scannedFieldValues` array as well
-            replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
-        }
-
-        /// Get Barcodes from all images
-        for barcodeViewModel in scanResults.allBarcodeViewModels {
-            guard add(barcodeViewModel: barcodeViewModel) else {
-                continue
+            
+            /// For each of the size view models in ALL the scan results
+            for sizeViewModel in relevantScanResults.allSizeViewModels {
+                /// If we were able to add this size view model (if it wasn't a duplicate) ...
+                guard add(sizeViewModel: sizeViewModel) else {
+                    continue
+                }
+                sizeViewModel.resetAndCropImage()
+                /// ... then go ahead and add it to the `scannedFieldValues` array as well
+                replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
             }
-            barcodeViewModel.resetAndCropImage()
-            replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
-        }
-        
-        updateShouldShowDensitiesSection()
-
-        /// Set this for the `FoodLabel`
-//        energyValue = energyViewModel.fieldValue.value ?? .zero
-
-//        extractMacro(.carb, from: scanResult, at: column)
-//        extractMacro(.protein, from: scanResult, at: column)
-//        extractMacro(.fat, from: scanResult, at: column)
-//        for nutrient in NutrientType.allCases {
-//            extractNutrient(nutrient, from: scanResult, at: column)
-//        }
-//
-//        extractSizes(from: scanResult)
-//
-//        extractServing(from: scanResult, for: column)
-//        extractAmount(from: scanResult, for: column)
-//        extractDensity(from: scanResult)
-//
-//        extractBarcode(from: scanResult)
-//
-//
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            //TODO: Only do this to if we actually extract the values
-//            for fieldViewModel in self.allFieldViewModels {
-//                fieldViewModel.isCroppingNextImage = true
-//                fieldViewModel.cropFilledImage()
+            
+            /// Get Barcodes from all images
+            for barcodeViewModel in scanResults.allBarcodeViewModels {
+                guard add(barcodeViewModel: barcodeViewModel) else {
+                    continue
+                }
+                barcodeViewModel.resetAndCropImage()
+                replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
+            }
+            
+//            await MainActor.run {
+                updateShouldShowDensitiesSection()
 //            }
 //        }
-
     }
+    
     func extractField(
         for existingFieldViewModel: FieldViewModel,
         at column: Int,

@@ -133,11 +133,11 @@ struct TextPicker: View {
                         thumbnail(at: index)
                     }
                     .padding(.leading, 40)
-                    .padding(.top, 5)
+                    .padding(.top, 15)
                     Spacer()
                 }
             }
-            .frame(height: 60)
+            .frame(height: 70)
             .background(.ultraThinMaterial)
         }
     }
