@@ -110,7 +110,8 @@ struct SourceForm: View {
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
 //        .sheet(isPresented: $showingTextPicker) { textPicker }
-        .sheet(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
+        .fullScreenCover(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
+//        .sheet(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
             textPicker(for: imageViewModel)
         }
         .photosPicker(
