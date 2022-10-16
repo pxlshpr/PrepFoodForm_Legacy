@@ -361,17 +361,16 @@ extension FieldValueForm {
     
     var textPicker: some View {
         TextPicker(
-            viewModel: viewModel,
-//            imageViewModels: viewModel.imageViewModels,
+            imageViewModels: viewModel.imageViewModels,
             allowsMultipleSelection: !isForDecimalValue,
             selectedText: fieldValue.fill.text,
             selectedAttributeText: fieldValue.fill.attributeText,
             selectedImageIndex: selectedImageIndex,
-            onlyShowTextsWithValues: fieldValue.usesValueBasedTexts
-        ) { selectedImageTexts in
-            didSelectImageTexts(selectedImageTexts)
-        }
-//        .environmentObject(viewModel)
+            onlyShowTextsWithValues: fieldValue.usesValueBasedTexts,
+            didSelectImageTexts:  { selectedImageTexts in
+                didSelectImageTexts(selectedImageTexts)
+            }
+        )
         .onDisappear {
             guard fieldViewModel.isCroppingNextImage else {
                 return

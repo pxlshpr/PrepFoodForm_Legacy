@@ -6,7 +6,7 @@ import SwiftUIPager
 import ZoomableScrollView
 import ActivityIndicatorView
 
-struct TextPicker: View {
+struct TextPicker_Legacy: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: FoodFormViewModel
     
@@ -573,13 +573,9 @@ public struct ImageTextPickerPreview: View {
 
     var imageTextPicker: some View {
         TextPicker(
-            viewModel: viewModel,
-//            imageViewModels: viewModel.imageViewModels,
+            imageViewModels: viewModel.imageViewModels,
             allowsMultipleSelection: true
-//            selectedText: selectedText
-        ) { selectedImageTexts in
-        }
-//        .environmentObject(viewModel)
+        )
     }
 }
 

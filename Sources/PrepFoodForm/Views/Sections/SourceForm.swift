@@ -220,7 +220,7 @@ struct SourceForm: View {
         if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageViewModel.scanResult?.id})
         {
             TextPicker(
-                viewModel: viewModel,
+                imageViewModels: viewModel.imageViewModels,
                 selectedImageIndex: index
             )
         }
