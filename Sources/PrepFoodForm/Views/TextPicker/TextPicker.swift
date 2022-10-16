@@ -37,18 +37,23 @@ class TextPickerConfiguration: ObservableObject {
     let didSelectImageTexts: (([ImageText]) -> Void)?
     let customTextFilter: ((RecognizedText) -> Bool)?
     let allowsTogglingTexts: Bool = false
+    let deleteImageHandler: ((Int) -> ())?
     
     init(imageViewModels: [ImageViewModel],
          selectedImageTexts: [ImageText] = [],
          initialImageIndex: Int? = nil,
          allowsMultipleSelection: Bool = false,
          onlyShowTextsWithValues: Bool = false,
+         allowsTogglingTexts: Bool = false,
+         deleteImageHandler: ((Int) -> ())? = nil,
          didSelectImageTexts: (([ImageText]) -> Void)? = nil,
          customTextFilter: ((RecognizedText) -> Bool)? = nil)
     {
         self.imageViewModels = imageViewModels
         self.selectedImageTexts = selectedImageTexts
         self.allowsMultipleSelection = allowsMultipleSelection
+        self.allowsTogglingTexts = allowsTogglingTexts
+        self.deleteImageHandler = deleteImageHandler
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.didSelectImageTexts = didSelectImageTexts
         self.customTextFilter = customTextFilter
@@ -247,6 +252,12 @@ class TextPickerConfiguration: ObservableObject {
     var currentImageSize: CGSize? {
         currentImage?.size
     }
+    
+    var shouldShowBottomBar: Bool {
+        allowsTogglingTexts
+        || deleteImageHandler != nil
+        || imageViewModels.count > 1
+    }
 }
 
 struct TextPicker: View {
@@ -264,9 +275,9 @@ struct TextPicker: View {
         ZStack {
             pagerLayer
                 .edgesIgnoringSafeArea(.all)
-                .zIndex(1)
-            buttonsLayer
-                .zIndex(5)
+            if config.shouldShowBottomBar {
+                buttonsLayer
+            }
          }
         //                .navigationTitle(title)
         //                .navigationBarTitleDisplayMode(.inline)
