@@ -275,9 +275,7 @@ struct TextPicker: View {
         ZStack {
             pagerLayer
                 .edgesIgnoringSafeArea(.all)
-            if config.shouldShowBottomBar {
-                buttonsLayer
-            }
+            buttonsLayer
          }
         //                .navigationTitle(title)
         //                .navigationBarTitleDisplayMode(.inline)
@@ -343,36 +341,46 @@ struct TextPicker: View {
     
     var buttonsLayer: some View {
         VStack {
-            ZStack {
-                HStack {
-                    dismissButton
-                    Spacer()
-                }
-                HStack {
-                    Spacer()
-                    titleView
-                    Spacer()
-                }
-            }
+            topBar
             Spacer()
-            ZStack {
-                Color.clear
-                HStack {
-                    HStack(spacing: 5) {
-                        ForEach(config.imageViewModels.indices, id: \.self) { index in
-                            thumbnail(at: index)
-                        }
-                    }
-                    .padding(.leading, 40)
-                    .padding(.top, 15)
-                    Spacer()
-                    menuButton
-                        .padding(.top, 15)
-                }
+            if config.shouldShowBottomBar {
+                bottomBar
             }
-            .frame(height: 70)
-            .background(.ultraThinMaterial)
         }
+    }
+    
+    var topBar: some View {
+        ZStack {
+            HStack {
+                dismissButton
+                Spacer()
+            }
+            HStack {
+                Spacer()
+                titleView
+                Spacer()
+            }
+        }
+    }
+    
+    var bottomBar: some View {
+        ZStack {
+            Color.clear
+            HStack {
+                HStack(spacing: 5) {
+                    ForEach(config.imageViewModels.indices, id: \.self) { index in
+                        thumbnail(at: index)
+                    }
+                }
+                .padding(.leading, 40)
+                .padding(.top, 15)
+                Spacer()
+                menuButton
+                    .padding(.top, 15)
+            }
+        }
+        .frame(height: 70)
+        .background(.ultraThinMaterial)
     }
 
     var dismissButton: some View {
