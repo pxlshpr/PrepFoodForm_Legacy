@@ -61,8 +61,11 @@ struct TextPicker: View {
 
     var body: some View {
 //        NavigationView {
-            content
+        ZStack {
+            pagerLayer
                 .edgesIgnoringSafeArea(.all)
+            buttonsLayer
+        }
 //                .navigationTitle(title)
 //                .navigationBarTitleDisplayMode(.inline)
 //                .toolbar { bottomToolbar }
@@ -74,12 +77,30 @@ struct TextPicker: View {
         .onAppear(perform: appeared)
     }
     
-    @ViewBuilder
-    var content: some View {
-        pager
+    var buttonsLayer: some View {
+        VStack {
+            HStack {
+//                Image(systemName: "chevron.down")
+                Image(systemName: "xmark")
+                    .padding()
+                    .background(
+                        Circle()
+                            .foregroundColor(.clear)
+                            .background(.ultraThinMaterial)
+                    )
+                    .clipShape(Circle())
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 10)
+                Spacer()
+            }
+            Spacer()
+            Color.clear
+                .frame(height: 40)
+                .background(.ultraThinMaterial)
+        }
     }
     
-    var pager: some View {
+    var pagerLayer: some View {
         Pager(page: page,
               data: imageViewModels,
               id: \.hashValue,
@@ -457,11 +478,17 @@ public struct TextPickerPreview: View {
     }
     
     public var body: some View {
-        TextPicker(
-            imageViewModels: viewModel.imageViewModels
-            , selectedText: selectedText
-            , selectedImageIndex: 0
-        )
+        NavigationView {
+            Text("")
+                .sheet(isPresented: .constant(true)) {
+                    TextPicker(
+                        imageViewModels: viewModel.imageViewModels
+                        , selectedText: selectedText
+                        , selectedImageIndex: 0
+                    )
+                }
+                .navigationTitle("Text Picker")
+        }
     }
     
 }
