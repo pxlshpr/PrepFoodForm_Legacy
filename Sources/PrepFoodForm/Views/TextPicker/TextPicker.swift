@@ -664,7 +664,6 @@ extension UIView {
     // which triggers the closure we stored
     @objc fileprivate func handleTapGesture(sender: UITapGestureRecognizer) {
         if let action = self.tapGestureRecognizerAction {
-            let location = sender.location(in: self)
             action?(sender)
         } else {
             print("no action")
@@ -705,6 +704,25 @@ extension ZoomableScrollView {
         scrollView.setZoomScale(1, animated: true)
         
         scrollView.addTapGestureRecognizer { sender in
+            
+            //TODO: Rewrite this
+            /// - Default should be to have a maximum scale, and
+            ///     If we're less than that (and not super-close to it): zoom into it
+            ///     Otherwise, if we're close to it, at it, or past it: zoom back out to full scale
+            /// - Now also have a handler that can be provided to this, which overrides this default
+            ///     It should provide the current zoom scale and
+            ///     Get back an enum called ZoomPosition as a result
+            ///         This can be either fullScale, maxScale, or rect(let CGRect) where we provide a rect
+            ///         The scrollview than either zooms to full, max or the provided rect
+            /// - Now have TextPicker use this to
+            ///     See if the zoomScale is above or below the selected bound's scale
+            ///         This can be determined by dividing the rects dimensions by the image's and returning the larger? amount
+            ///     If it's greater than the selectedBoundZoomScale:
+            ///         If the selectedBoundZoomScale is less than the constant MaxScale of ZoomScrollView
+            ///         (by at least a minimum distance—also set by ZoomedScrollView)
+            ///             Then we return MaxScale as the ZoomPosition
+            ///         Else we return FullScale as the ZoomPosition (scale = 1)
+            ///     Else we return rect(selectedBound) as the ZoomPosition
             
             let hostedView = hostedView(context: context)
             let point = sender.location(in: hostedView)
