@@ -14,7 +14,7 @@ struct TextPicker: View {
     @State var page: Page = .first()
 //    @State var texts: [RecognizedText]
 
-    @State var focusMessages: [FocusOnAreaMessage?] = []
+    @State var focusedBoxes: [FocusedBox?] = []
     @State var didSendAnimatedFocusMessage: [Bool] = []
 
     @State var currentIndex: Int = 0
@@ -53,7 +53,7 @@ struct TextPicker: View {
         self.selectedImageIndex = selectedImageIndex
         self.didSelectImageTexts = didSelectImageTexts
         _showingBoxes = State(initialValue: didSelectImageTexts == nil ? false : true)
-        _focusMessages = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
+        _focusedBoxes = State(initialValue: Array(repeating: nil, count: imageViewModels.count))
         _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: imageViewModels.count))
     }
 
@@ -77,26 +77,96 @@ struct TextPicker: View {
         .onAppear(perform: appeared)
     }
     
+    var dismissButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            dismiss()
+        } label: {
+            Image(systemName: "xmark")
+                .padding(15)
+                .background(
+                    Circle()
+                        .foregroundColor(.clear)
+                        .background(.ultraThinMaterial)
+                )
+                .clipShape(Circle())
+                .padding(.horizontal, 5)
+                .padding(.vertical, 10)
+        }
+    }
+    
+    var titleView: some View {
+        Text("Select a text")
+            .font(.title3)
+            .bold()
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 15)
+                    .foregroundColor(.clear)
+                    .background(.ultraThinMaterial)
+            )
+            .clipShape(
+                RoundedRectangle(cornerRadius: 15)
+            )
+            .padding(.horizontal, 5)
+            .padding(.vertical, 10)
+    }
+    
     var buttonsLayer: some View {
         VStack {
-            HStack {
-//                Image(systemName: "chevron.down")
-                Image(systemName: "xmark")
-                    .padding()
-                    .background(
-                        Circle()
-                            .foregroundColor(.clear)
-                            .background(.ultraThinMaterial)
-                    )
-                    .clipShape(Circle())
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 10)
-                Spacer()
+            ZStack {
+                HStack {
+                    dismissButton
+                    Spacer()
+                }
+                HStack {
+                    Spacer()
+                    titleView
+                    Spacer()
+                }
             }
             Spacer()
-            Color.clear
-                .frame(height: 40)
-                .background(.ultraThinMaterial)
+            ZStack {
+                Color.clear
+                HStack {
+                    ForEach(imageViewModels.indices, id: \.self) { index in
+                        thumbnail(at: index)
+                    }
+                    .padding(.leading, 40)
+                    .padding(.top, 5)
+                    Spacer()
+                }
+            }
+            .frame(height: 60)
+            .background(.ultraThinMaterial)
+        }
+    }
+    
+    func thumbnail(at index: Int) -> some View {
+        var isSelected: Bool {
+            currentIndex == index
+        }
+        
+        return Group {
+            if let image = imageViewModels[index].smallThumbnail {
+                Button {
+                    didTapThumbnail(at: index)
+                } label: {
+                    Image(uiImage: image)
+                        .interpolation(.none)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 55, height: 55)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: 5, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke(Color.accentColor, lineWidth: 3)
+                                .opacity(isSelected ? 1.0 : 0.0)
+                        )
+                }
+            }
         }
     }
     
@@ -118,10 +188,10 @@ struct TextPicker: View {
     @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = imageViewModels.firstIndex(of: imageViewModel),
-           index < focusMessages.count,
+           index < focusedBoxes.count,
            let image = imageViewModel.image
         {
-            ZoomableScrollView(focusOnAreaMessage: $focusMessages[index]) {
+            ZoomableScrollView(focusedBox: $focusedBoxes[index]) {
                 imageView(image)
                     .overlay(
                         TextBoxesLayer(textBoxes: textBoxes(for: imageViewModel))
@@ -167,35 +237,6 @@ struct TextPicker: View {
         }
     }
     
-    //MARK: Thumbnail
-    func thumbnail(at index: Int) -> some View {
-        var isSelected: Bool {
-            currentIndex == index
-        }
-        
-        return Group {
-            if let image = imageViewModels[index].image {
-                Button {
-                    didTapThumbnail(at: index)
-                } label: {
-                    Image(uiImage: image)
-                        .interpolation(.none)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipShape(
-                            RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 5)
-                                .stroke(Color.accentColor, lineWidth: 3)
-                                .opacity(isSelected ? 1.0 : 0.0)
-                        )
-                }
-            }
-        }
-    }
-
     //MARK: - User Actions
     func toggleSelection(of imageText: ImageText) {
         if selectedImageTexts.contains(imageText) {
@@ -261,7 +302,7 @@ struct TextPicker: View {
 
     func sendFocusMessage(to index: Int, animated: Bool) {
         /// Make sure we're not already focused on an area of this image
-        guard let imageSize = imageSize(at: index), focusMessages[index] == nil else {
+        guard let imageSize = imageSize(at: index), focusedBoxes[index] == nil else {
             return
         }
         
@@ -272,18 +313,22 @@ struct TextPicker: View {
             
             /// If we have a pre-selected text—zoom into it
             if let selectedBoundingBox, index == selectedImageIndex {
-                focusMessages[index] = FocusOnAreaMessage(
+                focusedBoxes[index] = FocusedBox(
                     boundingBox: selectedBoundingBox,
                     animated: animated,
                     imageSize: imageSize
                 )
             } else {
-                focusMessages[index] = FocusOnAreaMessage(
+                focusedBoxes[index] = FocusedBox(
                     boundingBox: texts(at: index).boundingBox,
                     animated: animated,
                     padded: false,
                     imageSize: imageSize
                 )
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.5 : 0.1)) {
+                focusedBoxes[index] = nil
             }
         }
     }

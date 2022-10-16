@@ -26,6 +26,9 @@ class ImageViewModel: ObservableObject {
     
     @Published var status: ImageStatus
     @Published var image: UIImage? = nil
+    
+    @Published var mediumThumbnail: UIImage? = nil
+    @Published var smallThumbnail: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
     
     var scanResult: ScanResult? = nil
@@ -36,9 +39,23 @@ class ImageViewModel: ObservableObject {
         self.image = image
         self.status = .notScanned
         self.startScanTask(with: image)
+        self.prepareThumbnails()
 //        self.status = .scanned
     }
 
+    func prepareThumbnails() {
+        guard let image = image else { return }
+        Task {
+            let smallThumbnail = image.preparingThumbnail(of: CGSize(width: 165, height: 165))
+            let mediumThumbnail = image.preparingThumbnail(of: CGSize(width: 360, height: 360))
+
+            await MainActor.run {
+                self.smallThumbnail = smallThumbnail
+                self.mediumThumbnail = mediumThumbnail
+            }
+        }
+    }
+    
     init(photosPickerItem: PhotosPickerItem) {
         self.image = nil
         self.photosPickerItem = photosPickerItem
@@ -54,6 +71,7 @@ class ImageViewModel: ObservableObject {
         self.scanResult = scanResult
         self.texts = scanResult.texts
         self.textsWithValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
+        self.prepareThumbnails()
     }
     
     func startScanTask(with image: UIImage) {
@@ -90,6 +108,7 @@ class ImageViewModel: ObservableObject {
             
             await MainActor.run {
                 self.image = image
+                self.prepareThumbnails()
                 self.status = .notScanned
                 self.startScanTask(with: image)
                 FoodFormViewModel.shared.imageDidFinishLoading(self)

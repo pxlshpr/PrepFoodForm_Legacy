@@ -168,7 +168,7 @@ struct SourceSection: View {
 //        GeometryReader { geometry in
             HStack {
                 ForEach(viewModel.imageViewModels, id: \.self.hashValue) { imageViewModel in
-                    SourceImage(imageViewModel: imageViewModel, width: 55, height: 55)
+                    SourceImage(imageViewModel: imageViewModel, imageSize: .small)
                 }
             }
 //        }

@@ -5,25 +5,42 @@ struct SourceImage: View {
     
     @ObservedObject var imageViewModel: ImageViewModel
     
-    let width: CGFloat
-    let height: CGFloat
+    let imageSize: ImageSize
     
-    init(imageViewModel: ImageViewModel, width: CGFloat = 120, height: CGFloat = 120) {
+    enum ImageSize {
+        case small
+        case medium
+        
+        var size: CGSize {
+            switch self {
+            case .small: return CGSize(width: 55, height: 55)
+            case .medium: return CGSize(width: 120, height: 120)
+            }
+        }
+    }
+    
+    init(imageViewModel: ImageViewModel, imageSize: ImageSize = .medium) {
         _imageViewModel = ObservedObject(wrappedValue: imageViewModel)
-        self.width = width
-        self.height = height
+        self.imageSize = imageSize
+    }
+    
+    var image: UIImage? {
+        switch imageSize {
+        case .medium: return imageViewModel.mediumThumbnail
+        case .small: return imageViewModel.smallThumbnail
+        }
     }
     
     @ViewBuilder
     var body: some View {
         Group {
-            if let image = imageViewModel.image {
+            if let image {
                 imageView(with: image)
             } else {
                 placeholder
             }
         }
-        .frame(width: width, height: height)
+        .frame(width: imageSize.size.width, height: imageSize.size.height)
         .clipShape(
 //            RoundedRectangle(cornerRadius: 10, style: .continuous)
             RoundedRectangle(cornerRadius: 6, style: .continuous)
@@ -113,7 +130,7 @@ struct SourceImage: View {
             activityView
             checkmark
         }
-        .frame(width: width, height: height)
+        .frame(width: imageSize.size.width, height: imageSize.size.height)
     }
 }
 

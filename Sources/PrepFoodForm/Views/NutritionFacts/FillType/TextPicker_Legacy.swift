@@ -17,7 +17,7 @@ struct TextPicker_Legacy: View {
     @State var page: Page = .first()
 //    @State var texts: [RecognizedText]
 
-    @State var focusMessages: [FocusOnAreaMessage?] = []
+    @State var focusedBoxes: [FocusedBox?] = []
     @State var didSendAnimatedFocusMessage: [Bool] = []
 
     @State var currentIndex: Int = 0
@@ -50,7 +50,7 @@ struct TextPicker_Legacy: View {
         self.viewModel = viewModel
 //        self.imageViewModels = imageViewModels
         self.allowsMultipleSelection = allowsMultipleSelection
-        _focusMessages = State(initialValue: Array(repeating: nil, count: viewModel.imageViewModels.count))
+        _focusedBoxes = State(initialValue: Array(repeating: nil, count: viewModel.imageViewModels.count))
         _didSendAnimatedFocusMessage = State(initialValue: Array(repeating: false, count: viewModel.imageViewModels.count))
         self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.customTextFilter = customTextFilter
@@ -243,7 +243,7 @@ struct TextPicker_Legacy: View {
     @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = imageViewModels.firstIndex(of: imageViewModel) {
-            ZoomableScrollView(focusOnAreaMessage: $focusMessages[index]) {
+            ZoomableScrollView(focusedBox: $focusedBoxes[index]) {
                 imageView(for: imageViewModel)
             }
         }
@@ -488,7 +488,7 @@ struct TextPicker_Legacy: View {
     
     func sendFocusMessage(to index: Int, animated: Bool) {
         /// Make sure we're not already focused on an area of this image
-        guard let imageSize = imageSize(at: index), focusMessages[index] == nil else {
+        guard let imageSize = imageSize(at: index), focusedBoxes[index] == nil else {
             return
         }
         
@@ -499,13 +499,13 @@ struct TextPicker_Legacy: View {
             
             /// If we have a pre-selected text—zoom into it
             if let selectedBoundingBox, index == selectedImageIndex {
-                focusMessages[index] = FocusOnAreaMessage(
+                focusedBoxes[index] = FocusedBox(
                     boundingBox: selectedBoundingBox,
                     animated: animated,
                     imageSize: imageSize
                 )
             } else {
-                focusMessages[index] = FocusOnAreaMessage(
+                focusedBoxes[index] = FocusedBox(
                     boundingBox: texts(at: index).boundingBox,
                     animated: animated,
                     padded: false,
