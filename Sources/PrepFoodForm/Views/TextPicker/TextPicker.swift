@@ -90,8 +90,9 @@ struct TextPicker: View {
                         .background(.ultraThinMaterial)
                 )
                 .clipShape(Circle())
-                .padding(.horizontal, 5)
+                .padding(.horizontal, 15)
                 .padding(.vertical, 10)
+                .contentShape(Rectangle())
         }
     }
     
@@ -112,6 +113,33 @@ struct TextPicker: View {
             .padding(.vertical, 10)
     }
     
+    var menuButton: some View {
+        Menu {
+            Button {
+                
+            } label: {
+                Label("Show Texts", systemImage: "text.viewfinder")
+            }
+            Divider()
+            Button(role: .destructive) {
+                
+            } label: {
+                Label("Remove Photo", systemImage: "trash")
+            }
+            Button(role: .destructive) {
+                
+            } label: {
+                Label("Remove All Photos", systemImage: "trash")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .imageScale(.large)
+                .padding(40)
+                .frame(height: 55)
+//                .background(.green)
+                .contentShape(Rectangle())
+        }
+    }
     var buttonsLayer: some View {
         VStack {
             ZStack {
@@ -129,12 +157,16 @@ struct TextPicker: View {
             ZStack {
                 Color.clear
                 HStack {
-                    ForEach(imageViewModels.indices, id: \.self) { index in
-                        thumbnail(at: index)
+                    HStack(spacing: 5) {
+                        ForEach(imageViewModels.indices, id: \.self) { index in
+                            thumbnail(at: index)
+                        }
                     }
                     .padding(.leading, 40)
                     .padding(.top, 15)
                     Spacer()
+                    menuButton
+                        .padding(.top, 15)
                 }
             }
             .frame(height: 70)
@@ -162,7 +194,13 @@ struct TextPicker: View {
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: 5)
-                                .stroke(Color.accentColor, lineWidth: 3)
+                                .foregroundColor(.accentColor.opacity(0.2))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 5)
+                                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [3]))
+                                        .foregroundColor(.primary)
+                                        .padding(-0.5)
+                                )
                                 .opacity(isSelected ? 1.0 : 0.0)
                         )
                 }
@@ -512,7 +550,8 @@ public struct TextPickerPreview: View {
     @State var selectedText: RecognizedText
 
     public init() {
-        let viewModel = FoodFormViewModel.mock(for: .phillyCheese)
+//        let viewModel = FoodFormViewModel.mock(for: .phillyCheese)
+        let viewModel = FoodFormViewModel.mockWith5Images
         _viewModel = StateObject(wrappedValue: viewModel)
 
 //        let fieldValue = FieldValue.energy()
