@@ -86,7 +86,9 @@ class TextPickerConfiguration: ObservableObject {
         withAnimation {
             let _ = imageViewModels.remove(at: currentIndex)
             deleteImageHandler(currentIndex)
-            if currentIndex != 0 {
+            if imageViewModels.isEmpty {
+                shouldDismiss = true
+            } else if currentIndex != 0 {
                 currentIndex -= 1
             }
         }

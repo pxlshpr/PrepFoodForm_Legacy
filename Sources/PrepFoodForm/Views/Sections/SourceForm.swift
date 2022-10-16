@@ -2,119 +2,28 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
-let LabelSpacing: CGFloat = 10
-let LabelImageWidth: CGFloat = 20
-
-extension String {
-    
-    var htmlTitle: String? {
-        let openGraphPattern = #"og:title\"[^\"]*\"([^\"]*)"#
-        let htmlTitlePattern = #"<title>(.*)<\/title>"#
-        
-        return self.secondCapturedGroup(using: openGraphPattern) ?? self.secondCapturedGroup(using: htmlTitlePattern)
-    }
-}
-
-struct LinkCell: View {
-    
-    @ObservedObject var linkInfo: LinkInfo
-    let customTitle: String?
-    let includeSymbol: Bool
-    let alwaysIncludeUrl: Bool
-    let titleColor: Color
-    let imageColor: Color
-    let detailColor: Color
-
-    init(_ linkInfo: LinkInfo,
-         title: String? = nil,
-         alwaysIncludeUrl: Bool = false,
-         includeSymbol: Bool = true,
-         titleColor: Color = Color.accentColor,
-         imageColor: Color = Color.accentColor,
-         detailColor: Color = Color(.secondaryLabel)
-    ) {
-        self.linkInfo = linkInfo
-        self.customTitle = title
-        self.includeSymbol = includeSymbol
-        self.alwaysIncludeUrl = alwaysIncludeUrl
-        self.titleColor = titleColor
-        self.imageColor = imageColor
-        self.detailColor = detailColor
-    }
-    
-    var title: String {
-        guard let customTitle else {
-            return linkInfo.title ?? linkInfo.urlString
-        }
-        return customTitle
-    }
-    var haveTitle: Bool {
-        customTitle != nil || linkInfo.title != nil
-    }
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 5) {
-                Group {
-                    if includeSymbol {
-                        HStack(alignment: .top, spacing: LabelSpacing) {
-                            Image(systemName: "link")
-                                .frame(width: LabelImageWidth)
-                                .foregroundColor(imageColor)
-                            Text(title)
-                                .multilineTextAlignment(.leading)
-                                .foregroundColor(titleColor)
-                            
-                        }
-//                        Label(title, systemImage: "link")
-                    } else {
-                        Text(title)
-                            .multilineTextAlignment(.leading)
-                            .foregroundColor(titleColor)
-                    }
-                }
-                .foregroundColor(.accentColor)
-//                if alwaysIncludeUrl, haveTitle {
-                    Text(linkInfo.urlDisplayString)
-                        .font(.footnote)
-                        .foregroundColor(detailColor)
-                        .multilineTextAlignment(.leading)
-                        .padding(.leading, LabelSpacing + LabelImageWidth)
-//                }
-            }
-            Spacer()
-            if let image = linkInfo.faviconImage {
-                Image(uiImage: image)
-                    .resizable()
-                    .frame(width: 21, height: 21)
-                    .transition(.opacity)
-            }
-        }
-    }
-}
-
-extension ImageViewModel: Identifiable {
-    var id: UUID {
-        scanResult?.id ?? UUID()
-    }
-}
-
 struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
 //    @State var imageViewModelToShowTextPickerFor: ImageViewModel? = nil
-    @State var imageIdToShowTextPickerFor: UUID? = nil
+//    @State var imageIdToShowTextPickerFor: ImageIdContainer? = nil
 
+    @State var selectedImageIndex: Int? = nil
+    @State var showingTextPicker: Bool = false
+    
     var body: some View {
         form
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
 //        .sheet(isPresented: $showingTextPicker) { textPicker }
-        .fullScreenCover(item: $imageIdToShowTextPickerFor) { imageId in
-//        .sheet(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
-            textPicker(for: imageId)
+//        .fullScreenCover(item: $imageIdToShowTextPickerFor) { imageIdContainer in
+//            textPicker(for: imageIdContainer.id)
+//        }
+        .fullScreenCover(isPresented: $showingTextPicker) {
+            textPicker
         }
+
         .photosPicker(
             isPresented: $showingPhotosPicker,
             selection: $viewModel.selectedPhotos,
@@ -217,6 +126,24 @@ struct SourceForm: View {
         }
     }
     
+    var textPicker: some View {
+        TextPicker(
+            config: TextPickerConfiguration(
+                imageViewModels: viewModel.imageViewModels,
+                initialImageIndex: 0,
+                allowsTogglingTexts: true,
+                deleteImageHandler: { index in
+                    viewModel.removeImage(at: index)
+//                    currentIndex -= 1
+//                    Haptics.successFeedback()
+//                    if viewModel.imageViewModels.isEmpty {
+//                        dismiss()
+//                    }
+                }
+            )
+        )
+    }
+    
     @ViewBuilder
     func textPicker(for imageId: UUID) -> some View {
         if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageId})
@@ -241,7 +168,7 @@ struct SourceForm: View {
     
     var imagesCarousel: some View {
         SourceImagesCarousel { index in
-            imageIdToShowTextPickerFor = viewModel.imageViewModels[index].id
+            showingTextPicker = true
         } didTapDeleteOnImage: { index in
             removeImage(at: index)
         }
@@ -406,4 +333,106 @@ struct SourceForm_Previews: PreviewProvider {
     static var previews: some View {
         SourceFormPreview()
     }
+}
+
+
+let LabelSpacing: CGFloat = 10
+let LabelImageWidth: CGFloat = 20
+
+extension String {
+    
+    var htmlTitle: String? {
+        let openGraphPattern = #"og:title\"[^\"]*\"([^\"]*)"#
+        let htmlTitlePattern = #"<title>(.*)<\/title>"#
+        
+        return self.secondCapturedGroup(using: openGraphPattern) ?? self.secondCapturedGroup(using: htmlTitlePattern)
+    }
+}
+
+struct LinkCell: View {
+    
+    @ObservedObject var linkInfo: LinkInfo
+    let customTitle: String?
+    let includeSymbol: Bool
+    let alwaysIncludeUrl: Bool
+    let titleColor: Color
+    let imageColor: Color
+    let detailColor: Color
+
+    init(_ linkInfo: LinkInfo,
+         title: String? = nil,
+         alwaysIncludeUrl: Bool = false,
+         includeSymbol: Bool = true,
+         titleColor: Color = Color.accentColor,
+         imageColor: Color = Color.accentColor,
+         detailColor: Color = Color(.secondaryLabel)
+    ) {
+        self.linkInfo = linkInfo
+        self.customTitle = title
+        self.includeSymbol = includeSymbol
+        self.alwaysIncludeUrl = alwaysIncludeUrl
+        self.titleColor = titleColor
+        self.imageColor = imageColor
+        self.detailColor = detailColor
+    }
+    
+    var title: String {
+        guard let customTitle else {
+            return linkInfo.title ?? linkInfo.urlString
+        }
+        return customTitle
+    }
+    var haveTitle: Bool {
+        customTitle != nil || linkInfo.title != nil
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 5) {
+                Group {
+                    if includeSymbol {
+                        HStack(alignment: .top, spacing: LabelSpacing) {
+                            Image(systemName: "link")
+                                .frame(width: LabelImageWidth)
+                                .foregroundColor(imageColor)
+                            Text(title)
+                                .multilineTextAlignment(.leading)
+                                .foregroundColor(titleColor)
+                            
+                        }
+//                        Label(title, systemImage: "link")
+                    } else {
+                        Text(title)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(titleColor)
+                    }
+                }
+                .foregroundColor(.accentColor)
+//                if alwaysIncludeUrl, haveTitle {
+                    Text(linkInfo.urlDisplayString)
+                        .font(.footnote)
+                        .foregroundColor(detailColor)
+                        .multilineTextAlignment(.leading)
+                        .padding(.leading, LabelSpacing + LabelImageWidth)
+//                }
+            }
+            Spacer()
+            if let image = linkInfo.faviconImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .frame(width: 21, height: 21)
+                    .transition(.opacity)
+            }
+        }
+    }
+}
+
+extension ImageViewModel: Identifiable {
+    var id: UUID {
+        scanResult?.id ?? UUID()
+    }
+}
+
+struct ImageIdContainer: Identifiable {
+    var id: UUID
 }
