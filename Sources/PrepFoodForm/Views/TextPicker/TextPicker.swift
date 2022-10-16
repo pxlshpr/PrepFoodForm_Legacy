@@ -69,9 +69,11 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func setInitialState() {
-        withAnimation {
-            hasAppeared = true
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation {
+                self.hasAppeared = true
+            }
+//        }
         setInitialFocusBox()
     }
     
@@ -172,9 +174,9 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func pageToImage(at index: Int) {
-        withAnimation {
-            isPaging = true
-        }
+//        withAnimation {
+//            isPaging = true
+//        }
         
         let increment = index - currentIndex
         withAnimation {
@@ -182,11 +184,11 @@ class TextPickerConfiguration: ObservableObject {
         }
         currentIndex = index
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            withAnimation {
-                self.isPaging = false
-            }
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            withAnimation {
+//                self.isPaging = false
+//            }
+//        }
         
         /// Reset the focusedAreas of the other images (after waiting for half a second for the paging animation to complete)
     }
@@ -262,8 +264,10 @@ struct TextPicker: View {
         ZStack {
             pagerLayer
                 .edgesIgnoringSafeArea(.all)
+                .zIndex(1)
             buttonsLayer
-        }
+                .zIndex(5)
+         }
         //                .navigationTitle(title)
         //                .navigationBarTitleDisplayMode(.inline)
         //                .toolbar { bottomToolbar }
@@ -296,17 +300,22 @@ struct TextPicker: View {
            let image = imageViewModel.image
         {
             ZoomableScrollView(focusedBox: $config.focusedBoxes[index]) {
-                imageView(image)
-                    .overlay(textBoxesLayer(for: imageViewModel))
+                ZStack {
+                    imageView(image)
+                        .overlay(textBoxesLayer(for: imageViewModel))
+//                    textBoxesLayer(for: imageViewModel)
+                }
             }
         }
     }
     
     @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
-        if !config.isPaging && config.hasAppeared {
+//        if config.hasAppeared {
             TextBoxesLayer(textBoxes: config.textBoxes(for: imageViewModel))
-        }
+                .opacity(config.hasAppeared ? 1 : 0)
+                .animation(.default, value: config.hasAppeared)
+//        }
     }
     
     @ViewBuilder
@@ -522,7 +531,8 @@ struct TextBoxesLayer: View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
                 ForEach(textBoxes.indices, id: \.self) { i in
-                    TextBoxView(textBox: textBoxes[i], size: geometry.size)
+                    TextBoxView(textBox: textBoxes[i],
+                                size: geometry.size)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -578,8 +588,9 @@ struct TextBoxView: View {
                     .opacity(0.8)
             )
             .shadow(radius: 3, x: 0, y: 2)
+//            .opacity(isPaging ? 0 : 1)
+//            .animation(.default, value: isPaging)
     }
-    
 }
 
 //MARK: - Preview
