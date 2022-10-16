@@ -170,7 +170,7 @@ extension FieldValueForm {
     var body: some View {
         content
             .navigationTitle(titleString ?? fieldValue.description)
-            .sheet(isPresented: $showingTextPicker) {
+            .fullScreenCover(isPresented: $showingTextPicker) {
                 textPicker
             }
         .onAppear {

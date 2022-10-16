@@ -3,7 +3,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
-//import ZoomableScrollView
+import ZoomableScrollView
 import ActivityIndicatorView
 
 extension ImageText {
@@ -115,19 +115,19 @@ class TextPickerConfiguration: ObservableObject {
             }
             
             let boundingBox: CGRect
-            let padded: Bool
+            let paddingType: ZoomPaddingType
             if let selectedBoundingBox = self.selectedBoundingBox {
                 boundingBox = selectedBoundingBox
-                padded = true
+                paddingType = .smallElement
             } else {
-                boundingBox = self.texts(at: index).boundingBox
-                padded = false
+                boundingBox = self.imageViewModels[index].relevantBoundingBox
+                paddingType = .largeSection
             }
             
             self.focusedBoxes[index] = FocusedBox(
                 boundingBox: boundingBox,
                 animated: animated,
-                padded: padded,
+                paddingType: paddingType,
                 imageSize: imageSize
             )
             
@@ -300,7 +300,7 @@ struct TextPicker: View {
            index < config.focusedBoxes.count,
            let image = imageViewModel.image
         {
-            ZoomableScrollView(focusedBox: $config.focusedBoxes[index]) {
+            ZoomableScrollView(focusedBox: $config.focusedBoxes[index], backgroundColor: .black) {
                 ZStack {
                     imageView(image)
                         .overlay(textBoxesLayer(for: imageViewModel))
@@ -621,7 +621,7 @@ public struct TextPickerPreview: View {
     public var body: some View {
         NavigationView {
             Text("")
-                .sheet(isPresented: .constant(true)) {
+                .fullScreenCover(isPresented: .constant(true)) {
                     TextPicker(config: textPickerConfig)
                 }
                 .navigationTitle("Text Picker")
@@ -641,338 +641,4 @@ struct TextPicker_Previews: PreviewProvider {
     static var previews: some View {
         TextPickerPreview()
     }
-}
-
-
-
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-/// This identifies an area of the ZoomableScrollView to focus on
-public struct FocusedBox {
-    
-    /// This is the boundingBox (in terms of a 0 to 1 ratio on each dimension of what the CGRect is (similar to the boundingBox in Vision)
-    let boundingBox: CGRect
-    let padded: Bool
-    let animated: Bool
-    let imageSize: CGSize
-    
-    public init(boundingBox: CGRect, animated: Bool = true, padded: Bool = true, imageSize: CGSize) {
-        self.boundingBox = boundingBox
-        self.padded = padded
-        self.animated = animated
-        self.imageSize = imageSize
-    }
-    
-    public static let none = Self.init(boundingBox: .zero, imageSize: .zero)
-}
-
-public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
-    
-    var focusedBox: Binding<FocusedBox?>?
-    @State var lastFocusedArea: FocusedBox? = nil
-    @State var firstTime: Bool = true
-    
-    private var content: Content
-    
-    public init(focusedBox: Binding<FocusedBox?>? = nil, @ViewBuilder content: () -> Content) {
-        self.content = content()
-        self.focusedBox = focusedBox
-    }
-    
-    public func makeUIView(context: Context) -> UIScrollView {
-        scrollView(context: context)
-    }
-    
-    public func makeCoordinator() -> Coordinator {
-        return Coordinator(hostingController: UIHostingController(rootView: self.content))
-    }
-    
-    public func updateUIView(_ uiView: UIScrollView, context: Context) {
-        // update the hosting controller's SwiftUI content
-        context.coordinator.hostingController.rootView = self.content
-        assert(context.coordinator.hostingController.view.superview == uiView)
-        
-        if let focusedBox = focusedBox?.wrappedValue {
-            
-            /// If we've set it to `.zero` we're indicating that we want it to reset the zoom
-            if focusedBox.boundingBox == .zero {
-                uiView.setZoomScale(1, animated: true)
-            } else {
-                uiView.focus(on: focusedBox)
-            }
-//            self.focusedBox?.wrappedValue = nil
-        }
-    }
-    
-    // MARK: - Coordinator
-    public class Coordinator: NSObject, UIScrollViewDelegate {
-        var hostingController: UIHostingController<Content>
-        
-        init(hostingController: UIHostingController<Content>) {
-            self.hostingController = hostingController
-        }
-        
-        public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return hostingController.view
-        }
-        
-        @objc func doubleTapped(recognizer:  UITapGestureRecognizer) {
-            
-        }
-    }
-}
-
-
-import UIKit
-
-extension UIView {
-    
-    // In order to create computed properties for extensions, we need a key to
-    // store and access the stored property
-    fileprivate struct AssociatedObjectKeys {
-        static var tapGestureRecognizer = "MediaViewerAssociatedObjectKey_mediaViewer"
-    }
-    
-    fileprivate typealias Action = ((UITapGestureRecognizer) -> Void)?
-    
-    // Set our computed property type to a closure
-    fileprivate var tapGestureRecognizerAction: Action? {
-        set {
-            if let newValue = newValue {
-                // Computed properties get stored as associated objects
-                objc_setAssociatedObject(self, &AssociatedObjectKeys.tapGestureRecognizer, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
-            }
-        }
-        get {
-            let tapGestureRecognizerActionInstance = objc_getAssociatedObject(self, &AssociatedObjectKeys.tapGestureRecognizer) as? Action
-            return tapGestureRecognizerActionInstance
-        }
-    }
-    
-    // This is the meat of the sauce, here we create the tap gesture recognizer and
-    // store the closure the user passed to us in the associated object we declared above
-    public func addTapGestureRecognizer(action: ((UITapGestureRecognizer) -> Void)?) {
-        self.isUserInteractionEnabled = true
-        self.tapGestureRecognizerAction = action
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        tapGestureRecognizer.numberOfTapsRequired = 2
-        self.addGestureRecognizer(tapGestureRecognizer)
-    }
-    
-    // Every time the user taps on the UIImageView, this function gets called,
-    // which triggers the closure we stored
-    @objc fileprivate func handleTapGesture(sender: UITapGestureRecognizer) {
-        if let action = self.tapGestureRecognizerAction {
-            let location = sender.location(in: self)
-            action?(sender)
-        } else {
-            print("no action")
-        }
-    }
-    
-}
-
-
-import UIKit
-
-extension UIScrollView {
-
-    func focus(on message: FocusedBox, animated: Bool = true) {
-        zoomIn(boundingBox: message.boundingBox, padded: message.padded, imageSize: message.imageSize, animated: message.animated)
-    }
-    
-    func zoomIn(boundingBox: CGRect, padded: Bool, imageSize: CGSize, animated: Bool = true) {
-
-        /// Now determine the box we want to zoom into, given the image's dimensions
-        /// Now if the image's width/height ratio is less than the scrollView's
-        ///     we'll have padding on the x-axis, so determine what this would be based on the scrollView's frame's ratio and the current zoom scale
-        ///     Add this to the box's x-axis to determine its true rect within the scrollview
-        /// Or if the image's width/height ratio is greater than the scrollView's
-        ///     we'll have y-axis padding, determine this
-        ///     Add this to box's y-axis to determine its true rect
-        /// Now zoom to this rect
-
-        /// We have a `boundingBox` (y-value to bottom), and the original `imageSize`
-
-        /// First determine the current size and x or y-padding of the image given the current contentSize of the `scrollView`
-        let paddingLeft: CGFloat?
-        let paddingTop: CGFloat?
-        let width: CGFloat
-        let height: CGFloat
-
-//            let scrollViewSize: CGSize = CGSize(width: 428, height: 376)
-        let scrollViewSize: CGSize = frame.size
-//            let scrollViewSize: CGSize
-//            if let view = scrollView.delegate?.viewForZooming?(in: scrollView) {
-//                scrollViewSize = view.frame.size
-//            } else {
-//                scrollViewSize = scrollView.contentSize
-//            }
-
-        if imageSize.widthToHeightRatio < frame.size.widthToHeightRatio {
-            /// height would be the same as `scrollView.frame.size.height`
-            height = scrollViewSize.height
-            width = (imageSize.width * height) / imageSize.height
-            paddingLeft = (scrollViewSize.width - width) / 2.0
-            paddingTop = nil
-        } else {
-            /// width would be the same as `scrollView.frame.size.width`
-            width = scrollViewSize.width
-            height = (imageSize.height * width) / imageSize.width
-            paddingLeft = nil
-            paddingTop = (scrollViewSize.height - height) / 2.0
-        }
-
-        let newImageSize = CGSize(width: width, height: height)
-
-        if let paddingLeft = paddingLeft {
-            print("paddingLeft: \(paddingLeft)")
-        } else {
-            print("paddingLeft: nil")
-        }
-        if let paddingTop = paddingTop {
-            print("paddingTop: \(paddingTop)")
-        } else {
-            print("paddingTop: nil")
-        }
-        print("newImageSize: \(newImageSize)")
-
-        var newBox = boundingBox.rectForSize(newImageSize)
-        if let paddingLeft = paddingLeft {
-            newBox.origin.x += paddingLeft
-        }
-        if let paddingTop = paddingTop {
-            newBox.origin.y += paddingTop
-        }
-        print("newBox: \(newBox)")
-
-        if padded {
-            let minimumPadding: CGFloat = 5
-            let zoomOutPaddingRatio: CGFloat = min(newImageSize.width / (newBox.size.width * 5), 3.5)
-            print("zoomOutPaddingRatio: \(zoomOutPaddingRatio)")
-
-            /// If the box is longer than it is tall
-            if newBox.size.widthToHeightRatio > 1 {
-                /// Add 100% padding to its horizontal side
-                let padding = newBox.size.width * zoomOutPaddingRatio
-                newBox.origin.x -= (padding / 2.0)
-                newBox.size.width += padding
-
-                /// Now correct the values in case they're out of bounds
-                newBox.origin.x = max(minimumPadding, newBox.origin.x)
-                if newBox.maxX > newImageSize.width {
-                    newBox.size.width = newImageSize.width - newBox.origin.x - minimumPadding
-                }
-            } else {
-                /// Add 100% padding to its vertical side
-                let padding = newBox.size.height * zoomOutPaddingRatio
-                newBox.origin.y -= (padding / 2.0)
-                newBox.size.height += padding
-
-                /// Now correct the values in case they're out of bounds
-                newBox.origin.y = max(minimumPadding, newBox.origin.y)
-                if newBox.maxY > newImageSize.height {
-                    newBox.size.height = newImageSize.height - newBox.origin.y - minimumPadding
-                }
-            }
-            print("newBox (padded): \(newBox)")
-        }
-
-        zoom(to: newBox, animated: animated)
-    }
-}
-
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-extension ZoomableScrollView {
-
-    func hostedView(context: Context) -> UIView {
-        let hostedView = context.coordinator.hostingController.view!
-        hostedView.translatesAutoresizingMaskIntoConstraints = true
-        hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        return hostedView
-    }
-    
-    func scrollView(context: Context) -> UIScrollView {
-        // set up the UIScrollView
-        let scrollView = UIScrollView()
-        scrollView.delegate = context.coordinator  // for viewForZooming(in:)
-        scrollView.maximumZoomScale = 20
-        scrollView.minimumZoomScale = 1
-        scrollView.bouncesZoom = true
-
-        let hosted = hostedView(context: context)
-        hosted.frame = scrollView.bounds
-        hosted.backgroundColor = .black
-        scrollView.addSubview(hosted)
-
-        scrollView.setZoomScale(1, animated: true)
-        
-        scrollView.addTapGestureRecognizer { sender in
-            
-            let hostedView = hostedView(context: context)
-            let point = sender.location(in: hostedView)
-            let sizeToBaseRectOn = scrollView.frame.size
-//            let sizeToBaseRectOn = hostedView.frame.size
-            
-            let size = CGSize(width: sizeToBaseRectOn.width / 2,
-                              height: sizeToBaseRectOn.height / 2)
-            let zoomSize = CGSize(width: size.width / scrollView.zoomScale,
-                                  height: size.height / scrollView.zoomScale)
-
-            print("""
-Got a tap at: \(point), when:
-    hostedView.size: \(hostedView.frame.size)
-    scrollView.size: \(scrollView.frame.size)
-    scrollView.contentSize: \(scrollView.contentSize)
-    scrollView.zoomScale: \(scrollView.zoomScale)
-    size: \(size)
-    🔍 zoomSize: \(zoomSize)
-""")
-
-            let origin = CGPoint(x: point.x - zoomSize.width / 2,
-                                 y: point.y - zoomSize.height / 2)
-            scrollView.zoom(to:CGRect(origin: origin, size: zoomSize), animated: true)
-        }
-
-        return scrollView
-    }
-    
-    func zoomRectForScale(scale: CGFloat, center: CGPoint, scrollView: UIScrollView, context: Context) -> CGRect {
-        var zoomRect = CGRect.zero
-        zoomRect.size.height = hostedView(context: context).frame.size.height / scale
-        zoomRect.size.width  = hostedView(context: context).frame.size.width  / scale
-        let newCenter = scrollView.convert(center, from: hostedView(context: context))
-        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
-        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
-        return zoomRect
-    }
-        //    func userDoubleTappedScrollview(recognizer:  UITapGestureRecognizer) {
-        //        if (zoomScale > minimumZoomScale) {
-        //            setZoomScale(minimumZoomScale, animated: true)
-        //        }
-        //        else {
-        //            //(I divide by 3.0 since I don't wan't to zoom to the max upon the double tap)
-        //            let zoomRect = zoomRectForScale(scale: maximumZoomScale / 3.0, center: recognizer.location(in: recognizer.view))
-        //            zoom(to: zoomRect, animated: true)
-        //        }
-        //    }
-        //
-        //    func zoomRectForScale(scale : CGFloat, center : CGPoint) -> CGRect {
-        //        var zoomRect = CGRect.zero
-        //        if let imageV = self.viewForZooming {
-        //            zoomRect.size.height = imageV.frame.size.height / scale;
-        //            zoomRect.size.width  = imageV.frame.size.width  / scale;
-        //            let newCenter = imageV.convert(center, from: self)
-        //            zoomRect.origin.x = newCenter.x - ((zoomRect.size.width / 2.0));
-        //            zoomRect.origin.y = newCenter.y - ((zoomRect.size.height / 2.0));
-        //        }
-        //        return zoomRect;
-        //    }
 }

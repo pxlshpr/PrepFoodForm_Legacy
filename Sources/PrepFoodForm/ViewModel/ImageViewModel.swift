@@ -127,6 +127,39 @@ class ImageViewModel: ObservableObject {
         }
         return image
     }
+    
+    var relevantBoundingBox: CGRect {
+        scanResult?.boundingBox ?? .zero
+    }
+}
+
+extension ScanResult {
+    var boundingBox: CGRect? {
+        if let labelBoundingBox {
+//            if let barcodesBoundingBox {
+//                return labelBoundingBox.union(barcodesBoundingBox)
+//            } else {
+                return labelBoundingBox
+//            }
+        } else if let barcodesBoundingBox {
+            return barcodesBoundingBox
+        } else {
+            return nil
+        }
+    }
+    
+    var labelBoundingBox: CGRect? {
+        let allTexts = allTexts
+        guard !allTexts.isEmpty else { return nil }
+        return allTexts.boundingBox
+    }
+    
+    var barcodesBoundingBox: CGRect? {
+        guard !barcodes.isEmpty else { return nil }
+        return barcodes
+            .map { $0.boundingBox }
+            .union
+    }
 }
 
 extension ImageViewModel: Hashable {

@@ -48,7 +48,7 @@ struct DensityForm: View {
                 doNotRegisterUserInput = false
             }
         }
-        .sheet(isPresented: $showingTextPicker) {
+        .fullScreenCover(isPresented: $showingTextPicker) {
             textPicker
         }
     }

@@ -508,7 +508,6 @@ struct TextPicker_Legacy: View {
                 focusedBoxes[index] = FocusedBox(
                     boundingBox: texts(at: index).boundingBox,
                     animated: animated,
-                    padded: false,
                     imageSize: imageSize
                 )
             }
@@ -558,25 +557,4 @@ extension FoodFormViewModel {
         imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
     }
     
-}
-
-extension Array where Element == RecognizedText {
-    var boundingBox: CGRect {
-        guard !isEmpty else { return .zero }
-        return reduce(.null) { partialResult, text in
-            partialResult.union(text.boundingBox)
-        }
-    }
-    
-//    var boundingBoxUsingReduction: CGRect {
-//
-//    }
-//
-//    var boundingBoxUsingCorners: CGRect {
-//
-//    }
-//
-//    var topLeft: CGRect {
-//        self.so
-//    }
 }
