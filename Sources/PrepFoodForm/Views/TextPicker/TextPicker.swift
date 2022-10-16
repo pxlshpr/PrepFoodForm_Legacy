@@ -36,7 +36,7 @@ class TextPickerConfiguration: ObservableObject {
     let onlyShowTextsWithValues: Bool
     let didSelectImageTexts: (([ImageText]) -> Void)?
     let customTextFilter: ((RecognizedText) -> Bool)?
-    let allowsTogglingTexts: Bool = false
+    let allowsTogglingTexts: Bool
     let deleteImageHandler: ((Int) -> ())?
     
     init(imageViewModels: [ImageViewModel],
