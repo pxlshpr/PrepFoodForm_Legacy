@@ -89,10 +89,10 @@ struct DensityForm: View {
         TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
             selectedImageTexts: densityViewModel.fill.imageTexts,
+            customTextFilter: supportsText,
             didSelectImageTexts: { imageTexts in
                 didSelectImageTexts(imageTexts)
-            },
-            customTextFilter: supportsText
+            }
         )
     }
     var textPicker: some View {
