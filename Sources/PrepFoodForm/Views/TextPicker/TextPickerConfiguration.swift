@@ -47,7 +47,7 @@ class TextPickerConfiguration: ObservableObject {
         self.didSelectImageTexts = didSelectImageTexts
         self.customTextFilter = customTextFilter
         
-        showingBoxes = didSelectImageTexts == nil ? false : true
+        showingBoxes = !allowsTogglingTexts
         focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
         didSendAnimatedFocusMessage = Array(repeating: false, count: imageViewModels.count)
         
@@ -73,6 +73,23 @@ class TextPickerConfiguration: ObservableObject {
             setInitialFocusBox(forImageAt: i)
         }
         removeFocusedBoxAfterDelay(forImageAt: initialImageIndex)
+    }
+    
+    var shouldShowMenu: Bool {
+        allowsTogglingTexts || deleteImageHandler != nil
+    }
+    
+    func deleteCurrentImage() {
+        guard let deleteImageHandler else {
+            return
+        }
+        withAnimation {
+            let _ = imageViewModels.remove(at: currentIndex)
+            deleteImageHandler(currentIndex)
+            if currentIndex != 0 {
+                currentIndex -= 1
+            }
+        }
     }
     
     func removeFocusedBoxAfterDelay(forImageAt index: Int) {
@@ -280,10 +297,18 @@ class TextPickerConfiguration: ObservableObject {
         currentImage?.size
     }
     
-    var shouldShowBottomBar: Bool {
+    var shouldShowActionBar: Bool {
         allowsTogglingTexts
         || deleteImageHandler != nil
         || imageViewModels.count > 1
+    }
+    
+    var shouldShowSelectedTextsBar: Bool {
+        allowsMultipleSelection
+    }
+    
+    var shouldShowBottomBar: Bool {
+        shouldShowActionBar || shouldShowSelectedTextsBar
     }
 }
 

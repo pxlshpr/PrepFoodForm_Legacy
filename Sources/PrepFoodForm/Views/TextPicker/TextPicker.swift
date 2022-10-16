@@ -69,11 +69,12 @@ struct TextPicker: View {
     
     @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
-//        if config.hasAppeared {
+        if config.showingBoxes {
             TextBoxesLayer(textBoxes: config.textBoxes(for: imageViewModel))
-                .opacity(config.hasAppeared ? 1 : 0)
+                .opacity((config.hasAppeared && config.showingBoxes) ? 1 : 0)
                 .animation(.default, value: config.hasAppeared)
-//        }
+                .animation(.default, value: config.showingBoxes)
+        }
     }
     
     @ViewBuilder
@@ -82,7 +83,8 @@ struct TextPicker: View {
             .resizable()
             .scaledToFit()
             .background(.black)
-            .opacity(0.7)
+            .opacity(config.showingBoxes ? 0.7 : 1)
+            .animation(.default, value: config.showingBoxes)
     }
     
     //MARK: ButtonsLayer
@@ -105,12 +107,53 @@ struct TextPicker: View {
             }
             HStack {
                 Spacer()
-                titleView
+                if let title {
+                    titleView(for: title)
+                }
                 Spacer()
+            }
+            HStack {
+                Spacer()
+                doneButton
             }
         }
     }
     
+    var bottomBar: some View {
+        ZStack {
+            Color.clear
+            VStack(spacing: 0) {
+                if config.shouldShowSelectedTextsBar {
+                    selectedTextsBar
+                }
+                if config.shouldShowActionBar {
+                    actionBar
+                }
+            }
+        }
+        .frame(height: bottomBarHeight)
+        .background(.ultraThinMaterial)
+    }
+    
+    var bottomBarHeight: CGFloat {
+        var height: CGFloat = 0
+        if config.shouldShowActionBar {
+            height += actionBarHeight
+        }
+        if config.shouldShowSelectedTextsBar {
+            height += selectedTextsBarHeight
+        }
+        return height
+    }
+    
+    var actionBarHeight: CGFloat {
+        70
+    }
+    
+    var selectedTextsBarHeight: CGFloat {
+        config.shouldShowActionBar ? 60 : 60
+    }
+
     var actionBar: some View {
         HStack {
             HStack(spacing: 5) {
@@ -118,27 +161,16 @@ struct TextPicker: View {
                     thumbnail(at: index)
                 }
             }
-            .padding(.leading, 40)
+            .padding(.leading, 20)
             .padding(.top, 15)
             Spacer()
-            menuButton
-                .padding(.top, 15)
+            if config.shouldShowMenu {
+                menuButton
+                    .padding(.top, 15)
+            }
         }
         .frame(height: 70)
     }
-    var bottomBar: some View {
-        ZStack {
-            Color.clear
-            VStack(spacing: 0) {
-                selectedTextsBar
-                actionBar
-//                    .background(.yellow)
-            }
-        }
-        .frame(height: 125)
-        .background(.ultraThinMaterial)
-    }
-
     
     var selectedTextsBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -147,7 +179,7 @@ struct TextPicker: View {
                     selectedTextButton(for: imageText)
                 }
             }
-            .padding(.leading, 40)
+            .padding(.leading, 20)
         }
         .frame(maxWidth: .infinity)
         .frame(height: 40)
@@ -180,6 +212,34 @@ struct TextPicker: View {
         .frame(height: 40)
     }
     
+    @ViewBuilder
+    var doneButton: some View {
+        if config.allowsMultipleSelection {
+            Button {
+                Haptics.successFeedback()
+                config.didSelectImageTexts?(config.selectedImageTexts)
+                dismiss()
+            } label: {
+                Text("Done")
+                    .font(.title3)
+                    .bold()
+                    .foregroundColor(.white)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .foregroundColor(.accentColor.opacity(0.8))
+                            .background(.ultraThinMaterial)
+                    )
+                    .clipShape(
+                        RoundedRectangle(cornerRadius: 15)
+                    )
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .contentShape(Rectangle())
+            }
+            .disabled(config.selectedImageTexts.isEmpty)
+        }
+    }
     var dismissButton: some View {
         Button {
             Haptics.feedback(style: .soft)
@@ -200,8 +260,17 @@ struct TextPicker: View {
         }
     }
     
-    var titleView: some View {
-        Text("Select a text")
+    var title: String? {
+        guard config.didSelectImageTexts != nil else { return nil }
+        if config.allowsMultipleSelection {
+            return "Select texts"
+        } else {
+            return "Select a text"
+        }
+    }
+    
+    func titleView(for title: String) -> some View {
+        Text(title)
             .font(.title3)
             .bold()
             .padding(12)
@@ -219,21 +288,22 @@ struct TextPicker: View {
     
     var menuButton: some View {
         Menu {
-            Button {
-                
-            } label: {
-                Label("Show Texts", systemImage: "text.viewfinder")
+            if config.allowsTogglingTexts {
+                Button {
+                    withAnimation {
+                        config.showingBoxes.toggle()
+                    }
+                } label: {
+                    Label("\(config.showingBoxes ? "Hide" : "Show") Texts", systemImage: "text.viewfinder")
+                }
             }
-            Divider()
-            Button(role: .destructive) {
-                
-            } label: {
-                Label("Remove Photo", systemImage: "trash")
-            }
-            Button(role: .destructive) {
-                
-            } label: {
-                Label("Remove All Photos", systemImage: "trash")
+//            Divider()
+            if config.deleteImageHandler != nil {
+                Button(role: .destructive) {
+                    config.deleteCurrentImage()
+                } label: {
+                    Label("Remove Photo", systemImage: "trash")
+                }
             }
         } label: {
             Image(systemName: "ellipsis")
@@ -406,8 +476,8 @@ public struct TextPickerPreview: View {
     @State var text_allNatural: ImageText
     
     public init() {
-        //        let viewModel = FoodFormViewModel.mock(for: .phillyCheese)
-        let viewModel = FoodFormViewModel.mockWith5Images
+        let viewModel = FoodFormViewModel.mock(for: .phillyCheese)
+//        let viewModel = FoodFormViewModel.mockWith5Images
         _viewModel = StateObject(wrappedValue: viewModel)
         
         _text_4percent = State(initialValue: ImageText(
@@ -453,6 +523,10 @@ public struct TextPickerPreview: View {
 //            selectedImageTexts: [text_4percent]
             selectedImageTexts: [text_nutritionInformation, text_allNatural, text_servingsPerPackage, text_servingSize],
             allowsMultipleSelection: true,
+            allowsTogglingTexts: true,
+            deleteImageHandler: { index in
+                
+            },
             didSelectImageTexts:  { imageTexts in
                 
             }

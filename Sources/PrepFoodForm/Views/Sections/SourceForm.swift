@@ -103,16 +103,17 @@ struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
-    @State var imageViewModelToShowTextPickerFor: ImageViewModel? = nil
-    
+//    @State var imageViewModelToShowTextPickerFor: ImageViewModel? = nil
+    @State var imageIdToShowTextPickerFor: UUID? = nil
+
     var body: some View {
         form
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
 //        .sheet(isPresented: $showingTextPicker) { textPicker }
-        .fullScreenCover(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
+        .fullScreenCover(item: $imageIdToShowTextPickerFor) { imageId in
 //        .sheet(item: $imageViewModelToShowTextPickerFor) { imageViewModel in
-            textPicker(for: imageViewModel)
+            textPicker(for: imageId)
         }
         .photosPicker(
             isPresented: $showingPhotosPicker,
@@ -217,13 +218,22 @@ struct SourceForm: View {
     }
     
     @ViewBuilder
-    func textPicker(for imageViewModel: ImageViewModel) -> some View {
-        if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageViewModel.scanResult?.id})
+    func textPicker(for imageId: UUID) -> some View {
+        if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageId})
         {
             TextPicker(
                 config: TextPickerConfiguration(
                     imageViewModels: viewModel.imageViewModels,
-                    initialImageIndex: index
+                    initialImageIndex: index,
+                    allowsTogglingTexts: true,
+                    deleteImageHandler: { index in
+                        viewModel.removeImage(at: index)
+//                        currentIndex -= 1
+//                        Haptics.successFeedback()
+//                        if viewModel.imageViewModels.isEmpty {
+//                            dismiss()
+//                        }
+                    }
                 )
             )
         }
@@ -231,7 +241,7 @@ struct SourceForm: View {
     
     var imagesCarousel: some View {
         SourceImagesCarousel { index in
-            imageViewModelToShowTextPickerFor = viewModel.imageViewModels[index]
+            imageIdToShowTextPickerFor = viewModel.imageViewModels[index].id
         } didTapDeleteOnImage: { index in
             removeImage(at: index)
         }
