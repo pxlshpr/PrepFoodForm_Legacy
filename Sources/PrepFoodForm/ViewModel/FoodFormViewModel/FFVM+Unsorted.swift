@@ -455,7 +455,9 @@ extension FoodFormViewModel {
         
         case phillyCheese = "philly_cheese"
         case chocolate = "chocolate"
-        
+        case tobleroneLabel = "toblerone_label"
+        case tobleroneBarcode = "toblerone_barcode"
+
         public var name: String {
             rawValue
                 .replacingOccurrences(of: "_", with: " ")

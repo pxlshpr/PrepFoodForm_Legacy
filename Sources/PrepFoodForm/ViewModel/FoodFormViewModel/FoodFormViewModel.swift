@@ -142,6 +142,8 @@ public class FoodFormViewModel: ObservableObject {
     @Published var shouldShowDensitiesSection = false
     
     @Published var selectedPhotos: [PhotosPickerItem] = []
+    
+    var selectedImageIndex: Int = 0
 }
 
 extension FoodFormViewModel {

@@ -13,7 +13,6 @@ class TextPickerConfiguration: ObservableObject {
     
     @Published var showingBoxes: Bool
     @Published var focusedBoxes: [FocusedBox?]
-    @Published var didSendAnimatedFocusMessage: [Bool]
     @Published var currentIndex: Int = 0
     @Published var hasAppeared: Bool = false
     @Published var page: Page
@@ -49,7 +48,6 @@ class TextPickerConfiguration: ObservableObject {
         
         showingBoxes = !allowsTogglingTexts
         focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
-        didSendAnimatedFocusMessage = Array(repeating: false, count: imageViewModels.count)
         
         if let initialImageIndex {
             self.initialImageIndex = initialImageIndex
@@ -150,24 +148,11 @@ class TextPickerConfiguration: ObservableObject {
         
 //        DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.5 : 0.0)) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
-            if animated {
-                self.didSendAnimatedFocusMessage[index] = true
-            }
-            
-            let boundingBox: CGRect
-            let paddingType: ZoomPaddingType
-            if let selectedBoundingBox = self.selectedBoundingBox(forImageAt: index) {
-                boundingBox = selectedBoundingBox
-                paddingType = .smallElement
-            } else {
-                boundingBox = self.imageViewModels[index].relevantBoundingBox
-                paddingType = .largeSection
-            }
+            let boundingBox = self.selectedBoundingBox(forImageAt: index) ?? self.imageViewModels[index].relevantBoundingBox
             
             self.focusedBoxes[index] = FocusedBox(
                 boundingBox: boundingBox,
                 animated: animated,
-                paddingType: paddingType,
                 imageSize: imageSize
             )
             

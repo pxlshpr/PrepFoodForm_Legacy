@@ -6,10 +6,6 @@ struct SourceForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
-//    @State var imageViewModelToShowTextPickerFor: ImageViewModel? = nil
-//    @State var imageIdToShowTextPickerFor: ImageIdContainer? = nil
-
-    @State var selectedImageIndex: Int? = nil
     @State var showingTextPicker: Bool = false
     
     var body: some View {
@@ -127,10 +123,11 @@ struct SourceForm: View {
     }
     
     var textPicker: some View {
-        TextPicker(
+        print("🍱 in textPicker — viewModel.selectedImageIndex is now: \(viewModel.selectedImageIndex)")
+        return TextPicker(
             config: TextPickerConfiguration(
                 imageViewModels: viewModel.imageViewModels,
-                initialImageIndex: 0,
+                initialImageIndex: viewModel.selectedImageIndex,
                 allowsTogglingTexts: true,
                 deleteImageHandler: { index in
                     viewModel.removeImage(at: index)
@@ -151,7 +148,7 @@ struct SourceForm: View {
             TextPicker(
                 config: TextPickerConfiguration(
                     imageViewModels: viewModel.imageViewModels,
-                    initialImageIndex: index,
+//                    initialImageIndex: index,
                     allowsTogglingTexts: true,
                     deleteImageHandler: { index in
                         viewModel.removeImage(at: index)
@@ -168,6 +165,8 @@ struct SourceForm: View {
     
     var imagesCarousel: some View {
         SourceImagesCarousel { index in
+            viewModel.selectedImageIndex = index
+            print("🍱 viewModel.selectedImageIndex is now: \(viewModel.selectedImageIndex)")
             showingTextPicker = true
         } didTapDeleteOnImage: { index in
             removeImage(at: index)
