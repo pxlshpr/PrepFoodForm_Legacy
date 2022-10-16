@@ -142,6 +142,20 @@ extension Fill {
         }
     }
     
+    var imageTexts: [ImageText] {
+        switch self {
+        case .scanned(let scannedFillInfo):
+            return [scannedFillInfo.imageText]
+        case .selection(let selectionFillInfo):
+            guard let imageText = selectionFillInfo.imageText else {
+                return selectionFillInfo.componentImageTexts
+            }
+            return [imageText]
+        default:
+            return []
+        }
+    }
+    
     var text: RecognizedText? {
         imageText?.text
     }

@@ -85,22 +85,25 @@ struct DensityForm: View {
         }
     }
     
-    var textPicker: some View {
-        TextPicker(
+    var textPickerConfiguration: TextPickerConfiguration {
+        TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
-            selectedText: densityViewModel.fill.text,
-            selectedImageIndex: selectedImageIndex,
+            selectedImageTexts: densityViewModel.fill.imageTexts,
+            didSelectImageTexts: { imageTexts in
+                didSelectImageTexts(imageTexts)
+            },
             customTextFilter: supportsText
-        ) { selectedImageTexts in
-            didSelectImageTexts(selectedImageTexts)
-        }
-        .onDisappear {
-            guard densityViewModel.isCroppingNextImage else {
-                return
+        )
+    }
+    var textPicker: some View {
+        TextPicker(config: textPickerConfiguration)
+            .onDisappear {
+                guard densityViewModel.isCroppingNextImage else {
+                    return
+                }
+                densityViewModel.cropFilledImage()
+                doNotRegisterUserInput = false
             }
-            densityViewModel.cropFilledImage()
-            doNotRegisterUserInput = false
-       }
     }
     
     func supportsText(_ text: RecognizedText) -> Bool {

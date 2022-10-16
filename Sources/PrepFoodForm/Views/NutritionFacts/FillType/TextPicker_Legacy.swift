@@ -543,48 +543,6 @@ struct TextPicker_Legacy: View {
 
 //MARK: - Preview
 
-public struct ImageTextPickerPreview: View {
-    
-    @StateObject var viewModel: FoodFormViewModel
-    
-    public init() {
-        let viewModel = FoodFormViewModel()
-        viewModel.populateWithSampleImages([10])
-        _viewModel = StateObject(wrappedValue: viewModel)
-
-//        let fieldValue = FieldValue.energy()
-//        _fieldValue = State(initialValue: fieldValue)
-//
-//        let text = viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "AC10E3D9-E7D6-4510-B555-8A3F52F7B8F2")!})!
-//        _selectedText = State(initialValue: text)
-    }
-    
-    public var body: some View {
-//        NavigationView {
-//            Color.clear
-//                .sheet(isPresented: .constant(true)) {
-                    imageTextPicker
-//                }
-//        }
-    }
-    
-//    @State var fieldValue: FieldValue
-//    @State var selectedText: RecognizedText
-
-    var imageTextPicker: some View {
-        TextPicker(
-            imageViewModels: viewModel.imageViewModels,
-            allowsMultipleSelection: true
-        )
-    }
-}
-
-struct ImageTextPicker_Previews: PreviewProvider {
-    static var previews: some View {
-        ImageTextPickerPreview()
-    }
-}
-
 extension FoodFormViewModel {
     
     func populateWithSampleImages(_ indexes: [Int]) {

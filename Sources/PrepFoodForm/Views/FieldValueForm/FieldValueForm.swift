@@ -359,25 +359,27 @@ extension FieldValueForm {
         }
     }
     
-    var textPicker: some View {
-        TextPicker(
+    var textPickerConfiguration: TextPickerConfiguration {
+        TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
+            selectedImageTexts: fieldValue.fill.imageTexts,
             allowsMultipleSelection: !isForDecimalValue,
-            selectedText: fieldValue.fill.text,
-            selectedAttributeText: fieldValue.fill.attributeText,
-            selectedImageIndex: selectedImageIndex,
             onlyShowTextsWithValues: fieldValue.usesValueBasedTexts,
-            didSelectImageTexts:  { selectedImageTexts in
-                didSelectImageTexts(selectedImageTexts)
+            didSelectImageTexts: { imageTexts in
+                didSelectImageTexts(imageTexts)
             }
         )
-        .onDisappear {
-            guard fieldViewModel.isCroppingNextImage else {
-                return
+    }
+    
+    var textPicker: some View {
+        TextPicker(config: textPickerConfiguration)
+            .onDisappear {
+                guard fieldViewModel.isCroppingNextImage else {
+                    return
+                }
+                fieldViewModel.cropFilledImage()
+                doNotRegisterUserInput = false
             }
-            fieldViewModel.cropFilledImage()
-            doNotRegisterUserInput = false
-       }
     }
 
     //MARK: - Actions
