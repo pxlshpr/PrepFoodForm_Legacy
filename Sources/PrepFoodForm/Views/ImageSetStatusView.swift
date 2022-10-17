@@ -112,7 +112,7 @@ struct ImagesSummary: View {
         HStack {
             Text("Detected")
             numberView(viewModel.dataPointsCount)
-            Text("data point\(dataPointsCount > 1 ? "s": "")")
+            Text("data point\(viewModel.dataPointsCount > 1 ? "s": "")")
         }
     }
     
