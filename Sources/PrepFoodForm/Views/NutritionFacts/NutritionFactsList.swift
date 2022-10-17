@@ -5,7 +5,7 @@ import SwiftHaptics
 public struct NutritionFactsList: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State var showImages = false
+    @State var showImages = true
 
     public var body: some View {
         scrollView
@@ -176,8 +176,9 @@ public struct NutritionFactsList: View {
                     showImages.toggle()
                 }
             } label: {
-                Image(systemName: "text.viewfinder")
-                    .foregroundColor(showImages ? .accentColor : .secondary)
+//                Image(systemName: "eye\(showImages ? ".slash" : "")")
+                Image(systemName: "photo.circle\(showImages ? ".fill" : "")")
+//                    .foregroundColor(showImages ? .accentColor : .secondary)
                     .padding(.vertical)
                     .padding(.trailing)
             }
