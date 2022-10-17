@@ -102,21 +102,21 @@ struct SourceForm: View {
             VStack(spacing: 0) {
                 imagesCarousel
                     .padding(.vertical, 15)
-                Divider()
-//                    .padding(.leading, 17)
-                autofillButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                Divider()
-                    .padding(.leading, 50)
-                addImagesButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                Divider()
-                    .padding(.leading, 50)
-                removeAllImagesButton
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
+//                Divider()
+////                    .padding(.leading, 17)
+//                autofillButton
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 15)
+//                Divider()
+//                    .padding(.leading, 50)
+//                addImagesButton
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 15)
+//                Divider()
+//                    .padding(.leading, 50)
+//                removeAllImagesButton
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 15)
             }
 
         }
@@ -231,7 +231,7 @@ struct SourceForm: View {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "text.viewfinder")
                     .frame(width: LabelImageWidth)
-                Text("AutoFill Scanned Nutrients")
+                Text("AutoFill")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())

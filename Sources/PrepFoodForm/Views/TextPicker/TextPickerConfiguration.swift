@@ -79,10 +79,6 @@ class TextPickerConfiguration: ObservableObject {
         removeFocusedBoxAfterDelay(forImageAt: initialImageIndex)
     }
     
-    var shouldShowMenu: Bool {
-        allowsTogglingTexts || deleteImageHandler != nil
-    }
-    
     func deleteCurrentImage() {
         guard let deleteImageHandler else {
             return
@@ -314,14 +310,18 @@ class TextPickerConfiguration: ObservableObject {
         currentImage?.size
     }
     
+//    var shouldShowMenu: Bool {
+//        allowsTogglingTexts || deleteImageHandler != nil
+//    }
+    
     var shouldShowActions: Bool {
         allowsTogglingTexts
         || deleteImageHandler != nil
-        || imageViewModels.count > 1
+//        || imageViewModels.count > 1
     }
 
     var shouldShowActionsBar: Bool {
-        shouldShowActions && !shouldShowMenuInTopBar
+        shouldShowActions || imageViewModels.count > 1
     }
 
     var shouldShowSelectedTextsBar: Bool {
@@ -333,7 +333,8 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     var shouldShowMenuInTopBar: Bool {
-        imageViewModels.count == 1 && shouldShowActions && allowsMultipleSelection == false
+        shouldShowActions
+//        imageViewModels.count == 1 && shouldShowActions && allowsMultipleSelection == false
     }
 }
 

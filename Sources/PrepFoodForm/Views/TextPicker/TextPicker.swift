@@ -145,7 +145,7 @@ struct TextPicker: View {
     
     var bottomBarHeight: CGFloat {
         var height: CGFloat = 0
-        if config.shouldShowActions {
+        if config.shouldShowActionsBar {
             height += actionBarHeight
         }
         if config.shouldShowSelectedTextsBar {
@@ -172,10 +172,10 @@ struct TextPicker: View {
             .padding(.leading, 20)
             .padding(.top, 15)
             Spacer()
-            if config.shouldShowMenu {
-                menuButton
-                    .padding(.top, 15)
-            }
+//            if config.shouldShowMenu {
+//                menuButton
+//                    .padding(.top, 15)
+//            }
         }
         .frame(height: 70)
     }

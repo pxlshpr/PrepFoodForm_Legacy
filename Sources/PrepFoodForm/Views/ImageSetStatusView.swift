@@ -5,7 +5,28 @@ import FoodLabelScanner
 
 extension ScanResult {
     var dataPointsCount: Int {
-        0
+        var count = nutrientsCount
+        if let serving {
+            count += 2
+            if serving.perContainer != nil {
+                count += 1
+            }
+            if serving.equivalentSize != nil {
+                count += 1
+            }
+        }
+        if let headers {
+            
+            count += 1
+            
+            if headers.headerText1?.serving != nil || headers.headerText2?.serving != nil {
+                count += 1
+            }
+        }
+        if densityFieldValue != nil {
+            count += 1
+        }
+        return count
     }
 }
 extension FoodFormViewModel {
@@ -16,21 +37,26 @@ extension FoodFormViewModel {
     }
 
     var dataPointsCount: Int {
-        imageViewModels.reduce(0) { partialResult, imageViewModel in
-            partialResult + (imageViewModel.scanResult?.dataPointsCount ?? 0)
+        imageViewModels.reduce(0) {
+            $0 + ($1.scanResult?.dataPointsCount ?? 0)
         }
     }
 
     var autoFilledCount: Int? {
-        0
+        let count = allFieldViewModels.filter({ $0.fill.isImageAutofill }).count
+        return count != 0 ? count : nil
     }
     
     var selectedFillCount: Int? {
-        0
+        let count = allFieldViewModels.filter({ $0.fill.isImageSelection }).count
+        return count != 0 ? count : nil
     }
     
     var barcodesCount: Int? {
-        0
+        let count = imageViewModels.reduce(0) {
+            $0 + ($1.scanResult?.barcodes.count ?? 0)
+        }
+        return count != 0 ? count : nil
     }
 }
 struct ImagesSummary: View {
@@ -74,8 +100,8 @@ struct ImagesSummary: View {
     
     var scannedLine: some View {
         HStack {
-            Text("Scanned")
-            numberView(viewModel.scannedNutrientCount)
+            Text("Detected")
+            numberView(viewModel.dataPointsCount)
             Text("data points")
         }
     }
@@ -112,7 +138,7 @@ struct ImagesSummary: View {
     
     @ViewBuilder
     var barcodesLine: some View {
-        if let count = viewModel.selectedFillCount {
+        if let count = viewModel.barcodesCount {
             HStack {
                 Image(systemName: "arrow.turn.down.right")
                     .foregroundColor(Color(.tertiaryLabel))
@@ -153,7 +179,8 @@ struct ImagesSummaryPreview: View {
     @StateObject var viewModel: FoodFormViewModel
     
     public init() {
-        let viewModel = FoodFormViewModel.mock(for: .pumpkinSeeds)
+//        let viewModel = FoodFormViewModel.mock(for: [.pumpkinSeeds])
+        let viewModel = FoodFormViewModel.mockWith5Images
         _viewModel = StateObject(wrappedValue: viewModel)
     }
     var body: some View {
