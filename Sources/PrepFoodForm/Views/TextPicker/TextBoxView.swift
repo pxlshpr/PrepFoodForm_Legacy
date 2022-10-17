@@ -27,7 +27,7 @@ struct TextBoxView: View {
     
     func button(_ didTap: @escaping () -> ()) -> some View {
         Button {
-            Haptics.feedback(style: .rigid)
+            Haptics.successFeedback()
             didTap()
         } label: {
             box
