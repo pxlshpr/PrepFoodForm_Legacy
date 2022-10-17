@@ -148,8 +148,6 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
-        print("🤩 (init) doNotRegisterUserInput is \(!existingFieldViewModel.fieldValue.string.isEmpty)")
-
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = nil
@@ -179,7 +177,6 @@ extension FieldValueForm {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                 shouldAnimateOptions = true
                 /// Wait a while before unlocking the `doNotRegisterUserInput` flag in case it was set (due to a value already being present)
-                print("🤩 (onAppear) doNotRegisterUserInput changing to false")
                 doNotRegisterUserInput = false
             }
         }
