@@ -360,16 +360,16 @@ extension FieldValueForm {
     
     var textPickerMode: TextPickerMode {
         if isForDecimalValue {
-            return .multiSelection(
-                filter: .allTexts,
-                selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
-                    didSelectImageTexts(imageTexts)
-                }
-        } else {
             return .singleSelection(
                 filter: .textsWithFoodLabelValues,
                 selectedImageText: fieldValue.fill.imageText) { imageText in
                     didSelectImageTexts([imageText])
+                }
+        } else {
+            return .multiSelection(
+                filter: .allTexts,
+                selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
+                    didSelectImageTexts(imageTexts)
                 }
         }
 //        TextPickerViewModel(

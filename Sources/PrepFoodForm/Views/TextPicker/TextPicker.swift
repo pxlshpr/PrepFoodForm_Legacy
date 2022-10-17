@@ -305,8 +305,8 @@ class TextPickerViewModel: ObservableObject {
         mode.isImageViewer
     }
 
-    var shouldShowActionsBar: Bool {
-        shouldShowActions || imageViewModels.count > 1
+    var showShowImageSelector: Bool {
+        mode.isImageViewer && imageViewModels.count > 1
     }
 
     var shouldShowSelectedTextsBar: Bool {
@@ -315,7 +315,7 @@ class TextPickerViewModel: ObservableObject {
     }
     
     var shouldShowBottomBar: Bool {
-        shouldShowActionsBar || shouldShowSelectedTextsBar
+        showShowImageSelector || shouldShowSelectedTextsBar
     }
     
     var shouldShowMenuInTopBar: Bool {
@@ -477,7 +477,7 @@ struct TextPicker: View {
                 if textPickerViewModel.shouldShowSelectedTextsBar {
                     selectedTextsBar
                 }
-                if textPickerViewModel.shouldShowActionsBar {
+                if textPickerViewModel.showShowImageSelector {
                     actionBar
                 }
             }
@@ -488,7 +488,7 @@ struct TextPicker: View {
     
     var bottomBarHeight: CGFloat {
         var height: CGFloat = 0
-        if textPickerViewModel.shouldShowActionsBar {
+        if textPickerViewModel.showShowImageSelector {
             height += actionBarHeight
         }
         if textPickerViewModel.shouldShowSelectedTextsBar {
