@@ -448,18 +448,18 @@ import MFPScraper
 extension FoodFormViewModel {
     
     public enum MockCase: String, CaseIterable {
+        case phillyCheese = "philly_cheese"
+        case yoghurt = "yoghurt"
         case spinach = "spinach"
         case pumpkinSeeds = "pumpkin_seeds"
         case iceCream = "ice_cream"
         case milk = "milk"
-        case yoghurt = "yoghurt"
         case starbucks = "starbucks"
         case mcdonalds = "mcdonalds"
         case subway = "subway"
         case googleEggs = "google_eggs"
         case vanillaFlour = "vanilla_flour"
         
-        case phillyCheese = "philly_cheese"
         case chocolate = "chocolate"
         case tobleroneLabel = "toblerone_label"
         case tobleroneBarcode = "toblerone_barcode"

@@ -14,7 +14,7 @@ public class FoodFormViewModel: ObservableObject {
     var sizeBeingEdited: Size? = nil
     
     func clearFieldModels() {
-        amountViewModel = .init(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
+        amountViewModel = .init(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .discardable)))
         servingViewModel = .init(fieldValue: .serving())
         densityViewModel = .init(fieldValue: FieldValue.density())
         energyViewModel = .init(fieldValue: .energy())

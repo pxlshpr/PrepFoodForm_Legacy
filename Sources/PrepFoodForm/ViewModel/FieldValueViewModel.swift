@@ -92,7 +92,7 @@ class FieldViewModel: ObservableObject, Identifiable {
     }
     
     func registerDiscardedScan() {
-        fieldValue.fill = .discardedScan
+        fieldValue.fill = .discardable
         imageToDisplay = nil
     }
     

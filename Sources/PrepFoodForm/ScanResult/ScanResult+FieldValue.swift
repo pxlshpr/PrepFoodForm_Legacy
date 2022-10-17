@@ -6,9 +6,7 @@ import SwiftUI
 extension ScanResult {
         
     func amountFieldValue(for column: Int) -> FieldValue? {
-        if headerType(for: column) != .perServing {
-            return headerFieldValue(for: column)
-        } else {
+        guard headerType(for: column) != .perServing else {
             guard let valueText = amountValueText(for: column) else { return nil }
             return FieldValue.amount(FieldValue.DoubleValue(
                 double: 1, string: "1", unit: .serving, fill: scannedFill(
@@ -17,6 +15,11 @@ extension ScanResult {
                 ))
             )
         }
+        
+        guard let doubleValue = headerDoubleValue(for: column) else {
+            return nil
+        }
+        return FieldValue.amount(doubleValue)
     }
     
     func servingFieldValue(for column: Int) -> FieldValue? {
@@ -46,9 +49,10 @@ extension ScanResult {
         //        } else {
         //            return nil
         //        }
-        else {
-            return headerFieldValue(for: column)
+        else if let doubleValue = headerDoubleValue(for: column) {
+            return FieldValue.serving(doubleValue)
         }
+        return nil
     }
     
     var barcodeFieldValues: [FieldValue] {

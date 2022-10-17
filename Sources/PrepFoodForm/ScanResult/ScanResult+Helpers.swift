@@ -63,13 +63,13 @@ extension FoodLabelUnit {
     }
 }
 extension ScanResult {
-    func headerFieldValue(for column: Int) -> FieldValue? {
+    func headerDoubleValue(for column: Int) -> FieldValue.DoubleValue? {
         guard let headerAmount = headerAmount(for: column),
               let headerValueText = headerValueText(for: column)
         else {
             return nil
         }
-        return FieldValue.serving(FieldValue.DoubleValue(
+        return FieldValue.DoubleValue(
             double: headerAmount,
             string: headerAmount.cleanAmount,
             unit: headerFormUnit(for: column),
@@ -80,7 +80,7 @@ extension ScanResult {
                     unit: headerFormUnit(for: column).foodLabelUnit
                 )
             )
-        ))
+        )
     }
     
     func amountValueText(for column: Int) -> ValueText? {

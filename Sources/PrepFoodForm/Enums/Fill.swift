@@ -15,7 +15,7 @@ indirect enum Fill: Hashable {
     /// Use when a `ScanResult` is discarded (by deleting the image)—and we've lost the associated fill data,
     /// but still want to differentiate this from `.userInput` (as its not been edited since the user scanned it in).
     /// This is so that we can identify fields marked with this as `discardable` when new scans come in.
-    case discardedScan
+    case discardable
 }
 
 extension Fill {
@@ -37,7 +37,7 @@ extension Fill {
             return SystemImage.scanned
         case .prefill:
             return SystemImage.prefill
-        case .discardedScan:
+        case .discardable:
             return "viewfinder"
         }
     }

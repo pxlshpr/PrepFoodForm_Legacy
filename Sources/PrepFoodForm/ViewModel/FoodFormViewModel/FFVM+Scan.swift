@@ -149,7 +149,7 @@ extension FoodFormViewModel {
     
     func existingFieldIsDiscardable(for fieldViewModel: FieldViewModel) -> Bool {
         switch fieldViewModel.fill {
-        case .scanned, .prefill, .discardedScan:
+        case .scanned, .prefill, .discardable:
             return true
         case .userInput:
             return fieldViewModel.fieldValue.isEmpty
