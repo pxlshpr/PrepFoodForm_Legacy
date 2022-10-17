@@ -76,7 +76,7 @@ public struct FoodForm: View {
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $viewModel.selectedPhotos,
-                    maxSelectionCount: 5,
+                    maxSelectionCount: viewModel.availableImagesCount,
                     matching: .images
                 )
         }
@@ -106,10 +106,10 @@ public struct FoodForm: View {
             BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
                 viewModel.showingFoodLabelCamera = true
             }),
-            BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
+            BottomMenuAction(title: "Take Photo\(viewModel.availableImagesCount == 1 ? "" : "s")", systemImage: "camera", tapHandler: {
                 viewModel.showingCamera = true
             }),
-            BottomMenuAction(title: "Choose Photos", systemImage: SourceType.images.systemImage, tapHandler: {
+            BottomMenuAction(title: "Choose Photo\(viewModel.availableImagesCount == 1 ? "" : "s")", systemImage: SourceType.images.systemImage, tapHandler: {
                 showingPhotosPicker = true
             }),
         ]]
@@ -134,7 +134,7 @@ public struct FoodForm: View {
     var removeAllImagesActionGroups: [[BottomMenuAction]] {
         [[
             BottomMenuAction(
-                title: "Remove All Images",
+                title: "Remove All Photos",
                 role: .destructive,
                 tapHandler: {
                     withAnimation {

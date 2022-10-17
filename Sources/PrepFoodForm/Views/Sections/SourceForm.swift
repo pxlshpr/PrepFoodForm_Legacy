@@ -23,7 +23,7 @@ struct SourceForm: View {
         .photosPicker(
             isPresented: $showingPhotosPicker,
             selection: $viewModel.selectedPhotos,
-            maxSelectionCount: 5,
+            maxSelectionCount: viewModel.availableImagesCount,
             matching: .images
         )
     }
@@ -207,18 +207,20 @@ struct SourceForm: View {
         }
     }
 
+    @ViewBuilder
     var addImagesButton: some View {
-        Button {
-            viewModel.showingPhotosMenu = true
-        } label: {
-//            Text("Add Images")
-            HStack(spacing: LabelSpacing) {
-                Image(systemName: "plus")
-                    .frame(width: LabelImageWidth)
-                Text("Add Images")
+        if viewModel.availableImagesCount > 0 {
+            Button {
+                viewModel.showingPhotosMenu = true
+            } label: {
+                HStack(spacing: LabelSpacing) {
+                    Image(systemName: "plus")
+                        .frame(width: LabelImageWidth)
+                    Text("Add Photo\(viewModel.availableImagesCount == 1 ? "" : "s")")
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
         }
     }
 
@@ -244,7 +246,7 @@ struct SourceForm: View {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
                     .frame(width: LabelImageWidth)
-                Text("Remove All Images")
+                Text("Remove All Photos")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 //            .foregroundColor(.secondary)

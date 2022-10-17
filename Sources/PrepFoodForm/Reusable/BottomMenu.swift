@@ -379,7 +379,7 @@ public struct BottomMenuPreview: View {
     var removeAllImagesActionGroups: [[BottomMenuAction]] {
         [[
             BottomMenuAction(
-                title: "Remove All Images",
+                title: "Remove All Photos",
 //                systemImage: "trash",
                 role: .destructive,
                 tapHandler: {

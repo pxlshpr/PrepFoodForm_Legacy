@@ -434,6 +434,12 @@ extension FoodFormViewModel {
         }
         return false
     }
+    
+    /// Returns how many
+    var availableImagesCount: Int {
+        /// Returns how many images can still be added to this food
+        max(5 - imageViewModels.count, 0)
+    }
 }
 
 import FoodLabelScanner

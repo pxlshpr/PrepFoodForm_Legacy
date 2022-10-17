@@ -114,7 +114,7 @@ struct SourceSection: View {
         .photosPicker(
             isPresented: $showingPhotosPicker,
             selection: $viewModel.selectedPhotos,
-            maxSelectionCount: 5,
+            maxSelectionCount: viewModel.availableImagesCount,
             matching: .images
         )
     }
