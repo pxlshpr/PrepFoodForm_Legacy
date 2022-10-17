@@ -148,7 +148,7 @@ extension FieldValueForm where UnitView == EmptyView, SupplementaryView == Empty
          setNewValue: ((FoodLabelValue) -> ())? = nil
     ) {
         _doNotRegisterUserInput = State(initialValue: !existingFieldViewModel.fieldValue.string.isEmpty)
-        
+
         self.existingFieldViewModel = existingFieldViewModel
         self.fieldViewModel = fieldViewModel
         self.unitView = nil
