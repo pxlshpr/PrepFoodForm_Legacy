@@ -151,7 +151,7 @@ struct SourceSection: View {
                         .padding(.vertical, 15)
                         if viewModel.hasSourceLink {
                             Divider()
-                                .padding(.leading, 17)
+                                .padding(.leading, 50)
                         }
                     }
                     if let linkInfo = viewModel.linkInfo {

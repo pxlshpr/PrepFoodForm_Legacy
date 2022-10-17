@@ -63,8 +63,8 @@ struct SourceForm: View {
     }
     
     var removeLinkButton: some View {
-//        Button(role: .destructive) {
-        Button {
+        Button(role: .destructive) {
+//        Button {
             viewModel.showingRemoveLinkConfirmation = true
         } label: {
             HStack(spacing: LabelSpacing) {
@@ -109,9 +109,12 @@ struct SourceForm: View {
 //                    .padding(.vertical, 15)
 //                Divider()
 //                    .padding(.leading, 50)
-//                addImagesButton
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 15)
+                if viewModel.availableImagesCount > 0 {
+                    Divider()
+                    addImagesButton
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                }
 //                Divider()
 //                    .padding(.leading, 50)
 //                removeAllImagesButton
@@ -207,20 +210,17 @@ struct SourceForm: View {
         }
     }
 
-    @ViewBuilder
     var addImagesButton: some View {
-        if viewModel.availableImagesCount > 0 {
-            Button {
-                viewModel.showingPhotosMenu = true
-            } label: {
-                HStack(spacing: LabelSpacing) {
-                    Image(systemName: "plus")
-                        .frame(width: LabelImageWidth)
-                    Text("Add Photo\(viewModel.availableImagesCount == 1 ? "" : "s")")
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
+        Button {
+            viewModel.showingPhotosMenu = true
+        } label: {
+            HStack(spacing: LabelSpacing) {
+                Image(systemName: "plus")
+                    .frame(width: LabelImageWidth)
+                Text("Add Photo\(viewModel.availableImagesCount == 1 ? "" : "s")")
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
     }
 
