@@ -6,26 +6,34 @@ import FoodLabelScanner
 extension ScanResult {
     var dataPointsCount: Int {
         var count = nutrientsCount
-        if let serving {
-            count += 2
-            if serving.perContainer != nil {
-                count += 1
-            }
-            if serving.equivalentSize != nil {
-                count += 1
-            }
-        }
-        if let headers {
-            
+        if serving?.amount != nil {
             count += 1
-            
-            if headers.headerText1?.serving != nil || headers.headerText2?.serving != nil {
-                count += 1
-            }
         }
+        count += allSizeViewModels.count
+//        if let serving {
+//            if serving.amount != nil {
+//                count += 1
+//            }
+//            if serving.perContainer != nil {
+//                count += 1
+//            }
+//            if serving.equivalentSize != nil {
+//                count += 1
+//            }
+//        }
+//        if let headers {
+//            
+//            if headers.header1Type != nil {
+//                count += 1
+//            }
+//            if headers.header2Type != nil {
+//                count += 1
+//            }
+//        }
         if densityFieldValue != nil {
             count += 1
         }
+        count += barcodes.count
         return count
     }
 }
@@ -43,7 +51,9 @@ extension FoodFormViewModel {
     }
 
     var autoFilledCount: Int? {
-        let count = allFieldViewModels.filter({ $0.fill.isImageAutofill }).count
+        let count = allFieldViewModels.filter({
+            $0.fill.isImageAutofill && !$0.fieldValue.isBarcode
+        }).count
         return count != 0 ? count : nil
     }
     
@@ -102,7 +112,7 @@ struct ImagesSummary: View {
         HStack {
             Text("Detected")
             numberView(viewModel.dataPointsCount)
-            Text("data points")
+            Text("data point\(dataPointsCount > 1 ? "s": "")")
         }
     }
     
