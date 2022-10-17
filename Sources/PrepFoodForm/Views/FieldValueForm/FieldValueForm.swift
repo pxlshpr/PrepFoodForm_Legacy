@@ -358,27 +358,43 @@ extension FieldValueForm {
         }
     }
     
-    var textPickerConfiguration: TextPickerConfiguration {
-        TextPickerConfiguration(
-            imageViewModels: viewModel.imageViewModels,
-            filter: fieldValue.usesValueBasedTexts ? .textsWithFoodLabelValues : .allTexts,
-            selectedImageTexts: fieldValue.fill.imageTexts,
-            allowsMultipleSelection: !isForDecimalValue,
-            didSelectImageTexts: { imageTexts in
-                didSelectImageTexts(imageTexts)
-            }
-        )
+    var textPickerMode: TextPickerMode {
+        if isForDecimalValue {
+            return .multiSelection(
+                filter: .allTexts,
+                selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
+                    didSelectImageTexts(imageTexts)
+                }
+        } else {
+            return .singleSelection(
+                filter: .textsWithFoodLabelValues,
+                selectedImageText: fieldValue.fill.imageText) { imageText in
+                    didSelectImageTexts([imageText])
+                }
+        }
+//        TextPickerViewModel(
+//            imageViewModels: viewModel.imageViewModels,
+//            filter: fieldValue.usesValueBasedTexts ? .textsWithFoodLabelValues : .allTexts,
+//            selectedImageTexts: fieldValue.fill.imageTexts,
+//            allowsMultipleSelection: !isForDecimalValue,
+//            didSelectImageTexts: { imageTexts in
+//                didSelectImageTexts(imageTexts)
+//            }
+//        )
     }
     
     var textPicker: some View {
-        TextPicker(config: textPickerConfiguration)
-            .onDisappear {
-                guard fieldViewModel.isCroppingNextImage else {
-                    return
-                }
-                fieldViewModel.cropFilledImage()
-                doNotRegisterUserInput = false
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            mode: textPickerMode
+        )
+        .onDisappear {
+            guard fieldViewModel.isCroppingNextImage else {
+                return
             }
+            fieldViewModel.cropFilledImage()
+            doNotRegisterUserInput = false
+        }
     }
 
     //MARK: - Actions

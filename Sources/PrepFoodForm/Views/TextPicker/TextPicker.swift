@@ -6,85 +6,35 @@ import SwiftUIPager
 import ZoomableScrollView
 import ActivityIndicatorView
 
-enum TextPickerFilter {
-    case allTextsAndBarcodes
-    case allTexts
-    case textsWithDensities
-    case textsWithFoodLabelValues
-}
-
-typealias SingleSelectionHandler = ((ImageText) -> ())
-typealias MultiSelectionHandler = ((ImageText) -> ())
-typealias ColumnSelectionHandler = ((Int) -> ())
-typealias DeleteImageHandler = ((Int) -> ())
-
-struct TextPickerColumn {
-    let name: String
-    let texts: [RecognizedText]
-}
-
-enum TextPickerMode {
-    case singleSelection(filter: TextPickerFilter, handler: SingleSelectionHandler)
-    case multiSelection(filter: TextPickerFilter, handler: MultiSelectionHandler)
-    case columnSelection(column1: TextPickerColumn,
-                         column2: TextPickerColumn,
-                         handler: ColumnSelectionHandler)
-    case imageViewer(deleteHandler: DeleteImageHandler)
-}
-
-class TextPickerConfiguration: ObservableObject {
+class TextPickerViewModel: ObservableObject {
     
     /// ViewModel stuff
+    @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
     @Published var focusedBoxes: [FocusedBox?]
     @Published var zoomBoxes: [FocusedBox?]
+    @Published var page: Page
+    
     @Published var currentIndex: Int = 0
     @Published var hasAppeared: Bool = false
-    @Published var page: Page
     @Published var shouldDismiss: Bool = false
-
-    /// Configuration stuff
-    @Published var imageViewModels: [ImageViewModel]
-    let filter: TextPickerFilter
-    let initialImageIndex: Int
-    let allowsMultipleSelection: Bool
-    let allowsTogglingTexts: Bool
-    let didSelectImageTexts: (([ImageText]) -> Void)?
-    let deleteImageHandler: ((Int) -> ())?
+    @Published var selectedColumn = 1
     
-    init(
-        imageViewModels: [ImageViewModel],
-        filter: TextPickerFilter = .allTexts,
-        selectedImageTexts: [ImageText] = [],
-        initialImageIndex: Int? = nil,
-        allowsMultipleSelection: Bool = false,
-        allowsTogglingTexts: Bool = false,
-        deleteImageHandler: ((Int) -> ())? = nil,
-        didSelectImageTexts: (([ImageText]) -> Void)? = nil
-    ){
-        self.filter = filter
+    let initialImageIndex: Int
+    let mode: TextPickerMode
+    
+    init(imageViewModels: [ImageViewModel], mode: TextPickerMode ){
         self.imageViewModels = imageViewModels
-        self.selectedImageTexts = selectedImageTexts
-        self.allowsMultipleSelection = allowsMultipleSelection
-        self.allowsTogglingTexts = allowsTogglingTexts
-        self.deleteImageHandler = deleteImageHandler
-        self.didSelectImageTexts = didSelectImageTexts
-        
-        showingBoxes = !allowsTogglingTexts
+        self.mode = mode
+        self.selectedImageTexts = mode.selectedImageTexts
+        showingBoxes = !mode.isImageViewer
         focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
         zoomBoxes = Array(repeating: nil, count: imageViewModels.count)
 
-        if let initialImageIndex {
-            self.initialImageIndex = initialImageIndex
-        } else if let imageText = selectedImageTexts.first {
-            self.initialImageIndex = imageViewModels.firstIndex(where: { $0.id == imageText.imageId }) ?? 0
-        } else {
-            self.initialImageIndex = 0
-        }
-        
-        page = .withIndex(self.initialImageIndex)
-        currentIndex = self.initialImageIndex
+        initialImageIndex = mode.initialImageIndex(from: imageViewModels)
+        page = .withIndex(initialImageIndex)
+        currentIndex = initialImageIndex
     }
     
     func setInitialState() {
@@ -100,9 +50,7 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func deleteCurrentImage() {
-        guard let deleteImageHandler else {
-            return
-        }
+        guard let deleteImageHandler = mode.deleteImageHandler else { return }
         withAnimation {
             let _ = imageViewModels.remove(at: currentIndex)
             deleteImageHandler(currentIndex)
@@ -210,22 +158,32 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func tapHandler(for text: RecognizedText) -> (() -> ())? {
-        guard let didSelectImageTexts, let currentScanResultId else {
+        guard let currentScanResultId, mode.supportsTextSelection else {
             return nil
         }
         
         let imageText = ImageText(text: text, imageId: currentScanResultId)
 
-        if allowsMultipleSelection {
+        if mode.isMultiSelection {
             return {
                 self.toggleSelection(of: imageText)
             }
         } else {
+            guard let singleSelectionHandler = mode.singleSelectionHandler else {
+                return nil
+            }
             return {
-                didSelectImageTexts([imageText])
+                singleSelectionHandler(imageText)
                 self.shouldDismiss = true
             }
         }
+    }
+    
+    func tappedDone() {
+        guard let multiSelectionHandler = mode.multiSelectionHandler else {
+            return
+        }
+        multiSelectionHandler(selectedImageTexts)
     }
     
     func toggleSelection(of imageText: ImageText) {
@@ -284,6 +242,14 @@ class TextPickerConfiguration: ObservableObject {
     }
     
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
+        
+        let filter: TextPickerFilter
+        if mode.isColumnSelection {
+            filter = selectedColumn == 1 ? .textsInColumn1 : .textsInColumn2
+        } else {
+            filter = mode.filter ?? .allTextsAndBarcodes
+        }
+        
         let start = CFAbsoluteTimeGetCurrent()
         let texts = imageViewModel.texts(for: filter)
         print("🥸 texts took \(CFAbsoluteTimeGetCurrent()-start)s")
@@ -335,9 +301,8 @@ class TextPickerConfiguration: ObservableObject {
 //    }
     
     var shouldShowActions: Bool {
-        allowsTogglingTexts
-        || deleteImageHandler != nil
-//        || imageViewModels.count > 1
+//        allowsTogglingTexts || deleteImageHandler != nil
+        mode.isImageViewer
     }
 
     var shouldShowActionsBar: Bool {
@@ -345,7 +310,8 @@ class TextPickerConfiguration: ObservableObject {
     }
 
     var shouldShowSelectedTextsBar: Bool {
-        allowsMultipleSelection
+        mode.isMultiSelection
+//        allowsMultipleSelection
     }
     
     var shouldShowBottomBar: Bool {
@@ -381,10 +347,14 @@ import ActivityIndicatorView
 
 struct TextPicker: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject var config: TextPickerConfiguration
+    @StateObject var textPickerViewModel: TextPickerViewModel
     
-    init(config: TextPickerConfiguration) {
-        _config = StateObject(wrappedValue: config)
+    init(imageViewModels: [ImageViewModel], mode: TextPickerMode) {
+        let viewModel = TextPickerViewModel(
+            imageViewModels: imageViewModels,
+            mode: mode
+        )
+        _textPickerViewModel = StateObject(wrappedValue: viewModel)
     }
     
     //MARK: - Views
@@ -396,7 +366,7 @@ struct TextPicker: View {
             buttonsLayer
         }
         .onAppear(perform: appeared)
-        .onChange(of: config.shouldDismiss) { newValue in
+        .onChange(of: textPickerViewModel.shouldDismiss) { newValue in
             if newValue {
                 dismiss()
             }
@@ -407,8 +377,8 @@ struct TextPicker: View {
     
     var pagerLayer: some View {
         Pager(
-            page: config.page,
-            data: config.imageViewModels,
+            page: textPickerViewModel.page,
+            data: textPickerViewModel.imageViewModels,
             id: \.hashValue,
             content: { imageViewModel in
                 zoomableScrollView(for: imageViewModel)
@@ -417,22 +387,22 @@ struct TextPicker: View {
         .sensitivity(.high)
         .pagingPriority(.high)
         .onPageWillChange { index in
-            config.pageWillChange(to: index)
+            textPickerViewModel.pageWillChange(to: index)
         }
         .onPageChanged { index in
-            config.pageDidChange(to: index)
+            textPickerViewModel.pageDidChange(to: index)
         }
     }
     
     @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
-        if let index = config.imageViewModels.firstIndex(of: imageViewModel),
-           index < config.focusedBoxes.count,
-           index < config.zoomBoxes.count,
+        if let index = textPickerViewModel.imageViewModels.firstIndex(of: imageViewModel),
+           index < textPickerViewModel.focusedBoxes.count,
+           index < textPickerViewModel.zoomBoxes.count,
            let image = imageViewModel.image
         {
-            ZoomableScrollView(focusedBox: $config.focusedBoxes[index],
-                               zoomBox: $config.zoomBoxes[index],
+            ZoomableScrollView(focusedBox: $textPickerViewModel.focusedBoxes[index],
+                               zoomBox: $textPickerViewModel.zoomBoxes[index],
                                backgroundColor: .black)
             {
                 ZStack {
@@ -447,10 +417,10 @@ struct TextPicker: View {
     @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
 //        if config.showingBoxes {
-            TextBoxesLayer(textBoxes: config.textBoxes(for: imageViewModel))
-                .opacity((config.hasAppeared && config.showingBoxes) ? 1 : 0)
-                .animation(.default, value: config.hasAppeared)
-                .animation(.default, value: config.showingBoxes)
+            TextBoxesLayer(textBoxes: textPickerViewModel.textBoxes(for: imageViewModel))
+                .opacity((textPickerViewModel.hasAppeared && textPickerViewModel.showingBoxes) ? 1 : 0)
+                .animation(.default, value: textPickerViewModel.hasAppeared)
+                .animation(.default, value: textPickerViewModel.showingBoxes)
 //        }
     }
     
@@ -460,8 +430,8 @@ struct TextPicker: View {
             .resizable()
             .scaledToFit()
             .background(.black)
-            .opacity(config.showingBoxes ? 0.7 : 1)
-            .animation(.default, value: config.showingBoxes)
+            .opacity(textPickerViewModel.showingBoxes ? 0.7 : 1)
+            .animation(.default, value: textPickerViewModel.showingBoxes)
     }
     
     //MARK: ButtonsLayer
@@ -470,7 +440,7 @@ struct TextPicker: View {
         VStack(spacing: 0) {
             topBar
             Spacer()
-            if config.shouldShowBottomBar {
+            if textPickerViewModel.shouldShowBottomBar {
                 bottomBar
             }
         }
@@ -491,7 +461,7 @@ struct TextPicker: View {
             }
             HStack {
                 Spacer()
-                if config.shouldShowMenuInTopBar {
+                if textPickerViewModel.shouldShowMenuInTopBar {
                     topMenuButton
                 } else {
                     doneButton
@@ -504,10 +474,10 @@ struct TextPicker: View {
         ZStack {
             Color.clear
             VStack(spacing: 0) {
-                if config.shouldShowSelectedTextsBar {
+                if textPickerViewModel.shouldShowSelectedTextsBar {
                     selectedTextsBar
                 }
-                if config.shouldShowActionsBar {
+                if textPickerViewModel.shouldShowActionsBar {
                     actionBar
                 }
             }
@@ -518,10 +488,10 @@ struct TextPicker: View {
     
     var bottomBarHeight: CGFloat {
         var height: CGFloat = 0
-        if config.shouldShowActionsBar {
+        if textPickerViewModel.shouldShowActionsBar {
             height += actionBarHeight
         }
-        if config.shouldShowSelectedTextsBar {
+        if textPickerViewModel.shouldShowSelectedTextsBar {
             height += selectedTextsBarHeight
         }
         return height
@@ -532,13 +502,13 @@ struct TextPicker: View {
     }
     
     var selectedTextsBarHeight: CGFloat {
-        config.shouldShowActions ? 60 : 60
+        textPickerViewModel.shouldShowActions ? 60 : 60
     }
     
     var actionBar: some View {
         HStack {
             HStack(spacing: 5) {
-                ForEach(config.imageViewModels.indices, id: \.self) { index in
+                ForEach(textPickerViewModel.imageViewModels.indices, id: \.self) { index in
                     thumbnail(at: index)
                 }
             }
@@ -556,7 +526,7 @@ struct TextPicker: View {
     var selectedTextsBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack {
-                ForEach(config.selectedImageTexts, id: \.self) { imageText in
+                ForEach(textPickerViewModel.selectedImageTexts, id: \.self) { imageText in
                     selectedTextButton(for: imageText)
                 }
             }
@@ -570,7 +540,7 @@ struct TextPicker: View {
     func selectedTextButton(for imageText: ImageText) -> some View {
         Button {
             withAnimation {
-                config.selectedImageTexts.removeAll(where: { $0 == imageText })
+                textPickerViewModel.selectedImageTexts.removeAll(where: { $0 == imageText })
             }
         } label: {
             ZStack {
@@ -595,10 +565,10 @@ struct TextPicker: View {
     
     @ViewBuilder
     var doneButton: some View {
-        if config.allowsMultipleSelection {
+        if textPickerViewModel.mode.isMultiSelection {
             Button {
                 Haptics.successFeedback()
-                config.didSelectImageTexts?(config.selectedImageTexts)
+                textPickerViewModel.tappedDone()
                 dismiss()
             } label: {
                 Text("Done")
@@ -620,7 +590,7 @@ struct TextPicker: View {
                     .padding(.vertical, 10)
                     .contentShape(Rectangle())
             }
-            .disabled(config.selectedImageTexts.isEmpty)
+            .disabled(textPickerViewModel.selectedImageTexts.isEmpty)
         }
     }
     var dismissButton: some View {
@@ -646,12 +616,7 @@ struct TextPicker: View {
     }
     
     var title: String? {
-        guard config.didSelectImageTexts != nil else { return nil }
-        if config.allowsMultipleSelection {
-            return "Select texts"
-        } else {
-            return "Select a text"
-        }
+        textPickerViewModel.mode.prompt
     }
     
     func titleView(for title: String) -> some View {
@@ -698,19 +663,16 @@ struct TextPicker: View {
     
     var menuContents: some View {
         Group {
-            if config.allowsTogglingTexts {
+            if textPickerViewModel.mode.isImageViewer {
                 Button {
                     withAnimation {
-                        config.showingBoxes.toggle()
+                        textPickerViewModel.showingBoxes.toggle()
                     }
                 } label: {
-                    Label("\(config.showingBoxes ? "Hide" : "Show") Texts", systemImage: "text.viewfinder")
+                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts", systemImage: "text.viewfinder")
                 }
-            }
-            //            Divider()
-            if config.deleteImageHandler != nil {
                 Button(role: .destructive) {
-                    config.deleteCurrentImage()
+                    textPickerViewModel.deleteCurrentImage()
                 } label: {
                     Label("Remove Photo", systemImage: "trash")
                 }
@@ -734,13 +696,13 @@ struct TextPicker: View {
     
     func thumbnail(at index: Int) -> some View {
         var isSelected: Bool {
-            config.currentIndex == index
+            textPickerViewModel.currentIndex == index
         }
         
         return Group {
-            if let image = config.imageViewModels[index].image {
+            if let image = textPickerViewModel.imageViewModels[index].image {
                 Button {
-                    config.didTapThumbnail(at: index)
+                    textPickerViewModel.didTapThumbnail(at: index)
                 } label: {
                     Image(uiImage: image)
                         .interpolation(.none)
@@ -770,21 +732,21 @@ struct TextPicker: View {
     
     func appeared() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            config.setInitialState()
+            textPickerViewModel.setInitialState()
         }
     }
     
     //MARK: - User Actions
     func toggleSelection(of imageText: ImageText) {
-        if config.selectedImageTexts.contains(imageText) {
+        if textPickerViewModel.selectedImageTexts.contains(imageText) {
             Haptics.feedback(style: .light)
             withAnimation {
-                config.selectedImageTexts.removeAll(where: { $0 == imageText })
+                textPickerViewModel.selectedImageTexts.removeAll(where: { $0 == imageText })
             }
         } else {
             Haptics.transientHaptic()
             withAnimation {
-                config.selectedImageTexts.append(imageText)
+                textPickerViewModel.selectedImageTexts.append(imageText)
             }
         }
     }    
@@ -839,28 +801,14 @@ public struct TextPickerPreview: View {
         NavigationView {
             Text("")
                 .fullScreenCover(isPresented: .constant(true)) {
-                    TextPicker(config: textPickerConfig)
+                    TextPicker(imageViewModels: viewModel.imageViewModels,
+                               mode: .imageViewer(initialImageIndex: 0, deleteHandler: { deletedIndex in
+                        
+                    }))
                 }
                 .navigationTitle("Text Picker")
         }
     }
-    
-    var textPickerConfig: TextPickerConfiguration {
-        TextPickerConfiguration(
-            imageViewModels: viewModel.imageViewModels,
-            //            selectedImageTexts: [text_4percent]
-//            selectedImageTexts: [text_nutritionInformation, text_allNatural, text_servingsPerPackage, text_servingSize],
-            allowsMultipleSelection: true,
-            allowsTogglingTexts: true,
-            deleteImageHandler: { index in
-                
-            },
-            didSelectImageTexts:  { imageTexts in
-                
-            }
-        )
-    }
-    
 }
 
 struct TextPicker_Previews: PreviewProvider {

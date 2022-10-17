@@ -91,6 +91,12 @@ class ImageViewModel: ObservableObject {
             return textsWithDensities
         case .textsWithFoodLabelValues:
             return textsWithFoodLabelValues
+        case .textsInColumn1:
+            //TODO: Extract column 1
+            return texts
+        case .textsInColumn2:
+            //TODO: Extract column 2
+            return texts
         }
     }
     

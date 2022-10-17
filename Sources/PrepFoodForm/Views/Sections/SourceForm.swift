@@ -126,22 +126,30 @@ struct SourceForm: View {
     }
     
     var textPicker: some View {
-        print("🍱 in textPicker — viewModel.selectedImageIndex is now: \(viewModel.selectedImageIndex)")
-        return TextPicker(
-            config: TextPickerConfiguration(
-                imageViewModels: viewModel.imageViewModels,
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            mode: .imageViewer(
                 initialImageIndex: viewModel.selectedImageIndex,
-                allowsTogglingTexts: true,
-                deleteImageHandler: { index in
-                    viewModel.removeImage(at: index)
-//                    currentIndex -= 1
-//                    Haptics.successFeedback()
-//                    if viewModel.imageViewModels.isEmpty {
-//                        dismiss()
-//                    }
+                deleteHandler: { deletedImageIndex in
+                    viewModel.removeImage(at: deletedImageIndex)
                 }
             )
         )
+//        TextPicker(
+//            config: TextPickerViewModel(
+//                imageViewModels: viewModel.imageViewModels,
+//                initialImageIndex: viewModel.selectedImageIndex,
+//                allowsTogglingTexts: true,
+//                deleteImageHandler: { index in
+//                    viewModel.removeImage(at: index)
+////                    currentIndex -= 1
+////                    Haptics.successFeedback()
+////                    if viewModel.imageViewModels.isEmpty {
+////                        dismiss()
+////                    }
+//                }
+//            )
+//        )
     }
     
     var imagesCarousel: some View {
