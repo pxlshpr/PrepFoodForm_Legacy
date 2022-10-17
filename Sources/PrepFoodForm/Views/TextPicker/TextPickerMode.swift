@@ -10,6 +10,7 @@ enum TextPickerMode {
                         handler: MultiSelectionHandler)
     case columnSelection(column1: TextPickerColumn,
                          column2: TextPickerColumn,
+                         selectedColumn: Int,
                          handler: ColumnSelectionHandler)
     case imageViewer(initialImageIndex: Int,
                      deleteHandler: DeleteImageHandler)
@@ -37,10 +38,9 @@ extension TextPickerMode {
             return [selectedImageText]
         case .multiSelection(_, let selectedImageTexts, _):
             return selectedImageTexts
-        case .columnSelection(let column1, let column2, let handler):
-            //TODO: Column
-            return []
-        case .imageViewer(let initialImageIndex, let deleteHandler):
+        case .columnSelection(let column1, let column2, let selectedColumn, _):
+            return selectedColumn == 1 ? column1.imageTexts : column2.imageTexts
+        case .imageViewer:
             return []
         }
     }
@@ -130,5 +130,5 @@ typealias DeleteImageHandler = ((Int) -> ())
 
 struct TextPickerColumn {
     let name: String
-    let texts: [RecognizedText]
+    let imageTexts: [ImageText]
 }

@@ -132,6 +132,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingAddLinkMenu = false
     @Published var showingRemoveImagesConfirmation = false
     @Published var showingRemoveLinkConfirmation = false
+    @Published var showingColumnPicker = false
 
     @Published var showingCamera: Bool = false
     @Published var showingFoodLabelCamera: Bool = false
@@ -246,7 +247,6 @@ extension FoodFormViewModel {
             DispatchQueue.main.async {
                 withAnimation {
                     self.imageSetStatus = .scanned
-                    self.processScanResults()
                 }
             }
         }
@@ -259,7 +259,7 @@ extension FoodFormViewModel {
             }
         }
     }
-
+    
     var scannedColumnCount: Int {
         imageViewModels.first?.scanResult?.columnCount ?? 1
     }

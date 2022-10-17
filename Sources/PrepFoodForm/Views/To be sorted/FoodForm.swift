@@ -86,6 +86,15 @@ public struct FoodForm: View {
         .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
         .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
         .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
+        .fullScreenCover(isPresented: $viewModel.showingColumnPicker) { columnPicker }
+    }
+    
+    var columnPicker: some View {
+        Color.red
+//        TextPicker(
+//            imageViewModels: viewModel.imageViewModels,
+//            mode: .columnSelection(column1: <#T##TextPickerColumn#>, column2: <#T##TextPickerColumn#>, handler: <#T##ColumnSelectionHandler##ColumnSelectionHandler##(Int) -> ()#>)
+//        )
     }
     
     var navigationLeadingContent: some ToolbarContent {

@@ -4,12 +4,23 @@ import SwiftHaptics
 import PrepUnits
 
 extension FoodFormViewModel {
-    func processScanResults(column pickedColumn: Int? = nil) {
+    
+    func processScanResults() {
+        if scanResults.bestScanResult?.columnCount == 2 {
+            showingColumnPicker = true
+        } else {
+            let start = CFAbsoluteTimeGetCurrent()
+            processScanResults(column: 1)
+            print("processScanResults took: \(CFAbsoluteTimeGetCurrent()-start)s")
+        }
+    }
+    
+    func processScanResults(column pickedColumn: Int, isUserInitiated: Bool = false) {
 //        Task {
             
             guard let relevantScanResults = scanResults.relevantScanResults else { return }
-            let isUserInitiated = pickedColumn != nil
-            let column = pickedColumn ?? relevantScanResults.columnWithTheMostNutrients
+//            let isUserInitiated = pickedColumn != nil
+            let column = pickedColumn
             
             let fieldViewModelsToExtract = [
                 energyViewModel, carbViewModel, fatViewModel, proteinViewModel,

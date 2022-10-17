@@ -113,6 +113,10 @@ extension Array where Element == ScanResult {
         map { $0.columnWithTheMostNutrients}
             .mostFrequent ?? 1
     }
+    
+    var bestColumn: Int {
+        columnWithTheMostNutrients
+    }
 }
 
 extension ScanResult {
