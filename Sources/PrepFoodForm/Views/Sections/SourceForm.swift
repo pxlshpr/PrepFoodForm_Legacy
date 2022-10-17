@@ -144,28 +144,6 @@ struct SourceForm: View {
         )
     }
     
-    @ViewBuilder
-    func textPicker(for imageId: UUID) -> some View {
-        if let index = viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == imageId})
-        {
-            TextPicker(
-                config: TextPickerConfiguration(
-                    imageViewModels: viewModel.imageViewModels,
-//                    initialImageIndex: index,
-                    allowsTogglingTexts: true,
-                    deleteImageHandler: { index in
-                        viewModel.removeImage(at: index)
-//                        currentIndex -= 1
-//                        Haptics.successFeedback()
-//                        if viewModel.imageViewModels.isEmpty {
-//                            dismiss()
-//                        }
-                    }
-                )
-            )
-        }
-    }
-    
     var imagesCarousel: some View {
         SourceImagesCarousel { index in
             viewModel.selectedImageIndex = index
