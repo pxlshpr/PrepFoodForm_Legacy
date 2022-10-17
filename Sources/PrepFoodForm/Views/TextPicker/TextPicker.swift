@@ -22,7 +22,7 @@ class TextPickerViewModel: ObservableObject {
     @Published var selectedColumn = 1
     
     let initialImageIndex: Int
-    let mode: TextPickerMode
+    @Published var mode: TextPickerMode
     
     init(imageViewModels: [ImageViewModel], mode: TextPickerMode ){
         self.imageViewModels = imageViewModels
@@ -59,6 +59,13 @@ class TextPickerViewModel: ObservableObject {
             } else if currentIndex != 0 {
                 currentIndex -= 1
             }
+        }
+    }
+    
+    func pickedColumn(_ index: Int) {
+        mode.selectedColumn = index
+        withAnimation {
+            selectedImageTexts = mode.selectedImageTexts
         }
     }
     
@@ -180,10 +187,11 @@ class TextPickerViewModel: ObservableObject {
     }
     
     func tappedDone() {
-        guard let multiSelectionHandler = mode.multiSelectionHandler else {
-            return
+        if case .multiSelection(_, _, let handler) = mode {
+            handler(selectedImageTexts)
+        } else if case .columnSelection(_, _, let selectedColumn, let handler) = mode {
+            handler(selectedColumn)
         }
-        multiSelectionHandler(selectedImageTexts)
     }
     
     func toggleSelection(of imageText: ImageText) {
@@ -265,7 +273,7 @@ class TextPickerViewModel: ObservableObject {
         if selectedImageTexts.contains(where: { $0.text == text }) {
             return Color.accentColor
         } else {
-            return Color.yellow
+            return mode.isColumnSelection ? Color.white : Color.yellow
         }
     }
     
@@ -306,6 +314,10 @@ class TextPickerViewModel: ObservableObject {
         mode.isImageViewer
     }
 
+    var shouldShowDoneButton: Bool {
+        mode.isMultiSelection || mode.isColumnSelection
+    }
+    
     var showShowImageSelector: Bool {
         mode.isImageViewer && imageViewModels.count > 1
     }
@@ -315,13 +327,24 @@ class TextPickerViewModel: ObservableObject {
 //        allowsMultipleSelection
     }
     
+    var shouldShowColumnPickerBar: Bool {
+        mode.isColumnSelection
+    }
+
     var shouldShowBottomBar: Bool {
-        showShowImageSelector || shouldShowSelectedTextsBar
+        showShowImageSelector || shouldShowSelectedTextsBar || shouldShowColumnPickerBar
     }
     
     var shouldShowMenuInTopBar: Bool {
         shouldShowActions
 //        imageViewModels.count == 1 && shouldShowActions && allowsMultipleSelection == false
+    }
+    
+    var columns: [TextPickerColumn]? {
+        guard case .columnSelection(let column1, let column2, _, _) = mode else {
+            return nil
+        }
+        return [column1, column2]
     }
 }
 
@@ -478,6 +501,9 @@ struct TextPicker: View {
                 if textPickerViewModel.shouldShowSelectedTextsBar {
                     selectedTextsBar
                 }
+                if textPickerViewModel.shouldShowColumnPickerBar {
+                    columnPickerBar
+                }
                 if textPickerViewModel.showShowImageSelector {
                     actionBar
                 }
@@ -495,17 +521,17 @@ struct TextPicker: View {
         if textPickerViewModel.shouldShowSelectedTextsBar {
             height += selectedTextsBarHeight
         }
+        if textPickerViewModel.shouldShowColumnPickerBar {
+            height += columnPickerBarHeight
+        }
+
         return height
     }
     
-    var actionBarHeight: CGFloat {
-        70
-    }
-    
-    var selectedTextsBarHeight: CGFloat {
-        textPickerViewModel.shouldShowActions ? 60 : 60
-    }
-    
+    var actionBarHeight: CGFloat { 70 }
+    var selectedTextsBarHeight: CGFloat { 60 }
+    var columnPickerBarHeight: CGFloat { 60 }
+
     var actionBar: some View {
         HStack {
             HStack(spacing: 5) {
@@ -537,6 +563,53 @@ struct TextPicker: View {
         .frame(height: 40)
         //        .background(.green)
     }
+
+    @State var pickedColumn: Int = 1
+    
+    @ViewBuilder
+    var columnPickerBar: some View {
+        if let columns = textPickerViewModel.columns {
+            Picker("", selection: $pickedColumn) {
+                ForEach(columns.indices, id: \.self) { i in
+//                    selectedTextButton(for: columns[i])
+                    Text(columns[i].name)
+                        .tag(i+1)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity)
+            .frame(height: 40)
+            .onChange(of: pickedColumn) { newValue in
+                textPickerViewModel.pickedColumn(newValue)
+            }
+        }
+    }
+
+    func selectedTextButton(for column: TextPickerColumn) -> some View {
+        Button {
+            withAnimation {
+                textPickerViewModel.pickedColumn(column.column)
+            }
+        } label: {
+            ZStack {
+                Capsule(style: .continuous)
+                    .foregroundColor(Color.accentColor)
+                HStack(spacing: 5) {
+                    Text(column.name)
+                        .font(.title3)
+                        .bold()
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 15)
+                .padding(.vertical, 8)
+            }
+            .fixedSize(horizontal: true, vertical: true)
+            .contentShape(Rectangle())
+            .transition(.move(edge: .leading))
+        }
+        .frame(height: 40)
+    }
     
     func selectedTextButton(for imageText: ImageText) -> some View {
         Button {
@@ -548,6 +621,7 @@ struct TextPicker: View {
                 Capsule(style: .continuous)
                     .foregroundColor(Color.accentColor)
                 HStack(spacing: 5) {
+                    //TODO: Only capitalize if its in all caps—otherwise leave it as it is
                     Text(imageText.text.string.capitalized)
                         .font(.title3)
                         .bold()
@@ -566,7 +640,7 @@ struct TextPicker: View {
     
     @ViewBuilder
     var doneButton: some View {
-        if textPickerViewModel.mode.isMultiSelection {
+        if textPickerViewModel.shouldShowDoneButton {
             Button {
                 Haptics.successFeedback()
                 textPickerViewModel.tappedDone()

@@ -3,30 +3,43 @@ import FoodLabelScanner
 import SwiftHaptics
 import PrepUnits
 
+extension ScanResult {
+    var headerTitle1: String {
+        guard let headerType = headers?.header1Type else {
+            return "Column 1"
+        }
+        return headerType.description
+    }
+    var headerTitle2: String {
+        guard let headerType = headers?.header2Type else {
+            return "Column 2"
+        }
+        return headerType.description
+    }
+}
 extension FoodFormViewModel {
     
-    var textPickerColumn1: TextPickerColumn {
-        TextPickerColumn(
-            name: "Column 1",
-            imageTexts: column1ImageTexts
-        )
-    }
-
-    var textPickerColumn2: TextPickerColumn {
-        TextPickerColumn(
-            name: "Column 2",
-            imageTexts: column2ImageTexts
-        )
-    }
-
     func processScanResults() {
         relevantScanResults = scanResults.relevantScanResults ?? []
-        if relevantScanResults.bestScanResult?.columnCount == 2 {
-            column1ImageTexts = bestColumnImageTexts(at: 1, from: relevantScanResults)
-            column2ImageTexts = bestColumnImageTexts(at: 2, from: relevantScanResults)
-//            pickedColumn = relevantScanResults.columnWithTheMostNutrients
-            pickedColumn = 2
-            showingColumnPicker = true
+        if let bestScanResult = relevantScanResults.bestScanResult,
+            bestScanResult.columnCount == 2
+        {
+            textPickerColumn1 = TextPickerColumn(
+                column: 1,
+                name: bestScanResult.headerTitle1,
+                imageTexts: bestColumnImageTexts(at: 1, from: relevantScanResults)
+            )
+
+            textPickerColumn2 = TextPickerColumn(
+                column: 2,
+                name: bestScanResult.headerTitle2,
+                imageTexts: bestColumnImageTexts(at: 2, from: relevantScanResults)
+            )
+            
+            pickedColumn = bestScanResult.bestColumn
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.showingColumnPicker = true
+            }
         } else {
             processScanResults(column: 1, from: relevantScanResults)
         }

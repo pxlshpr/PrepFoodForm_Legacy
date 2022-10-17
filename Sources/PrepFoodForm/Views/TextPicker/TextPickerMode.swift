@@ -28,6 +28,22 @@ extension TextPickerFilter {
 }
 extension TextPickerMode {
 
+    var selectedColumn: Int? {
+        get {
+            guard case .columnSelection(_, _, let selectedColumn, _) = self else {
+                return nil
+            }
+            return selectedColumn
+        }
+        set {
+            guard let newValue,
+                case .columnSelection(let column1, let column2, _, let handler) = self else {
+                return
+            }
+            self = .columnSelection(column1: column1, column2: column2, selectedColumn: newValue, handler: handler)
+        }
+    }
+    
     var filter: TextPickerFilter? {
         switch self {
         case .singleSelection(let filter, _, _):
@@ -154,6 +170,7 @@ typealias ColumnSelectionHandler = ((Int) -> ())
 typealias DeleteImageHandler = ((Int) -> ())
 
 struct TextPickerColumn {
+    let column: Int
     let name: String
     let imageTexts: [ImageText]
 }

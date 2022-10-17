@@ -147,8 +147,8 @@ public class FoodFormViewModel: ObservableObject {
     var selectedImageIndex: Int = 0
     
     var relevantScanResults: [ScanResult] = []
-    var column1ImageTexts: [ImageText] = []
-    var column2ImageTexts: [ImageText] = []
+    var textPickerColumn1: TextPickerColumn? = nil
+    var textPickerColumn2: TextPickerColumn? = nil
     var pickedColumn = 1
 }
 
@@ -251,6 +251,7 @@ extension FoodFormViewModel {
             Haptics.successFeedback()
             DispatchQueue.main.async {
                 withAnimation {
+                    self.processScanResults()
                     self.imageSetStatus = .scanned
                 }
             }

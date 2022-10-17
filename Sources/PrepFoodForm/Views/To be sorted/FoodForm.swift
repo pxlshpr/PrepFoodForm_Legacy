@@ -89,17 +89,25 @@ public struct FoodForm: View {
         .fullScreenCover(isPresented: $viewModel.showingColumnPicker) { columnPicker }
     }
     
+    @ViewBuilder
     var columnPicker: some View {
-        TextPicker(
-            imageViewModels: viewModel.imageViewModels,
-            mode: .columnSelection(
-                column1: viewModel.textPickerColumn1,
-                column2: viewModel.textPickerColumn2,
-                selectedColumn: viewModel.pickedColumn,
-                handler: { pickedColumn in
-                    
-                })
-        )
+        if let column1 = viewModel.textPickerColumn1,
+           let column2 = viewModel.textPickerColumn2
+        {
+            TextPicker(
+                imageViewModels: viewModel.imageViewModels,
+                mode: .columnSelection(
+                    column1: column1,
+                    column2: column2,
+                    selectedColumn: viewModel.pickedColumn,
+                    handler: { pickedColumn in
+                        viewModel.processScanResults(
+                            column: pickedColumn,
+                            from: viewModel.relevantScanResults
+                        )
+                    })
+            )
+        }
     }
     
     var navigationLeadingContent: some ToolbarContent {
