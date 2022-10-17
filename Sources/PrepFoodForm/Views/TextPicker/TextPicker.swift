@@ -3,7 +3,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
-//import ZoomableScrollView
+import ZoomableScrollView
 import ActivityIndicatorView
 
 struct TextPicker: View {
@@ -55,9 +55,13 @@ struct TextPicker: View {
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = config.imageViewModels.firstIndex(of: imageViewModel),
            index < config.focusedBoxes.count,
+           index < config.zoomBoxes.count,
            let image = imageViewModel.image
         {
-            ZoomableScrollView(focusedBox: $config.focusedBoxes[index], backgroundColor: .black) {
+            ZoomableScrollView(focusedBox: $config.focusedBoxes[index],
+                               zoomBox: $config.zoomBoxes[index],
+                               backgroundColor: .black)
+            {
                 ZStack {
                     imageView(image)
                         .overlay(textBoxesLayer(for: imageViewModel))
@@ -114,7 +118,11 @@ struct TextPicker: View {
             }
             HStack {
                 Spacer()
-                doneButton
+                if config.shouldShowMenuInTopBar {
+                    topMenuButton
+                } else {
+                    doneButton
+                }
             }
         }
     }
@@ -126,7 +134,7 @@ struct TextPicker: View {
                 if config.shouldShowSelectedTextsBar {
                     selectedTextsBar
                 }
-                if config.shouldShowActionBar {
+                if config.shouldShowActionsBar {
                     actionBar
                 }
             }
@@ -137,7 +145,7 @@ struct TextPicker: View {
     
     var bottomBarHeight: CGFloat {
         var height: CGFloat = 0
-        if config.shouldShowActionBar {
+        if config.shouldShowActions {
             height += actionBarHeight
         }
         if config.shouldShowSelectedTextsBar {
@@ -151,7 +159,7 @@ struct TextPicker: View {
     }
     
     var selectedTextsBarHeight: CGFloat {
-        config.shouldShowActionBar ? 60 : 60
+        config.shouldShowActions ? 60 : 60
     }
     
     var actionBar: some View {
@@ -224,7 +232,8 @@ struct TextPicker: View {
                     .font(.title3)
                     .bold()
                     .foregroundColor(.white)
-                    .padding(12)
+                    .padding(.horizontal, 12)
+                    .frame(height: 45)
                     .background(
                         RoundedRectangle(cornerRadius: 15)
                             .foregroundColor(.accentColor.opacity(0.8))
@@ -233,6 +242,7 @@ struct TextPicker: View {
                     .clipShape(
                         RoundedRectangle(cornerRadius: 15)
                     )
+                    .shadow(radius: 3, x: 0, y: 3)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
                     .contentShape(Rectangle())
@@ -246,14 +256,16 @@ struct TextPicker: View {
             dismiss()
         } label: {
             Image(systemName: "xmark")
-                .padding(15)
                 .foregroundColor(.primary)
+                .frame(width: 40, height: 40)
                 .background(
                     Circle()
                         .foregroundColor(.clear)
                         .background(.ultraThinMaterial)
+                        .frame(width: 40, height: 40)
                 )
                 .clipShape(Circle())
+                .shadow(radius: 3, x: 0, y: 3)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
                 .contentShape(Rectangle())
@@ -273,7 +285,9 @@ struct TextPicker: View {
         Text(title)
             .font(.title3)
             .bold()
-            .padding(12)
+//            .padding(12)
+            .padding(.horizontal, 12)
+            .frame(height: 45)
             .background(
                 RoundedRectangle(cornerRadius: 15)
                     .foregroundColor(.clear)
@@ -282,12 +296,35 @@ struct TextPicker: View {
             .clipShape(
                 RoundedRectangle(cornerRadius: 15)
             )
+            .shadow(radius: 3, x: 0, y: 3)
             .padding(.horizontal, 5)
             .padding(.vertical, 10)
     }
     
-    var menuButton: some View {
+    var topMenuButton: some View {
         Menu {
+            menuContents
+        } label: {
+            Image(systemName: "ellipsis")
+                .frame(width: 40, height: 40)
+                .foregroundColor(.primary)
+                .background(
+                    Circle()
+                        .foregroundColor(.clear)
+                        .background(.ultraThinMaterial)
+                        .frame(width: 40, height: 40)
+                )
+                .clipShape(Circle())
+                .shadow(radius: 3, x: 0, y: 3)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())
+
+        }
+    }
+    
+    var menuContents: some View {
+        Group {
             if config.allowsTogglingTexts {
                 Button {
                     withAnimation {
@@ -305,6 +342,12 @@ struct TextPicker: View {
                     Label("Remove Photo", systemImage: "trash")
                 }
             }
+        }
+    }
+    
+    var menuButton: some View {
+        Menu {
+            menuContents
         } label: {
             Image(systemName: "ellipsis")
                 .foregroundColor(.primary)
@@ -469,41 +512,42 @@ public struct TextPickerPreview: View {
     
     @StateObject var viewModel: FoodFormViewModel
     //    @State var fieldValue: FieldValue
-    @State var text_4percent: ImageText
-    @State var text_nutritionInformation: ImageText
-    @State var text_servingSize: ImageText
-    @State var text_servingsPerPackage: ImageText
-    @State var text_allNatural: ImageText
+    
+//    @State var text_4percent: ImageText
+//    @State var text_nutritionInformation: ImageText
+//    @State var text_servingSize: ImageText
+//    @State var text_servingsPerPackage: ImageText
+//    @State var text_allNatural: ImageText
     
     public init() {
-        let viewModel = FoodFormViewModel.mock(for: .phillyCheese)
+        let viewModel = FoodFormViewModel.mock(for: .pumpkinSeeds)
         //        let viewModel = FoodFormViewModel.mockWith5Images
         _viewModel = StateObject(wrappedValue: viewModel)
         
-        _text_4percent = State(initialValue: ImageText(
-            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "57710D30-C601-4F36-8A10-62C8C2674702")!})!,
-            imageId: viewModel.imageViewModels.first!.id)
-        )
-        
-        _text_allNatural = State(initialValue: ImageText(
-            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "939BB79B-612E-459E-A6B6-C6AD739F382F")!})!,
-            imageId: viewModel.imageViewModels.first!.id)
-        )
-        
-        _text_nutritionInformation = State(initialValue: ImageText(
-            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "2D44204B-DD7E-41FC-B807-C10DEB86B8F8")!})!,
-            imageId: viewModel.imageViewModels.first!.id)
-        )
-        
-        _text_servingSize = State(initialValue: ImageText(
-            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "8229CEAC-9AC4-432B-8D1D-0073A6208E14")!})!,
-            imageId: viewModel.imageViewModels.first!.id)
-        )
-        
-        _text_servingsPerPackage = State(initialValue: ImageText(
-            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "00EECEEC-5D78-4DD4-BFF1-4B259296FE06")!})!,
-            imageId: viewModel.imageViewModels.first!.id)
-        )
+//        _text_4percent = State(initialValue: ImageText(
+//            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "57710D30-C601-4F36-8A10-62C8C2674702")!})!,
+//            imageId: viewModel.imageViewModels.first!.id)
+//        )
+//
+//        _text_allNatural = State(initialValue: ImageText(
+//            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "939BB79B-612E-459E-A6B6-C6AD739F382F")!})!,
+//            imageId: viewModel.imageViewModels.first!.id)
+//        )
+//
+//        _text_nutritionInformation = State(initialValue: ImageText(
+//            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "2D44204B-DD7E-41FC-B807-C10DEB86B8F8")!})!,
+//            imageId: viewModel.imageViewModels.first!.id)
+//        )
+//
+//        _text_servingSize = State(initialValue: ImageText(
+//            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "8229CEAC-9AC4-432B-8D1D-0073A6208E14")!})!,
+//            imageId: viewModel.imageViewModels.first!.id)
+//        )
+//
+//        _text_servingsPerPackage = State(initialValue: ImageText(
+//            text: viewModel.imageViewModels.first!.texts.first(where: { $0.id == UUID(uuidString: "00EECEEC-5D78-4DD4-BFF1-4B259296FE06")!})!,
+//            imageId: viewModel.imageViewModels.first!.id)
+//        )
         
     }
     
@@ -521,7 +565,7 @@ public struct TextPickerPreview: View {
         TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
             //            selectedImageTexts: [text_4percent]
-            selectedImageTexts: [text_nutritionInformation, text_allNatural, text_servingsPerPackage, text_servingSize],
+//            selectedImageTexts: [text_nutritionInformation, text_allNatural, text_servingsPerPackage, text_servingSize],
             allowsMultipleSelection: true,
             allowsTogglingTexts: true,
             deleteImageHandler: { index in
@@ -538,353 +582,5 @@ public struct TextPickerPreview: View {
 struct TextPicker_Previews: PreviewProvider {
     static var previews: some View {
         TextPickerPreview()
-    }
-}
-
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-/// This identifies an area of the ZoomableScrollView to focus on
-public struct FocusedBox {
-    
-    /// This is the boundingBox (in terms of a 0 to 1 ratio on each dimension of what the CGRect is (similar to the boundingBox in Vision)
-    let boundingBox: CGRect
-    let padded: Bool
-    let animated: Bool
-    let imageSize: CGSize
-    
-    public init(boundingBox: CGRect, animated: Bool = true, padded: Bool = true, imageSize: CGSize) {
-        self.boundingBox = boundingBox
-        self.padded = padded
-        self.animated = animated
-        self.imageSize = imageSize
-    }
-    
-    public static let none = Self.init(boundingBox: .zero, imageSize: .zero)
-}
-
-public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
-    
-    var focusedBox: Binding<FocusedBox?>?
-    @State var lastFocusedArea: FocusedBox? = nil
-    @State var firstTime: Bool = true
-    
-    let backgroundColor: UIColor?
-    private var content: Content
-    
-    public init(focusedBox: Binding<FocusedBox?>? = nil, backgroundColor: UIColor? = nil, @ViewBuilder content: () -> Content) {
-        self.backgroundColor = backgroundColor
-        self.content = content()
-        self.focusedBox = focusedBox
-    }
-    
-    public func makeUIView(context: Context) -> UIScrollView {
-        scrollView(context: context)
-    }
-    
-    public func makeCoordinator() -> Coordinator {
-        return Coordinator(hostingController: UIHostingController(rootView: self.content))
-    }
-    
-    public func updateUIView(_ uiView: UIScrollView, context: Context) {
-        // update the hosting controller's SwiftUI content
-        context.coordinator.hostingController.rootView = self.content
-        assert(context.coordinator.hostingController.view.superview == uiView)
-        
-        if let focusedBox = focusedBox?.wrappedValue {
-            
-            /// If we've set it to `.zero` we're indicating that we want it to reset the zoom
-            if focusedBox.boundingBox == .zero {
-                uiView.setZoomScale(1, animated: true)
-            } else {
-                uiView.focus(on: focusedBox)
-            }
-            //            self.focusedBox?.wrappedValue = nil
-        }
-    }
-    
-    // MARK: - Coordinator
-    public class Coordinator: NSObject, UIScrollViewDelegate {
-        var hostingController: UIHostingController<Content>
-        
-        init(hostingController: UIHostingController<Content>) {
-            self.hostingController = hostingController
-        }
-        
-        public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return hostingController.view
-        }
-        
-        @objc func doubleTapped(recognizer:  UITapGestureRecognizer) {
-            
-        }
-        
-        public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-            print("🔍 zoomScale is \(scrollView.zoomScale)")
-        }
-    }
-}
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-extension ZoomableScrollView {
-    
-    func hostedView(context: Context) -> UIView {
-        let hostedView = context.coordinator.hostingController.view!
-        hostedView.translatesAutoresizingMaskIntoConstraints = true
-        hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        return hostedView
-    }
-    
-    func scrollView(context: Context) -> UIScrollView {
-        // set up the UIScrollView
-        let scrollView = UIScrollView()
-        scrollView.delegate = context.coordinator  // for viewForZooming(in:)
-        scrollView.maximumZoomScale = 20
-        scrollView.minimumZoomScale = 1
-        scrollView.bouncesZoom = true
-        
-        let hosted = hostedView(context: context)
-        hosted.frame = scrollView.bounds
-        if let backgroundColor {
-            hosted.backgroundColor = backgroundColor
-        }
-        scrollView.addSubview(hosted)
-        
-        scrollView.setZoomScale(1, animated: true)
-        
-        scrollView.addTapGestureRecognizer { sender in
-            
-            //TODO: Rewrite this
-            /// - Default should be to have a maximum scale, and
-            ///     If we're less than that (and not super-close to it): zoom into it
-            ///     Otherwise, if we're close to it, at it, or past it: zoom back out to full scale
-            /// - Now also have a handler that can be provided to this, which overrides this default
-            ///     It should provide the current zoom scale and
-            ///     Get back an enum called ZoomPosition as a result
-            ///         This can be either fullScale, maxScale, or rect(let CGRect) where we provide a rect
-            ///         The scrollview than either zooms to full, max or the provided rect
-            /// - Now have TextPicker use this to
-            ///     See if the zoomScale is above or below the selected bound's scale
-            ///         This can be determined by dividing the rects dimensions by the image's and returning the larger? amount
-            ///     If it's greater than the selectedBoundZoomScale:
-            ///         If the selectedBoundZoomScale is less than the constant MaxScale of ZoomScrollView
-            ///         (by at least a minimum distance—also set by ZoomedScrollView)
-            ///             Then we return MaxScale as the ZoomPosition
-            ///         Else we return FullScale as the ZoomPosition (scale = 1)
-            ///     Else we return rect(selectedBound) as the ZoomPosition
-            
-            let hostedView = hostedView(context: context)
-            let point = sender.location(in: hostedView)
-            let sizeToBaseRectOn = scrollView.frame.size
-            //            let sizeToBaseRectOn = hostedView.frame.size
-            
-            let size = CGSize(width: sizeToBaseRectOn.width / 2,
-                              height: sizeToBaseRectOn.height / 2)
-            let zoomSize = CGSize(width: size.width / scrollView.zoomScale,
-                                  height: size.height / scrollView.zoomScale)
-            
-            print("""
-Got a tap at: \(point), when:
-    hostedView.size: \(hostedView.frame.size)
-    scrollView.size: \(scrollView.frame.size)
-    scrollView.contentSize: \(scrollView.contentSize)
-    scrollView.zoomScale: \(scrollView.zoomScale)
-    size: \(size)
-    🔍 zoomSize: \(zoomSize)
-""")
-            
-            let origin = CGPoint(x: point.x - zoomSize.width / 2,
-                                 y: point.y - zoomSize.height / 2)
-            scrollView.zoom(to:CGRect(origin: origin, size: zoomSize), animated: true)
-        }
-        
-        return scrollView
-    }
-    
-    func zoomRectForScale(scale: CGFloat, center: CGPoint, scrollView: UIScrollView, context: Context) -> CGRect {
-        var zoomRect = CGRect.zero
-        zoomRect.size.height = hostedView(context: context).frame.size.height / scale
-        zoomRect.size.width  = hostedView(context: context).frame.size.width  / scale
-        let newCenter = scrollView.convert(center, from: hostedView(context: context))
-        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
-        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
-        return zoomRect
-    }
-    //    func userDoubleTappedScrollview(recognizer:  UITapGestureRecognizer) {
-    //        if (zoomScale > minimumZoomScale) {
-    //            setZoomScale(minimumZoomScale, animated: true)
-    //        }
-    //        else {
-    //            //(I divide by 3.0 since I don't wan't to zoom to the max upon the double tap)
-    //            let zoomRect = zoomRectForScale(scale: maximumZoomScale / 3.0, center: recognizer.location(in: recognizer.view))
-    //            zoom(to: zoomRect, animated: true)
-    //        }
-    //    }
-    //
-    //    func zoomRectForScale(scale : CGFloat, center : CGPoint) -> CGRect {
-    //        var zoomRect = CGRect.zero
-    //        if let imageV = self.viewForZooming {
-    //            zoomRect.size.height = imageV.frame.size.height / scale;
-    //            zoomRect.size.width  = imageV.frame.size.width  / scale;
-    //            let newCenter = imageV.convert(center, from: self)
-    //            zoomRect.origin.x = newCenter.x - ((zoomRect.size.width / 2.0));
-    //            zoomRect.origin.y = newCenter.y - ((zoomRect.size.height / 2.0));
-    //        }
-    //        return zoomRect;
-    //    }
-}
-
-
-import UIKit
-
-extension UIScrollView {
-    
-    func focus(on focusedBox: FocusedBox, animated: Bool = true) {
-        zoomIn(
-            boundingBox: focusedBox.boundingBox,
-            padded: focusedBox.padded,
-            imageSize: focusedBox.imageSize,
-            animated: focusedBox.animated
-        )
-    }
-    
-    func zoomIn(boundingBox: CGRect, padded: Bool, imageSize: CGSize, animated: Bool = true) {
-        
-        var zoomRect = boundingBox.rectForSize(imageSize, fittedInto: frame.size)
-        if padded {
-            let ratio = min(frame.size.width / (zoomRect.size.width * 5), 3.5)
-            zoomRect.pad(within: frame.size, ratio: ratio)
-        }
-        
-        print("🔍 zoomIn on: \(zoomRect) within \(frame.size)")
-        let zoomScaleX = frame.size.width / zoomRect.width
-        print("🔍 zoomScaleX is \(zoomScaleX)")
-        let zoomScaleY = frame.size.height / zoomRect.height
-        print("🔍 zoomScaleY is \(zoomScaleY)")
-
-        print("🔍 🤖 calculated zoomScale is: \(zoomRect.zoomScale(within: frame.size))")
-
-        zoom(to: zoomRect, animated: animated)
-    }
-}
-
-
-public enum ZoomPaddingType {
-    case smallElement
-    case largeSection
-}
-
-extension CGRect {
-    
-    func zoomScale(within parentSize: CGSize) -> CGFloat {
-        let xScale = parentSize.width / width
-        let yScale = parentSize.height / height
-        return min(xScale, yScale)
-    }
-    
-    mutating func pad(within parentSize: CGSize, ratio: CGFloat) {
-        padX(withRatio: ratio, withinParentSize: parentSize)
-        padY(withRatio: ratio, withinParentSize: parentSize)
-    }
-
-}
-
-extension CGRect {
-
-    mutating func padX(
-        withRatio paddingRatio: CGFloat,
-        withinParentSize parentSize: CGSize,
-        minPadding padding: CGFloat = 5.0,
-        maxRatioOfParent: CGFloat = 0.9
-    ) {
-        padX(withRatioOfWidth: paddingRatio)
-        origin.x = max(padding, origin.x)
-        if maxX > parentSize.width {
-            size.width = parentSize.width - origin.x - padding
-        }
-    }
-
-    mutating func padY(
-        withRatio paddingRatio: CGFloat,
-        withinParentSize parentSize: CGSize,
-        minPadding padding: CGFloat = 5.0,
-        maxRatioOfParent: CGFloat = 0.9
-    ) {
-        padY(withRatioOfHeight: paddingRatio)
-        origin.y = max(padding, origin.y)
-        if maxY > parentSize.height {
-            size.height = parentSize.height - origin.y - padding
-        }
-    }
-    
-    mutating func padX(withRatioOfWidth ratio: CGFloat) {
-        let padding = size.width * ratio
-        padX(with: padding)
-    }
-    
-    mutating func padX(with padding: CGFloat) {
-        origin.x -= (padding / 2.0)
-        size.width += padding
-    }
-    
-    mutating func padY(withRatioOfHeight ratio: CGFloat) {
-        let padding = size.height * ratio
-        padY(with: padding)
-    }
-    
-    mutating func padY(with padding: CGFloat) {
-        origin.y -= (padding / 2.0)
-        size.height += padding
-    }
-    
-    func rectForSize(_ size: CGSize, fittedInto frameSize: CGSize) -> CGRect {
-        let sizeFittingFrame = size.sizeFittingWithin(frameSize)
-        var rect = rectForSize(sizeFittingFrame)
-
-        let paddingLeft: CGFloat?
-        let paddingTop: CGFloat?
-        if size.widthToHeightRatio < frameSize.widthToHeightRatio {
-            paddingLeft = (frameSize.width - sizeFittingFrame.width) / 2.0
-            paddingTop = nil
-        } else {
-            paddingLeft = nil
-            paddingTop = (frameSize.height - sizeFittingFrame.height) / 2.0
-        }
-
-        if let paddingLeft {
-            rect.origin.x += paddingLeft
-        }
-        if let paddingTop {
-            rect.origin.y += paddingTop
-        }
-
-        return rect
-    }
-}
-
-extension CGSize {
-    /// Returns a size that fits within the parent size
-    func sizeFittingWithin(_ size: CGSize) -> CGSize {
-        let newWidth: CGFloat
-        let newHeight: CGFloat
-        if widthToHeightRatio < size.widthToHeightRatio {
-            /// height would be the same as parent
-            newHeight = size.height
-            
-            /// we're scaling the width accordingly
-            newWidth = (width * newHeight) / height
-        } else {
-            /// width would be the same as parent
-            newWidth = size.width
-            
-            /// we're scaling the height accordingly
-            newHeight = (height * newWidth) / width
-        }
-        return CGSize(width: newWidth, height: newHeight)
     }
 }

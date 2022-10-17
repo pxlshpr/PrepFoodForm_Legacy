@@ -13,6 +13,7 @@ class TextPickerConfiguration: ObservableObject {
     
     @Published var showingBoxes: Bool
     @Published var focusedBoxes: [FocusedBox?]
+    @Published var zoomBoxes: [FocusedBox?]
     @Published var currentIndex: Int = 0
     @Published var hasAppeared: Bool = false
     @Published var page: Page
@@ -48,7 +49,8 @@ class TextPickerConfiguration: ObservableObject {
         
         showingBoxes = !allowsTogglingTexts
         focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
-        
+        zoomBoxes = Array(repeating: nil, count: imageViewModels.count)
+
         if let initialImageIndex {
             self.initialImageIndex = initialImageIndex
         } else if let imageText = selectedImageTexts.first {
@@ -140,8 +142,6 @@ class TextPickerConfiguration: ObservableObject {
     func setInitialFocusBox(forImageAt index: Int) {
         /// Make sure we're not already focused on an area of this image
 //        let index = initialImageIndex
-        let animated = false
-        
         guard let imageSize = imageSize(at: index), focusedBoxes[index] == nil else {
             return
         }
@@ -152,10 +152,15 @@ class TextPickerConfiguration: ObservableObject {
             
             self.focusedBoxes[index] = FocusedBox(
                 boundingBox: boundingBox,
-                animated: animated,
+                animated: false,
                 imageSize: imageSize
             )
-            
+            self.zoomBoxes[index] = FocusedBox(
+                boundingBox: boundingBox,
+                animated: true,
+                padded: true,
+                imageSize: imageSize
+            )
         }
     }
     
@@ -235,7 +240,7 @@ class TextPickerConfiguration: ObservableObject {
             currentIndex = index
         }
         /// Call this manually as it won't be called on our end
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.pageDidChange(to: index)
         }
     }
@@ -284,18 +289,26 @@ class TextPickerConfiguration: ObservableObject {
         currentImage?.size
     }
     
-    var shouldShowActionBar: Bool {
+    var shouldShowActions: Bool {
         allowsTogglingTexts
         || deleteImageHandler != nil
         || imageViewModels.count > 1
     }
-    
+
+    var shouldShowActionsBar: Bool {
+        shouldShowActions && !shouldShowMenuInTopBar
+    }
+
     var shouldShowSelectedTextsBar: Bool {
         allowsMultipleSelection
     }
     
     var shouldShowBottomBar: Bool {
-        shouldShowActionBar || shouldShowSelectedTextsBar
+        shouldShowActionsBar || shouldShowSelectedTextsBar
+    }
+    
+    var shouldShowMenuInTopBar: Bool {
+        imageViewModels.count == 1 && shouldShowActions && allowsMultipleSelection == false
     }
 }
 

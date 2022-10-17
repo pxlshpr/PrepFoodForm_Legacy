@@ -30,7 +30,7 @@ let package = Package(
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
-        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.27"),
+        .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.29"),
         .package(url: "https://github.com/siteline/SwiftUI-Introspect", from: "0.1.4"),
     ],
     targets: [
