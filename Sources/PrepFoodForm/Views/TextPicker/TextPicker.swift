@@ -755,67 +755,21 @@ extension UIScrollView {
     
     func zoomIn(boundingBox: CGRect, padded: Bool, imageSize: CGSize, animated: Bool = true) {
         
-        /// Now determine the box we want to zoom into, given the image's dimensions
-        /// Now if the image's width/height ratio is less than the scrollView's
-        ///     we'll have padding on the x-axis, so determine what this would be based on the scrollView's frame's ratio and the current zoom scale
-        ///     Add this to the box's x-axis to determine its true rect within the scrollview
-        /// Or if the image's width/height ratio is greater than the scrollView's
-        ///     we'll have y-axis padding, determine this
-        ///     Add this to box's y-axis to determine its true rect
-        /// Now zoom to this rect
-        
-        /// We have a `boundingBox` (y-value to bottom), and the original `imageSize`
-        
-        /// First determine the current size and x or y-padding of the image given the current contentSize of the `scrollView`
-        let paddingLeft: CGFloat?
-        let paddingTop: CGFloat?
-        let width: CGFloat
-        let height: CGFloat
-        
-        let scrollViewSize: CGSize = frame.size
-        
-        if imageSize.widthToHeightRatio < frame.size.widthToHeightRatio {
-            /// height would be the same as `scrollView.frame.size.height`
-            height = scrollViewSize.height
-            width = (imageSize.width * height) / imageSize.height
-            paddingLeft = (scrollViewSize.width - width) / 2.0
-            paddingTop = nil
-        } else {
-            /// width would be the same as `scrollView.frame.size.width`
-            width = scrollViewSize.width
-            height = (imageSize.height * width) / imageSize.width
-            paddingLeft = nil
-            paddingTop = (scrollViewSize.height - height) / 2.0
-        }
-        
-        let scaledImageSize = CGSize(width: width, height: height)
-        
-        var newBox = boundingBox.rectForSize(scaledImageSize)
-        
-        print("🔍 scaledImageSize is \(scaledImageSize)")
-
-
-        if let paddingLeft = paddingLeft {
-            newBox.origin.x += paddingLeft
-        }
-        if let paddingTop = paddingTop {
-            newBox.origin.y += paddingTop
-        }
-        print("🔍 newBox: \(newBox)")
-        
+        var zoomRect = boundingBox.rectForSize(imageSize, fittedInto: frame.size)
         if padded {
-            newBox = newBox.padded(within: scrollViewSize)
+            let ratio = min(frame.size.width / (zoomRect.size.width * 5), 3.5)
+            zoomRect.pad(within: frame.size, ratio: ratio)
         }
         
-        print("🔍 zoomIn on: \(newBox) within \(frame.size)")
-        let zoomScaleX = frame.size.width / newBox.width
+        print("🔍 zoomIn on: \(zoomRect) within \(frame.size)")
+        let zoomScaleX = frame.size.width / zoomRect.width
         print("🔍 zoomScaleX is \(zoomScaleX)")
-        let zoomScaleY = frame.size.height / newBox.height
+        let zoomScaleY = frame.size.height / zoomRect.height
         print("🔍 zoomScaleY is \(zoomScaleY)")
 
-        print("🔍 🤖 calculated zoomScale is: \(newBox.zoomScale(within: frame.size))")
+        print("🔍 🤖 calculated zoomScale is: \(zoomRect.zoomScale(within: frame.size))")
 
-        zoom(to: newBox, animated: animated)
+        zoom(to: zoomRect, animated: animated)
     }
 }
 
@@ -833,67 +787,9 @@ extension CGRect {
         return min(xScale, yScale)
     }
     
-    func padded(for type: ZoomPaddingType, within parentSize: CGSize) -> CGRect {
-        switch type {
-        case .largeSection:
-            return paddedForLargeSection(within: parentSize)
-        case .smallElement:
-            return paddedForSmallElement(within: parentSize)
-        }
-    }
-    
-    func paddedForSmallElement(within parentSize: CGSize) -> CGRect {
-        var newBox = self
-        let minimumPadding: CGFloat = 5
-        let paddingRatio: CGFloat = min(parentSize.width / (newBox.size.width * 5), 3.5)
-        newBox.padX(withRatio: paddingRatio, withinParentSize: parentSize)
-        newBox.padY(withRatio: paddingRatio, withinParentSize: parentSize)
-        return newBox
-        
-        /// If the box is longer than it is tall
-        if newBox.size.widthToHeightRatio > 1 {
-            /// Add 100% padding to its horizontal side
-            let padding = newBox.size.width * paddingRatio
-            newBox.origin.x -= (padding / 2.0)
-            newBox.size.width += padding
-            
-            /// Now correct the values in case they're out of bounds
-            newBox.origin.x = max(minimumPadding, newBox.origin.x)
-            if newBox.maxX > parentSize.width {
-                newBox.size.width = parentSize.width - newBox.origin.x - minimumPadding
-            }
-        } else {
-            /// Add 100% padding to its vertical side
-            let padding = newBox.size.height * paddingRatio
-            newBox.origin.y -= (padding / 2.0)
-            newBox.size.height += padding
-            
-            /// Now correct the values in case they're out of bounds
-            newBox.origin.y = max(minimumPadding, newBox.origin.y)
-            if newBox.maxY > parentSize.height {
-                newBox.size.height = parentSize.height - newBox.origin.y - minimumPadding
-            }
-        }
-        print("newBox (padded): \(newBox)")
-        return newBox
-    }
-    
-    func paddedForLargeSection(within parentSize: CGSize) -> CGRect {
-        var newBox = self
-        let paddingRatio: CGFloat = parentSize.width / (newBox.size.width * 5)
-        newBox.padX(withRatio: paddingRatio, withinParentSize: parentSize)
-        newBox.padY(withRatio: paddingRatio, withinParentSize: parentSize)
-        print("newBox (padded): \(newBox)")
-        return newBox
-    }
-    
-    func padded(within parentSize: CGSize) -> CGRect {
-        var newBox = self
-        let paddingRatio: CGFloat = parentSize.width / (newBox.size.width * 5)
-        newBox.padX(withRatio: paddingRatio, withinParentSize: parentSize)
-        newBox.padY(withRatio: paddingRatio, withinParentSize: parentSize)
-        print("newBox (padded): \(newBox)")
-        return newBox
+    mutating func pad(within parentSize: CGSize, ratio: CGFloat) {
+        padX(withRatio: ratio, withinParentSize: parentSize)
+        padY(withRatio: ratio, withinParentSize: parentSize)
     }
 
 }
@@ -945,5 +841,50 @@ extension CGRect {
         origin.y -= (padding / 2.0)
         size.height += padding
     }
+    
+    func rectForSize(_ size: CGSize, fittedInto frameSize: CGSize) -> CGRect {
+        let sizeFittingFrame = size.sizeFittingWithin(frameSize)
+        var rect = rectForSize(sizeFittingFrame)
 
+        let paddingLeft: CGFloat?
+        let paddingTop: CGFloat?
+        if size.widthToHeightRatio < frameSize.widthToHeightRatio {
+            paddingLeft = (frameSize.width - sizeFittingFrame.width) / 2.0
+            paddingTop = nil
+        } else {
+            paddingLeft = nil
+            paddingTop = (frameSize.height - sizeFittingFrame.height) / 2.0
+        }
+
+        if let paddingLeft {
+            rect.origin.x += paddingLeft
+        }
+        if let paddingTop {
+            rect.origin.y += paddingTop
+        }
+
+        return rect
+    }
+}
+
+extension CGSize {
+    /// Returns a size that fits within the parent size
+    func sizeFittingWithin(_ size: CGSize) -> CGSize {
+        let newWidth: CGFloat
+        let newHeight: CGFloat
+        if widthToHeightRatio < size.widthToHeightRatio {
+            /// height would be the same as parent
+            newHeight = size.height
+            
+            /// we're scaling the width accordingly
+            newWidth = (width * newHeight) / height
+        } else {
+            /// width would be the same as parent
+            newWidth = size.width
+            
+            /// we're scaling the height accordingly
+            newHeight = (height * newWidth) / width
+        }
+        return CGSize(width: newWidth, height: newHeight)
+    }
 }
