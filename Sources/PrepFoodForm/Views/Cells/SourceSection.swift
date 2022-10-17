@@ -175,44 +175,8 @@ struct SourceSection: View {
     }
     
     var imageSetStatus: some View {
-        func numberView(_ int: Int) -> some View {
-            Text("\(int)")
-                .padding(.horizontal, 5)
-                .padding(.vertical, 1)
-                .background(
-                    RoundedRectangle(cornerRadius: 3, style: .continuous)
-                        .foregroundColor(Color(.secondarySystemFill))
-                )
-        }
-        return HStack {
-            Group {
-                if viewModel.imageSetStatus == .scanned {
-                    Text("Scanned")
-                    numberView(viewModel.scannedNutrientCount)
-                    Text("nutrition facts")
-                } else {
-                    Text(viewModel.imageSetStatusString)
-                }
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-            if viewModel.imageSetStatus.isWorking {
-                ActivityIndicatorView(
-                    isVisible: .constant(true),
-                    type: .arcs(count: 3, lineWidth: 1)
-                )
-                    .frame(width: 12, height: 12)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .frame(minHeight: 35)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .foregroundColor(Color(.secondarySystemFill))
-        )
-        .frame(maxWidth: .infinity, alignment: .leading)
+        ImagesSummary()
+            .environmentObject(viewModel)
     }
 
     var header: some View {

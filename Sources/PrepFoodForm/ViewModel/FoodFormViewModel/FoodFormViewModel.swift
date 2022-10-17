@@ -260,12 +260,6 @@ extension FoodFormViewModel {
         }
     }
 
-    var scannedNutrientCount: Int {
-        imageViewModels.reduce(0) { partialResult, imageViewModel in
-            partialResult + (imageViewModel.scanResult?.nutrients.rows.count ?? 0)
-        }
-    }
-    
     var scannedColumnCount: Int {
         imageViewModels.first?.scanResult?.columnCount ?? 1
     }
