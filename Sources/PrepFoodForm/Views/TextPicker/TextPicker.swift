@@ -73,12 +73,12 @@ struct TextPicker: View {
     
     @ViewBuilder
     func textBoxesLayer(for imageViewModel: ImageViewModel) -> some View {
-        if config.showingBoxes {
+//        if config.showingBoxes {
             TextBoxesLayer(textBoxes: config.textBoxes(for: imageViewModel))
                 .opacity((config.hasAppeared && config.showingBoxes) ? 1 : 0)
                 .animation(.default, value: config.hasAppeared)
                 .animation(.default, value: config.showingBoxes)
-        }
+//        }
     }
     
     @ViewBuilder
