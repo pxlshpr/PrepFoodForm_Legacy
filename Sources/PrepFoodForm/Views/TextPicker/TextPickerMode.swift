@@ -11,7 +11,8 @@ enum TextPickerMode {
     case columnSelection(column1: TextPickerColumn,
                          column2: TextPickerColumn,
                          selectedColumn: Int,
-                         handler: ColumnSelectionHandler)
+                         dismissHandler: DismissHandler,
+                         selectionHandler: ColumnSelectionHandler)
     case imageViewer(initialImageIndex: Int,
                      deleteHandler: DeleteImageHandler)
 }
@@ -27,20 +28,47 @@ extension TextPickerFilter {
     }
 }
 extension TextPickerMode {
+    
+    func boundingBox(forImageWithId imageId: UUID) -> CGRect? {
+        guard case .columnSelection(let column1, let column2, _, _, _) = self else {
+            return nil
+        }
+        var boundingBoxes: [CGRect] = []
+        for column in [column1, column2] {
+            boundingBoxes.append(
+                contentsOf: column.imageTexts
+                    .filter { $0.imageId == imageId }
+                    .map { $0.boundingBoxWithAttribute }
+            )
+        }
+        return boundingBoxes.union
+    }
 
-    var selectedColumn: Int? {
+    func selectedColumnContains(_ text: RecognizedText) -> Bool {
+        guard let selectedColumn else { return false }
+        return selectedColumn.contains(text)
+    }
+    
+    var selectedColumn: TextPickerColumn? {
+        guard case .columnSelection(let column1, let column2, let selectedColumn, _, _) = self else {
+            return nil
+        }
+        return selectedColumn == 1 ? column1 : column2
+    }
+    
+    var selectedColumnIndex: Int? {
         get {
-            guard case .columnSelection(_, _, let selectedColumn, _) = self else {
+            guard case .columnSelection(_, _, let selectedColumn, _, _) = self else {
                 return nil
             }
             return selectedColumn
         }
         set {
             guard let newValue,
-                case .columnSelection(let column1, let column2, _, let handler) = self else {
+                case .columnSelection(let column1, let column2, _, let dismissHandler, let selectionHandler) = self else {
                 return
             }
-            self = .columnSelection(column1: column1, column2: column2, selectedColumn: newValue, handler: handler)
+            self = .columnSelection(column1: column1, column2: column2, selectedColumn: newValue, dismissHandler: dismissHandler, selectionHandler: selectionHandler)
         }
     }
     
@@ -58,7 +86,7 @@ extension TextPickerMode {
     }
     
     func columnTexts(onImageWithId imageId: UUID) -> [RecognizedText] {
-        guard case .columnSelection(let column1, let column2, _, _) = self else {
+        guard case .columnSelection(let column1, let column2, _, _, _) = self else {
             return []
         }
         var texts: [RecognizedText] = []
@@ -79,7 +107,7 @@ extension TextPickerMode {
             return [selectedImageText]
         case .multiSelection(_, let selectedImageTexts, _):
             return selectedImageTexts
-        case .columnSelection(let column1, let column2, let selectedColumn, _):
+        case .columnSelection(let column1, let column2, let selectedColumn, _, _):
             return selectedColumn == 1 ? column1.imageTexts : column2.imageTexts
         case .imageViewer:
             return []
@@ -168,9 +196,22 @@ typealias SingleSelectionHandler = ((ImageText) -> ())
 typealias MultiSelectionHandler = (([ImageText]) -> ())
 typealias ColumnSelectionHandler = ((Int) -> ())
 typealias DeleteImageHandler = ((Int) -> ())
+typealias DismissHandler = (() -> ())
 
 struct TextPickerColumn {
     let column: Int
     let name: String
     let imageTexts: [ImageText]
+    
+    func containsTexts(from imageViewModel: ImageViewModel) -> Bool {
+        imageTexts.contains {
+            $0.imageId == imageViewModel.id
+        }
+    }
+    
+    func contains(_ text: RecognizedText) -> Bool {
+        imageTexts.contains {
+            $0.text.id == text.id
+        }
+    }
 }

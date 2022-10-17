@@ -259,6 +259,10 @@ extension FoodFormViewModel {
         imageViewModels = []
     }
     
+    func removeUnprocessedImageViewModels() {
+        imageViewModels.removeAll(where: { !$0.isProcessed })
+    }
+    
     func removeImage(at index: Int) {
         /// Change all `.scanned` and `.selection` autofills that depend on this to `.userInput`
         resetFillForFieldsUsingImage(at: index)

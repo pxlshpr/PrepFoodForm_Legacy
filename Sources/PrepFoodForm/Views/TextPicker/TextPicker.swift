@@ -19,10 +19,10 @@ class TextPickerViewModel: ObservableObject {
     @Published var currentIndex: Int = 0
     @Published var hasAppeared: Bool = false
     @Published var shouldDismiss: Bool = false
-    @Published var selectedColumn = 1
     
     let initialImageIndex: Int
     @Published var mode: TextPickerMode
+    @Published var selectedColumn: Int
     
     init(imageViewModels: [ImageViewModel], mode: TextPickerMode ){
         self.imageViewModels = imageViewModels
@@ -35,6 +35,7 @@ class TextPickerViewModel: ObservableObject {
         initialImageIndex = mode.initialImageIndex(from: imageViewModels)
         page = .withIndex(initialImageIndex)
         currentIndex = initialImageIndex
+        selectedColumn = mode.selectedColumnIndex ?? 1
     }
     
     func setInitialState() {
@@ -63,7 +64,7 @@ class TextPickerViewModel: ObservableObject {
     }
     
     func pickedColumn(_ index: Int) {
-        mode.selectedColumn = index
+        mode.selectedColumnIndex = index
         withAnimation {
             selectedImageTexts = mode.selectedImageTexts
         }
@@ -114,6 +115,14 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
+    func boundingBox(forImageAt index: Int) -> CGRect {
+        if mode.isColumnSelection {
+            return mode.boundingBox(forImageWithId: imageViewModels[index].id) ?? .zero
+        } else {
+            return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
+        }
+    }
+    
     func setInitialFocusBox(forImageAt index: Int) {
         /// Make sure we're not already focused on an area of this image
 //        let index = initialImageIndex
@@ -123,7 +132,7 @@ class TextPickerViewModel: ObservableObject {
         
 //        DispatchQueue.main.asyncAfter(deadline: .now() + (animated ? 0.5 : 0.0)) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
-            let boundingBox = self.selectedBoundingBox(forImageAt: index) ?? self.imageViewModels[index].relevantBoundingBox
+            let boundingBox = self.boundingBox(forImageAt: index)
             
             self.focusedBoxes[index] = FocusedBox(
                 boundingBox: boundingBox,
@@ -163,9 +172,23 @@ class TextPickerViewModel: ObservableObject {
     func tapHandler(for barcode: RecognizedBarcode) -> (() -> ())? {
         nil
     }
-    
-    func tapHandler(for text: RecognizedText) -> (() -> ())? {
-        guard let currentScanResultId, mode.supportsTextSelection else {
+
+    func tapHandlerForColumnSelection(for text: RecognizedText) -> (() -> ())? {
+        guard !mode.selectedColumnContains(text),
+              let selectedColumnIndex = mode.selectedColumnIndex
+        else {
+            return nil
+        }
+        return {
+            Haptics.feedback(style: .heavy)
+            withAnimation {
+                self.selectedColumn = selectedColumnIndex == 1 ? 2 : 1
+            }
+        }
+    }
+
+    func tapHandlerForTextSelection(for text: RecognizedText) -> (() -> ())? {
+        guard let currentScanResultId else {
             return nil
         }
         
@@ -186,11 +209,27 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
+    func tapHandler(for text: RecognizedText) -> (() -> ())? {
+        if mode.isColumnSelection {
+            return tapHandlerForColumnSelection(for: text)
+        } else if mode.supportsTextSelection {
+            return tapHandlerForTextSelection(for: text)
+        } else {
+            return nil
+        }
+    }
+    
     func tappedDone() {
         if case .multiSelection(_, _, let handler) = mode {
             handler(selectedImageTexts)
-        } else if case .columnSelection(_, _, let selectedColumn, let handler) = mode {
-            handler(selectedColumn)
+        } else if case .columnSelection(_, _, let selectedColumn, _, let selectionHandler) = mode {
+            selectionHandler(selectedColumn)
+        }
+    }
+    
+    func tappedDismiss() {
+        if case .columnSelection(_, _, _, let dismissHandler, _) = mode {
+            dismissHandler()
         }
     }
     
@@ -341,7 +380,7 @@ class TextPickerViewModel: ObservableObject {
     }
     
     var columns: [TextPickerColumn]? {
-        guard case .columnSelection(let column1, let column2, _, _) = mode else {
+        guard case .columnSelection(let column1, let column2, _, _, _) = mode else {
             return nil
         }
         return [column1, column2]
@@ -569,7 +608,7 @@ struct TextPicker: View {
     @ViewBuilder
     var columnPickerBar: some View {
         if let columns = textPickerViewModel.columns {
-            Picker("", selection: $pickedColumn) {
+            Picker("", selection: $textPickerViewModel.selectedColumn) {
                 ForEach(columns.indices, id: \.self) { i in
 //                    selectedTextButton(for: columns[i])
                     Text(columns[i].name)
@@ -580,7 +619,7 @@ struct TextPicker: View {
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
             .frame(height: 40)
-            .onChange(of: pickedColumn) { newValue in
+            .onChange(of: textPickerViewModel.selectedColumn) { newValue in
                 textPickerViewModel.pickedColumn(newValue)
             }
         }
@@ -671,6 +710,7 @@ struct TextPicker: View {
     var dismissButton: some View {
         Button {
             Haptics.feedback(style: .soft)
+            textPickerViewModel.tappedDismiss()
             dismiss()
         } label: {
             Image(systemName: "xmark")

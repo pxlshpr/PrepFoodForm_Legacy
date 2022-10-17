@@ -95,12 +95,15 @@ public struct FoodForm: View {
            let column2 = viewModel.textPickerColumn2
         {
             TextPicker(
-                imageViewModels: viewModel.relevantImageViewModels,
+                imageViewModels: viewModel.columnPickerImageViewModels,
                 mode: .columnSelection(
                     column1: column1,
                     column2: column2,
                     selectedColumn: viewModel.pickedColumn,
-                    handler: { pickedColumn in
+                    dismissHandler: {
+                        viewModel.removeUnprocessedImageViewModels()
+                    },
+                    selectionHandler: { pickedColumn in
                         viewModel.processScanResults(
                             column: pickedColumn,
                             from: viewModel.relevantScanResults

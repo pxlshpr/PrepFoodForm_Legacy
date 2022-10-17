@@ -272,3 +272,15 @@ extension ScanResult {
         serving?.equivalentSize
     }
 }
+
+import VisionSugar
+
+extension ScanResult {
+    var textsWithFoodLabelValues: [RecognizedText] {
+        texts.filter { $0.hasFoodLabelValues }
+    }
+    
+    var textsWithDensities: [RecognizedText] {
+        texts.filter { $0.densityValue != nil }
+    }
+}

@@ -32,6 +32,7 @@ class ImageViewModel: ObservableObject {
     @Published var smallThumbnail: UIImage? = nil
     @Published var photosPickerItem: PhotosPickerItem? = nil
     
+    var isProcessed: Bool = false
     var scanResult: ScanResult? = nil
     
     var texts: [RecognizedText] = []
@@ -76,8 +77,8 @@ class ImageViewModel: ObservableObject {
         self.scanResult = scanResult
         
         self.texts = scanResult.texts
-        self.textsWithFoodLabelValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
-        self.textsWithDensities = scanResult.texts.filter({ $0.densityValue != nil })
+        self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
+        self.textsWithDensities = scanResult.textsWithDensities
         self.barcodeTexts = scanResult.barcodes
 
         self.prepareThumbnails()
@@ -117,8 +118,8 @@ class ImageViewModel: ObservableObject {
                 self.scanResult = result
                 
                 self.texts = result.texts
-                self.textsWithFoodLabelValues = result.texts.filter({ !$0.hasFoodLabelValues })
-                self.textsWithDensities = result.texts.filter({ $0.densityValue != nil })
+                self.textsWithFoodLabelValues = result.textsWithFoodLabelValues
+                self.textsWithDensities = result.textsWithDensities
                 self.barcodeTexts = result.barcodes
 
                 await MainActor.run {

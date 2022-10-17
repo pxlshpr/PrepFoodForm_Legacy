@@ -45,9 +45,13 @@ extension FoodFormViewModel {
         }
     }
 
-    var relevantImageViewModels: [ImageViewModel] {
-        return imageViewModels.filter { imageViewModel in
-            relevantScanResults.contains(where: { $0.id == imageViewModel.id })
+    var columnPickerImageViewModels: [ImageViewModel] {
+        guard let textPickerColumn1, let textPickerColumn2 else {
+            return []
+        }
+        return imageViewModels.filter {
+            textPickerColumn1.containsTexts(from: $0)
+            || textPickerColumn2.containsTexts(from: $0)
         }
     }
     
@@ -110,6 +114,19 @@ extension FoodFormViewModel {
                 updateShouldShowDensitiesSection()
 //            }
 //        }
+        
+        markAllImageViewModelsAsProcessed()
+    }
+    
+    /**
+     This is used to know which `ImageViewModel`s should be discarded when the user dismisses the column picker—by setting a flag in the `ImageViewModel` that marks it as completed.
+     
+     As this only gets called when the actual processing is complete, those without the flag set will be discarded.
+     */
+    func markAllImageViewModelsAsProcessed() {
+        for i in imageViewModels.indices {
+            imageViewModels[i].isProcessed = true
+        }
     }
     
     func extractField(
