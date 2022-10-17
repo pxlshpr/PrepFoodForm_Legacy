@@ -26,6 +26,7 @@ public struct FoodForm: View {
         NavigationView {
             content
                 .navigationTitle("New Food")
+                .toolbar { navigationLeadingContent }
                 .interactiveDismissDisabled(disableDismiss)
                 .onAppear {
                     if viewModel.shouldShowWizard {
@@ -87,6 +88,19 @@ public struct FoodForm: View {
         .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
     }
     
+    var navigationLeadingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarLeading) {
+            Button {
+                dismiss()
+            } label: {
+                Text("Cancel")
+//                Image(systemName: "xmark.circle.fill")
+//                    .font(.title3)
+//                    .symbolRenderingMode(.palette)
+//                    .foregroundStyle(Color.secondary, Color(.quaternaryLabel).opacity(0.7))
+            }
+        }
+    }
     var photosActionGroups: [[BottomMenuAction]] {
         [[
             BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {

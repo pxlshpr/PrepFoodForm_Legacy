@@ -620,58 +620,12 @@ public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
         @objc func doubleTapped(recognizer:  UITapGestureRecognizer) {
             
         }
+        
+        public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            print("🔍 zoomScale is \(scrollView.zoomScale)")
+        }
     }
 }
-
-
-import UIKit
-
-extension UIView {
-    
-    // In order to create computed properties for extensions, we need a key to
-    // store and access the stored property
-    fileprivate struct AssociatedObjectKeys {
-        static var tapGestureRecognizer = "MediaViewerAssociatedObjectKey_mediaViewer"
-    }
-    
-    fileprivate typealias Action = ((UITapGestureRecognizer) -> Void)?
-    
-    // Set our computed property type to a closure
-    fileprivate var tapGestureRecognizerAction: Action? {
-        set {
-            if let newValue = newValue {
-                // Computed properties get stored as associated objects
-                objc_setAssociatedObject(self, &AssociatedObjectKeys.tapGestureRecognizer, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
-            }
-        }
-        get {
-            let tapGestureRecognizerActionInstance = objc_getAssociatedObject(self, &AssociatedObjectKeys.tapGestureRecognizer) as? Action
-            return tapGestureRecognizerActionInstance
-        }
-    }
-    
-    // This is the meat of the sauce, here we create the tap gesture recognizer and
-    // store the closure the user passed to us in the associated object we declared above
-    public func addTapGestureRecognizer(action: ((UITapGestureRecognizer) -> Void)?) {
-        self.isUserInteractionEnabled = true
-        self.tapGestureRecognizerAction = action
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
-        tapGestureRecognizer.numberOfTapsRequired = 2
-        self.addGestureRecognizer(tapGestureRecognizer)
-    }
-    
-    // Every time the user taps on the UIImageView, this function gets called,
-    // which triggers the closure we stored
-    @objc fileprivate func handleTapGesture(sender: UITapGestureRecognizer) {
-        if let action = self.tapGestureRecognizerAction {
-            action?(sender)
-        } else {
-            print("no action")
-        }
-    }
-    
-}
-
 
 import SwiftUI
 import VisionSugar
@@ -837,24 +791,34 @@ extension UIScrollView {
         let scaledImageSize = CGSize(width: width, height: height)
         
         var newBox = boundingBox.rectForSize(scaledImageSize)
+        
+        print("🔍 scaledImageSize is \(scaledImageSize)")
+
+
         if let paddingLeft = paddingLeft {
             newBox.origin.x += paddingLeft
         }
         if let paddingTop = paddingTop {
             newBox.origin.y += paddingTop
         }
-        print("newBox: \(newBox)")
+        print("🔍 newBox: \(newBox)")
         
-//        if let paddingType {
-//            newBox = newBox.padded(for: paddingType, within: scrollViewSize)
-//        }
         if padded {
             newBox = newBox.padded(within: scrollViewSize)
         }
         
+        print("🔍 zoomIn on: \(newBox) within \(frame.size)")
+        let zoomScaleX = frame.size.width / newBox.width
+        print("🔍 zoomScaleX is \(zoomScaleX)")
+        let zoomScaleY = frame.size.height / newBox.height
+        print("🔍 zoomScaleY is \(zoomScaleY)")
+
+        print("🔍 🤖 calculated zoomScale is: \(newBox.zoomScale(within: frame.size))")
+
         zoom(to: newBox, animated: animated)
     }
 }
+
 
 public enum ZoomPaddingType {
     case smallElement
@@ -862,6 +826,13 @@ public enum ZoomPaddingType {
 }
 
 extension CGRect {
+    
+    func zoomScale(within parentSize: CGSize) -> CGFloat {
+        let xScale = parentSize.width / width
+        let yScale = parentSize.height / height
+        return min(xScale, yScale)
+    }
+    
     func padded(for type: ZoomPaddingType, within parentSize: CGSize) -> CGRect {
         switch type {
         case .largeSection:
