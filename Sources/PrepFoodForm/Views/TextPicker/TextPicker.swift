@@ -319,7 +319,7 @@ class TextPickerViewModel: ObservableObject {
     }
     
     var showShowImageSelector: Bool {
-        mode.isImageViewer && imageViewModels.count > 1
+        (mode.isImageViewer || mode.isColumnSelection) && imageViewModels.count > 1
     }
 
     var shouldShowSelectedTextsBar: Bool {

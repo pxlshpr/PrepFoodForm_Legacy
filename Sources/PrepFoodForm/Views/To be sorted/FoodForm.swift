@@ -95,7 +95,7 @@ public struct FoodForm: View {
            let column2 = viewModel.textPickerColumn2
         {
             TextPicker(
-                imageViewModels: viewModel.imageViewModels,
+                imageViewModels: viewModel.relevantImageViewModels,
                 mode: .columnSelection(
                     column1: column1,
                     column2: column2,

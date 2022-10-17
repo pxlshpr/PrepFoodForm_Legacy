@@ -45,6 +45,12 @@ extension FoodFormViewModel {
         }
     }
 
+    var relevantImageViewModels: [ImageViewModel] {
+        return imageViewModels.filter { imageViewModel in
+            relevantScanResults.contains(where: { $0.id == imageViewModel.id })
+        }
+    }
+    
     func bestColumnImageTexts(at column: Int, from relevantScanResults: [ScanResult]) -> [ImageText] {
         
         //TODO: Do this before hand in processScanResults once and pass it into both this and processScanResults(column:isUserInitiated:)
