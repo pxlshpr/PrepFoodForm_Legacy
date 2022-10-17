@@ -63,10 +63,17 @@ extension FoodFormViewModel {
     }
     
     var barcodesCount: Int? {
-        let count = imageViewModels.reduce(0) {
-            $0 + ($1.scanResult?.barcodes.count ?? 0)
-        }
-        return count != 0 ? count : nil
+        let count = uniqueBarcodeStrings.count
+        return count == 0 ? nil : count
+    }
+    
+    var uniqueBarcodeStrings: [String] {
+        imageViewModels
+            .reduce([]) {
+                $0 + ($1.scanResult?.barcodes ?? [])
+            }
+            .map { $0.string }
+            .removingDuplicates()
     }
 }
 struct ImagesSummary: View {
