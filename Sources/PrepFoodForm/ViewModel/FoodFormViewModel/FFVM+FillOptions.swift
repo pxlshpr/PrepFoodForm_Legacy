@@ -11,7 +11,6 @@ extension FoodFormViewModel {
         fillOptions.append(contentsOf: scannedFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
-        fillOptions.append(contentsOf: calculatedOptions(for: fieldValue))
         
 //        fillOptions.removeFillOptionValueDuplicates()
         
@@ -115,19 +114,19 @@ extension FoodFormViewModel {
     }
     
     //MARK: Calculated
-    func calculatedOptions(for fieldValue: FieldValue) -> [FillOption] {
-        var fillOptions: [FillOption] = []
-        //TODO: Add calculated option here for case where we have all other 3 values in the energy equation and the current value in the field isn't within the threshold
-        return fillOptions
-    }
+//    func calculatedOptions(for fieldValue: FieldValue) -> [FillOption] {
+//        var fillOptions: [FillOption] = []
+//        //TODO: Add calculated option here for case where we have all other 3 values in the energy equation and the current value in the field isn't within the threshold
+//        return fillOptions
+//    }
 
     //MARK: Choose
     func selectFillOption(for fieldValue: FieldValue) -> FillOption? {
         
-        guard fieldValue.supportsSelectingText,
-              hasAvailableTexts(for: fieldValue) else {
-            return nil
-        }
+//        guard fieldValue.supportsSelectingText,
+//              hasAvailableTexts(for: fieldValue) else {
+//            return nil
+//        }
         return FillOption(
             string: "Select",
             systemImage: Fill.SystemImage.selection,

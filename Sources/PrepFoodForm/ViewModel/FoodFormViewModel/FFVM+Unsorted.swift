@@ -661,3 +661,22 @@ extension FoodFormViewModel {
         )
     }
 }
+
+//MARK: - Preview
+
+extension FoodFormViewModel {
+
+    func populateWithSampleImages(_ indexes: [Int]) {
+        for index in indexes {
+            populateWithSampleImage(index)
+        }
+    }
+
+    func populateWithSampleImage(_ number: Int) {
+        guard let image = sampleImage(number), let scanResult = sampleScanResult(number) else {
+            fatalError("Couldn't populate sample image: \(number)")
+        }
+        imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
+    }
+
+}

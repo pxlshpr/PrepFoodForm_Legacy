@@ -88,13 +88,14 @@ struct DensityForm: View {
     var textPickerConfiguration: TextPickerConfiguration {
         TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
+            filter: .textsWithDensities,
             selectedImageTexts: densityViewModel.fill.imageTexts,
-            customTextFilter: supportsText,
             didSelectImageTexts: { imageTexts in
                 didSelectImageTexts(imageTexts)
             }
         )
     }
+    
     var textPicker: some View {
         TextPicker(config: textPickerConfiguration)
             .onDisappear {
@@ -104,10 +105,6 @@ struct DensityForm: View {
                 densityViewModel.cropFilledImage()
                 doNotRegisterUserInput = false
             }
-    }
-    
-    func supportsText(_ text: RecognizedText) -> Bool {
-        text.densityValue != nil
     }
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {

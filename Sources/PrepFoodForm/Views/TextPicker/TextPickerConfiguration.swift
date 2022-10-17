@@ -6,6 +6,13 @@ import SwiftUIPager
 import ZoomableScrollView
 import ActivityIndicatorView
 
+enum TextPickerFilter {
+    case allTextsAndBarcodes
+    case allTexts
+    case textsWithDensities
+    case textsWithFoodLabelValues
+}
+
 class TextPickerConfiguration: ObservableObject {
     
     @Published var imageViewModels: [ImageViewModel]
@@ -20,32 +27,29 @@ class TextPickerConfiguration: ObservableObject {
     
     @Published var shouldDismiss: Bool = false
 
+    let filter: TextPickerFilter
     let initialImageIndex: Int
     let allowsMultipleSelection: Bool
-    let onlyShowTextsWithValues: Bool
-    let customTextFilter: ((RecognizedText) -> Bool)?
     let allowsTogglingTexts: Bool
     let didSelectImageTexts: (([ImageText]) -> Void)?
     let deleteImageHandler: ((Int) -> ())?
     
     init(imageViewModels: [ImageViewModel],
+         filter: TextPickerFilter = .allTexts,
          selectedImageTexts: [ImageText] = [],
          initialImageIndex: Int? = nil,
          allowsMultipleSelection: Bool = false,
-         onlyShowTextsWithValues: Bool = false,
          allowsTogglingTexts: Bool = false,
          deleteImageHandler: ((Int) -> ())? = nil,
-         customTextFilter: ((RecognizedText) -> Bool)? = nil,
          didSelectImageTexts: (([ImageText]) -> Void)? = nil
     ){
+        self.filter = filter
         self.imageViewModels = imageViewModels
         self.selectedImageTexts = selectedImageTexts
         self.allowsMultipleSelection = allowsMultipleSelection
         self.allowsTogglingTexts = allowsTogglingTexts
         self.deleteImageHandler = deleteImageHandler
-        self.onlyShowTextsWithValues = onlyShowTextsWithValues
         self.didSelectImageTexts = didSelectImageTexts
-        self.customTextFilter = customTextFilter
         
         showingBoxes = !allowsTogglingTexts
         focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
@@ -166,13 +170,27 @@ class TextPickerConfiguration: ObservableObject {
     
     func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
         let texts = texts(for: imageViewModel)
-        return texts.map {
+        var textBoxes: [TextBox] = []
+        textBoxes = texts.map {
             TextBox(
                 boundingBox: $0.boundingBox,
                 color: color(for: $0),
                 tapHandler: tapHandler(for: $0)
             )
         }
+        
+        textBoxes.append(
+            contentsOf: barcodes(for: imageViewModel).map {
+                TextBox(boundingBox: $0.boundingBox,
+                        color: color(for: $0),
+                        tapHandler: tapHandler(for: $0)
+                )
+        })
+        return textBoxes
+    }
+    
+    func tapHandler(for barcode: RecognizedBarcode) -> (() -> ())? {
+        nil
     }
     
     func tapHandler(for text: RecognizedText) -> (() -> ())? {
@@ -245,12 +263,19 @@ class TextPickerConfiguration: ObservableObject {
         }
     }
     
+    func barcodes(for imageViewModel: ImageViewModel) -> [RecognizedBarcode] {
+        imageViewModel.barcodeTexts
+    }
+    
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
-        if let customTextFilter {
-            return imageViewModel.texts.filter(customTextFilter)
-        } else {
-            return onlyShowTextsWithValues ? imageViewModel.textsWithValues : imageViewModel.texts
-        }
+        let start = CFAbsoluteTimeGetCurrent()
+        let texts = imageViewModel.texts(for: filter)
+        print("🥸 texts took \(CFAbsoluteTimeGetCurrent()-start)s")
+        return texts
+    }
+    
+    func color(for barcode: RecognizedBarcode) -> Color {
+        return Color.blue
     }
     
     func color(for text: RecognizedText) -> Color {

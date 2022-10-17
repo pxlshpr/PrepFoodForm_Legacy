@@ -246,7 +246,7 @@ extension FoodFormViewModel {
     func availableTexts(for fieldValue: FieldValue) -> [RecognizedText] {
         var availableTexts: [RecognizedText] = []
         for imageViewModel in imageViewModels {
-            let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithValues : imageViewModel.texts
+            let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithFoodLabelValues : imageViewModel.texts
 //            let filtered = texts.filter { isNotUsingText($0) }
             availableTexts.append(contentsOf: texts)
         }

@@ -22,6 +22,7 @@ extension RecognizedText {
         || candidates.contains(where: { !$0.detectedValues.isEmpty })
     }
 }
+
 class ImageViewModel: ObservableObject {
     
     @Published var status: ImageStatus
@@ -32,8 +33,12 @@ class ImageViewModel: ObservableObject {
     @Published var photosPickerItem: PhotosPickerItem? = nil
     
     var scanResult: ScanResult? = nil
+    
     var texts: [RecognizedText] = []
-    var textsWithValues: [RecognizedText] = []
+    var textsWithFoodLabelValues: [RecognizedText] = []
+    var textsWithDensities: [RecognizedText] = []
+
+    var barcodeTexts: [RecognizedBarcode] = []
 
     init(_ image: UIImage) {
         self.image = image
@@ -69,9 +74,24 @@ class ImageViewModel: ObservableObject {
         self.status = .scanned
         self.photosPickerItem = nil
         self.scanResult = scanResult
+        
         self.texts = scanResult.texts
-        self.textsWithValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
+        self.textsWithFoodLabelValues = scanResult.texts.filter({ $0.hasFoodLabelValues })
+        self.textsWithDensities = scanResult.texts.filter({ $0.densityValue != nil })
+        self.barcodeTexts = scanResult.barcodes
+
         self.prepareThumbnails()
+    }
+
+    func texts(for filter: TextPickerFilter) -> [RecognizedText] {
+        switch filter {
+        case .allTextsAndBarcodes, .allTexts:
+            return texts
+        case .textsWithDensities:
+            return textsWithDensities
+        case .textsWithFoodLabelValues:
+            return textsWithFoodLabelValues
+        }
     }
     
     func startScanTask(with image: UIImage) {
@@ -89,9 +109,12 @@ class ImageViewModel: ObservableObject {
                 let result = try await FoodLabelScanner(image: image).scan()
                 
                 self.scanResult = result
-                self.texts = result.texts
-                self.textsWithValues = result.texts.filter({ !$0.string.detectedValues.isEmpty })
                 
+                self.texts = result.texts
+                self.textsWithFoodLabelValues = result.texts.filter({ !$0.hasFoodLabelValues })
+                self.textsWithDensities = result.texts.filter({ $0.densityValue != nil })
+                self.barcodeTexts = result.barcodes
+
                 await MainActor.run {
                     self.status = .scanned
                 }

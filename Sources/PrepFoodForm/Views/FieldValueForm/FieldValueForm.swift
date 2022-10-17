@@ -362,9 +362,9 @@ extension FieldValueForm {
     var textPickerConfiguration: TextPickerConfiguration {
         TextPickerConfiguration(
             imageViewModels: viewModel.imageViewModels,
+            filter: fieldValue.usesValueBasedTexts ? .textsWithFoodLabelValues : .allTexts,
             selectedImageTexts: fieldValue.fill.imageTexts,
             allowsMultipleSelection: !isForDecimalValue,
-            onlyShowTextsWithValues: fieldValue.usesValueBasedTexts,
             didSelectImageTexts: { imageTexts in
                 didSelectImageTexts(imageTexts)
             }
