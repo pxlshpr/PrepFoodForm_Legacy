@@ -780,12 +780,19 @@ struct TextPicker: View {
         Group {
             if textPickerViewModel.mode.isImageViewer {
                 Button {
+                    //TODO: Write this
+                } label: {
+                    Label("AutoFill", systemImage: "text.viewfinder")
+                }
+                Button {
                     withAnimation {
                         textPickerViewModel.showingBoxes.toggle()
                     }
                 } label: {
-                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts", systemImage: "text.viewfinder")
+                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
+                          systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")")
                 }
+                Divider()
                 Button(role: .destructive) {
                     textPickerViewModel.deleteCurrentImage()
                 } label: {

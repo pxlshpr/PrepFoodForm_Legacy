@@ -7,9 +7,9 @@ extension ScanResult {
      The column is needed in case the column picked has a `HeaderType` of either `.per100g` or `.per100ml`,
      in which case—an additional size with the name "serving" will be returned with the amount of the
      */
-    var allSizeViewModels: [FieldViewModel] {
+    func allSizeViewModels(at column: Int) -> [FieldViewModel] {
+        let sizeViewModels =
         [
-//            servingSizeViewModel,
             servingUnitSizeViewModel,
             equivalentUnitSizeViewModel,
             perContainerSizeViewModel,
@@ -17,6 +17,40 @@ extension ScanResult {
             headerEquivalentUnitSizeViewModel
         ]
         .compactMap { $0 }
+        
+        if (headerType(for: column) == .per100g || headerType(for: column) == .per100ml),
+           let servingSizeViewModel
+        {
+            return sizeViewModels + [servingSizeViewModel]
+        } else {
+            return sizeViewModels
+        }
+    }
+    
+    var servingSizeViewModel: FieldViewModel? {
+        guard let servingSize, let servingSizeValueText else {
+            return nil
+        }
+        
+        return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
+            size: servingSize,
+            fill: scannedFill(
+                for: servingSize,
+                in: ImageText(text: servingSizeValueText.text, imageId: id))
+        )))
+    }
+    
+    var servingSize: Size? {
+        guard let servingAmount else { return nil }
+        return Size(
+            name: "serving",
+            amount: servingAmount,
+            unit: servingFormUnit
+        )
+    }
+    
+    var servingSizeValueText: ValueText? {
+        serving?.amountText?.asValueText
     }
     
     var perContainerSizeViewModel: FieldViewModel? {

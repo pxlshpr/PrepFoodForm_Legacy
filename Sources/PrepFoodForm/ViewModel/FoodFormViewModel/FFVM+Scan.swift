@@ -91,7 +91,7 @@ extension FoodFormViewModel {
             }
             
             /// For each of the size view models in ALL the scan results
-            for sizeViewModel in relevantScanResults.allSizeViewModels {
+            for sizeViewModel in relevantScanResults.allSizeViewModels(at: column) {
                 /// If we were able to add this size view model (if it wasn't a duplicate) ...
                 guard add(sizeViewModel: sizeViewModel) else {
                     continue

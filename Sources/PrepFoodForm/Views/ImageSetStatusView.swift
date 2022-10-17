@@ -9,7 +9,9 @@ extension ScanResult {
         if serving?.amount != nil {
             count += 1
         }
-        count += allSizeViewModels.count
+        let count1 = allSizeViewModels(at: 1).count
+        let count2 = allSizeViewModels(at: 2).count
+        count += max(count1, count2)
 //        if let serving {
 //            if serving.amount != nil {
 //                count += 1

@@ -69,16 +69,16 @@ extension Array where Element == ScanResult {
         }
     }
     
-    var allSizeViewModels: [FieldViewModel] {
+    func allSizeViewModels(at column: Int) -> [FieldViewModel] {
         guard let bestScanResult else { return [] }
         var sizeViewModels: [FieldViewModel] = []
         
         /// Start by adding the best `ScanResult`'s size view models (as it gets first preference)
-        sizeViewModels.append(contentsOf: bestScanResult.allSizeViewModels)
+        sizeViewModels.append(contentsOf: bestScanResult.allSizeViewModels(at: column))
         
         /// Now go through the remaining `ScanResult`s and add those
         for scanResult in filter({ $0.id != bestScanResult.id }) {
-            sizeViewModels.append(contentsOf: scanResult.allSizeViewModels)
+            sizeViewModels.append(contentsOf: scanResult.allSizeViewModels(at: column))
         }
         
         return sizeViewModels
