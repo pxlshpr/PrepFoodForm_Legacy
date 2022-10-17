@@ -153,7 +153,7 @@ let mockVolumePrefixedSizes: [Size] = [
 extension Array where Element == Size {
     var fieldViewModels: [FieldViewModel] {
         map {
-            FieldViewModel(fieldValue: .size(.init(size: $0, fill: .userInput)))
+            FieldViewModel(fieldValue: .size(.init(size: $0, fill: .discardable)))
         }
     }
 }

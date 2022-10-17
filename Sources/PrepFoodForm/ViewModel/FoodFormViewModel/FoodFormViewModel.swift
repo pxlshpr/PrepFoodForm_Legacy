@@ -92,7 +92,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var emojiViewModel: FieldViewModel = FieldViewModel(fieldValue: .emoji())
     @Published var detailViewModel: FieldViewModel = FieldViewModel(fieldValue: .detail())
     @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
-    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .userInput)))
+    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .discardable)))
     @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
     @Published var energyViewModel: FieldViewModel = .init(fieldValue: .energy())
     @Published var carbViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))

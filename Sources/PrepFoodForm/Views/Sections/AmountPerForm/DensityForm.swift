@@ -499,7 +499,7 @@ extension Array where Element == FoodLabelValue {
         return FieldValue.DensityValue(
             weight: weightDoubleValue,
             volume: volumeDoubleValue,
-            fill: .userInput
+            fill: .discardable
         )
     }
     
@@ -518,7 +518,7 @@ extension FoodLabelValue {
             double: amount,
             string: amount.cleanAmount,
             unit: formUnit,
-            fill: .userInput
+            fill: .discardable
         )
     }
 }

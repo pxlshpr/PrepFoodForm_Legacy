@@ -1,14 +1,22 @@
 import FoodLabelScanner
 
 extension ScanResult {
+    /**
+     Returns all the `FieldViewModel`s for sizes.
+     
+     The column is needed in case the column picked has a `HeaderType` of either `.per100g` or `.per100ml`,
+     in which case—an additional size with the name "serving" will be returned with the amount of the
+     */
     var allSizeViewModels: [FieldViewModel] {
-        [servingUnitSizeViewModel,
-         equivalentUnitSizeViewModel,
-         perContainerSizeViewModel,
-         headerServingSizeViewModel,
-         headerEquivalentUnitSizeViewModel
+        [
+//            servingSizeViewModel,
+            servingUnitSizeViewModel,
+            equivalentUnitSizeViewModel,
+            perContainerSizeViewModel,
+            headerServingSizeViewModel,
+            headerEquivalentUnitSizeViewModel
         ]
-            .compactMap { $0 }
+        .compactMap { $0 }
     }
     
     var perContainerSizeViewModel: FieldViewModel? {
@@ -66,6 +74,9 @@ extension ScanResult {
         return FieldViewModel(fieldValue: fieldValue)
     }
 
+//    var servingSizeViewModel: FieldViewModel? {
+//        guard let
+//    }
     var servingUnitSizeViewModel: FieldViewModel? {
         guard let servingUnitSize, let servingUnitSizeValueText else {
             return nil

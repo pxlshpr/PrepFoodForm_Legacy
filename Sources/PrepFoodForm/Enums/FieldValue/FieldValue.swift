@@ -73,7 +73,7 @@ extension FieldValue {
         var fill: Fill
         var isIncluded: Bool
 
-        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, isIncluded: Bool = true, fill: Fill = .userInput) {
+        init(nutrientType: NutrientType, double: Double? = nil, string: String = "", unit: NutrientUnit = .g, isIncluded: Bool = true, fill: Fill = .discardable) {
             self.nutrientType = nutrientType
             self.internalDouble = double
             self.internalString = string
@@ -168,7 +168,7 @@ extension FieldValue {
         var internalString: String
         var fill: Fill
 
-        init(macro: Macro, double: Double? = nil, string: String = "", fill: Fill = .userInput) {
+        init(macro: Macro, double: Double? = nil, string: String = "", fill: Fill = .discardable) {
             self.macro = macro
             self.internalDouble = double
             self.internalString = string
@@ -228,7 +228,7 @@ extension FieldValue {
         var unit: EnergyUnit
         var fill: Fill
 
-        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fill: Fill = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: EnergyUnit = .kcal, fill: Fill = .discardable) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
@@ -286,7 +286,7 @@ extension FieldValue {
         var unit: FormUnit
         var fill: Fill
 
-        init(double: Double? = nil, string: String = "", unit: FormUnit, fill: Fill = .userInput) {
+        init(double: Double? = nil, string: String = "", unit: FormUnit, fill: Fill = .discardable) {
             self.internalDouble = double
             self.internalString = string
             self.unit = unit
@@ -338,7 +338,7 @@ extension FieldValue {
 //        var string: String = ""
         var fill: Fill
         
-        init(string: String = "", fill: Fill = .userInput) {
+        init(string: String = "", fill: Fill = .discardable) {
             self.internalString = string
             self.fill = fill
         }
@@ -387,7 +387,7 @@ extension FieldValue {
         
         init(weight: DoubleValue = DefaultWeight,
              volume: DoubleValue = DefaultVolume,
-             fill: Fill = .userInput
+             fill: Fill = .discardable
         ) {
             self.weight = weight
             self.volume = volume
@@ -403,7 +403,7 @@ extension FieldValue {
 //MARK: - Helpers
 
 extension FieldValue {
-    init(micronutrient: NutrientType, fill: Fill = .userInput) {
+    init(micronutrient: NutrientType, fill: Fill = .discardable) {
         let microValue = MicroValue(
             nutrientType: micronutrient,
             double: nil,
