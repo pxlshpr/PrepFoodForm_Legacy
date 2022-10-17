@@ -114,9 +114,6 @@ extension Array where Element == ScanResult {
             .mostFrequent ?? 1
     }
     
-    var bestColumn: Int {
-        columnWithTheMostNutrients
-    }
 }
 
 extension ScanResult {
@@ -128,7 +125,11 @@ extension ScanResult {
         }
     }
     
-    //TODO: Make this consider which column has the larger set of values and return that if the counts are equal on both sides.
+    //TODO: Make this consider which column has the larger set of values and return that if the counts are equal on both sides. Make columnWithTheMostNutrients return nil if equal
+    var bestColumn: Int {
+        columnWithTheMostNutrients
+    }
+
     /**
      Returns the column number with the most number of non-nil nutrients.
      

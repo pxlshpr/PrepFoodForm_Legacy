@@ -238,18 +238,19 @@ class TextPickerViewModel: ObservableObject {
     }
     
     func barcodes(for imageViewModel: ImageViewModel) -> [RecognizedBarcode] {
-        imageViewModel.barcodeTexts
+        guard mode.filter?.includesBarcodes == true else {
+            return []
+        }
+        return imageViewModel.barcodeTexts
     }
     
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
         
-        let filter: TextPickerFilter
-        if mode.isColumnSelection {
-            filter = selectedColumn == 1 ? .textsInColumn1 : .textsInColumn2
-        } else {
-            filter = mode.filter ?? .allTextsAndBarcodes
+        guard !mode.isColumnSelection else {
+            return mode.columnTexts(onImageWithId: imageViewModel.id)
         }
         
+        let filter = mode.filter ?? .allTextsAndBarcodes
         let start = CFAbsoluteTimeGetCurrent()
         let texts = imageViewModel.texts(for: filter)
         print("🥸 texts took \(CFAbsoluteTimeGetCurrent()-start)s")

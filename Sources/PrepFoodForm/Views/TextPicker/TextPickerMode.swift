@@ -16,6 +16,16 @@ enum TextPickerMode {
                      deleteHandler: DeleteImageHandler)
 }
 
+extension TextPickerFilter {
+    var includesBarcodes: Bool {
+        switch self {
+        case .allTextsAndBarcodes:
+            return true
+        default:
+            return false
+        }
+    }
+}
 extension TextPickerMode {
 
     var filter: TextPickerFilter? {
@@ -31,6 +41,21 @@ extension TextPickerMode {
         }
     }
     
+    func columnTexts(onImageWithId imageId: UUID) -> [RecognizedText] {
+        guard case .columnSelection(let column1, let column2, _, _) = self else {
+            return []
+        }
+        var texts: [RecognizedText] = []
+        for column in [column1, column2] {
+            texts.append(
+                contentsOf: column.imageTexts
+                    .filter { $0.imageId == imageId }
+                    .map { $0.text }
+                )
+        }
+        return texts
+    }
+
     var selectedImageTexts: [ImageText] {
         switch self {
         case .singleSelection(_, let selectedImageText, _):

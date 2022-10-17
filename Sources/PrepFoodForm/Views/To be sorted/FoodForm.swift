@@ -90,11 +90,16 @@ public struct FoodForm: View {
     }
     
     var columnPicker: some View {
-        Color.red
-//        TextPicker(
-//            imageViewModels: viewModel.imageViewModels,
-//            mode: .columnSelection(column1: <#T##TextPickerColumn#>, column2: <#T##TextPickerColumn#>, handler: <#T##ColumnSelectionHandler##ColumnSelectionHandler##(Int) -> ()#>)
-//        )
+        TextPicker(
+            imageViewModels: viewModel.imageViewModels,
+            mode: .columnSelection(
+                column1: viewModel.textPickerColumn1,
+                column2: viewModel.textPickerColumn2,
+                selectedColumn: viewModel.pickedColumn,
+                handler: { pickedColumn in
+                    
+                })
+        )
     }
     
     var navigationLeadingContent: some ToolbarContent {

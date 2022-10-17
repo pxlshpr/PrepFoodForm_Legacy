@@ -145,6 +145,11 @@ public class FoodFormViewModel: ObservableObject {
     @Published var selectedPhotos: [PhotosPickerItem] = []
     
     var selectedImageIndex: Int = 0
+    
+    var relevantScanResults: [ScanResult] = []
+    var column1ImageTexts: [ImageText] = []
+    var column2ImageTexts: [ImageText] = []
+    var pickedColumn = 1
 }
 
 extension FoodFormViewModel {

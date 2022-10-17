@@ -5,20 +5,52 @@ import PrepUnits
 
 extension FoodFormViewModel {
     
+    var textPickerColumn1: TextPickerColumn {
+        TextPickerColumn(
+            name: "Column 1",
+            imageTexts: column1ImageTexts
+        )
+    }
+
+    var textPickerColumn2: TextPickerColumn {
+        TextPickerColumn(
+            name: "Column 2",
+            imageTexts: column2ImageTexts
+        )
+    }
+
     func processScanResults() {
-        if scanResults.bestScanResult?.columnCount == 2 {
+        relevantScanResults = scanResults.relevantScanResults ?? []
+        if relevantScanResults.bestScanResult?.columnCount == 2 {
+            column1ImageTexts = bestColumnImageTexts(at: 1, from: relevantScanResults)
+            column2ImageTexts = bestColumnImageTexts(at: 2, from: relevantScanResults)
+//            pickedColumn = relevantScanResults.columnWithTheMostNutrients
+            pickedColumn = 2
             showingColumnPicker = true
         } else {
-            let start = CFAbsoluteTimeGetCurrent()
-            processScanResults(column: 1)
-            print("processScanResults took: \(CFAbsoluteTimeGetCurrent()-start)s")
+            processScanResults(column: 1, from: relevantScanResults)
         }
     }
+
+    func bestColumnImageTexts(at column: Int, from relevantScanResults: [ScanResult]) -> [ImageText] {
+        
+        //TODO: Do this before hand in processScanResults once and pass it into both this and processScanResults(column:isUserInitiated:)
+        let fieldViewModelsToExtract = [
+            energyViewModel, carbViewModel, fatViewModel, proteinViewModel
+        ] + allMicronutrientFieldViewModels
+        
+        let fieldValues = fieldViewModelsToExtract.compactMap {
+            relevantScanResults.pickFieldValue(for: $0.fieldValue, at: column)
+        }
+        return fieldValues.compactMap { $0.fill.imageText }
+    }
     
-    func processScanResults(column pickedColumn: Int, isUserInitiated: Bool = false) {
+    func processScanResults(
+        column pickedColumn: Int,
+        from relevantScanResults: [ScanResult],
+        isUserInitiated: Bool = false
+    ) {
 //        Task {
-            
-            guard let relevantScanResults = scanResults.relevantScanResults else { return }
 //            let isUserInitiated = pickedColumn != nil
             let column = pickedColumn
             
