@@ -8,7 +8,7 @@ import ActivityIndicatorView
 
 class TextPickerViewModel: ObservableObject {
     
-    @Published var showingAutofill = false
+    @Published var showingMenu = false
     @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
@@ -434,21 +434,8 @@ struct TextPicker: View {
                 dismiss()
             }
         }
-        .bottomMenu(isPresented: $textPickerViewModel.showingAutofill,
-                    actionGroups: autofillAction)
-    }
-    
-    var autofillAction: [[BottomMenuAction]] {
-        [[
-            BottomMenuAction(
-                title: "This will replace any existing data."
-            ),
-            BottomMenuAction(
-                title: "AutoFill",
-                tapHandler: {
-                }
-            )
-        ]]
+        .bottomMenu(isPresented: $textPickerViewModel.showingMenu,
+                    actionGroups: menuActions)
     }
     
     //MARK:  Pager Layer
@@ -770,8 +757,8 @@ struct TextPicker: View {
     }
     
     var topMenuButton: some View {
-        Menu {
-            menuContents
+        Button {
+            textPickerViewModel.showingMenu = true
         } label: {
             Image(systemName: "ellipsis")
                 .frame(width: 40, height: 40)
@@ -791,45 +778,80 @@ struct TextPicker: View {
         }
     }
     
-    var menuContents: some View {
-        Group {
-            if textPickerViewModel.mode.isImageViewer {
-                Button {
-                    //TODO: Write this
-                    textPickerViewModel.showingAutofill = true
-                } label: {
-                    Label("AutoFill", systemImage: "text.viewfinder")
-                }
-                Button {
-                    withAnimation {
-                        textPickerViewModel.showingBoxes.toggle()
-                    }
-                } label: {
-                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
-                          systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")")
-                }
-                Divider()
-                Button(role: .destructive) {
-                    textPickerViewModel.deleteCurrentImage()
-                } label: {
-                    Label("Remove Photo", systemImage: "trash")
-                }
-            }
-        }
-    }
+//    var menuContents: some View {
+//        Group {
+//            if textPickerViewModel.mode.isImageViewer {
+//                Button {
+//                    //TODO: Write this
+//                    textPickerViewModel.showingAutofill = true
+//                } label: {
+//                    Label("AutoFill", systemImage: "text.viewfinder")
+//                }
+//                Button {
+//                    withAnimation {
+//                        textPickerViewModel.showingBoxes.toggle()
+//                    }
+//                } label: {
+//                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
+//                          systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")")
+//                }
+//                Divider()
+//                Button(role: .destructive) {
+//                    textPickerViewModel.deleteCurrentImage()
+//                } label: {
+//                    Label("Remove Photo", systemImage: "trash")
+//                }
+//            }
+//        }
+//    }
     
-    var menuButton: some View {
-        Menu {
-            menuContents
-        } label: {
-            Image(systemName: "ellipsis")
-                .foregroundColor(.primary)
-                .imageScale(.large)
-                .padding(40)
-                .frame(height: 55)
-            //                .background(.green)
-                .contentShape(Rectangle())
-        }
+    var menuActions: [[BottomMenuAction]] {
+        [
+            [
+                BottomMenuAction(
+                    title: "AutoFill",
+                    systemImage: "text.viewfinder",
+                    linkedActionGroups: [[
+                        BottomMenuAction(
+                            title: "This will replace any existing data."
+                        ),
+                        BottomMenuAction(
+                            title: "AutoFill",
+                            tapHandler: {
+                                //TODO: Now do the AutoFill
+                            }
+                        )
+                    ]]
+                ),
+                BottomMenuAction(
+                    title: "\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
+                    systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")",
+                    tapHandler: {
+                        withAnimation {
+                            textPickerViewModel.showingBoxes.toggle()
+                        }
+                    })
+            ],
+            [
+                BottomMenuAction(
+                    title: "Delete Photo",
+                    systemImage: "trash",
+                    role: .destructive,
+                    linkedActionGroups: [[
+                        BottomMenuAction(
+                            title: "This photo will be deleted while the data you filled from it will remain."
+                        ),
+                        BottomMenuAction(
+                            title: "Delete Photo",
+                            role: .destructive,
+                            tapHandler: {
+                                textPickerViewModel.deleteCurrentImage()
+                            })
+                    ]]
+                ),
+
+            ]
+        ]
     }
     
     func thumbnail(at index: Int) -> some View {

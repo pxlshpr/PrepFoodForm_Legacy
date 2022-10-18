@@ -17,64 +17,79 @@ extension Array where Element == BottomMenuAction {
 }
 
 enum ActionType {
-    case button, textField, title
+    case button, textField, title, link
 }
 
 //MARK: - BottomMenuAction
+
+public struct BottomMenuTextInput {
+    let handler: ((String) -> ())
+    let isValid: ((String) -> Bool)?
+    let placeholder: String
+    let keyboardType: UIKeyboardType
+    let submitString: String
+    let autocapitalization: TextInputAutocapitalization
+
+    init(
+        placeholder: String = "",
+        keyboardType: UIKeyboardType = .default,
+        submitString: String = "",
+        autocapitalization: TextInputAutocapitalization = .sentences,
+        textInputIsValid: ((String) -> Bool)? = nil,
+        textInputHandler: @escaping ((String) -> Void)
+    ) {
+        self.placeholder = placeholder
+        self.submitString = submitString
+        self.isValid = textInputIsValid
+        self.handler = textInputHandler
+        self.keyboardType = keyboardType
+        self.autocapitalization = autocapitalization
+    }
+}
 
 public struct BottomMenuAction: Hashable, Equatable {
     let title: String
     let systemImage: String?
     let role: ButtonRole
     let tapHandler: (() -> ())?
-    
-    let textInputHandler: ((String) -> ())?
-    let textInputIsValid: ((String) -> Bool)?
-    let textInputSubmitString: String
-    let textInputPlaceholder: String
-    let textInputKeyboardType: UIKeyboardType
-    let textInputAutocapitalization: TextInputAutocapitalization
+    let textInput: BottomMenuTextInput?
+    let linkedActionGroups: [[BottomMenuAction]]?
 
     init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)? = nil) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = tapHandler
         self.role = role
-        
-        self.textInputHandler = nil
-        self.textInputIsValid = nil
-        self.textInputPlaceholder = ""
-        self.textInputSubmitString = ""
-        self.textInputKeyboardType = .default
-        self.textInputAutocapitalization = .sentences
+        self.textInput = nil
+        self.linkedActionGroups = nil
     }
 
-    init(
-        title: String,
-        systemImage: String? = nil,
-        placeholder: String = "",
-        keyboardType: UIKeyboardType = .default,
-        submitString: String = "",
-        autocapitalization: TextInputAutocapitalization = .sentences,
-        textInputIsValid: ((String) -> Bool)? = nil,
-        textInputHandler: ((String) -> Void)?
-    ) {
+    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, linkedActionGroups: [[BottomMenuAction]]) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = nil
-        self.role = .cancel
+        self.role = role
+        self.textInput = nil
+        self.linkedActionGroups = linkedActionGroups
+    }
 
-        self.textInputPlaceholder = placeholder
-        self.textInputSubmitString = submitString
-        self.textInputIsValid = textInputIsValid
-        self.textInputHandler = textInputHandler
-        self.textInputKeyboardType = keyboardType
-        self.textInputAutocapitalization = autocapitalization
+    init(title: String, systemImage: String? = nil, textInput: BottomMenuTextInput) {
+        self.title = title
+        self.systemImage = systemImage
+        self.role = .cancel
+        self.textInput = textInput
+        
+        self.tapHandler = nil
+        self.linkedActionGroups = nil
     }
     
     var type: ActionType {
-        if self.textInputHandler == nil {
-            if self.tapHandler == nil {
+        if linkedActionGroups != nil {
+            return .link
+        }
+        
+        if textInput == nil {
+            if tapHandler == nil {
                 return .title
             } else {
                 return .button
@@ -119,7 +134,10 @@ public struct BottomMenuModifier: ViewModifier {
     @Binding var isPresented: Bool
     let actionGroups: [[BottomMenuAction]]
     @State var actionToReceiveTextInputFor: BottomMenuAction?
+    @State var linkedActions: [[BottomMenuAction]]?
 
+    @State var menuTransition: AnyTransition = .move(edge: .bottom)
+    
     init(isPresented: Binding<Bool>, actionGroups: [[BottomMenuAction]]) {
         _isPresented = isPresented
         self.actionGroups = actionGroups
@@ -179,15 +197,26 @@ public struct BottomMenuModifier: ViewModifier {
             }
     }
     
+    var actionGroupTransition: AnyTransition {
+        if linkedActions != nil {
+            return .move(edge: .leading)
+        } else {
+            return .move(edge: .bottom)
+        }
+    }
     var buttonsLayer: some View {
         VStack(spacing: 10) {
             Spacer()
-            if let actionToReceiveTextInputFor {
-                inputSections(for: actionToReceiveTextInputFor)
-                    .transition(.move(edge: .leading))
+            if let textInput = actionToReceiveTextInputFor?.textInput {
+                inputSections(for: textInput)
+                    .transition(.move(edge: .trailing))
+            } else if let linkedActions {
+                linkedActionGroupSections(for: linkedActions)
+                    .transition(.move(edge: .trailing))
             } else {
                 actionGroupSections
-                    .transition(.move(edge: .trailing))
+//                    .transition(actionGroupTransition)
+                    .transition(menuTransition)
             }
             VStack(spacing: 0) {
                 if let actionToReceiveTextInputFor {
@@ -210,17 +239,17 @@ public struct BottomMenuModifier: ViewModifier {
     
     //MARK: - Sections
     
-    func inputSections(for action: BottomMenuAction) -> some View {
+    func inputSections(for textInput: BottomMenuTextInput) -> some View {
         VStack(spacing: 0) {
             TextField(
                 text: $inputText,
-                prompt: Text(verbatim: action.textInputPlaceholder),
+                prompt: Text(verbatim: textInput.placeholder),
                 axis: .vertical
             ) { }
                 .focused($isFocused)
                 .padding()
-                .keyboardType(action.textInputKeyboardType)
-                .textInputAutocapitalization(action.textInputAutocapitalization)
+                .keyboardType(textInput.keyboardType)
+                .textInputAutocapitalization(textInput.autocapitalization)
                 .background(
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .strokeBorder(Color(.separator).opacity(0.5))
@@ -254,7 +283,19 @@ public struct BottomMenuModifier: ViewModifier {
                 .padding(.horizontal)
         }
     }
-    
+
+    func linkedActionGroupSections(for actionGroups: [[BottomMenuAction]]) -> some View {
+        ForEach(actionGroups, id: \.self) {
+            actionGroup(for: $0)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .foregroundColor(Color(.secondarySystemGroupedBackground))
+                )
+                .padding(.horizontal)
+        }
+    }
+
     func actionGroup(for actions: [BottomMenuAction]) -> some View {
         VStack(spacing: 0) {
             if let title = actions.title {
@@ -274,12 +315,12 @@ public struct BottomMenuModifier: ViewModifier {
     
     func submitTextButton(for action: BottomMenuAction) -> some View {
         Button {
-            if let textInputHandler = action.textInputHandler {
+            if let textInputHandler = action.textInput?.handler {
                 textInputHandler(inputText)
             }
             dismiss()
         } label: {
-            Text(action.textInputSubmitString)
+            Text(action.textInput?.submitString ?? "Submit")
                 .font(.title3)
                 .fontWeight(.regular)
                 .foregroundColor(.accentColor)
@@ -309,12 +350,19 @@ public struct BottomMenuModifier: ViewModifier {
             if let tapHandler = action.tapHandler {
                 tapHandler()
                 dismiss()
-            } else if let _ = action.textInputHandler {
+            } else if action.type == .textField {
                 /// If this has a text input handler—change the UI to be able to recieve text input
+                Haptics.transientHaptic()
                 withAnimation {
                     actionToReceiveTextInputFor = action
                 }
                 isFocused = true
+            } else if action.type == .link, let linkedActions = action.linkedActionGroups {
+                Haptics.transientHaptic()
+                menuTransition = .move(edge: .leading)
+                withAnimation {
+                    self.linkedActions = linkedActions
+                }
             }
         } label: {
             HStack {
@@ -365,11 +413,15 @@ public struct BottomMenuModifier: ViewModifier {
     }
     
     func dismiss() {
-        Haptics.feedback(style: .soft)
+//        Haptics.feedback(style: .soft)
         isFocused = false
         /// Reset `actionToReceiveTextInputFor` to nil only if the action groups has other actions besides the one expecting input
         if actionGroups.singleTextInputAction != nil {
             actionToReceiveTextInputFor = nil
+        }
+        /// Do this after a delay so that setting it to nil doesn't make the the initial menu pop up during the dismissal animation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            linkedActions = nil
         }
         inputText = ""
         isPresented = false
@@ -378,7 +430,7 @@ public struct BottomMenuModifier: ViewModifier {
     //MARK: - Helpers
     
     var shouldDisableSubmitButton: Bool {
-        guard let textInputIsValid = actionToReceiveTextInputFor?.textInputIsValid else {
+        guard let textInputIsValid = actionToReceiveTextInputFor?.textInput?.isValid else {
             return false
         }
         return !textInputIsValid(inputText)
@@ -415,7 +467,7 @@ public struct BottomMenuPreview: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .bottomMenu(isPresented: .constant(true), actionGroups: confirmActionGroup)
+        .bottomMenu(isPresented: .constant(true), actionGroups: linkedActionGroup)
     }
 
     var menuActionGroups: [[BottomMenuAction]] {
@@ -424,15 +476,28 @@ public struct BottomMenuPreview: View {
                 BottomMenuAction(
                     title: "Add a Link",
                     systemImage: "link",
-                    placeholder: "https://fastfood.com/nutrition",
-                    submitString: "Add Link",
-                    textInputHandler: { string in
-                    print("Got back: \(string)")
-                })
+                    textInput: BottomMenuTextInput(
+                        placeholder: "https://fastfood.com/nutrition",
+                        submitString: "Add Link",
+                        textInputHandler: { string in
+                            print("Got back: \(string)")
+                        }
+                    )
+                )
             ]
         ]
     }
 
+    var linkedActionGroup: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "AutoFill",
+                systemImage: "text.viewfinder",
+                linkedActionGroups: confirmActionGroup
+            )
+        ]]
+    }
+    
     var confirmActionGroup: [[BottomMenuAction]] {
         [[
             BottomMenuAction(
@@ -472,11 +537,14 @@ public struct BottomMenuPreview: View {
                 BottomMenuAction(
                     title: "Add a Link",
                     systemImage: "link",
-                    placeholder: "https://fastfood.com/nutrition",
-                    submitString: "Add Link",
-                    textInputHandler: { string in
-                    print("Got back: \(string)")
-                })
+                    textInput: BottomMenuTextInput(
+                        placeholder: "https://fastfood.com/nutrition",
+                        submitString: "Add Link",
+                        textInputHandler: { string in
+                            print("Got back: \(string)")
+                        }
+                    )
+                )
             ]
         ]
     }

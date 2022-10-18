@@ -188,15 +188,17 @@ public struct FoodForm: View {
         BottomMenuAction(
             title: "Add a Link",
             systemImage: "link",
-            placeholder: "https://fastfood.com/nutrition-facts.pdf",
-            keyboardType: .URL,
-            submitString: "Add Link",
-            autocapitalization: .never,
-            textInputIsValid: textInputIsValidHandler,
-            textInputHandler:
-                { string in
-                    viewModel.submittedSourceLink(string)
-                }
+            textInput: BottomMenuTextInput(
+                placeholder: "https://fastfood.com/nutrition-facts.pdf",
+                keyboardType: .URL,
+                submitString: "Add Link",
+                autocapitalization: .never,
+                textInputIsValid: textInputIsValidHandler,
+                textInputHandler:
+                    { string in
+                        viewModel.submittedSourceLink(string)
+                    }
+            )
         )
     }
     
