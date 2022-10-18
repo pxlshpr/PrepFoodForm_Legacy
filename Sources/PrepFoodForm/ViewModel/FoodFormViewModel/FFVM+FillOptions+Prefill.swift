@@ -176,7 +176,7 @@ extension String {
                 .trimmingWhitespaces
                 .components(separatedBy: " ")
                 .filter { !$0.isEmpty }
-                .map { $0.capitalized }
+                .map { $0.capitalized.capitalizedIfUppercase }
         }
         .reduce([], +)
     }

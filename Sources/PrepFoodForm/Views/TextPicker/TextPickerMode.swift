@@ -188,6 +188,7 @@ enum TextPickerFilter {
     case allTexts
     case textsWithDensities
     case textsWithFoodLabelValues
+    case textsWithoutFoodLabelValues
     case textsInColumn1
     case textsInColumn2
 }

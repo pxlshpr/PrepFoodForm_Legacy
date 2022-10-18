@@ -358,7 +358,7 @@ class TextPickerViewModel: ObservableObject {
     }
     
     var showShowImageSelector: Bool {
-        (mode.isImageViewer || mode.isColumnSelection) && imageViewModels.count > 1
+        (mode.isImageViewer || mode.isColumnSelection || mode.isMultiSelection) && imageViewModels.count > 1
     }
 
     var shouldShowSelectedTextsBar: Bool {
@@ -663,10 +663,9 @@ struct TextPicker: View {
                     .foregroundColor(Color.accentColor)
                 HStack(spacing: 5) {
                     //TODO: Only capitalize if its in all caps—otherwise leave it as it is
-                    Text(imageText.text.string.capitalized)
+                    Text(imageText.text.string.capitalizedIfUppercase)
                         .font(.title3)
                         .bold()
-                    //                        .foregroundColor(.primary)
                         .foregroundColor(.white)
                 }
                 .padding(.horizontal, 15)

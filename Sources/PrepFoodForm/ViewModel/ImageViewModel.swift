@@ -37,6 +37,7 @@ class ImageViewModel: ObservableObject {
     
     var texts: [RecognizedText] = []
     var textsWithFoodLabelValues: [RecognizedText] = []
+    var textsWithoutFoodLabelValues: [RecognizedText] = []
     var textsWithDensities: [RecognizedText] = []
 
     var barcodeTexts: [RecognizedBarcode] = []
@@ -78,6 +79,7 @@ class ImageViewModel: ObservableObject {
         
         self.texts = scanResult.texts
         self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
+        self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
         self.textsWithDensities = scanResult.textsWithDensities
         self.barcodeTexts = scanResult.barcodes
 
@@ -92,6 +94,8 @@ class ImageViewModel: ObservableObject {
             return textsWithDensities
         case .textsWithFoodLabelValues:
             return textsWithFoodLabelValues
+        case .textsWithoutFoodLabelValues:
+            return textsWithoutFoodLabelValues
         case .textsInColumn1:
             //TODO: Extract column 1
             return texts
@@ -119,6 +123,7 @@ class ImageViewModel: ObservableObject {
                 
                 self.texts = result.texts
                 self.textsWithFoodLabelValues = result.textsWithFoodLabelValues
+                self.textsWithoutFoodLabelValues = result.textsWithoutFoodLabelValues
                 self.textsWithDensities = result.textsWithDensities
                 self.barcodeTexts = result.barcodes
 

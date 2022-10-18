@@ -331,7 +331,7 @@ extension ImageText {
     var componentTexts: [ComponentText] {
         text.string.selectionComponents.map {
             ComponentText(
-                componentString: $0.capitalized,
+                componentString: $0.capitalizedIfUppercase,
                 imageText: self)
         }
     }

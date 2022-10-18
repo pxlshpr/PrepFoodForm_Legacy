@@ -367,7 +367,7 @@ extension FieldValueForm {
                 }
         } else {
             return .multiSelection(
-                filter: .allTexts,
+                filter: .textsWithoutFoodLabelValues,
                 selectedImageTexts: fieldValue.fill.imageTexts) { imageTexts in
                     didSelectImageTexts(imageTexts)
                 }
