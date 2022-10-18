@@ -8,7 +8,7 @@ import ActivityIndicatorView
 
 class TextPickerViewModel: ObservableObject {
     
-    /// ViewModel stuff
+    @Published var showingAutofill = false
     @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
@@ -434,6 +434,21 @@ struct TextPicker: View {
                 dismiss()
             }
         }
+        .bottomMenu(isPresented: $textPickerViewModel.showingAutofill,
+                    actionGroups: autofillAction)
+    }
+    
+    var autofillAction: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "This will replace any existing data."
+            ),
+            BottomMenuAction(
+                title: "AutoFill",
+                tapHandler: {
+                }
+            )
+        ]]
     }
     
     //MARK:  Pager Layer
@@ -781,6 +796,7 @@ struct TextPicker: View {
             if textPickerViewModel.mode.isImageViewer {
                 Button {
                     //TODO: Write this
+                    textPickerViewModel.showingAutofill = true
                 } label: {
                     Label("AutoFill", systemImage: "text.viewfinder")
                 }

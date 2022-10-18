@@ -2,6 +2,24 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
+//MARK: - Array + BottomMenuAction
+extension Array where Element == BottomMenuAction {
+    var title: BottomMenuAction? {
+        guard let first, first.type == .title else {
+            return nil
+        }
+        return first
+    }
+    
+    var withoutTitle: [BottomMenuAction] {
+        filter { $0.type != .title }
+    }
+}
+
+enum ActionType {
+    case button, textField, title
+}
+
 //MARK: - BottomMenuAction
 
 public struct BottomMenuAction: Hashable, Equatable {
@@ -17,7 +35,7 @@ public struct BottomMenuAction: Hashable, Equatable {
     let textInputKeyboardType: UIKeyboardType
     let textInputAutocapitalization: TextInputAutocapitalization
 
-    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)?) {
+    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)? = nil) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = tapHandler
@@ -54,12 +72,16 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.textInputAutocapitalization = autocapitalization
     }
     
-    enum ActionType {
-        case button, textField
-    }
-    
     var type: ActionType {
-        self.textInputHandler == nil ? .button : .textField
+        if self.textInputHandler == nil {
+            if self.tapHandler == nil {
+                return .title
+            } else {
+                return .button
+            }
+        } else {
+            return .textField
+        }
     }
 
     public func hash(into hasher: inout Hasher) {
@@ -235,12 +257,15 @@ public struct BottomMenuModifier: ViewModifier {
     
     func actionGroup(for actions: [BottomMenuAction]) -> some View {
         VStack(spacing: 0) {
-            ForEach(actions.indices, id: \.self) { index in
+            if let title = actions.title {
+                titleButton(for: title)
+            }
+            ForEach(actions.withoutTitle.indices, id: \.self) { index in
                 if index != 0 {
                     Divider()
                         .padding(.leading, 75)
                 }
-                actionButton(for: actions[index])
+                actionButton(for: actions.withoutTitle[index])
             }
         }
     }
@@ -262,6 +287,20 @@ public struct BottomMenuModifier: ViewModifier {
                 .padding()
         }
         .disabled(shouldDisableSubmitButton)
+    }
+    
+    func titleButton(for action: BottomMenuAction) -> some View {
+        VStack(spacing: 0) {
+            Text(action.title)
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .fontWeight(.regular)
+                .foregroundColor(.secondary)
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+                .frame(maxWidth: .infinity)
+            Divider()
+        }
     }
     
     func actionButton(for action: BottomMenuAction) -> some View {
@@ -326,7 +365,7 @@ public struct BottomMenuModifier: ViewModifier {
     }
     
     func dismiss() {
-        Haptics.feedback(style: .medium)
+        Haptics.feedback(style: .soft)
         isFocused = false
         /// Reset `actionToReceiveTextInputFor` to nil only if the action groups has other actions besides the one expecting input
         if actionGroups.singleTextInputAction != nil {
@@ -376,7 +415,7 @@ public struct BottomMenuPreview: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .bottomMenu(isPresented: .constant(true), actionGroups: menuActionGroups2)
+        .bottomMenu(isPresented: .constant(true), actionGroups: confirmActionGroup)
     }
 
     var menuActionGroups: [[BottomMenuAction]] {
@@ -392,6 +431,19 @@ public struct BottomMenuPreview: View {
                 })
             ]
         ]
+    }
+
+    var confirmActionGroup: [[BottomMenuAction]] {
+        [[
+            BottomMenuAction(
+                title: "This will replace any existing data."
+            ),
+            BottomMenuAction(
+                title: "AutoFill",
+                tapHandler: {
+                }
+            )
+        ]]
     }
 
     var removeAllImagesActionGroups: [[BottomMenuAction]] {
