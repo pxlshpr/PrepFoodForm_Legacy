@@ -341,6 +341,7 @@ public struct FoodForm: View {
             detailsSection
             servingSection
             foodLabelSection
+            barcodesSection
             sourceSection
             prefillSection
         }
