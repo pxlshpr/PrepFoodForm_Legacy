@@ -422,6 +422,7 @@ public struct BottomMenuModifier: ViewModifier {
         /// Do this after a delay so that setting it to nil doesn't make the the initial menu pop up during the dismissal animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             linkedActions = nil
+            menuTransition = .move(edge: .bottom)
         }
         inputText = ""
         isPresented = false
