@@ -705,6 +705,7 @@ struct TextPicker: View {
             .frame(maxWidth: .infinity)
             .frame(height: 40)
             .onChange(of: textPickerViewModel.selectedColumn) { newValue in
+                Haptics.feedback(style: .soft)
                 textPickerViewModel.pickedColumn(newValue)
             }
         }
@@ -764,8 +765,8 @@ struct TextPicker: View {
     var doneButton: some View {
         if textPickerViewModel.shouldShowDoneButton {
             Button {
-                Haptics.successFeedback()
                 if textPickerViewModel.shouldDismissAfterTappingDone() {
+                    Haptics.successFeedback()
                     dismiss()
                 }
             } label: {
