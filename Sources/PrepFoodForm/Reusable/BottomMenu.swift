@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
+//MARK: - BottomMenuAction
+
 public struct BottomMenuAction: Hashable, Equatable {
     let title: String
     let systemImage: String?
@@ -83,8 +85,11 @@ extension Array where Element == [BottomMenuAction] {
     }
 }
 
+//MARK: - BottomMenuModifier
+
 public struct BottomMenuModifier: ViewModifier {
     
+    @Environment(\.colorScheme) var colorScheme
     @State var animatedIsPresented: Bool = false
     @FocusState var isFocused: Bool
     @State var inputText: String = ""
@@ -107,6 +112,7 @@ public struct BottomMenuModifier: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
+//            .blur(radius: animatedIsPresented ? 5 : 0)
             .overlay(menuOverlay)
             .onChange(of: isPresented) { newValue in
                 if newValue {
@@ -125,27 +131,6 @@ public struct BottomMenuModifier: ViewModifier {
             }
     }
     
-    func resetForNextPresentation() {
-        if let singleTextInputAction = actionGroups.singleTextInputAction {
-            actionToReceiveTextInputFor = singleTextInputAction
-        } else {
-            actionToReceiveTextInputFor = nil
-        }
-        if actionToReceiveTextInputFor != nil && !isFocused {
-            isFocused = true
-        }
-    }
-
-    var backgroundLayer: some View {
-        Color(.quaternarySystemFill)
-            .background (
-                .ultraThinMaterial
-            )
-            .onTapGesture {
-                dismiss()
-            }
-    }
-    
     var menuOverlay: some View {
         ZStack {
             if animatedIsPresented {
@@ -158,6 +143,18 @@ public struct BottomMenuModifier: ViewModifier {
                     .transition(.move(edge: .bottom))
             }
         }
+    }
+    
+    //MARK: - Layers
+
+    var backgroundLayer: some View {
+        Color(.black)
+            .opacity(colorScheme == .dark ? 0.6 : 0.4)
+//        Color(.quaternarySystemFill)
+//            .background (.ultraThinMaterial)
+            .onTapGesture {
+                dismiss()
+            }
     }
     
     var buttonsLayer: some View {
@@ -189,29 +186,7 @@ public struct BottomMenuModifier: ViewModifier {
         }
     }
     
-    func submitTextButton(for action: BottomMenuAction) -> some View {
-        Button {
-            if let textInputHandler = action.textInputHandler {
-                textInputHandler(inputText)
-            }
-            dismiss()
-        } label: {
-            Text(action.textInputSubmitString)
-                .font(.title3)
-                .fontWeight(.regular)
-                .foregroundColor(.accentColor)
-                .frame(maxWidth: .infinity)
-                .padding()
-        }
-        .disabled(shouldDisableSubmitButton)
-    }
-    
-    var shouldDisableSubmitButton: Bool {
-        guard let textInputIsValid = actionToReceiveTextInputFor?.textInputIsValid else {
-            return false
-        }
-        return !textInputIsValid(inputText)
-    }
+    //MARK: - Sections
     
     func inputSections(for action: BottomMenuAction) -> some View {
         VStack(spacing: 0) {
@@ -270,6 +245,25 @@ public struct BottomMenuModifier: ViewModifier {
         }
     }
     
+    //MARK: - Buttons
+    
+    func submitTextButton(for action: BottomMenuAction) -> some View {
+        Button {
+            if let textInputHandler = action.textInputHandler {
+                textInputHandler(inputText)
+            }
+            dismiss()
+        } label: {
+            Text(action.textInputSubmitString)
+                .font(.title3)
+                .fontWeight(.regular)
+                .foregroundColor(.accentColor)
+                .frame(maxWidth: .infinity)
+                .padding()
+        }
+        .disabled(shouldDisableSubmitButton)
+    }
+    
     func actionButton(for action: BottomMenuAction) -> some View {
         Button {
             /// If this action has a tap handler, handle it and dismiss
@@ -318,6 +312,19 @@ public struct BottomMenuModifier: ViewModifier {
         }
     }
     
+    //MARK: - Actions
+    
+    func resetForNextPresentation() {
+        if let singleTextInputAction = actionGroups.singleTextInputAction {
+            actionToReceiveTextInputFor = singleTextInputAction
+        } else {
+            actionToReceiveTextInputFor = nil
+        }
+        if actionToReceiveTextInputFor != nil && !isFocused {
+            isFocused = true
+        }
+    }
+    
     func dismiss() {
         Haptics.feedback(style: .medium)
         isFocused = false
@@ -327,6 +334,15 @@ public struct BottomMenuModifier: ViewModifier {
         }
         inputText = ""
         isPresented = false
+    }
+    
+    //MARK: - Helpers
+    
+    var shouldDisableSubmitButton: Bool {
+        guard let textInputIsValid = actionToReceiveTextInputFor?.textInputIsValid else {
+            return false
+        }
+        return !textInputIsValid(inputText)
     }
 }
 
@@ -341,24 +357,26 @@ public extension View {
 //MARK: - Preview
 
 public struct BottomMenuPreview: View {
-    @State var showingMenu: Bool = false
-    public init() { }
+    @State var showingMenu: Bool = true
+    @Environment(\.colorScheme) var colorScheme
+    @State var image: UIImage?
+    public init() {
+        _image = State(initialValue: sampleImage(imageFilename: "screenshot-light", type: "png"))
+    }
     
     public var body: some View {
-//        Color.blue
-//            .edgesIgnoringSafeArea(.all)
-//            .sheet(isPresented: .constant(true)) {
-                NavigationView {
-                    ZStack {
-                        Button("Menu") {
-                            showingMenu = true
-                        }
-                    }
-                    .navigationTitle("Form")
+        Group {
+//            Color.green
+            ZStack {
+                if let image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .edgesIgnoringSafeArea(.all)
                 }
-                .bottomMenu(isPresented: $showingMenu, actionGroups: removeAllImagesActionGroups)
-                .interactiveDismissDisabled(showingMenu)
-//            }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .bottomMenu(isPresented: .constant(true), actionGroups: menuActionGroups2)
     }
 
     var menuActionGroups: [[BottomMenuAction]] {

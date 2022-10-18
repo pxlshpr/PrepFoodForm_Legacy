@@ -6,8 +6,8 @@ func sampleImage(_ number: Int) -> UIImage? {
     sampleImage(imageFilename: "label\(number)")
 }
 
-func sampleImage(imageFilename: String) -> UIImage? {
-    guard let path = Bundle.module.path(forResource: imageFilename, ofType: "jpg") else {
+func sampleImage(imageFilename: String, type: String = "jpg") -> UIImage? {
+    guard let path = Bundle.module.path(forResource: imageFilename, ofType: type) else {
         return nil
     }
     return UIImage(contentsOfFile: path)
