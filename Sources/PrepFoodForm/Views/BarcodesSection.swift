@@ -3,6 +3,7 @@ import SwiftUISugar
 import RSBarcodes_Swift
 import Vision
 import AVKit
+import SwiftHaptics
 
 enum BarcodeSymbology {
     case code128
