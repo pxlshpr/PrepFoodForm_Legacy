@@ -9,6 +9,7 @@ import ActivityIndicatorView
 class TextPickerViewModel: ObservableObject {
     
     @Published var showingMenu = false
+    @Published var showingAutoFillConfirmation = false
     @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
@@ -63,11 +64,34 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
+    var columnCountForCurrentImage: Int {
+        currentImageViewModel?.scanResult?.columnCount ?? 0
+    }
+    
+    var currentImageViewModel: ImageViewModel? {
+        guard currentIndex < imageViewModels.count else { return nil }
+        return imageViewModels[currentIndex]
+    }
+    
     func pickedColumn(_ index: Int) {
         mode.selectedColumnIndex = index
         withAnimation {
             selectedImageTexts = mode.selectedImageTexts
         }
+    }
+    
+    var currentScanResult: ScanResult? {
+        currentImageViewModel?.scanResult
+    }
+    
+    func tappedConfirmAutoFill() {
+        guard let currentScanResult else { return }
+        FoodFormViewModel.shared.processScanResults(
+            column: selectedColumn,
+            from: [currentScanResult],
+            isUserInitiated: true
+        )
+        shouldDismiss = true
     }
     
     func removeFocusedBoxAfterDelay(forImageAt index: Int) {
@@ -219,12 +243,62 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
-    func tappedDone() {
+    func tappedAutoFill() {
+        guard let scanResult = imageViewModels[currentIndex].scanResult else {
+            return
+        }
+        if scanResult.columnCount == 1 {
+            
+            FoodFormViewModel.shared.processScanResults(
+                column: 1,
+                from: [scanResult],
+                isUserInitiated: true
+            )
+            
+            shouldDismiss = true
+
+        } else if scanResult.columnCount == 2 {
+            let column1 = TextPickerColumn(
+                column: 1,
+                name: scanResult.headerTitle1,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 1, from: scanResult)
+            )
+            let column2 = TextPickerColumn(
+                column: 2,
+                name: scanResult.headerTitle2,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
+            )
+            mode = .columnSelection(
+                column1: column1,
+                column2: column2,
+                selectedColumn: scanResult.bestColumn,
+                dismissHandler: {
+                    self.shouldDismiss = true
+                },
+                selectionHandler: { selectedColumn in
+                    self.showingAutoFillConfirmation = true
+                    return false
+                }
+            )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation {
+                    self.showingBoxes = true
+                    self.selectedImageTexts = self.mode.selectedImageTexts
+                }
+            }
+        } else {
+            shouldDismiss = true
+        }
+    }
+    
+    func shouldDismissAfterTappingDone() -> Bool {
         if case .multiSelection(_, _, let handler) = mode {
             handler(selectedImageTexts)
+            return true
         } else if case .columnSelection(_, _, let selectedColumn, _, let selectionHandler) = mode {
-            selectionHandler(selectedColumn)
+            return selectionHandler(selectedColumn)
         }
+        return true
     }
     
     func tappedDismiss() {
@@ -434,8 +508,9 @@ struct TextPicker: View {
                 dismiss()
             }
         }
-        .bottomMenu(isPresented: $textPickerViewModel.showingMenu,
-                    actionGroups: menuActions)
+        .bottomMenu(isPresented: $textPickerViewModel.showingMenu, actionGroups: menuActions)
+        .bottomMenu(isPresented: $textPickerViewModel.showingAutoFillConfirmation,
+                    actionGroups: [autoFillConfirmActionGroup])
     }
     
     //MARK:  Pager Layer
@@ -662,7 +737,6 @@ struct TextPicker: View {
                 Capsule(style: .continuous)
                     .foregroundColor(Color.accentColor)
                 HStack(spacing: 5) {
-                    //TODO: Only capitalize if its in all caps—otherwise leave it as it is
                     Text(imageText.text.string.capitalizedIfUppercase)
                         .font(.title3)
                         .bold()
@@ -683,8 +757,9 @@ struct TextPicker: View {
         if textPickerViewModel.shouldShowDoneButton {
             Button {
                 Haptics.successFeedback()
-                textPickerViewModel.tappedDone()
-                dismiss()
+                if textPickerViewModel.shouldDismissAfterTappingDone() {
+                    dismiss()
+                }
             } label: {
                 Text("Done")
                     .font(.title3)
@@ -778,60 +853,68 @@ struct TextPicker: View {
         }
     }
     
-//    var menuContents: some View {
-//        Group {
-//            if textPickerViewModel.mode.isImageViewer {
-//                Button {
-//                    //TODO: Write this
-//                    textPickerViewModel.showingAutofill = true
-//                } label: {
-//                    Label("AutoFill", systemImage: "text.viewfinder")
-//                }
-//                Button {
-//                    withAnimation {
-//                        textPickerViewModel.showingBoxes.toggle()
-//                    }
-//                } label: {
-//                    Label("\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
-//                          systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")")
-//                }
-//                Divider()
-//                Button(role: .destructive) {
-//                    textPickerViewModel.deleteCurrentImage()
-//                } label: {
-//                    Label("Remove Photo", systemImage: "trash")
-//                }
-//            }
-//        }
-//    }
+    var autoFillConfirmActionGroup: [BottomMenuAction] {
+        [
+            BottomMenuAction(
+                title: "This will replace any existing data."
+            ),
+            BottomMenuAction(
+                title: "AutoFill",
+                tapHandler: {
+                    textPickerViewModel.tappedConfirmAutoFill()
+                }
+            )
+        ]
+    }
+    
+    var autoFillLinkAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "AutoFill",
+            systemImage: "text.viewfinder",
+            linkedActionGroups: [autoFillConfirmActionGroup]
+        )
+    }
+    
+    var autoFillButtonAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "AutoFill",
+            systemImage: "text.viewfinder",
+            tapHandler: {
+                textPickerViewModel.tappedAutoFill()
+            }
+        )
+    }
+    
+    var autoFillAction: BottomMenuAction? {
+        switch textPickerViewModel.columnCountForCurrentImage {
+        case 2: return autoFillButtonAction
+        case 1: return autoFillLinkAction
+        default: return nil
+        }
+    }
+    
+    var showHideAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
+            systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")",
+            tapHandler: {
+                withAnimation {
+                    textPickerViewModel.showingBoxes.toggle()
+                }
+            })
+    }
+    
+    var topActionSections: [BottomMenuAction] {
+        if let autoFillAction {
+            return [autoFillAction, showHideAction]
+        } else {
+            return [showHideAction]
+        }
+    }
     
     var menuActions: [[BottomMenuAction]] {
         [
-            [
-                BottomMenuAction(
-                    title: "AutoFill",
-                    systemImage: "text.viewfinder",
-                    linkedActionGroups: [[
-                        BottomMenuAction(
-                            title: "This will replace any existing data."
-                        ),
-                        BottomMenuAction(
-                            title: "AutoFill",
-                            tapHandler: {
-                                //TODO: Now do the AutoFill
-                            }
-                        )
-                    ]]
-                ),
-                BottomMenuAction(
-                    title: "\(textPickerViewModel.showingBoxes ? "Hide" : "Show") Texts",
-                    systemImage: "eye\(textPickerViewModel.showingBoxes ? ".slash" : "")",
-                    tapHandler: {
-                        withAnimation {
-                            textPickerViewModel.showingBoxes.toggle()
-                        }
-                    })
-            ],
+            topActionSections,
             [
                 BottomMenuAction(
                     title: "Delete Photo",

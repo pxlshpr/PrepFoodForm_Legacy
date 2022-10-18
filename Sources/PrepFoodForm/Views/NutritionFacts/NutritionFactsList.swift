@@ -177,7 +177,7 @@ public struct NutritionFactsList: View {
                 }
             } label: {
 //                Image(systemName: "eye\(showImages ? ".slash" : "")")
-                Image(systemName: "photo.circle\(showImages ? ".fill" : "")")
+                Image(systemName: "viewfinder.circle\(showImages ? ".fill" : "")")
 //                    .foregroundColor(showImages ? .accentColor : .secondary)
                     .padding(.vertical)
                     .padding(.trailing)

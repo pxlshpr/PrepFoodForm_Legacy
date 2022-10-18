@@ -195,7 +195,7 @@ enum TextPickerFilter {
 
 typealias SingleSelectionHandler = ((ImageText) -> ())
 typealias MultiSelectionHandler = (([ImageText]) -> ())
-typealias ColumnSelectionHandler = ((Int) -> ())
+typealias ColumnSelectionHandler = ((Int) -> (Bool))
 typealias DeleteImageHandler = ((Int) -> ())
 typealias DismissHandler = (() -> ())
 

@@ -144,6 +144,8 @@ public class FoodFormViewModel: ObservableObject {
     
     @Published var selectedPhotos: [PhotosPickerItem] = []
     
+    @Published var foodLabelRefreshBool = false
+    
     var selectedImageIndex: Int = 0
     
     var relevantScanResults: [ScanResult] = []

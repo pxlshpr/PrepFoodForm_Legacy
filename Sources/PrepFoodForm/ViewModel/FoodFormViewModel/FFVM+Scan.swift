@@ -55,67 +55,73 @@ extension FoodFormViewModel {
         }
     }
     
-    func bestColumnImageTexts(at column: Int, from relevantScanResults: [ScanResult]) -> [ImageText] {
-        
-        //TODO: Do this before hand in processScanResults once and pass it into both this and processScanResults(column:isUserInitiated:)
-        let fieldViewModelsToExtract = [
+    var textPickerFieldViewModels: [FieldViewModel] {
+        [
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel
         ] + allMicronutrientFieldViewModels
+    }
+    
+    /// Get's the `ImageText`s for the `TextPickerColumn` at `column` of the best values picked from the provided array of `ScanResult`s.
+    func bestColumnImageTexts(at column: Int, from relevantScanResults: [ScanResult]) -> [ImageText] {
         
-        let fieldValues = fieldViewModelsToExtract.compactMap {
+        let fieldValues = textPickerFieldViewModels.compactMap {
             relevantScanResults.pickFieldValue(for: $0.fieldValue, at: column)
         }
         return fieldValues.compactMap { $0.fill.imageText }
     }
-    
+
+    /// Get's the `ImageText`s for the `TextPickerColumn` at `column` of the provided `ScanResult`.
+    func columnImageTexts(at column: Int, from scanResult: ScanResult) -> [ImageText] {
+        let fieldValues = textPickerFieldViewModels.compactMap {
+            scanResult.fieldValue(for: $0.fieldValue, at: column)
+        }
+        return fieldValues.compactMap { $0.fill.imageText }
+    }
+
     func processScanResults(
         column pickedColumn: Int,
         from relevantScanResults: [ScanResult],
         isUserInitiated: Bool = false
     ) {
-//        Task {
-//            let isUserInitiated = pickedColumn != nil
-            let column = pickedColumn
-            
-            let fieldViewModelsToExtract = [
-                energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
-                amountViewModel, servingViewModel, densityViewModel
-            ] + allMicronutrientFieldViewModels
-            
-            for fieldViewModel in fieldViewModelsToExtract {
-                extractField(for: fieldViewModel,
-                             at: column,
-                             from: relevantScanResults,
-                             isUserInitiated: isUserInitiated
-                )
+        let column = pickedColumn
+        
+        let fieldViewModelsToExtract = [
+            energyViewModel, carbViewModel, fatViewModel, proteinViewModel,
+            amountViewModel, servingViewModel, densityViewModel
+        ] + allMicronutrientFieldViewModels
+        
+        for fieldViewModel in fieldViewModelsToExtract {
+            extractField(for: fieldViewModel,
+                         at: column,
+                         from: relevantScanResults,
+                         isUserInitiated: isUserInitiated
+            )
+        }
+        
+        /// For each of the size view models in ALL the scan results
+        for sizeViewModel in relevantScanResults.allSizeViewModels(at: column) {
+            /// If we were able to add this size view model (if it wasn't a duplicate) ...
+            guard add(sizeViewModel: sizeViewModel) else {
+                continue
             }
-            
-            /// For each of the size view models in ALL the scan results
-            for sizeViewModel in relevantScanResults.allSizeViewModels(at: column) {
-                /// If we were able to add this size view model (if it wasn't a duplicate) ...
-                guard add(sizeViewModel: sizeViewModel) else {
-                    continue
-                }
-                sizeViewModel.resetAndCropImage()
-                /// ... then go ahead and add it to the `scannedFieldValues` array as well
-                replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
+            sizeViewModel.resetAndCropImage()
+            /// ... then go ahead and add it to the `scannedFieldValues` array as well
+            replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
+        }
+        
+        /// Get Barcodes from all images
+        for barcodeViewModel in scanResults.allBarcodeViewModels {
+            guard add(barcodeViewModel: barcodeViewModel) else {
+                continue
             }
-            
-            /// Get Barcodes from all images
-            for barcodeViewModel in scanResults.allBarcodeViewModels {
-                guard add(barcodeViewModel: barcodeViewModel) else {
-                    continue
-                }
-                barcodeViewModel.resetAndCropImage()
-                replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
-            }
-            
-//            await MainActor.run {
-                updateShouldShowDensitiesSection()
-//            }
-//        }
+            barcodeViewModel.resetAndCropImage()
+            replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
+        }
+        
+        updateShouldShowDensitiesSection()
         
         markAllImageViewModelsAsProcessed()
+        foodLabelRefreshBool.toggle()
     }
     
     /**

@@ -2,6 +2,26 @@ import FoodLabelScanner
 import SwiftSugar
 import PrepUnits
 
+extension ScanResult {
+    func fieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
+        switch fieldValue {
+        case .amount:
+            return amountFieldValue(for: column)
+        case .serving:
+            return servingFieldValue(for: column)
+        case .density:
+            return densityFieldValue
+        case .energy:
+            return energyFieldValue(at: column)
+        case .macro(let macroValue):
+            return macroFieldValue(for: macroValue.macro, at: column)
+        case .micro(let microValue):
+            return microFieldValue(for: microValue.nutrientType, at: column)
+        default:
+            return nil
+        }
+    }
+}
 extension Array where Element == ScanResult {
 
     func pickFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
@@ -204,6 +224,9 @@ extension ScanResult {
     }
     
     var columnCount: Int {
-        isTabular ? 2 : 1
+        if isTabular { return 2 }
+        if nutrientCount > 0 { return 1 }
+        return 0
+//        isTabular ? 2 : 1
     }
 }

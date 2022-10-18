@@ -32,6 +32,7 @@ extension FoodForm.NutritionFactsCell {
     
     var foodLabel: some View {
         FoodLabel(dataSource: viewModel)
+            .id(viewModel.foodLabelRefreshBool)
     }
 }
 

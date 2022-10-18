@@ -108,6 +108,7 @@ public struct FoodForm: View {
                             column: pickedColumn,
                             from: viewModel.relevantScanResults
                         )
+                        return true
                     })
             )
         }
