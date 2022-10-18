@@ -129,10 +129,10 @@ extension Array where Element == ScanResult {
      Remember that the column numbers aren't 0-based, so they start at 1.
      Returns 1 if they are both equal.
      */
-    var columnWithTheMostNutrients: Int {
-        map { $0.columnWithTheMostNutrients}
-            .mostFrequent ?? 1
-    }
+//    var columnWithTheMostNutrients: Int {
+//        map { $0.columnWithTheMostNutrients}
+//            .mostFrequent ?? 1
+//    }
     
 }
 
@@ -145,19 +145,34 @@ extension ScanResult {
         }
     }
     
-    //TODO: Make this consider which column has the larger set of values and return that if the counts are equal on both sides. Make columnWithTheMostNutrients return nil if equal
     var bestColumn: Int {
-        columnWithTheMostNutrients
+        columnWithTheMostNutrients ?? columnWithLargerValues
+    }
+    
+    var columnWithLargerValues: Int {
+        var isLargerCount1 = 0
+        var isLargerCount2 = 0
+        for row in nutrients.rows {
+            guard let value1 = row.value1, let value2 = row.value2 else {
+                continue
+            }
+            if value1.amount > value2.amount { isLargerCount1 += 1 }
+            if value2.amount > value1.amount { isLargerCount2 += 1 }
+        }
+        return isLargerCount1 > isLargerCount2 ? 1 : 2
     }
 
     /**
      Returns the column number with the most number of non-nil nutrients.
      
      Remember that the column numbers aren't 0-based, so they start at 1.
-     Returns 1 if they are both equal.
+     Returns `nil` if they are both equal.
      */
-    var columnWithTheMostNutrients: Int {
-        nutrientsCount(column: 1) >= nutrientsCount(column: 2) ? 1 : 2
+    var columnWithTheMostNutrients: Int? {
+        let count1 = nutrientsCount(column: 1)
+        let count2 = nutrientsCount(column: 2)
+        guard count1 != count2 else { return nil }
+        return count1 > count2 ? 1 : 2
     }
     
     /**

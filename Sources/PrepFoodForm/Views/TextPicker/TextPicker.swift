@@ -269,10 +269,12 @@ class TextPickerViewModel: ObservableObject {
                 imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
             )
             withAnimation {
+                let bestColumn = scanResult.bestColumn
+                self.selectedColumn = bestColumn
                 mode = .columnSelection(
                     column1: column1,
                     column2: column2,
-                    selectedColumn: scanResult.bestColumn,
+                    selectedColumn: bestColumn,
                     dismissHandler: {
                         self.shouldDismiss = true
                     },
@@ -584,6 +586,7 @@ struct TextPicker: View {
             Spacer()
             if textPickerViewModel.shouldShowBottomBar {
                 bottomBar
+                    .transition(.move(edge: .bottom))
             }
         }
     }
