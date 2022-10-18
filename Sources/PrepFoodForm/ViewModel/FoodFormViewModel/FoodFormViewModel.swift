@@ -130,6 +130,7 @@ public class FoodFormViewModel: ObservableObject {
     @Published var showingPhotosMenu = false
     @Published var showingAutofillMenu = false
     @Published var showingAddLinkMenu = false
+    @Published var showingAddBarcodeMenu = false
     @Published var showingRemoveImagesConfirmation = false
     @Published var showingRemoveLinkConfirmation = false
     @Published var showingColumnPicker = false

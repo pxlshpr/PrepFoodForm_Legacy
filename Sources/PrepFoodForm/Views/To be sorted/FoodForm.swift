@@ -6,6 +6,7 @@ import Camera
 import EmojiPicker
 import SwiftUISugar
 import FoodLabelCamera
+import RSBarcodes_Swift
 
 //let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 let WizardAnimation = Animation.easeIn(duration: 0.2)
@@ -96,6 +97,7 @@ public struct FoodForm: View {
         .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
         .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
         .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
+        .bottomMenu(isPresented: $viewModel.showingAddBarcodeMenu, actionGroups: addBarcodeActionGroups)
         .fullScreenCover(isPresented: $viewModel.showingColumnPicker) { columnPicker }
     }
     
@@ -137,6 +139,47 @@ public struct FoodForm: View {
             }
         }
     }
+    
+    
+    var addBarcodeActionGroups: [[BottomMenuAction]] {
+        [
+            [
+                BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
+                    
+                }),
+                BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: {
+                    
+                }),
+            ],
+            [enterBarcodeManuallyLink]
+        ]
+    }
+    
+    var enterBarcodeManuallyLink: BottomMenuAction {
+       BottomMenuAction(
+           title: "Enter Manually",
+           systemImage: "123.rectangle",
+           textInput: BottomMenuTextInput(
+               placeholder: "012345678912",
+               keyboardType: .decimalPad,
+               submitString: "Add Barcode",
+               autocapitalization: .never,
+               textInputIsValid: {
+                   RSUnifiedCodeValidator.shared.isValid($0, machineReadableCodeObjectType: AVMetadataObject.ObjectType.ean13.rawValue)
+               },
+               textInputHandler: {
+                   let barcodeValue = FieldValue.BarcodeValue(
+                       payloadString: $0,
+                       symbology: .ean13,
+                       fill: .userInput)
+                   let fieldViewModel = FieldViewModel(fieldValue: .barcode(barcodeValue))
+                   viewModel.addBarcodeViewModel(fieldViewModel)
+                   Haptics.successFeedback()
+               }
+           )
+       )
+   }
+    
     var photosActionGroups: [[BottomMenuAction]] {
         [[
             BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {

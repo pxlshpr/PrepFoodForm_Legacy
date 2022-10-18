@@ -90,7 +90,6 @@ struct BarcodesForm: View {
             .onDelete(perform: delete)
         }
         .toolbar { navigationTrailingContent }
-        .bottomMenu(isPresented: $showingAddMenu, actionGroups: addMenuActionGroups)
     }
     
     @ViewBuilder
@@ -130,58 +129,12 @@ struct BarcodesForm: View {
     
     //MARK: - Menu
     
-    var addMenuActionGroups: [[BottomMenuAction]] {
-        [
-            [
-                BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: tappedScan),
-                BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: tappedChoosePhoto),
-            ],
-            [enterManuallyLink]
-        ]
-    }
-    
-    var enterManuallyLink: BottomMenuAction {
-       BottomMenuAction(
-           title: "Enter Manually",
-           systemImage: "123.rectangle",
-           textInput: BottomMenuTextInput(
-               placeholder: "012345678912",
-               keyboardType: .decimalPad,
-               submitString: "Add Barcode",
-               autocapitalization: .never,
-               textInputIsValid: textInputIsValidHandler,
-               textInputHandler: submittedBarcode
-           )
-       )
-   }
-    
     //MARK: - Actions
 
-    func submittedBarcode(_ string: String) {
-        let barcodeValue = FieldValue.BarcodeValue(
-            payloadString: string,
-            symbology: .ean13,
-            fill: .userInput)
-        let fieldViewModel = FieldViewModel(fieldValue: .barcode(barcodeValue))
-        viewModel.addBarcodeViewModel(fieldViewModel)
-        Haptics.successFeedback()
-    }
-    
-    func tappedChoosePhoto() {
-        
-    }
-    
-    func tappedScan() {
-        
-    }
     func tappedAdd() {
-        showingAddMenu = true
+        viewModel.showingAddBarcodeMenu = true
     }
     
-    func textInputIsValidHandler(_ string: String) -> Bool {
-        RSUnifiedCodeValidator.shared.isValid(string, machineReadableCodeObjectType: AVMetadataObject.ObjectType.ean13.rawValue)
-    }
-
     func delete(at offsets: IndexSet) {
         viewModel.barcodeViewModels.remove(atOffsets: offsets)
     }
@@ -211,9 +164,7 @@ struct BarcodesSection: View {
     var notChosenContentSection: some View {
         FormStyledSection(header: header, footer: footer) {
             Button {
-//                withAnimation(.easeOut(duration: 0.2)) {
-                    viewModel.showingSourceMenu = true
-//                }
+                viewModel.showingAddBarcodeMenu = true
             } label: {
                 Text("Add a barcode")
                     .frame(maxWidth: .infinity, alignment: .leading)

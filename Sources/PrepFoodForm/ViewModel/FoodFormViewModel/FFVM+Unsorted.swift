@@ -427,8 +427,7 @@ extension FoodFormViewModel {
     }
 
     var hasBarcodes: Bool {
-        guard let barcodesCount else { return false }
-        return barcodesCount > 0
+        !barcodeViewModels.isEmpty
     }
 
     var shouldShowImagesButton: Bool {
