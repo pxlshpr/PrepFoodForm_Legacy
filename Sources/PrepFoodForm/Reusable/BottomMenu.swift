@@ -127,6 +127,7 @@ extension Array where Element == [BottomMenuAction] {
 public struct BottomMenuModifier: ViewModifier {
     
     @Environment(\.colorScheme) var colorScheme
+    @State var animateBackground: Bool = false
     @State var animatedIsPresented: Bool = false
     @FocusState var isFocused: Bool
     @State var inputText: String = ""
@@ -150,22 +151,34 @@ public struct BottomMenuModifier: ViewModifier {
         }
     }
     
+    @State var animationDurationBackground: CGFloat = 0.1
+    @State var animationDurationButtons: CGFloat = 0.15
+
     public func body(content: Content) -> some View {
         content
 //            .blur(radius: animatedIsPresented ? 5 : 0)
             .overlay(menuOverlay)
-//            .onChange(of: isPresented) { newValue in
-//                if newValue {
-//                    resetForNextPresentation()
-//                    Haptics.feedback(style: .soft)
-//                }
-//
+            .onChange(of: isPresented) { isPresented in
+                if isPresented {
+                    resetForNextPresentation()
+                    Haptics.feedback(style: .medium)
+                    animationDurationBackground = 0.1
+                    animationDurationButtons = 0.15
+                } else {
+                    animationDurationBackground = 0.1
+                    animationDurationButtons = 0.25
+                }
+                
 //                withAnimation(.default) {
-//                    animatedIsPresented = newValue
-//                }
-//            }
+                withAnimation(.linear(duration: animationDurationBackground)) {
+                    animateBackground = isPresented
+                }
+                withAnimation(.easeOut(duration: animationDurationButtons)) {
+                    animatedIsPresented = isPresented
+                }
+            }
             .onAppear {
-                if actionToReceiveTextInputFor != nil && !isFocused {
+                if actionToReceiveTextInputFor != nil && !isFocused && isPresented {
                     isFocused = true
                 }
             }
@@ -173,15 +186,17 @@ public struct BottomMenuModifier: ViewModifier {
     
     var menuOverlay: some View {
         ZStack {
-            if isPresented {
+            if animateBackground {
                 backgroundLayer
                     .edgesIgnoringSafeArea(.all)
                     .transition(.opacity)
+                    .zIndex(1)
             }
-            if isPresented {
+//            if isPresented {
                 buttonsLayer
-                    .transition(.move(edge: .bottom))
-            }
+                .transition(.opacity)
+                .zIndex(2)
+//            }
         }
     }
     
@@ -207,6 +222,17 @@ public struct BottomMenuModifier: ViewModifier {
     var buttonsLayer: some View {
         VStack(spacing: 10) {
             Spacer()
+//            GeometryReader { geometry in
+//                buttonsContent(geometry)
+//            }
+            buttonsContent()
+        }
+        .offset(y: animatedIsPresented ? 0 : 400)
+    }
+    
+//    func buttonsContent(_ geometry: GeometryProxy) -> some View {
+    func buttonsContent() -> some View {
+        Group {
             if let textInput = actionToReceiveTextInputFor?.textInput {
                 inputSections(for: textInput)
                     .transition(.move(edge: .trailing))
@@ -224,7 +250,8 @@ public struct BottomMenuModifier: ViewModifier {
                         submitTextButton(for: actionToReceiveTextInputFor)
                         Divider()
                     }
-                    .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
+//                    .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
+                    .transition(.move(edge: .bottom))
                 }
                 cancelButton
             }
@@ -428,7 +455,9 @@ public struct BottomMenuModifier: ViewModifier {
             menuTransition = .move(edge: .bottom)
         }
         inputText = ""
-        isPresented = false
+        withAnimation(.easeOut(duration: 0.2)) {
+            isPresented = false
+        }
     }
     
     //MARK: - Helpers

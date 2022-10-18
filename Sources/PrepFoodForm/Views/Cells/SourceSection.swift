@@ -122,12 +122,13 @@ struct SourceSection: View {
     var notChosenContentSection: some View {
         FormStyledSection(header: header, footer: footer) {
             Button {
-                withAnimation(.easeOut(duration: 0.2)) {
+//                withAnimation(.easeOut(duration: 0.2)) {
                     viewModel.showingSourceMenu = true
-                }
+//                }
             } label: {
                 Text("Add a source")
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
             }
         }
     }
