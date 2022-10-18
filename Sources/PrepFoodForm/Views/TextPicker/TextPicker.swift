@@ -758,6 +758,7 @@ struct TextPicker: View {
     
     var topMenuButton: some View {
         Button {
+            Haptics.transientHaptic()
             textPickerViewModel.showingMenu = true
         } label: {
             Image(systemName: "ellipsis")

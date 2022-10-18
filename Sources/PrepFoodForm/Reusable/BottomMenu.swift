@@ -160,7 +160,7 @@ public struct BottomMenuModifier: ViewModifier {
                 }
 
                 withAnimation(.interactiveSpring()) {
-                    Haptics.feedback(style: .rigid)
+//                    Haptics.feedback(style: .rigid)
                     animatedIsPresented = newValue
                 }
             }
@@ -201,7 +201,7 @@ public struct BottomMenuModifier: ViewModifier {
         if linkedActions != nil {
             return .move(edge: .leading)
         } else {
-            return .move(edge: .bottom)
+            return .move(edge: .bottom).combined(with: .opacity)
         }
     }
     var buttonsLayer: some View {
@@ -348,7 +348,10 @@ public struct BottomMenuModifier: ViewModifier {
         Button {
             /// If this action has a tap handler, handle it and dismiss
             if let tapHandler = action.tapHandler {
-                tapHandler()
+                /// Delay the action to avoid the animation of it dismissing possibly being interrupted by a `@State` changing `tapHandler`
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    tapHandler()
+                }
                 dismiss()
             } else if action.type == .textField {
                 /// If this has a text input handler—change the UI to be able to recieve text input
