@@ -2,6 +2,8 @@ import SwiftUI
 import SwiftUISugar
 import RSBarcodes_Swift
 import Vision
+import AVKit
+
 enum BarcodeSymbology {
     case code128
     case aztec
@@ -155,7 +157,13 @@ struct BarcodesForm: View {
     //MARK: - Actions
 
     func submittedBarcode(_ string: String) {
-        
+        let barcodeValue = FieldValue.BarcodeValue(
+            payloadString: string,
+            symbology: .ean13,
+            fill: .userInput)
+        let fieldViewModel = FieldViewModel(fieldValue: .barcode(barcodeValue))
+        viewModel.addBarcodeViewModel(fieldViewModel)
+        Haptics.successFeedback()
     }
     
     func tappedChoosePhoto() {
@@ -170,8 +178,7 @@ struct BarcodesForm: View {
     }
     
     func textInputIsValidHandler(_ string: String) -> Bool {
-        return false
-//        string.isValidURL
+        RSUnifiedCodeValidator.shared.isValid(string, machineReadableCodeObjectType: AVMetadataObject.ObjectType.ean13.rawValue)
     }
 
     func delete(at offsets: IndexSet) {
