@@ -3,9 +3,10 @@ import FoodLabelScanner
 
 extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
-        withAnimation {
-            showingWizard = false
-        }
+        dismissWizard()
+//        withAnimation {
+//            showingWizard = false
+//        }
 
         imageViewModels.append(ImageViewModel(image))
     }
@@ -16,9 +17,10 @@ extension FoodFormViewModel {
         )
         processScanResults()
         imageSetStatus = .scanned
-        withAnimation {
-            showingWizard = false
-        }
+        dismissWizard()
+//        withAnimation {
+//            showingWizard = false
+//        }
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {

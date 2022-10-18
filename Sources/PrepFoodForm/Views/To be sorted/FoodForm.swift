@@ -34,20 +34,25 @@ public struct FoodForm: View {
                             Haptics.transientHaptic()
                         }
                     }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
+                        viewModel.formDisabled = true
                         withAnimation(WizardAnimation) {
                             if viewModel.shouldShowWizard {
                                 viewModel.showingWizard = true
                                 viewModel.shouldShowWizard = false
                             }
                         }
+//                        withAnimation(.easeOut(duration: 0.1)) {
+//                            viewModel.showingWizardOverlay = true
+//                        }
                     }
                 }
                 .onChange(of: viewModel.selectedPhotos) { newValue in
                     viewModel.selectedPhotosChanged(to: newValue)
-                    withAnimation {
-                        viewModel.showingWizard = false
-                    }
+                    viewModel.dismissWizard()
+//                    withAnimation {
+//                        viewModel.showingWizard = false
+//                    }
                 }
                 .sheet(isPresented: $viewModel.showingCamera) {
                     Camera { image in
@@ -238,17 +243,16 @@ public struct FoodForm: View {
                 }
                 .overlay(
                     Color(.quaternarySystemFill)
-                        .opacity(viewModel.showingWizard ? 0.3 : 0)
-                    //                        .onTapGesture {
-                    //                            Haptics.successFeedback()
-                    //                            withAnimation(wizardAnimation) {
-                    //                                showingWizard = false
-                    //                            }
-                    //                        }
+                        .opacity(viewModel.showingWizardOverlay ? 0.3 : 0)
+//                        .onTapGesture {
+//                            Haptics.successFeedback()
+//                            withAnimation(wizardAnimation) {
+//                                showingWizard = false
+//                            }
+//                        }
                 )
-                .blur(radius: viewModel.showingWizard ? 5 : 0)
-                .disabled(viewModel.showingWizard)
-            //            dismissTapGesture
+                .blur(radius: viewModel.showingWizardOverlay ? 5 : 0)
+                .disabled(viewModel.formDisabled)
             wizard
             VStack {
                 Spacer()
@@ -339,9 +343,7 @@ public struct FoodForm: View {
     
     func startWithEmptyFood() {
         Haptics.transientHaptic()
-        withAnimation(WizardAnimation) {
-            viewModel.showingWizard = false
-        }
+        viewModel.dismissWizard()
     }
     
     //MARK: - Wizard Contents

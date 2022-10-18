@@ -43,9 +43,10 @@ extension FoodFormViewModel {
 //        simulateAddingImage(3)
 //        simulateAddingImage(4)
 
-        withAnimation {
-            showingWizard = false
-        }
+        dismissWizard()
+//        withAnimation {
+//            showingWizard = false
+//        }
     }
     
     func simulateImageScanning(_ indexes: [Int]) {
@@ -53,9 +54,10 @@ extension FoodFormViewModel {
         populateWithSampleImages(indexes)
         processScanResults()
         imageSetStatus = .scanned
-        withAnimation {
-            showingWizard = false
-        }
+        dismissWizard()
+//        withAnimation {
+//            showingWizard = false
+//        }
     }
     
     func prefill(_ food: MFPProcessedFood) {
@@ -81,9 +83,20 @@ extension FoodFormViewModel {
 
         prefilledFood = food
         
-        withAnimation {
+        dismissWizard()
+//        withAnimation {
+//            showingWizard = false
+//        }
+    }
+    
+    func dismissWizard() {
+        withAnimation(WizardAnimation) {
             showingWizard = false
         }
+        withAnimation(.easeOut(duration: 0.1)) {
+            showingWizardOverlay = false
+        }
+        formDisabled = false
     }
     
     func prefillDetails(from food: MFPProcessedFood) {

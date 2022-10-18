@@ -139,6 +139,8 @@ public class FoodFormViewModel: ObservableObject {
     
     @Published var shouldShowWizard = true
     @Published var showingWizard = false
+    @Published var showingWizardOverlay = true
+    @Published var formDisabled = false
 
     @Published var shouldShowDensitiesSection = false
     
