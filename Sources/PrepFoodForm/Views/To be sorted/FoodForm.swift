@@ -7,7 +7,8 @@ import EmojiPicker
 import SwiftUISugar
 import FoodLabelCamera
 
-let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
+//let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
+let WizardAnimation = Animation.easeIn(duration: 0.2)
 
 public struct FoodForm: View {
     
@@ -35,11 +36,15 @@ public struct FoodForm: View {
                         }
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
-                        viewModel.formDisabled = true
                         withAnimation(WizardAnimation) {
                             if viewModel.shouldShowWizard {
+                                viewModel.formDisabled = true
                                 viewModel.showingWizard = true
                                 viewModel.shouldShowWizard = false
+                            } else {
+                                viewModel.showingWizard = false
+                                viewModel.showingWizardOverlay = false
+                                viewModel.formDisabled = false
                             }
                         }
 //                        withAnimation(.easeOut(duration: 0.1)) {
@@ -508,7 +513,12 @@ public struct FoodForm: View {
         SourceSection()
             .environmentObject(viewModel)
     }
-    
+
+    var barcodesSection: some View {
+        BarcodesSection()
+            .environmentObject(viewModel)
+    }
+
     @ViewBuilder
     var prefillSection: some View {
         if let url = viewModel.prefilledFood?.sourceUrl {

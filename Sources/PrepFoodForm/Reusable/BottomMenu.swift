@@ -167,6 +167,9 @@ public struct BottomMenuModifier: ViewModifier {
                 } else {
                     animationDurationBackground = 0.1
                     animationDurationButtons = 0.25
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+//                        isFocused = false
+//                    }
                 }
                 
 //                withAnimation(.default) {
@@ -227,6 +230,7 @@ public struct BottomMenuModifier: ViewModifier {
 //            }
             buttonsContent()
         }
+        //TODO: Get the size here
         .offset(y: animatedIsPresented ? 0 : 400)
     }
     
@@ -455,9 +459,9 @@ public struct BottomMenuModifier: ViewModifier {
             menuTransition = .move(edge: .bottom)
         }
         inputText = ""
-        withAnimation(.easeOut(duration: 0.2)) {
+//        withAnimation(.easeOut(duration: 0.2)) {
             isPresented = false
-        }
+//        }
     }
     
     //MARK: - Helpers

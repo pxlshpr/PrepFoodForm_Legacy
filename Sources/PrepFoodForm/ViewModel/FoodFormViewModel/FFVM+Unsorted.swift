@@ -425,7 +425,12 @@ extension FoodFormViewModel {
     var hasSources: Bool {
         hasSourceImages || hasSourceLink
     }
-    
+
+    var hasBarcodes: Bool {
+        guard let barcodesCount else { return false }
+        return barcodesCount > 0
+    }
+
     var shouldShowImagesButton: Bool {
         for fieldViewModel in allFieldViewModels {
             if fieldViewModel.fill.usesImage {
@@ -448,6 +453,7 @@ import MFPScraper
 extension FoodFormViewModel {
     
     public enum MockCase: String, CaseIterable {
+        case proteinOats = "protein_oats"
         case phillyCheese = "philly_cheese"
         case yoghurt = "yoghurt"
         case spinach = "spinach"

@@ -193,7 +193,7 @@ struct SourceSection: View {
                 
             } label: {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Provide a source if you want this food to be eligible for the public database and earn member points.")
+                    Text("Provide a source if you want this food to be eligible for the public database and generate subscription tokens.")
                         .foregroundColor(Color(.secondaryLabel))
                         .multilineTextAlignment(.leading)
                     Label("Learn more", systemImage: "info.circle")
