@@ -268,18 +268,20 @@ class TextPickerViewModel: ObservableObject {
                 name: scanResult.headerTitle2,
                 imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
             )
-            mode = .columnSelection(
-                column1: column1,
-                column2: column2,
-                selectedColumn: scanResult.bestColumn,
-                dismissHandler: {
-                    self.shouldDismiss = true
-                },
-                selectionHandler: { selectedColumn in
-                    self.showingAutoFillConfirmation = true
-                    return false
-                }
-            )
+            withAnimation {
+                mode = .columnSelection(
+                    column1: column1,
+                    column2: column2,
+                    selectedColumn: scanResult.bestColumn,
+                    dismissHandler: {
+                        self.shouldDismiss = true
+                    },
+                    selectionHandler: { selectedColumn in
+                        self.showingAutoFillConfirmation = true
+                        return false
+                    }
+                )
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                 withAnimation {
                     self.showingBoxes = true
@@ -596,6 +598,7 @@ struct TextPicker: View {
                 Spacer()
                 if let title {
                     titleView(for: title)
+                        .transition(.scale)
                 }
                 Spacer()
             }
@@ -603,11 +606,13 @@ struct TextPicker: View {
                 Spacer()
                 if textPickerViewModel.shouldShowMenuInTopBar {
                     topMenuButton
+                        .transition(.move(edge: .trailing))
                 } else {
                     doneButton
                 }
             }
         }
+        .frame(height: 64)
     }
     
     var bottomBar: some View {
@@ -781,6 +786,7 @@ struct TextPicker: View {
                     .contentShape(Rectangle())
             }
             .disabled(textPickerViewModel.selectedImageTexts.isEmpty)
+            .transition(.scale)
         }
     }
     var dismissButton: some View {
