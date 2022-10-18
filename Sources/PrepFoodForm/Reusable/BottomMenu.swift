@@ -154,16 +154,16 @@ public struct BottomMenuModifier: ViewModifier {
         content
 //            .blur(radius: animatedIsPresented ? 5 : 0)
             .overlay(menuOverlay)
-            .onChange(of: isPresented) { newValue in
-                if newValue {
-                    resetForNextPresentation()
-                }
-
-                withAnimation(.interactiveSpring()) {
-//                    Haptics.feedback(style: .rigid)
-                    animatedIsPresented = newValue
-                }
-            }
+//            .onChange(of: isPresented) { newValue in
+//                if newValue {
+//                    resetForNextPresentation()
+//                    Haptics.feedback(style: .soft)
+//                }
+//
+//                withAnimation(.default) {
+//                    animatedIsPresented = newValue
+//                }
+//            }
             .onAppear {
                 if actionToReceiveTextInputFor != nil && !isFocused {
                     isFocused = true
@@ -173,12 +173,12 @@ public struct BottomMenuModifier: ViewModifier {
     
     var menuOverlay: some View {
         ZStack {
-            if animatedIsPresented {
+            if isPresented {
                 backgroundLayer
                     .edgesIgnoringSafeArea(.all)
                     .transition(.opacity)
             }
-            if animatedIsPresented {
+            if isPresented {
                 buttonsLayer
                     .transition(.move(edge: .bottom))
             }
