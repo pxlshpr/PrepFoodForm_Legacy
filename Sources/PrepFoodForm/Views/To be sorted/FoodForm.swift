@@ -30,7 +30,7 @@ public struct FoodForm: View {
                 .interactiveDismissDisabled(disableDismiss)
                 .onAppear {
                     if viewModel.shouldShowWizard {
-                        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0.6) {
+                        DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0) {
                             Haptics.transientHaptic()
                         }
                     }
