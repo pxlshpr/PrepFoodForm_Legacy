@@ -163,12 +163,12 @@ public struct BottomMenuModifier: ViewModifier {
             .onChange(of: isPresented) { isPresented in
                 if isPresented {
                     resetForNextPresentation()
-                    Haptics.feedback(style: .medium)
+                    Haptics.selectionFeedback()
                     animationDurationBackground = 0.29
                     animationDurationButtons = 0.29
                 } else {
                     animationDurationBackground = 0.1
-                    animationDurationButtons = 0.25
+                    animationDurationButtons = 0.1
 //                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
 //                        isFocused = false
 //                    }
