@@ -151,9 +151,9 @@ public struct FoodForm: View {
                 BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
                     viewModel.showingBarcodeScanner = true
                 }),
-                BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: {
-                    
-                }),
+//                BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: {
+//                    
+//                }),
             ],
             [enterBarcodeManuallyLink]
         ]
