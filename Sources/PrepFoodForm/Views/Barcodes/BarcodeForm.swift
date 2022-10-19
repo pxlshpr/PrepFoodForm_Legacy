@@ -72,8 +72,6 @@ struct BarcodesForm: View {
            let image = barcodeViewModel.barcodeThumbnail(asSquare: false)
         {
             HStack {
-                Color.green
-                    .frame(width: 100, height: 40)
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFit()
