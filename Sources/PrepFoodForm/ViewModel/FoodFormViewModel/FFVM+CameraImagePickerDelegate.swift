@@ -1,5 +1,6 @@
 import SwiftUI
 import FoodLabelScanner
+import VisionSugar
 
 extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
@@ -21,6 +22,20 @@ extension FoodFormViewModel {
 //        withAnimation {
 //            showingWizard = false
 //        }
+    }
+    
+    func didScan(_ barcodes: [RecognizedBarcode], on image: UIImage) {
+        //TODO: Create a new .barcodeScanned Fill with a recognizedBarcode and an imageId
+        for barcode in barcodes {
+            let fieldViewModel = FieldViewModel(fieldValue:
+                    .barcode(FieldValue.BarcodeValue(
+                        payloadString: barcode.string,
+                        symbology: barcode.symbology,
+                        fill: .userInput
+                    ))
+            )
+            addBarcodeViewModel(fieldViewModel)
+        }
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {

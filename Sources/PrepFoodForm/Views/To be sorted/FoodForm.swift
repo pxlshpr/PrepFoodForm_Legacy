@@ -16,7 +16,6 @@ public struct FoodForm: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @StateObject var viewModel: FoodFormViewModel
-    @State var showingScan = false
     @State var showingThirdPartyInfo = false
     @State var showingPhotosPicker = false
     
@@ -63,6 +62,11 @@ public struct FoodForm: View {
                 .sheet(isPresented: $viewModel.showingCamera) {
                     Camera { image in
                         viewModel.didCapture(image)
+                    }
+                }
+                .sheet(isPresented: $viewModel.showingBarcodeScanner) {
+                    BarcodeScanner { barcodes, image in
+                        viewModel.didScan(barcodes, on: image)
                     }
                 }
                 .sheet(isPresented: $viewModel.showingFoodLabelCamera) {
@@ -145,7 +149,7 @@ public struct FoodForm: View {
         [
             [
                 BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
-                    
+                    viewModel.showingBarcodeScanner = true
                 }),
                 BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: {
                     

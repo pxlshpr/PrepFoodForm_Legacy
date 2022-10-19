@@ -647,16 +647,24 @@ extension FieldViewModel {
     }
 }
 
-//MARK: - Subscriptions
 extension FoodFormViewModel {
+    
+    func contains(barcodeViewModel: FieldViewModel) -> Bool {
+        barcodeViewModels.contains(where: {
+            $0.barcodeValue?.payloadString == barcodeViewModel.barcodeValue?.payloadString
+        })
+    }
+    //MARK: - Subscriptions
     
     /// We use this helper so that we ensure the view model subscribes to changes in the `FieldViewModel` instance.
     func addStandardSizeViewModel(_ sizeViewModel: FieldViewModel) {
+        //TODO: Double check that size doesn't exist here before continuing
         addSubscription(for: sizeViewModel)
         standardSizeViewModels.append(sizeViewModel)
     }
     
     func addBarcodeViewModel(_ barcodeViewModel: FieldViewModel) {
+        guard !contains(barcodeViewModel: barcodeViewModel) else { return }
         addSubscription(for: barcodeViewModel)
         barcodeViewModels.append(barcodeViewModel)
     }

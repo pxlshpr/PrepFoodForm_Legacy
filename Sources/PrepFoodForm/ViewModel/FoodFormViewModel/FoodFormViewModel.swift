@@ -137,7 +137,8 @@ public class FoodFormViewModel: ObservableObject {
 
     @Published var showingCamera: Bool = false
     @Published var showingFoodLabelCamera: Bool = false
-    
+    @Published var showingBarcodeScanner: Bool = false
+
     @Published var shouldShowWizard = true
     @Published var showingWizard = true
     @Published var showingWizardOverlay = true
