@@ -43,7 +43,7 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     init(barcodeImage image: UIImage) {
         self.image = image
-        self.status = .notScanned
+        self.status = .scanned
         self.id = UUID()
         self.prepareThumbnails()
 //        self.status = .scanned

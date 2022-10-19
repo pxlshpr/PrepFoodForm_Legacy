@@ -55,7 +55,7 @@ public struct BottomMenuAction: Hashable, Equatable {
     let textInput: BottomMenuTextInput?
     let linkedActionGroups: [[BottomMenuAction]]?
 
-    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)? = nil) {
+    public init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, tapHandler: (() -> Void)? = nil) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = tapHandler
@@ -64,7 +64,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.linkedActionGroups = nil
     }
 
-    init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, linkedActionGroups: [[BottomMenuAction]]) {
+    public init(title: String, systemImage: String? = nil, role: ButtonRole = .cancel, linkedActionGroups: [[BottomMenuAction]]) {
         self.title = title
         self.systemImage = systemImage
         self.tapHandler = nil
@@ -73,7 +73,7 @@ public struct BottomMenuAction: Hashable, Equatable {
         self.linkedActionGroups = linkedActionGroups
     }
 
-    init(title: String, systemImage: String? = nil, textInput: BottomMenuTextInput) {
+    public init(title: String, systemImage: String? = nil, textInput: BottomMenuTextInput) {
         self.title = title
         self.systemImage = systemImage
         self.role = .cancel
@@ -139,7 +139,7 @@ public struct BottomMenuModifier: ViewModifier {
 
     @State var menuTransition: AnyTransition = .move(edge: .bottom)
     
-    init(isPresented: Binding<Bool>, actionGroups: [[BottomMenuAction]]) {
+    public init(isPresented: Binding<Bool>, actionGroups: [[BottomMenuAction]]) {
         _isPresented = isPresented
         self.actionGroups = actionGroups
         
@@ -154,6 +154,8 @@ public struct BottomMenuModifier: ViewModifier {
     @State var animationDurationBackground: CGFloat = 0.1
     @State var animationDurationButtons: CGFloat = 0.15
 
+    @State private var buttonsSize = CGSize.zero
+    
     public func body(content: Content) -> some View {
         content
 //            .blur(radius: animatedIsPresented ? 5 : 0)
@@ -162,7 +164,7 @@ public struct BottomMenuModifier: ViewModifier {
                 if isPresented {
                     resetForNextPresentation()
                     Haptics.feedback(style: .medium)
-                    animationDurationBackground = 0.1
+                    animationDurationBackground = 0.08
                     animationDurationButtons = 0.15
                 } else {
                     animationDurationBackground = 0.1
@@ -173,7 +175,7 @@ public struct BottomMenuModifier: ViewModifier {
                 }
                 
 //                withAnimation(.default) {
-                withAnimation(.linear(duration: animationDurationBackground)) {
+                withAnimation(.easeOut(duration: animationDurationBackground)) {
                     animateBackground = isPresented
                 }
                 withAnimation(.easeOut(duration: animationDurationButtons)) {
@@ -207,7 +209,7 @@ public struct BottomMenuModifier: ViewModifier {
 
     var backgroundLayer: some View {
         Color(.black)
-            .opacity(colorScheme == .dark ? 0.6 : 0.4)
+            .opacity(colorScheme == .dark ? 0.6 : 0.3)
 //        Color(.quaternarySystemFill)
 //            .background (.ultraThinMaterial)
             .onTapGesture {
@@ -228,10 +230,12 @@ public struct BottomMenuModifier: ViewModifier {
 //            GeometryReader { geometry in
 //                buttonsContent(geometry)
 //            }
-            buttonsContent()
+            buttonsContent().readSize { size in
+                buttonsSize = size
+            }
         }
         //TODO: Get the size here
-        .offset(y: animatedIsPresented ? 0 : 400)
+        .offset(y: animatedIsPresented ? 0 : buttonsSize.height + 50)
     }
     
 //    func buttonsContent(_ geometry: GeometryProxy) -> some View {
@@ -591,4 +595,21 @@ struct BottomMenu_Previews: PreviewProvider {
     static var previews: some View {
         BottomMenuPreview()
     }
+}
+
+extension View {
+  func readSize(onChange: @escaping (CGSize) -> Void) -> some View {
+    background(
+      GeometryReader { geometryProxy in
+        Color.clear
+          .preference(key: SizePreferenceKey.self, value: geometryProxy.size)
+      }
+    )
+    .onPreferenceChange(SizePreferenceKey.self, perform: onChange)
+  }
+}
+
+private struct SizePreferenceKey: PreferenceKey {
+  static var defaultValue: CGSize = .zero
+  static func reduce(value: inout CGSize, nextValue: () -> CGSize) {}
 }
