@@ -37,17 +37,17 @@ public struct FoodForm: View {
                         }
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
-                        withAnimation(WizardAnimation) {
                             if viewModel.shouldShowWizard {
-                                viewModel.formDisabled = true
-                                viewModel.showingWizard = true
-                                viewModel.shouldShowWizard = false
+                                withAnimation(WizardAnimation) {
+                                    viewModel.formDisabled = true
+                                    viewModel.showingWizard = true
+                                    viewModel.shouldShowWizard = false
+                                }
                             } else {
                                 viewModel.showingWizard = false
                                 viewModel.showingWizardOverlay = false
                                 viewModel.formDisabled = false
                             }
-                        }
 //                        withAnimation(.easeOut(duration: 0.1)) {
 //                            viewModel.showingWizardOverlay = true
 //                        }

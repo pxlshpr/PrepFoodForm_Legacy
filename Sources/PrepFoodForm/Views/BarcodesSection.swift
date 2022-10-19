@@ -62,7 +62,7 @@ extension VNBarcodeSymbology {
 }
 extension FieldViewModel {
     var barcodeThumbnail: UIImage? {
-        barcodeImage(size: 300)
+        barcodeImage(size: 100)
     }
     
     func barcodeImage(size: CGFloat) -> UIImage? {

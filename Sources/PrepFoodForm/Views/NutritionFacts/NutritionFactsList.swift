@@ -6,15 +6,17 @@ public struct NutritionFactsList: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.colorScheme) var colorScheme
     @State var showImages = true
-
+    @State var showingMenu = false
+    
     public var body: some View {
         scrollView
             .toolbar { navigationTrailingContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $viewModel.showingMicronutrientsPicker) { microPicker }
+            .bottomMenu(isPresented: $showingMenu, actionGroups: menuActionGroups)
     }
-
+    
     var scrollView: some View {
         ScrollView {
             LazyVStack(spacing: 0) {
@@ -160,29 +162,40 @@ public struct NutritionFactsList: View {
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            HStack {
-                showImagesButton
+//            HStack {
                 addButton
-            }
+                menuButton
+//            }
         }
     }
     
     @ViewBuilder
-    var showImagesButton: some View {
+    var menuButton: some View {
         if viewModel.shouldShowImagesButton {
             Button {
-                Haptics.feedback(style: .medium)
+                showingMenu = true
+            } label: {
+                Image(systemName: "ellipsis")
+                    .padding(.vertical)
+            }
+        }
+    }
+    
+    var menuActionGroups: [[BottomMenuAction]] {
+        [[
+            showHideAction
+        ]]
+    }
+
+    var showHideAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "\(showImages ? "Hide" : "Show") Detected Texts",
+            systemImage: "eye\(showImages ? ".slash" : "")",
+            tapHandler: {
                 withAnimation {
                     showImages.toggle()
                 }
-            } label: {
-//                Image(systemName: "eye\(showImages ? ".slash" : "")")
-                Image(systemName: "viewfinder.circle\(showImages ? ".fill" : "")")
-//                    .foregroundColor(showImages ? .accentColor : .secondary)
-                    .padding(.vertical)
-                    .padding(.trailing)
-            }
-        }
+            })
     }
     
     var addButton: some View {

@@ -85,7 +85,7 @@ extension FoodForm.DetailsCell {
                     .foregroundColor(Color(.tertiaryLabel))
             }
             Spacer()
-            barcode
+//            barcode
 //            Image(systemName: "chevron.forward")
         }
             .foregroundColor(.primary)
