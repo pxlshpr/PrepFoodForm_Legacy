@@ -24,7 +24,7 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     var barcodeTexts: [RecognizedBarcode] = []
 
-    @Published var id: UUID
+    var id: UUID
     
 //    extension ImageViewModel: Identifiable {
 //        var id: UUID {
@@ -37,6 +37,14 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.status = .notScanned
         self.id = UUID()
         self.startScanTask(with: image)
+        self.prepareThumbnails()
+//        self.status = .scanned
+    }
+
+    init(barcodeImage image: UIImage) {
+        self.image = image
+        self.status = .notScanned
+        self.id = UUID()
         self.prepareThumbnails()
 //        self.status = .scanned
     }
@@ -116,7 +124,7 @@ class ImageViewModel: ObservableObject, Identifiable {
                 
                 self.scanResult = result
                 self.id = result.id
-                
+
                 self.texts = result.texts
                 self.textsWithFoodLabelValues = result.textsWithFoodLabelValues
                 self.textsWithoutFoodLabelValues = result.textsWithoutFoodLabelValues
@@ -129,6 +137,11 @@ class ImageViewModel: ObservableObject, Identifiable {
                 FoodFormViewModel.shared.imageDidFinishScanning(self)
             }
         }
+    }
+    
+    var statusSystemImage: String? {
+        guard status == .scanned else { return nil }
+        return scanResult != nil ? "text.viewfinder" : "barcode.viewfinder"
     }
     
     func startLoadTask(with item: PhotosPickerItem) {

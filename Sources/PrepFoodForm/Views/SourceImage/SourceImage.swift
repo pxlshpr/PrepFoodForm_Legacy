@@ -102,12 +102,12 @@ struct SourceImage: View {
         
         @ViewBuilder
         var checkmark: some View {
-            if imageViewModel.status == .scanned {
+            if let image = imageViewModel.statusSystemImage {
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        Image(systemName: "text.viewfinder")
+                        Image(systemName: image)
                             .renderingMode(.original)
                             .foregroundColor(.white)
 //                            .imageScale(.large)
