@@ -143,7 +143,8 @@ class TextPickerViewModel: ObservableObject {
         if mode.isColumnSelection {
             return mode.boundingBox(forImageWithId: imageViewModels[index].id) ?? .zero
         } else {
-            return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
+//            return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
+            return selectedBoundingBox(forImageAt: index) ?? .zero
         }
     }
     
@@ -159,7 +160,7 @@ class TextPickerViewModel: ObservableObject {
             let boundingBox = self.boundingBox(forImageAt: index)
             
             self.focusedBoxes[index] = FocusedBox(
-                boundingBox: .zero,
+                boundingBox: boundingBox,
                 animated: false,
                 imageSize: imageSize
             )
