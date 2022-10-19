@@ -164,8 +164,8 @@ public struct BottomMenuModifier: ViewModifier {
                 if isPresented {
                     resetForNextPresentation()
                     Haptics.feedback(style: .medium)
-                    animationDurationBackground = 0.08
-                    animationDurationButtons = 0.15
+                    animationDurationBackground = 0.2
+                    animationDurationButtons = 0.2
                 } else {
                     animationDurationBackground = 0.1
                     animationDurationButtons = 0.25
@@ -225,12 +225,13 @@ public struct BottomMenuModifier: ViewModifier {
         }
     }
     var buttonsLayer: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 0) {
             Spacer()
 //            GeometryReader { geometry in
 //                buttonsContent(geometry)
 //            }
             buttonsContent().readSize { size in
+                print("buttonSize is: \(size.height)")
                 buttonsSize = size
             }
         }
@@ -240,7 +241,7 @@ public struct BottomMenuModifier: ViewModifier {
     
 //    func buttonsContent(_ geometry: GeometryProxy) -> some View {
     func buttonsContent() -> some View {
-        Group {
+        VStack(spacing: 10) {
             if let textInput = actionToReceiveTextInputFor?.textInput {
                 inputSections(for: textInput)
                     .transition(.move(edge: .trailing))
