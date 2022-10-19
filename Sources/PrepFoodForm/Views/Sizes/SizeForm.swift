@@ -322,7 +322,7 @@ struct SizeForm: View {
     
     //MARK: - Helpers
     var selectedImageIndex: Int? {
-        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == sizeViewModel.fill.resultId })
+        viewModel.imageViewModels.firstIndex(where: { $0.id == sizeViewModel.fill.imageId })
     }
 
     var detentHeight: CGFloat {

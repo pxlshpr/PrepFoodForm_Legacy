@@ -165,7 +165,7 @@ extension Fill {
         imageText?.text
     }
     
-    var resultId: UUID? {
+    var imageId: UUID? {
         imageText?.imageId
     }
     

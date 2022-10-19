@@ -533,6 +533,6 @@ extension FieldValueForm {
     }
     
     var selectedImageIndex: Int? {
-        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == fieldValue.fill.resultId })
+        viewModel.imageViewModels.firstIndex(where: { $0.id == fieldValue.fill.imageId })
     }
 }

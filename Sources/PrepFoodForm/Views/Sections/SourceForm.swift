@@ -284,11 +284,12 @@ extension FoodFormViewModel {
     }
     
     func resetFillForFieldsUsingImage(at index: Int) {
-        guard index < imageViewModels.count,
-              let id = imageViewModels[index].scanResult?.id
-        else {
+        guard index < imageViewModels.count else {
             return
         }
+        
+        let id = imageViewModels[index].id
+        
         /// Selectively reset fills for fields that are using this image
         for fieldViewModel in allFieldViewModels {
             fieldViewModel.registerDiscardScanIfUsingImage(withId: id)

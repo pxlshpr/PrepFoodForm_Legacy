@@ -276,10 +276,6 @@ extension FoodFormViewModel {
         imageViewModels.first?.scanResult?.columnCount ?? 1
     }
 
-    func imageViewModel(forScanResultId scanResultId: UUID) -> ImageViewModel? {
-        imageViewModels.first(where: { $0.scanResult?.id == scanResultId })
-    }
-    
     var densityDescription: String? {
         densityViewModel.fieldValue.densityValue?.description(weightFirst: isWeightBased)
     }

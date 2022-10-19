@@ -149,7 +149,7 @@ struct DensityForm: View {
     }
 
     var selectedImageIndex: Int? {
-        viewModel.imageViewModels.firstIndex(where: { $0.scanResult?.id == densityViewModel.fill.resultId })
+        viewModel.imageViewModels.firstIndex(where: { $0.id == densityViewModel.fill.imageId })
     }
 
     var fillOptionsSections: some View {

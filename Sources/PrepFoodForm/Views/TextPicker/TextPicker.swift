@@ -212,11 +212,11 @@ class TextPickerViewModel: ObservableObject {
     }
 
     func tapHandlerForTextSelection(for text: RecognizedText) -> (() -> ())? {
-        guard let currentScanResultId else {
+        guard let currentImageId else {
             return nil
         }
         
-        let imageText = ImageText(text: text, imageId: currentScanResultId)
+        let imageText = ImageText(text: text, imageId: currentImageId)
 
         if mode.isMultiSelection {
             return {
@@ -407,8 +407,8 @@ class TextPickerViewModel: ObservableObject {
         //        }
     }
     
-    var currentScanResultId: UUID? {
-        imageViewModels[currentIndex].scanResult?.id
+    var currentImageId: UUID? {
+        imageViewModels[currentIndex].id
     }
     
     func imageSize(at index: Int) -> CGSize? {
