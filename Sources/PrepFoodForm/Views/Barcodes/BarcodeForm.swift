@@ -9,13 +9,12 @@ struct BarcodesForm: View {
     @State var showingAddBarcodeMenu = false
     
     var body: some View {
-//        List {
-//            ForEach(viewModel.barcodeViewModels.indices, id: \.self) { index in
-//                barcodeCell(for: viewModel.barcodeViewModels[index])
-//            }
-//            .onDelete(perform: delete)
-//        }
-        Color.green
+        List {
+            ForEach(viewModel.barcodeViewModels.indices, id: \.self) { index in
+                barcodeCell(for: viewModel.barcodeViewModels[index])
+            }
+            .onDelete(perform: delete)
+        }
         .toolbar { navigationTrailingContent }
         .bottomMenu(isPresented: $showingAddBarcodeMenu, actionGroups: addBarcodeActionGroups)
     }
@@ -69,26 +68,24 @@ struct BarcodesForm: View {
     
     @ViewBuilder
     func barcodeCell(for barcodeViewModel: FieldViewModel) -> some View {
-        Color.green
-            .frame(width: 100, height: 40)
-//        if let barcodeValue = barcodeViewModel.barcodeValue,
-//           let image = barcodeViewModel.barcodeThumbnail(asSquare: false)
-//        {
-//            HStack {
-//                Color.green
-//                    .frame(width: 100, height: 40)
-//                Image(uiImage: image)
-//                    .resizable()
-//                    .scaledToFit()
-//                    .frame(maxWidth: 100)
-//                    .shadow(radius: 3, x: 0, y: 3)
-//                    .padding()
-////                Spacer()
-//                Text(barcodeValue.payloadString)
+        if let barcodeValue = barcodeViewModel.barcodeValue,
+           let image = barcodeViewModel.barcodeThumbnail(asSquare: false)
+        {
+            HStack {
+                Color.green
+                    .frame(width: 100, height: 40)
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 100)
+                    .shadow(radius: 3, x: 0, y: 3)
+                    .padding()
 //                Spacer()
-//                fillTypeIcon(for: barcodeViewModel.fieldValue)
-//            }
-//        }
+                Text(barcodeValue.payloadString)
+                Spacer()
+                fillTypeIcon(for: barcodeViewModel.fieldValue)
+            }
+        }
     }
     
     @ViewBuilder

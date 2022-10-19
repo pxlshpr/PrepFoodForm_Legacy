@@ -164,8 +164,8 @@ public struct BottomMenuModifier: ViewModifier {
                 if isPresented {
                     resetForNextPresentation()
                     Haptics.feedback(style: .medium)
-                    animationDurationBackground = 0.2
-                    animationDurationButtons = 0.2
+                    animationDurationBackground = 0.29
+                    animationDurationButtons = 0.29
                 } else {
                     animationDurationBackground = 0.1
                     animationDurationButtons = 0.25
