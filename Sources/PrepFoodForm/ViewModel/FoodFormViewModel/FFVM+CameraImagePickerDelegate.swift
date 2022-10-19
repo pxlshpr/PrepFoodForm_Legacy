@@ -38,7 +38,7 @@ extension FoodFormViewModel {
                         )
                     ))
             )
-            addBarcodeViewModel(fieldViewModel)
+            add(barcodeViewModel: fieldViewModel)
         }
         imageSetStatus = .scanning
         imageViewModels.append(imageViewModel)

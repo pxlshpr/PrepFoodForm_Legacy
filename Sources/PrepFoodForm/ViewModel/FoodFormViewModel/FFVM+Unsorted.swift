@@ -217,14 +217,7 @@ extension FoodFormViewModel {
     }
     
     func add(barcodeViewModel: FieldViewModel) -> Bool {
-        guard let barcodeValue = barcodeViewModel.fieldValue.barcodeValue else { return false }
-        
-        guard !barcodeViewModels.contains(where: {
-            $0.fieldValue.barcodeValue?.payloadString == barcodeValue.payloadString
-        }) else {
-            return false
-        }
-        
+        guard !contains(barcodeViewModel: barcodeViewModel) else { return false }
         withAnimation {
             addBarcodeViewModel(barcodeViewModel)
         }
@@ -655,11 +648,18 @@ extension FieldViewModel {
 
 extension FoodFormViewModel {
     
-    func contains(barcodeViewModel: FieldViewModel) -> Bool {
+    func contains(barcode string: String) -> Bool {
         barcodeViewModels.contains(where: {
-            $0.barcodeValue?.payloadString == barcodeViewModel.barcodeValue?.payloadString
+            $0.barcodeValue?.payloadString == string
         })
     }
+    
+    func contains(barcodeViewModel: FieldViewModel) -> Bool {
+        guard let string = barcodeViewModel.barcodeValue?.payloadString else { return false
+        }
+        return contains(barcode: string)
+    }
+    
     //MARK: - Subscriptions
     
     /// We use this helper so that we ensure the view model subscribes to changes in the `FieldViewModel` instance.
@@ -670,7 +670,6 @@ extension FoodFormViewModel {
     }
     
     func addBarcodeViewModel(_ barcodeViewModel: FieldViewModel) {
-        guard !contains(barcodeViewModel: barcodeViewModel) else { return }
         addSubscription(for: barcodeViewModel)
         barcodeViewModels.append(barcodeViewModel)
     }

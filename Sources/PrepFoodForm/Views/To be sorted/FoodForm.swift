@@ -168,21 +168,27 @@ public struct FoodForm: View {
                keyboardType: .decimalPad,
                submitString: "Add Barcode",
                autocapitalization: .never,
-               textInputIsValid: {
-                   RSUnifiedCodeValidator.shared.isValid($0, machineReadableCodeObjectType: AVMetadataObject.ObjectType.ean13.rawValue)
-               },
+               textInputIsValid: isValidBarcode,
                textInputHandler: {
                    let barcodeValue = FieldValue.BarcodeValue(
                        payloadString: $0,
                        symbology: .ean13,
                        fill: .userInput)
                    let fieldViewModel = FieldViewModel(fieldValue: .barcode(barcodeValue))
-                   viewModel.addBarcodeViewModel(fieldViewModel)
+                   let _ = viewModel.add(barcodeViewModel: fieldViewModel)
                    Haptics.successFeedback()
                }
            )
        )
-   }
+    }
+    
+    func isValidBarcode(_ string: String) -> Bool {
+        let isValid = RSUnifiedCodeValidator.shared.isValid(
+            string,
+            machineReadableCodeObjectType: AVMetadataObject.ObjectType.ean13.rawValue)
+        let exists = viewModel.contains(barcode: string)
+        return isValid && !exists
+    }
     
     var photosActionGroups: [[BottomMenuAction]] {
         [[
