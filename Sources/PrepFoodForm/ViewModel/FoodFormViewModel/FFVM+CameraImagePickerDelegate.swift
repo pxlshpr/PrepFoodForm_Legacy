@@ -36,6 +36,8 @@ extension FoodFormViewModel {
             )
             addBarcodeViewModel(fieldViewModel)
         }
+        imageSetStatus = .scanning
+        imageViewModels.append(ImageViewModel(image))
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {
