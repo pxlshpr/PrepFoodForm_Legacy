@@ -26,6 +26,7 @@ extension FoodFormViewModel {
     
     func didScan(_ barcodes: [RecognizedBarcode], on image: UIImage) {
         let imageViewModel = ImageViewModel(image)
+        var didAddABarcode = false
         for barcode in barcodes {
             let fieldViewModel = FieldViewModel(fieldValue:
                     .barcode(FieldValue.BarcodeValue(
@@ -38,10 +39,12 @@ extension FoodFormViewModel {
                         )
                     ))
             )
-            add(barcodeViewModel: fieldViewModel)
+            didAddABarcode = add(barcodeViewModel: fieldViewModel)
         }
-        imageSetStatus = .scanning
-        imageViewModels.append(imageViewModel)
+        if didAddABarcode {
+            imageSetStatus = .scanning
+            imageViewModels.append(imageViewModel)
+        }
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {
