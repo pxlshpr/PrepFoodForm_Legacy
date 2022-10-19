@@ -417,13 +417,3 @@ struct LinkCell: View {
         }
     }
 }
-
-extension ImageViewModel: Identifiable {
-    var id: UUID {
-        scanResult?.id ?? UUID()
-    }
-}
-
-struct ImageIdContainer: Identifiable {
-    var id: UUID
-}

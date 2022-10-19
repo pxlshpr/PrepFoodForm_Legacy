@@ -161,6 +161,8 @@ extension FoodFormViewModel {
             return fieldViewModel.fieldValue.isEmpty
         case .selection:
             return false
+        case .barcodeScanned:
+            return true
         }
     }
     

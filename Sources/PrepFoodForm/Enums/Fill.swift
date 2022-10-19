@@ -16,6 +16,8 @@ indirect enum Fill: Hashable {
     /// but still want to differentiate this from `.userInput` (as its not been edited since the user scanned it in).
     /// This is so that we can identify fields marked with this as `discardable` when new scans come in.
     case discardable
+    
+    case barcodeScanned(ScannedFillInfo)
 }
 
 extension Fill {
@@ -25,6 +27,7 @@ extension Fill {
         static let prefill = "link"
         static let userInput = "keyboard"
         static let selection = "hand.tap"
+        static let barcode = "barcode.viewfinder"
     }
     
     var iconSystemImage: String {
@@ -37,6 +40,8 @@ extension Fill {
             return SystemImage.scanned
         case .prefill:
             return SystemImage.prefill
+        case .barcodeScanned:
+            return SystemImage.barcode
         case .discardable:
             return "viewfinder"
         }
@@ -429,6 +434,27 @@ struct ScannedFillInfo: Hashable {
         newInfo.altValue = value
         return newInfo
     }
+    
+    init(recognizedBarcode: RecognizedBarcode, imageId: UUID) {
+        let imageText = ImageText(text: RecognizedText(recognizedBarcode: recognizedBarcode), imageId: imageId)
+        self.imageText = imageText
+        self.value = nil
+    }
+}
+
+struct ScannedBarcodeFillInfo: Hashable {
+//    var imageText: ImageText
+//
+//    init(boundingBox: CGRect, imageId: UUID) {
+//        let text = RecognizedText(
+//        let imageText = ImageText(text: <#T##RecognizedText#>, imageId: <#T##UUID#>)
+//        self.value = value
+//        self.imageText = imageText
+//        self.altValue = altValue
+//        self.densityValue = densityValue
+//        self.size = size
+//    }
+    
 }
 
 struct ComponentText: Hashable {

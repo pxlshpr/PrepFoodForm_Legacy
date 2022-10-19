@@ -5,25 +5,7 @@ import VisionSugar
 import ZoomableScrollView
 import PrepUnits
 
-extension RecognizedText {
-    
-    /**
-     Returns the first detected `FoodLabelValue` in the string and all its candidates, if present.
-     */
-    var firstFoodLabelValue: FoodLabelValue? {
-        string.detectedValues.first ?? (candidates.first(where: { !$0.detectedValues.isEmpty }))?.detectedValues.first
-    }
-    
-    /**
-     Returns true if the string or any of the other candidates contains `FoodLabelValues` in them.
-     */
-    var hasFoodLabelValues: Bool {
-        !string.detectedValues.isEmpty
-        || candidates.contains(where: { !$0.detectedValues.isEmpty })
-    }
-}
-
-class ImageViewModel: ObservableObject {
+class ImageViewModel: ObservableObject, Identifiable {
     
     @Published var status: ImageStatus
     @Published var image: UIImage? = nil
@@ -42,14 +24,49 @@ class ImageViewModel: ObservableObject {
 
     var barcodeTexts: [RecognizedBarcode] = []
 
+    @Published var id: UUID
+    
+//    extension ImageViewModel: Identifiable {
+//        var id: UUID {
+//            scanResult?.id ?? UUID()
+//        }
+//    }
+
     init(_ image: UIImage) {
         self.image = image
         self.status = .notScanned
+        self.id = UUID()
         self.startScanTask(with: image)
         self.prepareThumbnails()
 //        self.status = .scanned
     }
 
+    init(photosPickerItem: PhotosPickerItem) {
+        self.image = nil
+        self.photosPickerItem = photosPickerItem
+        self.status = .loading
+        self.id = UUID()
+        self.startLoadTask(with: photosPickerItem)
+    }
+    
+    /// Create this with a preset `ScanResult` to skip the scanning process entirely
+    init(image: UIImage, scanResult: ScanResult) {
+        self.image = image
+        self.status = .scanned
+        self.photosPickerItem = nil
+        self.scanResult = scanResult
+        
+        self.id = scanResult.id
+        
+        self.texts = scanResult.texts
+        self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
+        self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
+        self.textsWithDensities = scanResult.textsWithDensities
+        self.barcodeTexts = scanResult.barcodes
+
+        self.prepareThumbnails()
+    }
+    
     func prepareThumbnails() {
         guard let image = image else { return }
         Task {
@@ -61,29 +78,6 @@ class ImageViewModel: ObservableObject {
                 self.mediumThumbnail = mediumThumbnail
             }
         }
-    }
-    
-    init(photosPickerItem: PhotosPickerItem) {
-        self.image = nil
-        self.photosPickerItem = photosPickerItem
-        self.status = .loading
-        self.startLoadTask(with: photosPickerItem)
-    }
-    
-    /// Create this with a preset `ScanResult` to skip the scanning process entirely
-    init(image: UIImage, scanResult: ScanResult) {
-        self.image = image
-        self.status = .scanned
-        self.photosPickerItem = nil
-        self.scanResult = scanResult
-        
-        self.texts = scanResult.texts
-        self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
-        self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
-        self.textsWithDensities = scanResult.textsWithDensities
-        self.barcodeTexts = scanResult.barcodes
-
-        self.prepareThumbnails()
     }
 
     func texts(for filter: TextPickerFilter) -> [RecognizedText] {
@@ -115,11 +109,13 @@ class ImageViewModel: ObservableObject {
 //                FoodFormViewModel.shared.imageDidFinishScanning(self)
 //            }
             
+            //TODO: Why is this a task within a task?
             
             Task {
                 let result = try await FoodLabelScanner(image: image).scan()
                 
                 self.scanResult = result
+                self.id = result.id
                 
                 self.texts = result.texts
                 self.textsWithFoodLabelValues = result.textsWithFoodLabelValues

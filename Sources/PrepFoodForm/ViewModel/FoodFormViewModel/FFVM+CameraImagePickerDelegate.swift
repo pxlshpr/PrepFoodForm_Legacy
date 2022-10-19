@@ -25,19 +25,23 @@ extension FoodFormViewModel {
     }
     
     func didScan(_ barcodes: [RecognizedBarcode], on image: UIImage) {
-        //TODO: Create a new .barcodeScanned Fill with a recognizedBarcode and an imageId
+        let imageViewModel = ImageViewModel(image)
         for barcode in barcodes {
             let fieldViewModel = FieldViewModel(fieldValue:
                     .barcode(FieldValue.BarcodeValue(
                         payloadString: barcode.string,
                         symbology: barcode.symbology,
-                        fill: .userInput
+                        fill: .barcodeScanned(
+                            ScannedFillInfo(
+                                recognizedBarcode: barcode,
+                                imageId: imageViewModel.id)
+                        )
                     ))
             )
             addBarcodeViewModel(fieldViewModel)
         }
         imageSetStatus = .scanning
-        imageViewModels.append(ImageViewModel(image))
+        imageViewModels.append(imageViewModel)
     }
     
     public func didPickLibraryImages(numberOfImagesBeingLoaded: Int) {
