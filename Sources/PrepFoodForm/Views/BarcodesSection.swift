@@ -49,24 +49,11 @@ enum BarcodeSymbology {
     }
 }
 
-extension VNBarcodeSymbology {
-    func size(within size: CGSize) -> CGSize {
-        let max = max(size.width, size.height)
-        switch self {
-        case .qr, .aztec:
-            return CGSize(width: max, height: max)
-        default:
-            return CGSize(width: max, height: max)
-        }
-    }
-}
 extension FieldViewModel {
-    var barcodeThumbnail: UIImage? {
-        barcodeImage(size: 100)
-    }
-    
-    func barcodeImage(size: CGFloat) -> UIImage? {
-        barcodeImage(within: CGSize(width: size, height: size))
+    func barcodeThumbnail(asSquare: Bool = false) -> UIImage? {
+        let width = 100
+        let height = asSquare ? 100 : 40
+        return barcodeImage(within: CGSize(width: width, height: height))
     }
     
     func barcodeImage(within size: CGSize) -> UIImage? {
@@ -74,7 +61,7 @@ extension FieldViewModel {
         return RSUnifiedCodeGenerator.shared.generateCode(
             barcodeValue.payloadString,
             machineReadableCodeObjectType: barcodeValue.symbology.objectType.rawValue,
-            targetSize: barcodeValue.symbology.size(within: size)
+            targetSize: size
         )
     }
 }
@@ -95,7 +82,7 @@ struct BarcodesForm: View {
     @ViewBuilder
     func barcodeCell(for barcodeViewModel: FieldViewModel) -> some View {
         if let barcodeValue = barcodeViewModel.barcodeValue,
-           let image = barcodeViewModel.barcodeThumbnail
+           let image = barcodeViewModel.barcodeThumbnail(asSquare: false)
         {
             HStack {
                 Image(uiImage: image)
@@ -137,6 +124,17 @@ struct BarcodesForm: View {
     
     func delete(at offsets: IndexSet) {
         viewModel.barcodeViewModels.remove(atOffsets: offsets)
+    }
+}
+
+extension VNBarcodeSymbology {
+    var isSquare: Bool {
+        switch self {
+        case .qr, .aztec, .microQR:
+            return true
+        default:
+            return false
+        }
     }
 }
 
@@ -195,7 +193,7 @@ struct BarcodesSection: View {
 
     @ViewBuilder
     func barcodeView(for barcodeViewModel: FieldViewModel) -> some View {
-        if let image = barcodeViewModel.barcodeThumbnail {
+        if let image = barcodeViewModel.barcodeThumbnail(asSquare: viewModel.hasSquareBarcodes) {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFit()

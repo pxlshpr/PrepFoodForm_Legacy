@@ -429,6 +429,12 @@ extension FoodFormViewModel {
     var hasBarcodes: Bool {
         !barcodeViewModels.isEmpty
     }
+    
+    var hasSquareBarcodes: Bool {
+        barcodeViewModels.contains {
+            $0.barcodeValue?.symbology.isSquare == true
+        }
+    }
 
     var shouldShowImagesButton: Bool {
         for fieldViewModel in allFieldViewModels {
