@@ -3,7 +3,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUIPager
-//import ZoomableScrollView
+import ZoomableScrollView
 import ActivityIndicatorView
 
 class TextPickerViewModel: ObservableObject {
@@ -159,7 +159,7 @@ class TextPickerViewModel: ObservableObject {
             let boundingBox = self.boundingBox(forImageAt: index)
             
             self.focusedBoxes[index] = FocusedBox(
-                boundingBox: boundingBox,
+                boundingBox: .zero,
                 animated: false,
                 imageSize: imageSize
             )
@@ -503,7 +503,7 @@ struct TextPicker: View {
     var body: some View {
         ZStack {
             pagerLayer
-                .edgesIgnoringSafeArea(.all)
+//                .edgesIgnoringSafeArea(.all)
             buttonsLayer
         }
         .onAppear(perform: appeared)
@@ -527,6 +527,7 @@ struct TextPicker: View {
             content: { imageViewModel in
                 zoomableScrollView(for: imageViewModel)
                     .background(.black)
+                    .edgesIgnoringSafeArea(.all)
             })
         .sensitivity(.high)
         .pagingPriority(.high)
@@ -549,11 +550,8 @@ struct TextPicker: View {
                                zoomBox: $textPickerViewModel.zoomBoxes[index],
                                backgroundColor: .black)
             {
-                ZStack {
-                    imageView(image)
-                        .overlay(textBoxesLayer(for: imageViewModel))
-                    //                    textBoxesLayer(for: imageViewModel)
-                }
+                imageView(image)
+                    .overlay(textBoxesLayer(for: imageViewModel))
             }
         }
     }
@@ -1070,422 +1068,462 @@ struct TextPicker_Previews: PreviewProvider {
     }
 }
 
-
-//MARK: - ZoomableScrollView
-
-import UIKit
-
-extension UIScrollView {
-    
-    func zoomToScale(_ newZoomScale: CGFloat, on point: CGPoint) {
-        let scaleChange = newZoomScale / zoomScale
-        let rect = zoomRect(forFactorChangeInZoomScaleOf: scaleChange, on: point)
-        zoom(to: rect, animated: true)
-    }
-    
-    func zoomRect(forFactorChangeInZoomScaleOf factor: CGFloat, on point: CGPoint) -> CGRect {
-        let size = CGSize(width: frame.size.width / factor,
-                          height: frame.size.height / factor)
-        let zoomSize = CGSize(width: size.width / zoomScale,
-                              height: size.height / zoomScale)
-        
-        let origin = CGPoint(x: point.x - (zoomSize.width / factor),
-                             y: point.y - (zoomSize.height / factor))
-        return CGRect(origin: origin, size: zoomSize)
-    }
-    func focus(on focusedBox: FocusedBox, animated: Bool = true) {
-        zoomIn(
-            boundingBox: focusedBox.boundingBox,
-            padded: focusedBox.padded,
-            imageSize: focusedBox.imageSize,
-            animated: focusedBox.animated
-        )
-    }
-    
-    func zoomIn(boundingBox: CGRect, padded: Bool, imageSize: CGSize, animated: Bool = true) {
-        
-        let zoomRect = boundingBox.zoomRect(forImageSize: imageSize, fittedInto: frame.size, padded: padded)
-//        var zoomRect = boundingBox.rectForSize(imageSize, fittedInto: frame.size)
-//        if padded {
-//            let ratio = min(frame.size.width / (zoomRect.size.width * 5), 3.5)
-//            zoomRect.pad(within: frame.size, ratio: ratio)
+//
+//import SwiftUI
+//import VisionSugar
+//import SwiftUISugar
+//
+///// This identifies an area of the ZoomableScrollView to focus on
+//public struct FocusedBox {
+//
+//    /// This is the boundingBox (in terms of a 0 to 1 ratio on each dimension of what the CGRect is (similar to the boundingBox in Vision)
+//    let boundingBox: CGRect
+//    let padded: Bool
+//    let animated: Bool
+//    let imageSize: CGSize
+//
+//    public init(boundingBox: CGRect, animated: Bool = true, padded: Bool = true, imageSize: CGSize) {
+//        self.boundingBox = boundingBox
+//        self.padded = padded
+//        self.animated = animated
+//        self.imageSize = imageSize
+//    }
+//
+//    public static let none = Self.init(boundingBox: .zero, imageSize: .zero)
+//}
+//
+//public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
+//
+//    @State var lastFocusedArea: FocusedBox? = nil
+//    @State var firstTime: Bool = true
+//
+//    let backgroundColor: UIColor?
+//    private var content: Content
+//
+//    var focusedBox: Binding<FocusedBox?>?
+//    var zoomBox: Binding<FocusedBox?>?
+//
+//    public init(
+//        focusedBox: Binding<FocusedBox?>? = nil,
+//        zoomBox: Binding<FocusedBox?>? = nil,
+//        backgroundColor: UIColor? = nil,
+//        @ViewBuilder content: () -> Content
+//    ) {
+//        self.backgroundColor = backgroundColor
+//        self.content = content()
+//        self.focusedBox = focusedBox
+//        self.zoomBox = zoomBox
+//    }
+//
+//    public func makeCoordinator() -> Coordinator {
+//        let hostingController = UIHostingController(rootView: self.content)
+//        return Coordinator(hostingController: hostingController)
+//    }
+//
+//    public func makeUIView(context: Context) -> UIScrollView {
+//        let scrollView = scrollView(context: context)
+//
+////        let delay = 0.01
+////
+////        scrollView.layer.opacity = 0
+////        scrollView.setZoomScale(1, animated: false)
+////        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+////            scrollView.setZoomScale(2, animated: false)
+////            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+////                scrollView.setZoomScale(1, animated: false)
+////
+//////                UIView.animate(withDuration: 0.1) {
+//////                    scrollView.layer.opacity = 1
+//////                }
+////            }
+////        }
+//
+//        return scrollView
+//    }
+//
+//    public func updateUIView(_ scrollView: UIScrollView, context: Context) {
+//        // update the hosting controller's SwiftUI content
+//        context.coordinator.hostingController.rootView = self.content
+//        assert(context.coordinator.hostingController.view.superview == scrollView)
+//
+//
+////        guard let focusedBox = focusedBox?.wrappedValue, focusedBox.boundingBox != .zero else {
+////            if scrollView.layer.opacity == 0 {
+////                UIView.animate(withDuration: 0.1) {
+////                    scrollView.layer.opacity = 1
+////                }
+////            }
+////            return
+////        }
+////
+////        scrollView.focus(on: focusedBox)
+////        UIView.animate(withDuration: 0.1) {
+////            scrollView.layer.opacity = 1
+////        }
+//
+////        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+////            scrollView.focus(on: focusedBox)
+////        }
+//    }
+//
+//    // MARK: - Coordinator
+//    public class Coordinator: NSObject, UIScrollViewDelegate {
+//        var hostingController: UIHostingController<Content>
+//
+//        init(hostingController: UIHostingController<Content>) {
+//            self.hostingController = hostingController
 //        }
-        
-        print("🔍 zoomIn on: \(zoomRect) within \(frame.size), contentSize \(contentSize), contentOffset \(contentOffset)")
-        let zoomScaleX = frame.size.width / zoomRect.width
+//
+//        public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+//            return hostingController.view
+//        }
+//
+//        @objc func doubleTapped(recognizer:  UITapGestureRecognizer) {
+//
+//        }
+//
+//        public func scrollViewDidZoom(_ scrollView: UIScrollView) {
+//            print("🔍 zoomScale is \(scrollView.zoomScale)")
+//        }
+//    }
+//
+//    func view(content: Context) -> UIView {
+//        let view = UIView()
+//        view.backgroundColor = .purple
+//        return view
+//    }
+//
+//}
+//
+//struct ContentView: View {
+//    var body: some View {
+//        Color.clear
+//            .fullScreenCover(isPresented: .constant(true)) {
+//                ZoomableScrollView {
+//                    Image("label")
+//                        .resizable()
+//                        .scaledToFit()
+//                }
+//                .ignoresSafeArea(edges: .all)
+//                .background(.yellow)
+//            }
+//    }
+//}
+//
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView()
+//    }
+//}
+//
+//
+//
+//import UIKit
+//
+//extension UIScrollView {
+//
+//    func zoomToScale(_ newZoomScale: CGFloat, on point: CGPoint) {
+//        let scaleChange = newZoomScale / zoomScale
+//        let rect = zoomRect(forFactorChangeInZoomScaleOf: scaleChange, on: point)
+//        zoom(to: rect, animated: true)
+//    }
+//
+//    func zoomRect(forFactorChangeInZoomScaleOf factor: CGFloat, on point: CGPoint) -> CGRect {
+//        let size = CGSize(width: frame.size.width / factor,
+//                          height: frame.size.height / factor)
+//        let zoomSize = CGSize(width: size.width / zoomScale,
+//                              height: size.height / zoomScale)
+//
+//        let origin = CGPoint(x: point.x - (zoomSize.width / factor),
+//                             y: point.y - (zoomSize.height / factor))
+//        return CGRect(origin: origin, size: zoomSize)
+//    }
+//    func focus(on focusedBox: FocusedBox, animated: Bool = true) {
+//        zoomIn(
+//            boundingBox: focusedBox.boundingBox,
+//            padded: focusedBox.padded,
+//            imageSize: focusedBox.imageSize,
+//            animated: focusedBox.animated
+//        )
+//    }
+//
+//    func zoomIn(boundingBox: CGRect, padded: Bool, imageSize: CGSize, animated: Bool = true) {
+//
+//        let zoomRect = boundingBox.zoomRect(forImageSize: imageSize, fittedInto: frame.size, padded: padded)
+////        var zoomRect = boundingBox.rectForSize(imageSize, fittedInto: frame.size)
+////        if padded {
+////            let ratio = min(frame.size.width / (zoomRect.size.width * 5), 3.5)
+////            zoomRect.pad(within: frame.size, ratio: ratio)
+////        }
+//
+//        print("🔍 zoomIn on: \(zoomRect) within \(frame.size)")
+//        let zoomScaleX = frame.size.width / zoomRect.width
 //        print("🔍 zoomScaleX is \(zoomScaleX)")
-        let zoomScaleY = frame.size.height / zoomRect.height
+//        let zoomScaleY = frame.size.height / zoomRect.height
 //        print("🔍 zoomScaleY is \(zoomScaleY)")
-
+//
 //        print("🔍 🤖 calculated zoomScale is: \(zoomRect.zoomScale(within: frame.size))")
-
-        zoom(to: zoomRect, animated: animated)
-    }
-}
-
-extension CGRect {
-    
-    func zoomRect(forImageSize imageSize: CGSize, fittedInto frameSize: CGSize, padded: Bool) -> CGRect {
-        var zoomRect = rectForSize(imageSize, fittedInto: frameSize)
-        if padded {
-            let ratio = min(frameSize.width / (zoomRect.size.width * 5), 3.5)
-            zoomRect.pad(within: frameSize, ratio: ratio)
-        }
-        return zoomRect
-    }
-    func zoomScale(within parentSize: CGSize) -> CGFloat {
-        let xScale = parentSize.width / width
-        let yScale = parentSize.height / height
-        return min(xScale, yScale)
-    }
-    
-    mutating func pad(within parentSize: CGSize, ratio: CGFloat) {
-        padX(withRatio: ratio, withinParentSize: parentSize)
-        padY(withRatio: ratio, withinParentSize: parentSize)
-    }
-
-}
-
-extension CGRect {
-
-    mutating func padX(
-        withRatio paddingRatio: CGFloat,
-        withinParentSize parentSize: CGSize,
-        minPadding padding: CGFloat = 5.0,
-        maxRatioOfParent: CGFloat = 0.9
-    ) {
-        padX(withRatioOfWidth: paddingRatio)
-        origin.x = max(padding, origin.x)
-        if maxX > parentSize.width {
-            size.width = parentSize.width - origin.x - padding
-        }
-    }
-
-    mutating func padY(
-        withRatio paddingRatio: CGFloat,
-        withinParentSize parentSize: CGSize,
-        minPadding padding: CGFloat = 5.0,
-        maxRatioOfParent: CGFloat = 0.9
-    ) {
-        padY(withRatioOfHeight: paddingRatio)
-        origin.y = max(padding, origin.y)
-        if maxY > parentSize.height {
-            size.height = parentSize.height - origin.y - padding
-        }
-    }
-    
-    mutating func padX(withRatioOfWidth ratio: CGFloat) {
-        let padding = size.width * ratio
-        padX(with: padding)
-    }
-    
-    mutating func padX(with padding: CGFloat) {
-        origin.x -= (padding / 2.0)
-        size.width += padding
-    }
-    
-    mutating func padY(withRatioOfHeight ratio: CGFloat) {
-        let padding = size.height * ratio
-        padY(with: padding)
-    }
-    
-    mutating func padY(with padding: CGFloat) {
-        origin.y -= (padding / 2.0)
-        size.height += padding
-    }
-    
-    func rectForSize(_ size: CGSize, fittedInto frameSize: CGSize) -> CGRect {
-        let sizeFittingFrame = size.sizeFittingWithin(frameSize)
-        var rect = rectForSize(sizeFittingFrame)
-
-        let paddingLeft: CGFloat?
-        let paddingTop: CGFloat?
-        if size.widthToHeightRatio < frameSize.widthToHeightRatio {
-            paddingLeft = (frameSize.width - sizeFittingFrame.width) / 2.0
-            paddingTop = nil
-        } else {
-            paddingLeft = nil
-            paddingTop = (frameSize.height - sizeFittingFrame.height) / 2.0
-        }
-
-        if let paddingLeft {
-            rect.origin.x += paddingLeft
-        }
-        if let paddingTop {
-            rect.origin.y += paddingTop
-        }
-
-        return rect
-    }
-}
-
-extension CGSize {
-    /// Returns a size that fits within the parent size
-    func sizeFittingWithin(_ size: CGSize) -> CGSize {
-        let newWidth: CGFloat
-        let newHeight: CGFloat
-        if widthToHeightRatio < size.widthToHeightRatio {
-            /// height would be the same as parent
-            newHeight = size.height
-            
-            /// we're scaling the width accordingly
-            newWidth = (width * newHeight) / height
-        } else {
-            /// width would be the same as parent
-            newWidth = size.width
-            
-            /// we're scaling the height accordingly
-            newHeight = (height * newWidth) / width
-        }
-        return CGSize(width: newWidth, height: newHeight)
-    }
-}
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-/// This identifies an area of the ZoomableScrollView to focus on
-public struct FocusedBox {
-    
-    /// This is the boundingBox (in terms of a 0 to 1 ratio on each dimension of what the CGRect is (similar to the boundingBox in Vision)
-    let boundingBox: CGRect
-    let padded: Bool
-    let animated: Bool
-    let imageSize: CGSize
-    
-    public init(boundingBox: CGRect, animated: Bool = true, padded: Bool = true, imageSize: CGSize) {
-        self.boundingBox = boundingBox
-        self.padded = padded
-        self.animated = animated
-        self.imageSize = imageSize
-    }
-    
-    public static let none = Self.init(boundingBox: .zero, imageSize: .zero)
-}
-
-public struct ZoomableScrollView<Content: View>: UIViewRepresentable {
-    
-    @State var lastFocusedArea: FocusedBox? = nil
-    @State var firstTime: Bool = true
-    
-    let backgroundColor: UIColor?
-    private var content: Content
-    
-    var focusedBox: Binding<FocusedBox?>?
-    var zoomBox: Binding<FocusedBox?>?
-
-    public init(
-        focusedBox: Binding<FocusedBox?>? = nil,
-        zoomBox: Binding<FocusedBox?>? = nil,
-        backgroundColor: UIColor? = nil,
-        @ViewBuilder content: () -> Content
-    ) {
-        self.backgroundColor = backgroundColor
-        self.content = content()
-        self.focusedBox = focusedBox
-        self.zoomBox = zoomBox
-    }
-    
-    public func makeUIView(context: Context) -> UIScrollView {
-        scrollView(context: context)
-    }
-    
-    public func makeCoordinator() -> Coordinator {
-        return Coordinator(hostingController: UIHostingController(rootView: self.content))
-    }
-    
-    public func updateUIView(_ scrollView: UIScrollView, context: Context) {
-        // update the hosting controller's SwiftUI content
-        context.coordinator.hostingController.rootView = self.content
-        assert(context.coordinator.hostingController.view.superview == scrollView)
-        
-        if let focusedBox = focusedBox?.wrappedValue {
-            
-            /// If we've set it to `.zero` we're indicating that we want it to reset the zoom
-            if focusedBox.boundingBox == .zero {
-                scrollView.setZoomScale(1, animated: true)
-            } else {
-                //TODO: Clean this up—this fixes the issue we had with the initial zoom
-                scrollView.layer.opacity = 0
-                scrollView.setZoomScale(1, animated: false)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                    scrollView.setZoomScale(2, animated: false)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                        scrollView.setZoomScale(1, animated: false)
-                        scrollView.layer.opacity = 1
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                            scrollView.focus(on: focusedBox)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // MARK: - Coordinator
-    public class Coordinator: NSObject, UIScrollViewDelegate {
-        var hostingController: UIHostingController<Content>
-        
-        init(hostingController: UIHostingController<Content>) {
-            self.hostingController = hostingController
-        }
-        
-        public func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-            return hostingController.view
-        }
-        
-        @objc func doubleTapped(recognizer:  UITapGestureRecognizer) {
-            
-        }
-        
-        public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-            print("🔍 zoomScale is \(scrollView.zoomScale), contentSize is \(scrollView.contentSize)")
-        }
-        
-        public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            print("🪝 scrollViewDidScroll \(scrollView.contentOffset) @ \(scrollView.zoomScale)")
-        }
-    }
-}
-
-import SwiftUI
-import VisionSugar
-import SwiftUISugar
-
-extension ZoomableScrollView {
-    
-    func hostedView(context: Context) -> UIView {
-        let hostedView = context.coordinator.hostingController.view!
-        hostedView.translatesAutoresizingMaskIntoConstraints = true
-        hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        return hostedView
-    }
-    
-    func scrollView(context: Context) -> UIScrollView {
-        // set up the UIScrollView
-        let scrollView = UIScrollView()
-        scrollView.delegate = context.coordinator  // for viewForZooming(in:)
-        scrollView.maximumZoomScale = 20
-        scrollView.minimumZoomScale = 1
-        scrollView.bouncesZoom = true
-        
-        let hosted = hostedView(context: context)
-        hosted.frame = scrollView.bounds
-        if let backgroundColor {
-            hosted.backgroundColor = backgroundColor
-        }
-        scrollView.addSubview(hosted)
-        
-        scrollView.setZoomScale(1, animated: true)
-        
-        scrollView.addTapGestureRecognizer { sender in
-            let hostedView = hostedView(context: context)
-            let point = sender.location(in: hostedView)
-            handleDoubleTap(on: point, for: scrollView)
-        }
-        
-        return scrollView
-    }
-    
-    //TODO: Rewrite this
-    /// - Now also have a handler that can be provided to this, which overrides this default
-    ///     It should provide the current zoom scale and
-    ///     Get back an enum called ZoomPosition as a result
-    ///         This can be either fullScale, maxScale, or rect(let CGRect) where we provide a rect
-    ///         The scrollview than either zooms to full, max or the provided rect
-    /// - Now have TextPicker use this to
-    ///     See if the zoomScale is above or below the selected bound's scale
-    ///         This can be determined by dividing the rects dimensions by the image's and returning the larger? amount
-    ///     If it's greater than the selectedBoundZoomScale:
-    ///         If the selectedBoundZoomScale is less than the constant MaxScale of ZoomScrollView
-    ///         (by at least a minimum distance—also set by ZoomedScrollView)
-    ///             Then we return MaxScale as the ZoomPosition
-    ///         Else we return FullScale as the ZoomPosition (scale = 1)
-    ///     Else we return rect(selectedBound) as the ZoomPosition
-    func handleDoubleTap(on point: CGPoint, for scrollView: UIScrollView) {
-        let maxZoomScale = 3.5
-        let minDelta = 0.5
-
-        if let zoomBox = zoomBox?.wrappedValue,
-           zoomBox.boundingBox != .zero
-        {
-            let boundingBoxScale = zoomScaleOfBoundingBox(zoomBox.boundingBox,
-                                                          forImageSize: zoomBox.imageSize,
-                                                          padded: zoomBox.padded,
-                                                          scrollView: scrollView)
-            if scrollView.zoomScale < boundingBoxScale {
-                scrollView.focus(on: zoomBox)
-            } else {
-                scrollView.setZoomScale(1, animated: true)
+//
+//        zoom(to: zoomRect, animated: animated)
+//    }
+//}
+//
+//extension CGRect {
+//
+//    func zoomRect(forImageSize imageSize: CGSize, fittedInto frameSize: CGSize, padded: Bool) -> CGRect {
+//        var zoomRect = rectForSize(imageSize, fittedInto: frameSize)
+//        if padded {
+//            let ratio = min(frameSize.width / (zoomRect.size.width * 5), 3.5)
+//            zoomRect.pad(within: frameSize, ratio: ratio)
+//        }
+//        return zoomRect
+//    }
+//    func zoomScale(within parentSize: CGSize) -> CGFloat {
+//        let xScale = parentSize.width / width
+//        let yScale = parentSize.height / height
+//        return min(xScale, yScale)
+//    }
+//
+//    mutating func pad(within parentSize: CGSize, ratio: CGFloat) {
+//        padX(withRatio: ratio, withinParentSize: parentSize)
+//        padY(withRatio: ratio, withinParentSize: parentSize)
+//    }
+//
+//}
+//
+//extension CGRect {
+//
+//    mutating func padX(
+//        withRatio paddingRatio: CGFloat,
+//        withinParentSize parentSize: CGSize,
+//        minPadding padding: CGFloat = 5.0,
+//        maxRatioOfParent: CGFloat = 0.9
+//    ) {
+//        padX(withRatioOfWidth: paddingRatio)
+//        origin.x = max(padding, origin.x)
+//        if maxX > parentSize.width {
+//            size.width = parentSize.width - origin.x - padding
+//        }
+//    }
+//
+//    mutating func padY(
+//        withRatio paddingRatio: CGFloat,
+//        withinParentSize parentSize: CGSize,
+//        minPadding padding: CGFloat = 5.0,
+//        maxRatioOfParent: CGFloat = 0.9
+//    ) {
+//        padY(withRatioOfHeight: paddingRatio)
+//        origin.y = max(padding, origin.y)
+//        if maxY > parentSize.height {
+//            size.height = parentSize.height - origin.y - padding
+//        }
+//    }
+//
+//    mutating func padX(withRatioOfWidth ratio: CGFloat) {
+//        let padding = size.width * ratio
+//        padX(with: padding)
+//    }
+//
+//    mutating func padX(with padding: CGFloat) {
+//        origin.x -= (padding / 2.0)
+//        size.width += padding
+//    }
+//
+//    mutating func padY(withRatioOfHeight ratio: CGFloat) {
+//        let padding = size.height * ratio
+//        padY(with: padding)
+//    }
+//
+//    mutating func padY(with padding: CGFloat) {
+//        origin.y -= (padding / 2.0)
+//        size.height += padding
+//    }
+//
+//    func rectForSize(_ size: CGSize, fittedInto frameSize: CGSize) -> CGRect {
+//        let sizeFittingFrame = size.sizeFittingWithin(frameSize)
+//        var rect = rectForSize(sizeFittingFrame)
+//
+//        let paddingLeft: CGFloat?
+//        let paddingTop: CGFloat?
+//        if size.widthToHeightRatio < frameSize.widthToHeightRatio {
+//            paddingLeft = (frameSize.width - sizeFittingFrame.width) / 2.0
+//            paddingTop = nil
+//        } else {
+//            paddingLeft = nil
+//            paddingTop = (frameSize.height - sizeFittingFrame.height) / 2.0
+//        }
+//
+//        if let paddingLeft {
+//            rect.origin.x += paddingLeft
+//        }
+//        if let paddingTop {
+//            rect.origin.y += paddingTop
+//        }
+//
+//        return rect
+//    }
+//}
+//
+//extension CGSize {
+//    /// Returns a size that fits within the parent size
+//    func sizeFittingWithin(_ size: CGSize) -> CGSize {
+//        let newWidth: CGFloat
+//        let newHeight: CGFloat
+//        if widthToHeightRatio < size.widthToHeightRatio {
+//            /// height would be the same as parent
+//            newHeight = size.height
+//
+//            /// we're scaling the width accordingly
+//            newWidth = (width * newHeight) / height
+//        } else {
+//            /// width would be the same as parent
+//            newWidth = size.width
+//
+//            /// we're scaling the height accordingly
+//            newHeight = (height * newWidth) / width
+//        }
+//        return CGSize(width: newWidth, height: newHeight)
+//    }
+//}
+//
+//
+//import SwiftUI
+//import VisionSugar
+//import SwiftUISugar
+//
+//extension ZoomableScrollView {
+//
+//    func hostedView(context: Context) -> UIView {
+//        let hostedView = context.coordinator.hostingController.view!
+//        hostedView.translatesAutoresizingMaskIntoConstraints = true
+//        hostedView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        return hostedView
+//    }
+//
+//    func scrollView(context: Context) -> UIScrollView {
+//        // set up the UIScrollView
+//        let scrollView = UIScrollView()
+//        scrollView.delegate = context.coordinator  // for viewForZooming(in:)
+//        scrollView.maximumZoomScale = 20
+//        scrollView.minimumZoomScale = 1
+//        scrollView.bouncesZoom = true
+//        scrollView.contentInsetAdjustmentBehavior = .never
+//
+//        let hosted = hostedView(context: context)
+//        hosted.frame = scrollView.bounds
+//        hosted.insetsLayoutMarginsFromSafeArea = false
+//        if let backgroundColor {
+//            hosted.backgroundColor = backgroundColor
+//        }
+//        scrollView.addSubview(hosted)
+//
+//        scrollView.setZoomScale(1, animated: true)
+//
+//        scrollView.addTapGestureRecognizer { sender in
+//            let hostedView = hostedView(context: context)
+//            let point = sender.location(in: hostedView)
+//            handleDoubleTap(on: point, for: scrollView)
+//        }
+//
+//        return scrollView
+//    }
+//
+//    //TODO: Rewrite this
+//    /// - Now also have a handler that can be provided to this, which overrides this default
+//    ///     It should provide the current zoom scale and
+//    ///     Get back an enum called ZoomPosition as a result
+//    ///         This can be either fullScale, maxScale, or rect(let CGRect) where we provide a rect
+//    ///         The scrollview than either zooms to full, max or the provided rect
+//    /// - Now have TextPicker use this to
+//    ///     See if the zoomScale is above or below the selected bound's scale
+//    ///         This can be determined by dividing the rects dimensions by the image's and returning the larger? amount
+//    ///     If it's greater than the selectedBoundZoomScale:
+//    ///         If the selectedBoundZoomScale is less than the constant MaxScale of ZoomScrollView
+//    ///         (by at least a minimum distance—also set by ZoomedScrollView)
+//    ///             Then we return MaxScale as the ZoomPosition
+//    ///         Else we return FullScale as the ZoomPosition (scale = 1)
+//    ///     Else we return rect(selectedBound) as the ZoomPosition
+//    func handleDoubleTap(on point: CGPoint, for scrollView: UIScrollView) {
+//        let maxZoomScale = 3.5
+//        let minDelta = 0.5
+//
+//        if let zoomBox = zoomBox?.wrappedValue,
+//           zoomBox.boundingBox != .zero
+//        {
+//            let boundingBoxScale = zoomScaleOfBoundingBox(zoomBox.boundingBox,
+//                                                          forImageSize: zoomBox.imageSize,
+//                                                          padded: zoomBox.padded,
+//                                                          scrollView: scrollView)
+//            if scrollView.zoomScale < boundingBoxScale {
+//                scrollView.focus(on: zoomBox)
+//            } else {
 //                scrollView.zoomToScale(1, on: point)
-            }
-        } else {
-            if scrollView.zoomScale < (maxZoomScale - minDelta) {
-                let newScale = maxZoomScale
-                scrollView.zoomToScale(newScale, on: point)
-            } else {
-                scrollView.setZoomScale(1, animated: true)
+//            }
+//        } else {
+//            let newScale: CGFloat
+//            if scrollView.zoomScale < (maxZoomScale - minDelta) {
+//                newScale = maxZoomScale
+//            } else {
 //                newScale = 1
-            }
+//            }
 //            scrollView.zoomToScale(newScale, on: point)
-        }
-    }
-
-    func zoomRectForDoubleTap(on point: CGPoint, for scrollView: UIScrollView) -> CGRect {
-        return scrollView.zoomRect(forFactorChangeInZoomScaleOf: 5, on: point)
-    }
-    
-    func zoomRectForDoubleTap_legacy(on point: CGPoint, for scrollView: UIScrollView) -> CGRect {
-        let sizeToBaseRectOn = scrollView.frame.size
-        
-        let size = CGSize(width: sizeToBaseRectOn.width / 2,
-                          height: sizeToBaseRectOn.height / 2)
-        let zoomSize = CGSize(width: size.width / scrollView.zoomScale,
-                              height: size.height / scrollView.zoomScale)
-        
-        let origin = CGPoint(x: point.x - zoomSize.width / 2,
-                             y: point.y - zoomSize.height / 2)
-        return CGRect(origin: origin, size: zoomSize)
-    }
-    
-    func zoomScaleOfBoundingBox(_ boundingBox: CGRect, forImageSize imageSize: CGSize, padded: Bool, scrollView: UIScrollView) -> CGFloat {
-        let zoomRect = boundingBox.zoomRect(forImageSize: imageSize,
-                                            fittedInto: scrollView.frame.size,
-                                            padded: padded)
-        return zoomRect.zoomScale(within: scrollView.frame.size)
-    }
-    
-    func zoomRectForScale(scale: CGFloat, center: CGPoint, scrollView: UIScrollView, context: Context) -> CGRect {
-        var zoomRect = CGRect.zero
-        zoomRect.size.height = hostedView(context: context).frame.size.height / scale
-        zoomRect.size.width  = hostedView(context: context).frame.size.width  / scale
-        let newCenter = scrollView.convert(center, from: hostedView(context: context))
-        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
-        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
-        return zoomRect
-    }
-    
-    //    func userDoubleTappedScrollview(recognizer:  UITapGestureRecognizer) {
-    //        if (zoomScale > minimumZoomScale) {
-    //            setZoomScale(minimumZoomScale, animated: true)
-    //        }
-    //        else {
-    //            //(I divide by 3.0 since I don't wan't to zoom to the max upon the double tap)
-    //            let zoomRect = zoomRectForScale(scale: maximumZoomScale / 3.0, center: recognizer.location(in: recognizer.view))
-    //            zoom(to: zoomRect, animated: true)
-    //        }
-    //    }
-    //
-    //    func zoomRectForScale(scale : CGFloat, center : CGPoint) -> CGRect {
-    //        var zoomRect = CGRect.zero
-    //        if let imageV = self.viewForZooming {
-    //            zoomRect.size.height = imageV.frame.size.height / scale;
-    //            zoomRect.size.width  = imageV.frame.size.width  / scale;
-    //            let newCenter = imageV.convert(center, from: self)
-    //            zoomRect.origin.x = newCenter.x - ((zoomRect.size.width / 2.0));
-    //            zoomRect.origin.y = newCenter.y - ((zoomRect.size.height / 2.0));
-    //        }
-    //        return zoomRect;
-    //    }
-}
+//        }
+//    }
+//
+//    func zoomRectForDoubleTap(on point: CGPoint, for scrollView: UIScrollView) -> CGRect {
+//        return scrollView.zoomRect(forFactorChangeInZoomScaleOf: 5, on: point)
+//    }
+//
+//    func zoomRectForDoubleTap_legacy(on point: CGPoint, for scrollView: UIScrollView) -> CGRect {
+//        let sizeToBaseRectOn = scrollView.frame.size
+//
+//        let size = CGSize(width: sizeToBaseRectOn.width / 2,
+//                          height: sizeToBaseRectOn.height / 2)
+//        let zoomSize = CGSize(width: size.width / scrollView.zoomScale,
+//                              height: size.height / scrollView.zoomScale)
+//
+//        let origin = CGPoint(x: point.x - zoomSize.width / 2,
+//                             y: point.y - zoomSize.height / 2)
+//        return CGRect(origin: origin, size: zoomSize)
+//    }
+//
+//    func zoomScaleOfBoundingBox(_ boundingBox: CGRect, forImageSize imageSize: CGSize, padded: Bool, scrollView: UIScrollView) -> CGFloat {
+//        let zoomRect = boundingBox.zoomRect(forImageSize: imageSize,
+//                                            fittedInto: scrollView.frame.size,
+//                                            padded: padded)
+//        return zoomRect.zoomScale(within: scrollView.frame.size)
+//    }
+//
+//    func zoomRectForScale(scale: CGFloat, center: CGPoint, scrollView: UIScrollView, context: Context) -> CGRect {
+//        var zoomRect = CGRect.zero
+//        zoomRect.size.height = hostedView(context: context).frame.size.height / scale
+//        zoomRect.size.width  = hostedView(context: context).frame.size.width  / scale
+//        let newCenter = scrollView.convert(center, from: hostedView(context: context))
+//        zoomRect.origin.x = newCenter.x - (zoomRect.size.width / 2.0)
+//        zoomRect.origin.y = newCenter.y - (zoomRect.size.height / 2.0)
+//        return zoomRect
+//    }
+//
+//    //    func userDoubleTappedScrollview(recognizer:  UITapGestureRecognizer) {
+//    //        if (zoomScale > minimumZoomScale) {
+//    //            setZoomScale(minimumZoomScale, animated: true)
+//    //        }
+//    //        else {
+//    //            //(I divide by 3.0 since I don't wan't to zoom to the max upon the double tap)
+//    //            let zoomRect = zoomRectForScale(scale: maximumZoomScale / 3.0, center: recognizer.location(in: recognizer.view))
+//    //            zoom(to: zoomRect, animated: true)
+//    //        }
+//    //    }
+//    //
+//    //    func zoomRectForScale(scale : CGFloat, center : CGPoint) -> CGRect {
+//    //        var zoomRect = CGRect.zero
+//    //        if let imageV = self.viewForZooming {
+//    //            zoomRect.size.height = imageV.frame.size.height / scale;
+//    //            zoomRect.size.width  = imageV.frame.size.width  / scale;
+//    //            let newCenter = imageV.convert(center, from: self)
+//    //            zoomRect.origin.x = newCenter.x - ((zoomRect.size.width / 2.0));
+//    //            zoomRect.origin.y = newCenter.y - ((zoomRect.size.height / 2.0));
+//    //        }
+//    //        return zoomRect;
+//    //    }
+//}
