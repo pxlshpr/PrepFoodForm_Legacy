@@ -22,7 +22,7 @@ class ImageViewModel: ObservableObject, Identifiable {
     var textsWithoutFoodLabelValues: [RecognizedText] = []
     var textsWithDensities: [RecognizedText] = []
 
-    var barcodeTexts: [RecognizedBarcode] = []
+    var recognizedBarcodes: [RecognizedBarcode] = []
 
     var id: UUID
     
@@ -41,11 +41,12 @@ class ImageViewModel: ObservableObject, Identifiable {
 //        self.status = .scanned
     }
 
-    init(barcodeImage image: UIImage) {
+    init(barcodeImage image: UIImage, recognizedBarcodes: [RecognizedBarcode]) {
         self.image = image
         self.status = .scanned
         self.id = UUID()
         self.prepareThumbnails()
+        self.recognizedBarcodes = recognizedBarcodes
 //        self.status = .scanned
     }
 
@@ -70,9 +71,13 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.textsWithFoodLabelValues = scanResult.textsWithFoodLabelValues
         self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
         self.textsWithDensities = scanResult.textsWithDensities
-        self.barcodeTexts = scanResult.barcodes
+        self.recognizedBarcodes = scanResult.barcodes
 
         self.prepareThumbnails()
+    }
+    
+    var dataPointsCount: Int {
+        scanResult?.dataPointsCount ?? recognizedBarcodes.count
     }
     
     func prepareThumbnails() {
@@ -129,7 +134,7 @@ class ImageViewModel: ObservableObject, Identifiable {
                 self.textsWithFoodLabelValues = result.textsWithFoodLabelValues
                 self.textsWithoutFoodLabelValues = result.textsWithoutFoodLabelValues
                 self.textsWithDensities = result.textsWithDensities
-                self.barcodeTexts = result.barcodes
+                self.recognizedBarcodes = result.barcodes
 
                 await MainActor.run {
                     self.status = .scanned

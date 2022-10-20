@@ -388,7 +388,7 @@ class TextPickerViewModel: ObservableObject {
         guard mode.filter?.includesBarcodes == true else {
             return []
         }
-        return imageViewModel.barcodeTexts
+        return imageViewModel.recognizedBarcodes
     }
     
     func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {

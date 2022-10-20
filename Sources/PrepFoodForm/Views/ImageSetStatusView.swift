@@ -48,7 +48,7 @@ extension FoodFormViewModel {
 
     var dataPointsCount: Int {
         imageViewModels.reduce(0) {
-            $0 + ($1.scanResult?.dataPointsCount ?? 0)
+            $0 + $1.dataPointsCount
         }
     }
 
@@ -72,7 +72,7 @@ extension FoodFormViewModel {
     var uniqueBarcodeStrings: [String] {
         imageViewModels
             .reduce([]) {
-                $0 + ($1.scanResult?.barcodes ?? [])
+                $0 + $1.recognizedBarcodes
             }
             .map { $0.string }
             .removingDuplicates()
@@ -121,7 +121,7 @@ struct ImagesSummary: View {
         HStack {
             Text("Detected")
             numberView(viewModel.dataPointsCount)
-            Text("data point\(viewModel.dataPointsCount > 1 ? "s": "")")
+            Text("data point\(viewModel.dataPointsCount == 1 ? "s": "")")
         }
     }
     

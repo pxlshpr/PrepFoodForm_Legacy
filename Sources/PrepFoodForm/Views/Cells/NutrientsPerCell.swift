@@ -47,7 +47,7 @@ extension FoodForm.NutrientsPerCell {
             HStack {
 //                Image(systemName: "plus.circle.fill")
 //                    .foregroundColor(Color(.quaternaryLabel))
-                Text("\(viewModel.numberOfSizes) size\(viewModel.numberOfSizes > 1 ? "s" : "")")
+                Text("\(viewModel.numberOfSizes) size\(viewModel.numberOfSizes == 1 ? "s" : "")")
                     .foregroundColor(Color(.secondaryLabel))
             }
             .padding(.vertical, 5)

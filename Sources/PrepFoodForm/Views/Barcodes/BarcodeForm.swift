@@ -118,6 +118,26 @@ struct BarcodesForm: View {
     }
     
     func delete(at offsets: IndexSet) {
+        let indices = Array(offsets)
+        for i in indices {
+            let barcodeViewModel = viewModel.barcodeViewModels[i]
+            guard let payloadString = barcodeViewModel.barcodeValue?.payloadString else {
+                continue
+            }
+            viewModel.removeBarcodePayload(payloadString)
+        }
         viewModel.barcodeViewModels.remove(atOffsets: offsets)
+    }
+}
+
+extension FoodFormViewModel {
+    func removeBarcodePayload(_ string: String) {
+        /// Remove the `RecognizedBarcode` from all `ImageViewModel`s
+        for i in imageViewModels.indices {
+            imageViewModels[i].recognizedBarcodes.removeAll(where: { $0.string == string })
+        }
+        
+        /// Now remove the redundant `ImageViewModel`s we may have (those that were associated with the scanned barcode and have no other used barcodes remaining in it)
+        imageViewModels.removeAll(where: { $0.scanResult == nil && $0.recognizedBarcodes.isEmpty })
     }
 }
