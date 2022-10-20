@@ -219,12 +219,3 @@ extension ImageViewModel: Equatable {
         lhs.hashValue == rhs.hashValue
     }
 }
-
-func taskSleep(_ seconds: Double, tolerance: Int = 1) async throws {
-    try await Task.sleep(
-        until: .now + .seconds(seconds),
-        tolerance: .seconds(tolerance),
-        clock: .suspending
-    )
-}
-
