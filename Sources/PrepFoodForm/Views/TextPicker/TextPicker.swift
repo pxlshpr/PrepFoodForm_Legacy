@@ -14,7 +14,7 @@ class TextPickerViewModel: ObservableObject {
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
 //    @Published var focusedBoxes: [FocusedBox?]
-    @Published var zoomBoxes: [FocusedBox?]
+    @Published var zoomBoxes: [ZoomBox?]
     @Published var page: Page
     
     @Published var currentIndex: Int = 0
@@ -45,10 +45,12 @@ class TextPickerViewModel: ObservableObject {
                 self.hasAppeared = true
             }
 //        }
-        for i in imageViewModels.indices {
-            setInitialFocusBox(forImageAt: i)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            for i in self.imageViewModels.indices {
+                self.setDefaultZoomBox(forImageAt: i)
+                self.setZoomFocusBox(forImageAt: i)
+            }
         }
-//        removeFocusedBoxAfterDelay(forImageAt: initialImageIndex)
     }
     
     func deleteCurrentImage() {
@@ -126,16 +128,17 @@ class TextPickerViewModel: ObservableObject {
         withAnimation {
             currentIndex = index
         }
+        
+//        for i in imageViewModels.indices {
+//            setDefaultZoomBox(forImageAt: i)
+//        }
     }
     
     func pageDidChange(to index: Int) {
-        /// Do this so that the focused box doesn't keep resetting
-//        removeFocusedBoxAfterDelay(forImageAt: index)
-        
         /// Now reset the focus box for all the other images
         for i in imageViewModels.indices {
             guard i != index else { continue }
-            setInitialFocusBox(forImageAt: i)
+            setDefaultZoomBox(forImageAt: i)
         }
     }
     
@@ -148,30 +151,36 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
-    func setInitialFocusBox(forImageAt index: Int) {
-        /// Make sure we're not already focused on an area of this image
-//        let index = initialImageIndex
+    func setDefaultZoomBox(forImageAt index: Int) {
+        guard let imageSize = imageSize(at: index) else {
+            return
+        }
+        
+        let initialZoomBox = ZoomBox(
+            boundingBox: boundingBox(forImageAt: index),
+            animated: false,
+            padded: true,
+            imageSize: imageSize,
+            imageId: imageViewModels[index].id
+        )
+        let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
+        NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+    }
+
+    func setZoomFocusBox(forImageAt index: Int) {
         guard let imageSize = imageSize(at: index), zoomBoxes[index] == nil else {
             return
         }
         
-        let boundingBox = boundingBox(forImageAt: index)
-        let zoomFocusedBox = FocusedBox(
-            boundingBox: boundingBox,
+        let zoomFocusedBox = ZoomBox(
+            boundingBox: boundingBox(forImageAt: index),
             animated: true,
             padded: true,
-            imageSize: imageSize
+            imageSize: imageSize,
+            imageId: imageViewModels[index].id
         )
         zoomBoxes[index] = zoomFocusedBox
         
-        let initialFocusedBox = FocusedBox(
-            boundingBox: boundingBox,
-            animated: false,
-            padded: true,
-            imageSize: imageSize
-        )
-        let userInfo = [Notification.ZoomableScrollViewKeys.focusedBox: initialFocusedBox]
-        NotificationCenter.default.post(name: .focusZoomableScrollView, object: nil, userInfo: userInfo)
     }
     
     func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
@@ -353,13 +362,24 @@ class TextPickerViewModel: ObservableObject {
     }
     
     func page(toImageAt index: Int) {
+        /// **We can't do this here, because it doesn't exist yet**
+//        setDefaultZoomBox(forImageAt: index)
+
         let increment = index - currentIndex
         withAnimation {
+            /// **This causes the `ZoomableScrollView` at `index` to be recreated if its outside the 3-item window kept in memory**
             page.update(.move(increment: increment))
             currentIndex = index
         }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.setDefaultZoomBox(forImageAt: index)
+        }
+        
         /// Call this manually as it won't be called on our end
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            /// **Doing this here is too late**
+//            self.setDefaultZoomBox(forImageAt: index)
             self.pageDidChange(to: index)
         }
     }
@@ -544,12 +564,11 @@ struct TextPicker: View {
     @ViewBuilder
     func zoomableScrollView(for imageViewModel: ImageViewModel) -> some View {
         if let index = textPickerViewModel.imageViewModels.firstIndex(of: imageViewModel),
-//           index < textPickerViewModel.focusedBoxes.count,
            index < textPickerViewModel.zoomBoxes.count,
            let image = imageViewModel.image
         {
             ZoomableScrollView(
-//                focusedBox: $textPickerViewModel.focusedBoxes[index],
+                id: textPickerViewModel.imageViewModels[index].id,
                 zoomBox: $textPickerViewModel.zoomBoxes[index],
                 backgroundColor: .black
             ) {
@@ -971,9 +990,10 @@ struct TextPicker: View {
                                 .foregroundColor(.accentColor.opacity(0.2))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 5)
-                                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [3]))
-                                        .foregroundColor(.primary)
-                                        .padding(-0.5)
+//                                        .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [3]))
+                                        .strokeBorder(style: StrokeStyle(lineWidth: 2))
+                                        .foregroundColor(.accentColor)
+//                                        .padding(-0.5)
                                 )
                                 .opacity(isSelected ? 1.0 : 0.0)
                         )
