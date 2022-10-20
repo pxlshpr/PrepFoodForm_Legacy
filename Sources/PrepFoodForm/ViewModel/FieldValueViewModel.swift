@@ -22,6 +22,7 @@ extension FieldViewModel: Equatable {
     }
 }
 
+
 class FieldViewModel: ObservableObject, Identifiable {
     @Published var id = UUID()
     @Published var fieldValue: FieldValue {

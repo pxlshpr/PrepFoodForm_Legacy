@@ -4,11 +4,10 @@ import VisionSugar
 import UIKit
 import PrepUnits
 
-indirect enum Fill: Hashable {
+indirect enum Fill: Hashable, Codable {
     
     case scanned(ScannedFillInfo)
     case selection(SelectionFillInfo)
-    
     case prefill(PrefillFillInfo = .init())
     case userInput
     
@@ -272,7 +271,7 @@ extension Fill {
     }
 }
 
-enum PrefillField {
+enum PrefillField: Int, Codable {
     case name
     case detail
     case brand
@@ -381,7 +380,7 @@ extension Fill {
 
 //TODO: Sort these
 
-struct ImageText: Hashable {
+struct ImageText: Hashable, Codable {
     let text: RecognizedText
     let attributeText: RecognizedText?
     let imageId: UUID
@@ -408,7 +407,7 @@ struct ImageText: Hashable {
     }
 }
 
-struct ScannedFillInfo: Hashable {
+struct ScannedFillInfo: Hashable, Codable {
     var imageText: ImageText
     var value: FoodLabelValue?
     var altValue: FoodLabelValue? = nil
@@ -457,18 +456,18 @@ struct ScannedBarcodeFillInfo: Hashable {
     
 }
 
-struct ComponentText: Hashable {
+struct ComponentText: Hashable, Codable {
     let componentString: String
     let imageText: ImageText
 }
 
-enum SelectionFillType: Hashable {
+enum SelectionFillType: Int, Hashable, Codable {
     case primaryValue
     case altValue
     case unitConversion
 }
 
-struct SelectionFillInfo: Hashable {
+struct SelectionFillInfo: Hashable, Codable {
     
     /// This indicates the `ImageText` that was selected by the user.
     var imageText: ImageText?
@@ -505,12 +504,12 @@ struct SelectionFillInfo: Hashable {
     }
 }
 
-struct PrefillFieldString: Hashable {
+struct PrefillFieldString: Hashable, Codable {
     let string: String
     let field: PrefillField
 }
 
-struct PrefillFillInfo: Hashable {
+struct PrefillFillInfo: Hashable, Codable {
     var fieldStrings: [PrefillFieldString] = []
     var densityValue: FieldValue.DensityValue? = nil
     var size: Size? = nil

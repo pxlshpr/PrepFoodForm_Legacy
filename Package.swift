@@ -26,7 +26,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.186"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.59"),
-        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.69"),
+        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.71"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),

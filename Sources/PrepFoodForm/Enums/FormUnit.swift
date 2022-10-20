@@ -1,6 +1,6 @@
 import PrepUnits
 
-indirect enum FormUnit: Hashable {
+indirect enum FormUnit: Hashable, Codable {
     case weight(WeightUnit)
     case volume(VolumeUnit)
     case size(Size, VolumeUnit?)

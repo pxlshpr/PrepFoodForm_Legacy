@@ -36,7 +36,7 @@ extension FieldValue: Equatable {
     }
 }
 
-enum FieldValue: Hashable {
+enum FieldValue: Hashable, Codable {
     case name(StringValue = StringValue())
     case emoji(StringValue = StringValue(string: randomFoodEmoji()))
     case brand(StringValue = StringValue())
@@ -52,20 +52,20 @@ enum FieldValue: Hashable {
 }
 
 extension FieldValue {
-    struct SizeValue: Hashable {
+    struct SizeValue: Hashable, Codable {
         var size: Size
         var fill: Fill
     }
 }
 extension FieldValue {
-    struct BarcodeValue: Hashable {
+    struct BarcodeValue: Hashable, Codable {
         var payloadString: String
         var symbology: VNBarcodeSymbology
         var fill: Fill
     }
 }
 extension FieldValue {
-    struct MicroValue: Hashable {
+    struct MicroValue: Hashable, Codable {
         var nutrientType: NutrientType
         var internalDouble: Double?
         var internalString: String
@@ -162,7 +162,7 @@ extension NutrientTypeGroup {
 
 //MARK: MacroValue
 extension FieldValue {
-    struct MacroValue: Hashable {
+    struct MacroValue: Hashable, Codable {
         var macro: Macro
         var internalDouble: Double?
         var internalString: String
@@ -222,7 +222,7 @@ extension FieldValue {
 
 //MARK: EnergyValue
 extension FieldValue {
-    struct EnergyValue: Hashable {
+    struct EnergyValue: Hashable, Codable {
         var internalDouble: Double?
         var internalString: String
         var unit: EnergyUnit
@@ -280,7 +280,7 @@ extension FieldValue {
 
 //MARK: DoubleValue
 extension FieldValue {
-    struct DoubleValue: Hashable {
+    struct DoubleValue: Hashable, Codable {
         var internalDouble: Double? = nil
         var internalString: String = ""
         var unit: FormUnit
@@ -333,7 +333,7 @@ extension FieldValue {
 
 //MARK: StringValue
 extension FieldValue {
-    struct StringValue: Hashable, Equatable {
+    struct StringValue: Hashable, Equatable, Codable {
         private var internalString: String
 //        var string: String = ""
         var fill: Fill
@@ -372,7 +372,7 @@ extension FieldValue {
 
 //MARK: DensityValue
 extension FieldValue {
-    struct DensityValue: Hashable {
+    struct DensityValue: Hashable, Codable {
         var weight: DoubleValue
         var volume: DoubleValue
         var fill: Fill

@@ -1,7 +1,7 @@
 import Foundation
 import PrepUnits
 
-struct Size: Hashable {
+struct Size: Hashable, Codable {
     
     var volumePrefixUnit: FormUnit?
     var name: String
