@@ -539,7 +539,7 @@ extension FoodFormViewModel {
     }
 
     public static var prefilledMock: FoodFormViewModel {
-        let viewModel = FoodFormViewModel.mockWithCases([.pumpkinSeeds])
+        let viewModel = FoodFormViewModel.mockWithCases([.pumpkinSeeds, .vanillaFlour, .phillyCheese, .googleEggs, .proteinOats])
         viewModel.nameViewModel.fieldValue.string = "Pumpking Seeds"
         viewModel.detailViewModel.fieldValue.string = "Dry Roasted, Organic"
         viewModel.brandViewModel.fieldValue.string = "Eden Foods"

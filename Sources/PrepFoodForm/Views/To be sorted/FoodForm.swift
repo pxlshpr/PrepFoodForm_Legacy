@@ -369,11 +369,7 @@ public struct FoodForm: View {
                 VStack {
                     if viewModel.shouldShowSavePublicButton {
                         FormPrimaryButton(title: "Add to Public Database") {
-                            do {
-                                try viewModel.foodViewModel.writeToFile()
-                            } catch {
-                                print("Error writing file: \(error)")
-                            }
+                            FoodFormData.save(viewModel)
                             dismiss()
                         }
                         .padding(.top)

@@ -86,6 +86,7 @@ public class FoodFormViewModel: ObservableObject {
 //        }
     }
     
+    var id = UUID()
 
     //MARK: - Food Details
     @Published var nameViewModel: FieldViewModel = FieldViewModel(fieldValue: .name())
