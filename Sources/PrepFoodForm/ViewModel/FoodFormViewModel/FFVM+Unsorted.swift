@@ -537,6 +537,14 @@ extension FoodFormViewModel {
     public static var mockWith5Images: FoodFormViewModel {
         mockWithCases([.phillyCheese, .pumpkinSeeds, .googleEggs, .vanillaFlour, .starbucks])
     }
+
+    public static var prefilledMock: FoodFormViewModel {
+        let viewModel = FoodFormViewModel.mockWithCases([.pumpkinSeeds])
+        viewModel.nameViewModel.fieldValue.string = "Pumpking Seeds"
+        viewModel.detailViewModel.fieldValue.string = "Dry Roasted, Organic"
+        viewModel.brandViewModel.fieldValue.string = "Eden Foods"
+        return viewModel
+    }
     
     public static func mockWithCases(_ cases: [MockCase]) -> FoodFormViewModel {
         

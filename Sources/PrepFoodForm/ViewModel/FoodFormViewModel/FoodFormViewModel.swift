@@ -203,7 +203,14 @@ extension FoodFormViewModel {
             partialResult + tuple.fieldViewModels
         }
     }
-    
+
+    var allIncludedMicronutrientFieldViewModels: [FieldViewModel] {
+        micronutrients.reduce([FieldViewModel]()) { partialResult, tuple in
+            partialResult + tuple.fieldViewModels
+        }
+        .filter { $0.fieldValue.microValue.isIncluded }
+    }
+
     var allFieldValues: [FieldValue] {
         allFieldViewModels.map { $0.fieldValue }
     }
