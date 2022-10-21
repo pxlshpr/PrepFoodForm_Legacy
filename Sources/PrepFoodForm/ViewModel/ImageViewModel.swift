@@ -26,28 +26,26 @@ class ImageViewModel: ObservableObject, Identifiable {
 
     var id: UUID
     
-//    extension ImageViewModel: Identifiable {
-//        var id: UUID {
-//            scanResult?.id ?? UUID()
-//        }
-//    }
+    var uploadStatus: UploadStatus = .notUploaded
 
     init(_ image: UIImage) {
         self.image = image
         self.status = .notScanned
         self.id = UUID()
         self.startScanTask(with: image)
+        
         self.prepareThumbnails()
-//        self.status = .scanned
+        self.startUploadTask()
     }
 
     init(barcodeImage image: UIImage, recognizedBarcodes: [RecognizedBarcode]) {
         self.image = image
         self.status = .scanned
         self.id = UUID()
-        self.prepareThumbnails()
         self.recognizedBarcodes = recognizedBarcodes
-//        self.status = .scanned
+        
+        self.prepareThumbnails()
+        self.startUploadTask()
     }
 
     init(photosPickerItem: PhotosPickerItem) {
@@ -74,6 +72,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.recognizedBarcodes = scanResult.barcodes
 
         self.prepareThumbnails()
+        self.startUploadTask()
     }
     
     var dataPointsCount: Int {
@@ -110,6 +109,26 @@ class ImageViewModel: ObservableObject, Identifiable {
             //TODO: Extract column 2
             return texts
         }
+    }
+    
+    func startUploadTask() {
+        Task {
+            uploadStatus = .uploading
+            guard let request = NetworkController.shared.postRequest(forImageViewModel: self) else {
+                print("🌐 Couldn't get request")
+                return
+            }
+            
+            let (data, response) = try await URLSession.shared.data(for: request)
+            print("🌐 Here's the response:")
+            print("🌐 \(response)")
+        }
+    }
+
+    var imageData: Data? {
+        guard let image else { return nil }
+        let resized = resizeImage(image: image, targetSize: CGSize(width: 2048, height: 2048))
+        return resized.jpegData(compressionQuality: 0.8)
     }
     
     func startScanTask(with image: UIImage) {
@@ -157,7 +176,10 @@ class ImageViewModel: ObservableObject, Identifiable {
             
             await MainActor.run {
                 self.image = image
+                
                 self.prepareThumbnails()
+                self.startUploadTask()
+                
                 self.status = .notScanned
                 self.startScanTask(with: image)
                 FoodFormViewModel.shared.imageDidFinishLoading(self)

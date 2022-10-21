@@ -3,6 +3,7 @@ import PrepUnits
 
 struct Size: Hashable, Codable {
     
+    var id: UUID
     var volumePrefixUnit: FormUnit?
     var name: String
     var unit: FormUnit
@@ -27,6 +28,7 @@ struct Size: Hashable, Codable {
          amount: Double? = nil,
          unit: FormUnit = .serving
     ) {
+        self.id = UUID()
         self.volumePrefixUnit = volumePrefixUnit
         self.name = name
         self.unit = unit
@@ -101,12 +103,6 @@ extension Size {
             internalQuantity = double
             internalQuantityString = newValue /// this is required to ensure strings such as "3." are captured while the user is typing them out
         }
-    }
-}
-
-extension Size: Identifiable {
-    var id: Int {
-        hashValue
     }
 }
 

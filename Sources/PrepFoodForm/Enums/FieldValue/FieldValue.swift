@@ -235,6 +235,16 @@ extension FieldValue {
             self.fill = fill
         }
         
+        var inKcal: Double {
+            let double = self.double ?? 0
+            switch unit {
+            case .kcal:
+                return double
+            case .kJ:
+                return double * KcalsPerKilojule
+            }
+        }
+        
         var double: Double? {
             get {
                 return internalDouble

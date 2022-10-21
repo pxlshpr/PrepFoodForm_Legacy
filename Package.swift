@@ -16,17 +16,18 @@ let package = Package(
     ],
     dependencies: [
          // Dependencies declare other packages that this package depends on.
+//        .package(url: "https://github.com/pxlshpr/PrepModels", from: "0.0.6"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.33"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.15"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.67"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.72"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.23"),
-        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.54"),
+        .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.55"),
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.186"),
-        .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.59"),
-        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.71"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.194"),
+        .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.62"),
+        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.82"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
@@ -39,6 +40,7 @@ let package = Package(
         .target(
             name: "PrepFoodForm",
             dependencies: [
+//                .product(name: "PrepModels", package: "prepmodels"),
                 .product(name: "Camera", package: "swiftuicamera"),
                 .product(name: "FoodLabelScanner", package: "foodlabelscanner"),
                 .product(name: "FoodLabelCamera", package: "foodlabelcamera"),
