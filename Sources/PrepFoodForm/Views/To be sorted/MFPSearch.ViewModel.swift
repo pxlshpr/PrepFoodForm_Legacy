@@ -1,14 +1,7 @@
 import SwiftUI
 import MFPScraper
 import SwiftHaptics
-
-func sleepTask(_ seconds: Int, tolerance: Int = 1) async throws {
-    try await Task.sleep(
-        until: .now + .seconds(seconds),
-        tolerance: .seconds(tolerance),
-        clock: .suspending
-    )
-}
+import SwiftSugar
 
 extension MFPSearch.ViewModel {
     
