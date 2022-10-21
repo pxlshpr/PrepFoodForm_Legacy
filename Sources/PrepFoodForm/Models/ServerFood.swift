@@ -7,7 +7,6 @@ struct ServerFood: Codable {
     let emoji: String
     let detail: String?
     let brand: String?
-    let barcodes: [ServerBarcode]?
     let amount: ServerAmountWithUnit
     let serving: ServerAmountWithUnit
     let nutrients: ServerNutrients
@@ -16,4 +15,13 @@ struct ServerFood: Codable {
     let linkUrl: String?
     let prefilledUrl: String?
     let imageIds: [UUID]?
+    
+    var type: Int16
+    var verificationStatus: Int16?
+    var database: Int16?
+}
+
+struct ServerFoodForm: Codable {
+    let food: ServerFood
+    let barcodes: [ServerBarcode]
 }

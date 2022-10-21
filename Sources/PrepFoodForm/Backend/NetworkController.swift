@@ -2,8 +2,38 @@ import Foundation
 
 class NetworkController {
     
+    let isLocal = true
+    
+    var baseUrlString: String {
+        isLocal ? "http://127.0.0.1:8083" : "https://pxlshpr.app/prep"
+    }
+    
     static var shared = NetworkController()
     
+    func postRequest(for foodFormViewModel: FoodFormViewModel) -> URLRequest? {
+        guard let serverFoodForm = foodFormViewModel.serverFoodForm,
+              let url = URL(string: "\(baseUrlString)/foods")
+        else {
+            return nil
+        }
+
+        do {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(serverFoodForm)
+
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.httpBody = data
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            
+            return request
+        } catch {
+            print("Error encoding: \(error)")
+            return nil
+        }
+    }
+
     func postRequest(forImageViewModel imageViewModel: ImageViewModel) -> URLRequest? {
         guard let imageData = imageViewModel.imageData else { return nil }
         return postRequest(forImageData: imageData, imageId: imageViewModel.id)
@@ -12,7 +42,7 @@ class NetworkController {
     func postRequest(forImageData imageData: Data, imageId: UUID) -> URLRequest {
         let boundary = "Boundary-\(UUID().uuidString)"
 
-        var request = URLRequest(url: URL(string: "http://127.0.0.1:8080/foods/image")!)
+        var request = URLRequest(url: URL(string: "\(baseUrlString)/foods/image")!)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         

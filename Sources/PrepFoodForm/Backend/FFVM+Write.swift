@@ -68,7 +68,7 @@ struct FoodFormData: Codable {
     }
     
     static func uploadToServer(_ ffvm: FoodFormViewModel) {
-        guard let request = ffvm.foodRequest else { return }
+        guard let request = NetworkController.shared.postRequest(for: ffvm) else { return }
         Task {
             let (data, response) = try await URLSession.shared.data(for: request)
             print("🌐 Here's the response:")
@@ -312,6 +312,10 @@ extension FoodFormViewModel {
         imageViewModels.map { $0.id }
     }
     
+    var foodType: FoodType {
+        FoodType.userPublic(.verified)
+    }
+    
     var serverFood: ServerFood? {
         ServerFood(
             id: id,
@@ -319,7 +323,6 @@ extension FoodFormViewModel {
             emoji: emojiViewModel.string,
             detail: detailViewModel.stringIfNotEmpty,
             brand: brandViewModel.stringIfNotEmpty,
-            barcodes: serverBarcodes,
             amount: serverAmount,
             serving: serverServing,
             nutrients: serverNutrients,
@@ -327,27 +330,21 @@ extension FoodFormViewModel {
             density: serverDensity,
             linkUrl: linkInfo?.urlString,
             prefilledUrl: prefilledFood?.sourceUrl,
-            imageIds: imageIds
+            imageIds: imageIds,
+            
+            /// Hardcoded for now
+            type: foodType.serverInt,
+            verificationStatus: foodType.verificationStatusServerInt,
+            database: foodType.verificationStatusServerInt
         )
     }
-    var foodRequest: URLRequest? {
-        guard let serverFood, let url = URL(string: "http://127.0.0.1:8080/foods") else { return nil }
-
-        do {
-            let encoder = JSONEncoder()
-            let data = try encoder.encode(serverFood)
-
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.httpBody = data
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-            
-            return request
-        } catch {
-            print("Error encoding: \(error)")
-            return nil
-        }
+    
+    var serverFoodForm: ServerFoodForm? {
+        guard let serverFood else { return nil }
+        return ServerFoodForm(
+            food: serverFood,
+            barcodes: serverBarcodes
+        )
     }
 }
 
