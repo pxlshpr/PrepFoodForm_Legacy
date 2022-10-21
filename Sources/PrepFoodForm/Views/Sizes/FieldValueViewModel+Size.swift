@@ -1,7 +1,8 @@
 import Foundation
+import PrepUnits
 
 extension FieldViewModel {
-    var size: Size? {
+    var size: FormSize? {
         fieldValue.size
     }
 

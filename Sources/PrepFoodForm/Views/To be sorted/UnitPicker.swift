@@ -200,7 +200,7 @@ extension UnitPicker {
         }
     }
     
-    func volumePrefixes(for size: Size) -> some View {
+    func volumePrefixes(for size: FormSize) -> some View {
         ForEach(volumeUnits, id: \.self) { volumeUnit in
             Button {
                 pickedUnit(unit: .size(size, volumeUnit))

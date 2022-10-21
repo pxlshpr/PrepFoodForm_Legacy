@@ -11,7 +11,7 @@ public class FoodFormViewModel: ObservableObject {
     
     static public var shared = FoodFormViewModel()
     
-    var sizeBeingEdited: Size? = nil
+    var sizeBeingEdited: FormSize? = nil
     
     func clearFieldModels() {
         amountViewModel = .init(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .discardable)))

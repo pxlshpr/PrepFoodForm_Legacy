@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftHaptics
+import PrepUnits
 
 class SizeFormViewModel: ObservableObject {
     @Published var includeServing: Bool
@@ -54,6 +55,6 @@ class SizeFormViewModel: ObservableObject {
 
 extension FieldViewModel {
     static var emptySize: FieldViewModel {
-        .init(fieldValue: .size(.init(size: Size(), fill: .userInput)))
+        .init(fieldValue: .size(.init(size: FormSize(), fill: .userInput)))
     }
 }

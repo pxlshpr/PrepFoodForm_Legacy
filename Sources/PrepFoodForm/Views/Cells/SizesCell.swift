@@ -1,4 +1,5 @@
 import SwiftUI
+import PrepUnits
 
 struct SizeCell: View {
     @ObservedObject var fieldViewModel: FieldViewModel
@@ -15,7 +16,7 @@ struct SizeCell: View {
         }
     }
     
-    var size: Size? {
+    var size: FormSize? {
         fieldViewModel.fieldValue.size
     }
     
@@ -138,19 +139,19 @@ struct SizesCell_Previews: PreviewProvider {
     }
 }
 
-let mockStandardSizes: [Size] = [
-    Size(quantity: 1, name: "small", amount: 80, unit: .weight(.g)),
-    Size(quantity: 2, name: "medium", amount: 180, unit: .weight(.g)),
-    Size(quantity: 1, name: "large", amount: 240, unit: .weight(.g)),
+let mockStandardSizes: [FormSize] = [
+    FormSize(quantity: 1, name: "small", amount: 80, unit: .weight(.g)),
+    FormSize(quantity: 2, name: "medium", amount: 180, unit: .weight(.g)),
+    FormSize(quantity: 1, name: "large", amount: 240, unit: .weight(.g)),
 ]
 
-let mockVolumePrefixedSizes: [Size] = [
-    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, unit: .weight(.g)),
-    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, unit: .weight(.g)),
-    Size(quantity: 1, volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, unit: .weight(.g)),
+let mockVolumePrefixedSizes: [FormSize] = [
+    FormSize(quantity: 1, volumePrefixUnit: .volume(.cup), name: "shredded", amount: 155, unit: .weight(.g)),
+    FormSize(quantity: 1, volumePrefixUnit: .volume(.cup), name: "sliced", amount: 110, unit: .weight(.g)),
+    FormSize(quantity: 1, volumePrefixUnit: .volume(.cup), name: "pureed", amount: 205, unit: .weight(.g)),
 ]
 
-extension Array where Element == Size {
+extension Array where Element == FormSize {
     var fieldViewModels: [FieldViewModel] {
         map {
             FieldViewModel(fieldValue: .size(.init(size: $0, fill: .discardable)))

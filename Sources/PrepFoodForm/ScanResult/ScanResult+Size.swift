@@ -40,9 +40,9 @@ extension ScanResult {
         )))
     }
     
-    var servingSize: Size? {
+    var servingSize: FormSize? {
         guard let servingAmount else { return nil }
-        return Size(
+        return FormSize(
             name: "serving",
             amount: servingAmount,
             unit: servingFormUnit
@@ -66,11 +66,11 @@ extension ScanResult {
         )))
     }
     
-    var perContainerSize: Size? {
+    var perContainerSize: FormSize? {
         guard let perContainer = serving?.perContainer else {
             return nil
         }
-        return Size(
+        return FormSize(
             quantity: 1,
             name: perContainer.name ?? "container",
             amount: perContainer.amount,
@@ -143,7 +143,7 @@ extension ScanResult {
     
     //MARK: Units Sizes
     
-    var headerServingSize: Size? {
+    var headerServingSize: FormSize? {
         guard let headerServingUnitName,
               let headerServingAmount, headerServingAmount > 0
         else {
@@ -170,14 +170,14 @@ extension ScanResult {
             sizeAmount = 1.0/headerServingAmount
             sizeUnit = .serving
         }
-        return Size(
+        return FormSize(
             name: headerServingUnitName,
             amount: sizeAmount,
             unit: sizeUnit
         )
     }
     
-    var headerEquivalentUnitSize: Size? {
+    var headerEquivalentUnitSize: FormSize? {
         guard let headerServingAmount, headerServingAmount > 0,
               let headerEquivalentSize, headerEquivalentSize.amount > 0,
               let unitName = headerEquivalentSize.unitName
@@ -185,7 +185,7 @@ extension ScanResult {
             return nil
         }
         
-        return Size(
+        return FormSize(
             name: unitName,
 //            amount: 1.0/amount/equivalentSize.amount,
             amount: headerServingAmount/headerEquivalentSize.amount,
@@ -193,7 +193,7 @@ extension ScanResult {
         )
     }
  
-    var servingUnitSize: Size? {
+    var servingUnitSize: FormSize? {
         guard let servingUnitNameText,
               let servingAmount, servingAmount > 0
         else {
@@ -220,14 +220,14 @@ extension ScanResult {
             sizeAmount = 1.0/servingAmount
             sizeUnit = .serving
         }
-        return Size(
+        return FormSize(
             name: servingUnitNameText.string,
             amount: sizeAmount,
             unit: sizeUnit
         )
     }
 
-    var equivalentUnitSize: Size? {
+    var equivalentUnitSize: FormSize? {
         guard let servingAmount, servingAmount > 0,
               let equivalentSize, equivalentSize.amount > 0,
               let unitNameText = equivalentSize.unitNameText
@@ -235,7 +235,7 @@ extension ScanResult {
             return nil
         }
         
-        return Size(
+        return FormSize(
             name: unitNameText.string,
 //            amount: 1.0/amount/equivalentSize.amount,
             amount: servingAmount/equivalentSize.amount,
@@ -279,7 +279,7 @@ extension ScanResult {
         .scanned(.init(valueText: valueText, imageId: id, altValue: value))
     }
     
-    func scannedFill(for size: Size, in imageText: ImageText) -> Fill {
+    func scannedFill(for size: FormSize, in imageText: ImageText) -> Fill {
         .scanned(.init(imageText: imageText, size: size))
     }
 }

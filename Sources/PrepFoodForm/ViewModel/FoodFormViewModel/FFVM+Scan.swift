@@ -223,8 +223,8 @@ extension FoodFormViewModel {
     }
 }
 
-extension Size {
-    func conflictsWith(_ otherSize: Size) -> Bool {
+extension FormSize {
+    func conflictsWith(_ otherSize: FormSize) -> Bool {
         self.name.lowercased() == otherSize.name.lowercased()
         && self.volumePrefixUnit == otherSize.volumePrefixUnit
     }

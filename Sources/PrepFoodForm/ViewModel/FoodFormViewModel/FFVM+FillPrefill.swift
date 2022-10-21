@@ -127,7 +127,7 @@ extension FoodFormViewModel {
         }
     }
     
-    func prefillSize(_ size: Size) {
+    func prefillSize(_ size: FormSize) {
         let fieldViewModel: FieldViewModel = .init(fieldValue: size.fieldValue)
         if size.isVolumePrefixed {
             addVolumePrefixedSizeViewModel(fieldViewModel)
@@ -203,7 +203,7 @@ extension FieldViewModel {
 }
 
 extension AmountUnit {
-    func formUnit(withSize size: Size? = nil) -> FormUnit {
+    func formUnit(withSize size: FormSize? = nil) -> FormUnit {
         switch self {
         case .weight(let weightUnit):
             return .weight(weightUnit)
@@ -222,7 +222,7 @@ extension AmountUnit {
 }
 
 extension ServingUnit {
-    func formUnit(withSize size: Size? = nil) -> FormUnit {
+    func formUnit(withSize size: FormSize? = nil) -> FormUnit {
         switch self {
         case .weight(let weightUnit):
             return .weight(weightUnit)
@@ -291,8 +291,8 @@ extension FoodFormViewModel {
 }
 
 extension MFPProcessedFood.Size {
-    var size: Size {
-        Size(
+    var size: FormSize {
+        FormSize(
             quantity: quantity,
             volumePrefixUnit: prefixVolumeUnit?.formUnit,
             name: name.lowercased(),
@@ -310,7 +310,7 @@ extension MFPProcessedFood.Size {
     }
 }
 
-extension Size {
+extension FormSize {
     var fieldValue: FieldValue {
         .size(FieldValue.SizeValue(
             size: self,

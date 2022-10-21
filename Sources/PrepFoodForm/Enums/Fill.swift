@@ -412,9 +412,9 @@ struct ScannedFillInfo: Hashable, Codable {
     var value: FoodLabelValue?
     var altValue: FoodLabelValue? = nil
     var densityValue: FieldValue.DensityValue? = nil
-    var size: Size? = nil
+    var size: FormSize? = nil
 
-    init(imageText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil, size: Size? = nil) {
+    init(imageText: ImageText, value: FoodLabelValue? = nil, altValue: FoodLabelValue? = nil, densityValue: FieldValue.DensityValue? = nil, size: FormSize? = nil) {
         self.value = value
         self.imageText = imageText
         self.altValue = altValue
@@ -512,7 +512,7 @@ struct PrefillFieldString: Hashable, Codable {
 struct PrefillFillInfo: Hashable, Codable {
     var fieldStrings: [PrefillFieldString] = []
     var densityValue: FieldValue.DensityValue? = nil
-    var size: Size? = nil
+    var size: FormSize? = nil
     
     var concatenated: String {
         fieldStrings

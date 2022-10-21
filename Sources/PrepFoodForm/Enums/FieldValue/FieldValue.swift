@@ -53,7 +53,7 @@ enum FieldValue: Hashable, Codable {
 
 extension FieldValue {
     struct SizeValue: Hashable, Codable {
-        var size: Size
+        var size: FormSize
         var fill: Fill
     }
 }

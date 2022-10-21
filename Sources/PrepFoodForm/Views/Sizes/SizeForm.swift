@@ -3,6 +3,7 @@ import NamePicker
 import SwiftUISugar
 import SwiftHaptics
 import VisionSugar
+import PrepUnits
 
 struct SizeForm: View {
 
@@ -227,7 +228,7 @@ struct SizeForm: View {
         }
     }
     
-    func setSize(_ size: Size) {
+    func setSize(_ size: FormSize) {
         sizeViewModel.fieldValue.size?.quantity = size.quantity
         sizeViewModel.fieldValue.size?.volumePrefixUnit = size.volumePrefixUnit
         sizeViewModel.fieldValue.size?.name = size.name
@@ -364,7 +365,7 @@ struct SizeForm_New_Previews: PreviewProvider {
 
 extension RecognizedText {
     /// Returns the first `Size` that can be extracted from this text
-    var size: Size? {
+    var size: FormSize? {
         nil
 //        servingArtefacts.count > 0
     }

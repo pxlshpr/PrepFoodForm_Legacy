@@ -148,7 +148,7 @@ extension ScanResult {
 
     var headerServingFormUnit: FormUnit {
         if let headerServingUnitName {
-            let size = Size(
+            let size = FormSize(
                 name: headerServingUnitName,
                 amount: headerServingUnitAmount,
                 unit: headerServingUnitSizeUnit
@@ -184,7 +184,7 @@ extension ScanResult {
     }
     var servingFormUnit: FormUnit {
         if let servingUnitNameText {
-            let size = Size(
+            let size = FormSize(
                 name: servingUnitNameText.string,
                 amount: servingUnitAmount,
                 unit: servingUnitSizeUnit
@@ -223,7 +223,7 @@ extension ScanResult {
         }
     }
     
-    var headerEquivalentSizeUnitSize: Size? {
+    var headerEquivalentSizeUnitSize: FormSize? {
         guard let headerEquivalentSize, headerEquivalentSize.amount > 0,
               let headerServingAmount, headerServingAmount > 0
         else {
@@ -231,7 +231,7 @@ extension ScanResult {
         }
         
         if let unitName = headerEquivalentSize.unitName {
-            return Size(
+            return FormSize(
                 name: unitName,
                 amount: 1.0/headerServingAmount/headerEquivalentSize.amount,
                 unit: .serving)
@@ -240,7 +240,7 @@ extension ScanResult {
         }
     }
     
-    var equivalentSizeUnitSize: Size? {
+    var equivalentSizeUnitSize: FormSize? {
         guard let equivalentSize, equivalentSize.amount > 0,
               let servingAmount, servingAmount > 0
         else {
@@ -248,7 +248,7 @@ extension ScanResult {
         }
         
         if let unitNameText = equivalentSize.unitNameText {
-            return Size(
+            return FormSize(
                 name: unitNameText.string,
                 amount: 1.0/servingAmount/equivalentSize.amount,
                 unit: .serving)

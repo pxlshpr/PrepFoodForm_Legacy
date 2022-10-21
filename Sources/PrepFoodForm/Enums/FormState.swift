@@ -1,4 +1,5 @@
 import Foundation
+import PrepUnits
 
 enum FormState: Hashable {
     case empty
@@ -30,8 +31,8 @@ extension FieldViewModel {
     }
 }
 
-extension Size {
-    func formState(sizeBeingEdited: Size? = nil) -> FormState {
+extension FormSize {
+    func formState(sizeBeingEdited: FormSize? = nil) -> FormState {
         if FoodFormViewModel.shared.containsSize(withName: name, andVolumePrefixUnit: volumePrefixUnit, ignoring: sizeBeingEdited) {
             return .duplicate
         }

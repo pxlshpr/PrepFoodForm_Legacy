@@ -1,4 +1,5 @@
 import Foundation
+import PrepUnits
 
 extension FoodFormViewModel {
     
@@ -261,9 +262,9 @@ extension MFPProcessedFood.Size {
         ))
     }
     
-    var prepSize: PrepFoodForm.Size? {
+    var prepSize: FormSize? {
         guard !isDensity else { return nil }
-        return PrepFoodForm.Size(
+        return FormSize(
             quantity: quantity,
             volumePrefixUnit: prefixVolumeUnit?.formUnit,
             name: name.lowercased(),

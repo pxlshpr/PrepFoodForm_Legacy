@@ -45,7 +45,7 @@ extension MFPProcessedFood {
             return nil
         }
         
-        let size: PrepFoodForm.Size?
+        let size: FormSize?
         if case .size(let mfpSize) = amountUnit {
             size = mfpSize.size
         } else {
@@ -64,7 +64,7 @@ extension MFPProcessedFood {
             return nil
         }
         
-        let size: PrepFoodForm.Size?
+        let size: FormSize?
         if case .size(let mfpSize) = servingUnit {
             size = mfpSize.size
         } else {

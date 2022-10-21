@@ -35,7 +35,7 @@ extension FoodFormViewModel {
     public func previewPrefill(onlyServing: Bool = false, includeAllMicronutrients: Bool = false) {
         shouldShowWizard = false
         if onlyServing {
-            let size = Size(quantity: 1, name: "container", amount: 5, unit: .serving)
+            let size = FormSize(quantity: 1, name: "container", amount: 5, unit: .serving)
             let sizeViewModels: [FieldViewModel] = [
                 FieldViewModel(fieldValue: .size(.init(size: size, fill: .userInput)))
             ]
@@ -174,7 +174,7 @@ extension FoodFormViewModel {
 //        updateSummary()
     }
     
-    func add(size: Size) {
+    func add(size: FormSize) {
         withAnimation {
             if size.isVolumePrefixed {
                 guard volumePrefixedSizeViewModels.containsSizeNamed(size.name) else {
@@ -283,13 +283,13 @@ extension FoodFormViewModel {
         standardSizeViewModels.count + volumePrefixedSizeViewModels.count
     }
     
-    var allSizes: [Size] {
+    var allSizes: [FormSize] {
         standardSizeViewModels.compactMap({ $0.fieldValue.size })
         + volumePrefixedSizeViewModels.compactMap({ $0.fieldValue.size })
     }
     
     /// Checks that we don't already have a size with the same name (and volume prefix unit) as what was provided
-    func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: Size?) -> Bool {
+    func containsSize(withName name: String, andVolumePrefixUnit volumePrefixUnit: FormUnit?, ignoring sizeToIgnore: FormSize?) -> Bool {
         for size in allSizes {
             guard size != sizeToIgnore else {
                 continue
@@ -581,14 +581,14 @@ extension FoodFormViewModel {
     }
 }
 
-extension Size {
+extension FormSize {
     var asFieldViewModelForUserInput: FieldViewModel {
         FieldViewModel(fieldValue: .size(.init(size: self, fill: .userInput)))
     }
 }
 
 extension FieldValue {
-    var size: Size? {
+    var size: FormSize? {
         get {
             switch self {
             case .size(let sizeValue):

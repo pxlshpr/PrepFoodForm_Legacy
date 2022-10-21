@@ -1,4 +1,5 @@
 import SwiftUI
+import PrepUnits
 
 extension SizesList {
     struct Cell: View {
@@ -32,7 +33,7 @@ extension SizesList.Cell {
         }
     }
     
-    var size: Size? {
+    var size: FormSize? {
         fieldViewModel.fieldValue.size
     }
     
