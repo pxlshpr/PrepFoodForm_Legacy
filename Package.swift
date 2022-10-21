@@ -15,7 +15,7 @@ let package = Package(
             targets: ["PrepFoodForm"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.1"),
+        .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.5"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.33"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.15"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.67"),

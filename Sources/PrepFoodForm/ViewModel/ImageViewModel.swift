@@ -115,13 +115,12 @@ class ImageViewModel: ObservableObject, Identifiable {
     func startUploadTask() {
         Task {
             uploadStatus = .uploading
-            guard let imageData,
-                  let request = NetworkController.shared.postRequest(forImageData: imageData, imageId: id)
-            else {
-                print("🌐 Couldn't get request")
+            guard let imageData else {
+                print("🌐 Couldn't get imageData")
                 return
             }
             
+            let request = NetworkController.server.postRequest(forImageData: imageData, imageId: id)
             let (data, response) = try await URLSession.shared.data(for: request)
             print("🌐 Here's the response:")
             print("🌐 \(response)")

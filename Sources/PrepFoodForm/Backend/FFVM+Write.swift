@@ -70,7 +70,7 @@ struct FoodFormData: Codable {
     
     static func uploadToServer(_ ffvm: FoodFormViewModel) {
         guard let serverFoodForm = ffvm.serverFoodForm,
-              let request = NetworkController.shared.postRequest(for: serverFoodForm)
+              let request = NetworkController.server.postRequest(for: serverFoodForm)
         else {
             return
         }
