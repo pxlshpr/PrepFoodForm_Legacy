@@ -4,6 +4,7 @@ import FoodLabelScanner
 import VisionSugar
 import ZoomableScrollView
 import PrepUnits
+import PrepNetworkController
 
 class ImageViewModel: ObservableObject, Identifiable {
     
@@ -114,7 +115,9 @@ class ImageViewModel: ObservableObject, Identifiable {
     func startUploadTask() {
         Task {
             uploadStatus = .uploading
-            guard let request = NetworkController.shared.postRequest(forImageViewModel: self) else {
+            guard let imageData,
+                  let request = NetworkController.shared.postRequest(forImageData: imageData, imageId: id)
+            else {
                 print("🌐 Couldn't get request")
                 return
             }

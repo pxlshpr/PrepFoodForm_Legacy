@@ -3,6 +3,7 @@ import MFPScraper
 import VisionSugar
 import FoodLabelScanner
 import PrepUnits
+import PrepNetworkController
 
 struct FoodImage: Codable {
     
@@ -68,7 +69,12 @@ struct FoodFormData: Codable {
     }
     
     static func uploadToServer(_ ffvm: FoodFormViewModel) {
-        guard let request = NetworkController.shared.postRequest(for: ffvm) else { return }
+        guard let serverFoodForm = ffvm.serverFoodForm,
+              let request = NetworkController.shared.postRequest(for: serverFoodForm)
+        else {
+            return
+        }
+        
         Task {
             let (data, response) = try await URLSession.shared.data(for: request)
             print("🌐 Here's the response:")
@@ -345,14 +351,6 @@ extension FoodFormViewModel {
             food: serverFood,
             barcodes: serverBarcodes
         )
-    }
-}
-
-extension NSMutableData {
-    func appendString(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            self.append(data)
-        }
     }
 }
 

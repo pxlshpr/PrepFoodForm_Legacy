@@ -69,6 +69,7 @@ extension MFPSearch {
         }
     }
 }
+//TODO: Start using SearchableView—remove the blur layer, but consider adding it indicator view or at least have it as another component
 
 //MARK: - MFPSearch
 struct MFPSearch: View {
@@ -409,6 +410,7 @@ struct MFPSearch: View {
         }
         dismiss()
     }
+    
     var list: some View {
         List {
             ForEach(searchViewModel.results, id: \.self) { result in

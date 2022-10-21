@@ -15,8 +15,7 @@ let package = Package(
             targets: ["PrepFoodForm"]),
     ],
     dependencies: [
-         // Dependencies declare other packages that this package depends on.
-//        .package(url: "https://github.com/pxlshpr/PrepModels", from: "0.0.6"),
+        .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.1"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.33"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.15"),
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.67"),
@@ -40,7 +39,7 @@ let package = Package(
         .target(
             name: "PrepFoodForm",
             dependencies: [
-//                .product(name: "PrepModels", package: "prepmodels"),
+                .product(name: "PrepNetworkController", package: "prepnetworkcontroller"),
                 .product(name: "Camera", package: "swiftuicamera"),
                 .product(name: "FoodLabelScanner", package: "foodlabelscanner"),
                 .product(name: "FoodLabelCamera", package: "foodlabelcamera"),
