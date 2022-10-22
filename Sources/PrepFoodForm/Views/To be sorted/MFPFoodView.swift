@@ -228,7 +228,7 @@ struct MockProcessedFood {
             MFPProcessedFood.Nutrient(type: .dietaryFiber, amount: 3, unit: .g),
             MFPProcessedFood.Nutrient(type: .sugars, amount: 14, unit: .g),
             MFPProcessedFood.Nutrient(type: .vitaminA, amount: 45, unit: .mcgRAE),
-            MFPProcessedFood.Nutrient(type: .vitaminC, amount: 15, unit: .mg),
+            MFPProcessedFood.Nutrient(type: .vitaminC_ascorbicAcid, amount: 15, unit: .mg),
             MFPProcessedFood.Nutrient(type: .calcium, amount: 7, unit: .mg),
             MFPProcessedFood.Nutrient(type: .iron, amount: 0.3, unit: .mg),
             MFPProcessedFood.Nutrient(type: .potassium, amount: 422, unit: .mg),

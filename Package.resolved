@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabel",
       "state" : {
-        "revision" : "07b36f81c44d0cda1f1e4b298c1bb705d9ed03aa",
-        "version" : "0.0.23"
+        "revision" : "c1ce85e03e4d8fdc05a7872ea00dfacc489c86a6",
+        "version" : "0.0.24"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/FoodLabelScanner",
       "state" : {
-        "revision" : "4a022093e597c4cba62d190fccd1df9932a9c898",
-        "version" : "0.0.68"
+        "revision" : "56f0745c7344c022de1414719d4ba1c7e15b7014",
+        "version" : "0.0.69"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/MFPScraper",
       "state" : {
-        "revision" : "e86e4cc09b906f64387958c90d884b502e1bad5b",
-        "version" : "0.0.55"
+        "revision" : "af739480c94184933f75f5e7ad2ae3e9b6611f97",
+        "version" : "0.0.56"
       }
     },
     {
@@ -77,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepUnits",
       "state" : {
-        "revision" : "6cf7149d995ab1893e30c339c42c2c5bab02513e",
-        "version" : "0.0.100"
+        "revision" : "c9520a3752f49f94597d25e716a95480f78d24c9",
+        "version" : "0.0.102"
       }
     },
     {

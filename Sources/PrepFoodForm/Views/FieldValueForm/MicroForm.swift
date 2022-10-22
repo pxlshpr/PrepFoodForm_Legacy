@@ -127,7 +127,7 @@ struct MicronutrientFormPreview: View {
     }
     
     var body: some View {
-        MicroForm(existingFieldViewModel: viewModel.micronutrientFieldViewModel(for: .vitaminC)!)
+        MicroForm(existingFieldViewModel: viewModel.micronutrientFieldViewModel(for: .vitaminC_ascorbicAcid)!)
             .environmentObject(viewModel)
     }
 }

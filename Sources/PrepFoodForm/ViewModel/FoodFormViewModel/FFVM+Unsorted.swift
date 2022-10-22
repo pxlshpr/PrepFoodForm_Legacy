@@ -84,7 +84,7 @@ extension FoodFormViewModel {
                         if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .saturatedFat {
                             micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 25
                         }
-                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .biotin {
+                        if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .vitaminB7_biotin {
                             micronutrients[g].fieldViewModels[f].fieldValue.microValue.double = 5
                         }
                         if micronutrients[g].fieldViewModels[f].fieldValue.microValue.nutrientType == .caffeine {
