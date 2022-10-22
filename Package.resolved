@@ -1,12 +1,93 @@
 {
   "pins" : [
     {
-      "identity" : "isemojiview",
+      "identity" : "activityindicatorview",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/pxlshpr/ISEmojiView",
+      "location" : "https://github.com/exyte/ActivityIndicatorView",
       "state" : {
-        "revision" : "fd8f2917afc039c6caff4e389b1f24bb051adfd6",
-        "version" : "0.3.2"
+        "revision" : "0fb57e69b6130b4beb8ba49eaafe13563f2f6bd6",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "emojipicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/EmojiPicker",
+      "state" : {
+        "revision" : "33a61f2ba1d932960b8a42fb8e528325a762db21",
+        "version" : "0.0.8"
+      }
+    },
+    {
+      "identity" : "foodlabel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/FoodLabel",
+      "state" : {
+        "revision" : "07b36f81c44d0cda1f1e4b298c1bb705d9ed03aa",
+        "version" : "0.0.23"
+      }
+    },
+    {
+      "identity" : "foodlabelcamera",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/FoodLabelCamera",
+      "state" : {
+        "revision" : "960e6b5bb9d1db3a79271c2c384b93e7664cb2b4",
+        "version" : "0.0.16"
+      }
+    },
+    {
+      "identity" : "foodlabelscanner",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/FoodLabelScanner",
+      "state" : {
+        "revision" : "4a022093e597c4cba62d190fccd1df9932a9c898",
+        "version" : "0.0.68"
+      }
+    },
+    {
+      "identity" : "mfpscraper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/MFPScraper",
+      "state" : {
+        "revision" : "e86e4cc09b906f64387958c90d884b502e1bad5b",
+        "version" : "0.0.55"
+      }
+    },
+    {
+      "identity" : "namepicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/NamePicker",
+      "state" : {
+        "revision" : "f29fb651ac172f4b2a4119ec15cbe28d0e18c0c5",
+        "version" : "0.0.17"
+      }
+    },
+    {
+      "identity" : "prepnetworkcontroller",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/PrepNetworkController",
+      "state" : {
+        "revision" : "08b426e4f9f368d5a0bac5907707bbf10b380fb9",
+        "version" : "0.0.5"
+      }
+    },
+    {
+      "identity" : "prepunits",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/PrepUnits",
+      "state" : {
+        "revision" : "6cf7149d995ab1893e30c339c42c2c5bab02513e",
+        "version" : "0.0.100"
+      }
+    },
+    {
+      "identity" : "rsbarcodes_swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/yeahdongcn/RSBarcodes_Swift",
+      "state" : {
+        "revision" : "86d8b1a1439e7edb19793d17732b15fd784a0a15",
+        "version" : "5.1.1"
       }
     },
     {
@@ -14,8 +95,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftHaptics",
       "state" : {
-        "revision" : "6300a8681b551f3df1023266116ca9700dbd14f9",
-        "version" : "0.1.0"
+        "revision" : "47ed14412dcd109f124cb7b3b88e3fc8f60569e7",
+        "version" : "0.1.2"
+      }
+    },
+    {
+      "identity" : "swiftsoup",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/scinfu/SwiftSoup",
+      "state" : {
+        "revision" : "6778575285177365cbad3e5b8a72f2a20583cfec",
+        "version" : "2.4.3"
       }
     },
     {
@@ -23,8 +113,35 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftSugar",
       "state" : {
-        "revision" : "b7add1ec5deea79b13c735576c3b0c92839dc5a6",
-        "version" : "0.0.54"
+        "revision" : "ec4f4c280c41c6c99741e065d635c470926d75d5",
+        "version" : "0.0.69"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/SwiftUI-Introspect",
+      "state" : {
+        "revision" : "f2616860a41f9d9932da412a8978fec79c06fe24",
+        "version" : "0.1.4"
+      }
+    },
+    {
+      "identity" : "swiftuicamera",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/SwiftUICamera",
+      "state" : {
+        "revision" : "3809bb7d2f16e3f14d4e7fb1a72e004d2d7270d1",
+        "version" : "0.0.34"
+      }
+    },
+    {
+      "identity" : "swiftuipager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fermoya/SwiftUIPager",
+      "state" : {
+        "revision" : "4ddc04c801aac143090bb14cf26603a3bf9c74cb",
+        "version" : "2.5.0"
       }
     },
     {
@@ -32,8 +149,26 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/SwiftUISugar",
       "state" : {
-        "revision" : "d867644bc82abe20ec886747e9e3e1c6f333e04a",
-        "version" : "0.0.166"
+        "revision" : "439700ba56418091d97d3b2d18317d7f109f216b",
+        "version" : "0.0.194"
+      }
+    },
+    {
+      "identity" : "visionsugar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/VisionSugar",
+      "state" : {
+        "revision" : "240da8f4eff92d36429472a8ea63144f262174b7",
+        "version" : "0.0.72"
+      }
+    },
+    {
+      "identity" : "zoomablescrollview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/ZoomableScrollView",
+      "state" : {
+        "revision" : "72fb8a7b3cf53763ea904439ad380fbdf1323808",
+        "version" : "0.0.39"
       }
     }
   ],

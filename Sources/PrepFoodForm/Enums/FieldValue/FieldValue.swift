@@ -149,8 +149,9 @@ extension NutrientType {
         return units
     }
 
+    //TODO: Do this on a per-group basis
     var supportsPercentages: Bool {
-        group.supportsPercentages
+        group?.supportsPercentages ?? false
     }
 }
 

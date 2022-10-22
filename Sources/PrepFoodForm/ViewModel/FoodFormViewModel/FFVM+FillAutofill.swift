@@ -209,8 +209,7 @@ extension NutrientType {
         case .salt:
             return .salt
             
-        //TODO: Add support for these
-        case .sugarAlcohols, .chloride, .copper, .molybdenum, .phosphorus, .choline, .ethanol:
+        default:
             return nil
         }
     }
