@@ -1124,6 +1124,10 @@ extension NutrientUnit {
         case .IU:
 //            return .iu
             return nil
+        case .kcal:
+            return .kcal
+        case .kJ:
+            return .kj
         }
     }
 }
