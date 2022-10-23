@@ -1128,6 +1128,10 @@ extension NutrientUnit {
             return .kcal
         case .kJ:
             return .kj
+                        
+        /// Used by the USDA Database
+        case .pH, .SG, .mcmolTE, .mgGAE:
+            return nil
         }
     }
 }
