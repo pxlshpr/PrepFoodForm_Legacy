@@ -112,7 +112,7 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var saveButtons: some View {
-        if viewModel.hasEnoughData {
+        if viewModel.shouldShowSaveButtons {
             VStack(spacing: 0) {
                 Divider()
                 VStack {
@@ -135,7 +135,6 @@ public struct FoodForm: View {
                 /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
                 .padding(.bottom, 30)
             }
-            //            .background(Color(.systemGroupedBackground))
             .background(.thinMaterial)
         }
     }
@@ -184,6 +183,6 @@ public struct FoodForm: View {
     }
 
     var disableDismiss: Bool {
-        viewModel.hasEnoughData || viewModel.showingSourceMenu
-    }    
+        viewModel.hasSomeData || viewModel.showingSourceMenu
+    }
 }

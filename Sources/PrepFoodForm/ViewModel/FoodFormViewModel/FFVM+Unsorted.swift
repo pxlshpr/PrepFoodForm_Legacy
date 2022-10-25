@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 
 extension FoodFormViewModel {
-    var hasEnoughData: Bool {
+    var hasSomeData: Bool {
         !nameViewModel.fieldValue.isEmpty
 //        || !emojiViewModel.fieldValue.isEmpty
         || !detailViewModel.fieldValue.isEmpty
@@ -401,11 +401,6 @@ extension FoodFormViewModel {
         case .serving:
             return "Unsupported"
         }
-    }
-    
-    var shouldShowSavePublicButton: Bool {
-        //TODO: only show if user includes a valid source
-        true
     }
     
     var hasSourceImages: Bool {
