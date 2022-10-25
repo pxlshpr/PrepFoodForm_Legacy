@@ -1,5 +1,5 @@
 import FoodLabelScanner
-import PrepUnits
+import PrepDataTypes
 import VisionSugar
 import SwiftUI
 

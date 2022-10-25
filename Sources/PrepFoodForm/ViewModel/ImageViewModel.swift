@@ -3,7 +3,7 @@ import PhotosUI
 import FoodLabelScanner
 import VisionSugar
 import ZoomableScrollView
-import PrepUnits
+import PrepDataTypes
 import PrepNetworkController
 
 class ImageViewModel: ObservableObject, Identifiable {
@@ -120,10 +120,11 @@ class ImageViewModel: ObservableObject, Identifiable {
                 return
             }
             
-            let request = NetworkController.server.postRequest(forImageData: imageData, imageId: id)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            print("🌐 Here's the response:")
-            print("🌐 \(response)")
+            //TODO: Bring this back
+//            let request = NetworkController.server.postRequest(forImageData: imageData, imageId: id)
+//            let (data, response) = try await URLSession.shared.data(for: request)
+//            print("🌐 Here's the response:")
+//            print("🌐 \(response)")
         }
     }
 

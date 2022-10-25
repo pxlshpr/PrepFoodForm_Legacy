@@ -1,5 +1,5 @@
 import FoodLabelScanner
-import PrepUnits
+import PrepDataTypes
 
 extension ScanResult.Headers {
     var serving: HeaderText.Serving? {

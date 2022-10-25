@@ -1,6 +1,6 @@
 import FoodLabelScanner
 import VisionSugar
-import PrepUnits
+import PrepDataTypes
 
 extension FoodFormViewModel {
 

@@ -1,6 +1,6 @@
 import FoodLabelScanner
 import SwiftSugar
-import PrepUnits
+import PrepDataTypes
 
 extension ScanResult {
     func fieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {

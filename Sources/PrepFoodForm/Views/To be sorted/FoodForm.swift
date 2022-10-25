@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftHaptics
-import PrepUnits
+import PrepDataTypes
 import PhotosUI
 import Camera
 import EmojiPicker
@@ -269,7 +269,7 @@ public struct FoodForm: View {
     }
     
     func textInputIsValidHandler(_ string: String) -> Bool {
-        string.isValidURL
+        string.isValidUrl
     }
 
     var sourceMenuActionGroups: [[BottomMenuAction]] {

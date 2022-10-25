@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftHaptics
-import PrepUnits
+import PrepDataTypes
 
 class SizeFormViewModel: ObservableObject {
     @Published var includeServing: Bool

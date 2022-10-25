@@ -3,7 +3,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import MFPScraper
-import PrepUnits
+import PrepDataTypes
 import SwiftUISugar
 import ActivityIndicatorView
 

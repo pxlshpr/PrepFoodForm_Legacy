@@ -1,5 +1,5 @@
 import VisionSugar
-import PrepUnits
+import PrepDataTypes
 
 extension RecognizedText {
     

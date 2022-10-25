@@ -1,5 +1,5 @@
 import Foundation
-import PrepUnits
+import PrepDataTypes
 
 protocol NutritionSummaryProvider: ObservableObject {
     var forMeal: Bool { get }

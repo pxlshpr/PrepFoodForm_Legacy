@@ -1,5 +1,5 @@
 import MFPScraper
-import PrepUnits
+import PrepDataTypes
 
 extension MFPProcessedFood {
     var energyFieldValue: FieldValue {

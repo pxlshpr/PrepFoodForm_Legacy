@@ -1,7 +1,7 @@
 import SwiftUI
 import FoodLabelScanner
 import SwiftHaptics
-import PrepUnits
+import PrepDataTypes
 
 extension ScanResult {
     var headerTitle1: String {

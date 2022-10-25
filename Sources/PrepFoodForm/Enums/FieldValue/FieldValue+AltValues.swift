@@ -1,5 +1,5 @@
 import FoodLabelScanner
-import PrepUnits
+import PrepDataTypes
 
 extension FieldValue {
     var altValues: [FoodLabelValue] {

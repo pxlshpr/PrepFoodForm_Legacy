@@ -1,7 +1,7 @@
 import SwiftUI
 import MFPScraper
 import FoodLabel
-import PrepUnits
+import PrepDataTypes
 import WebKit
 import ActivityIndicatorView
 
@@ -60,28 +60,7 @@ struct MFPFoodView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack {
-                    Section {
-                        VStack(alignment: .center) {
-                            Text(mfpFoodViewModel.name)
-                                .multilineTextAlignment(.center)
-                                .font(.title)
-                                .bold()
-//                                .minimumScaleFactor(0.3)
-//                                .lineLimit(1)
-                            if let detailString = mfpFoodViewModel.detailString {
-                                Text(detailString)
-                                    .foregroundColor(.secondary)
-                                    .multilineTextAlignment(.center)
-                            }
-                        }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .foregroundColor(Color(.quaternarySystemFill))
-                        )
-                        .padding(.top)
-                        .padding(.horizontal)
-                    }
+                    detailSection
                     if mfpFoodViewModel.isLoadingFoodDetails {
                         loadingIndicator
                             .frame(maxHeight: .infinity)
@@ -101,6 +80,31 @@ struct MFPFoodView: View {
             .sheet(isPresented: $showingWebsite) {
                 websiteView
             }
+        }
+    }
+    
+    var detailSection: some View {
+        Section {
+            VStack(alignment: .center) {
+                Text(mfpFoodViewModel.name)
+                    .multilineTextAlignment(.center)
+                    .font(.title)
+                    .bold()
+//                                .minimumScaleFactor(0.3)
+//                                .lineLimit(1)
+                if let detailString = mfpFoodViewModel.detailString {
+                    Text(detailString)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .foregroundColor(Color(.quaternarySystemFill))
+            )
+            .padding(.top)
+            .padding(.horizontal)
         }
     }
     

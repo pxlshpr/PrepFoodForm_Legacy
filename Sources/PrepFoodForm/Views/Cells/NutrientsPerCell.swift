@@ -1,5 +1,5 @@
 import SwiftUI
-import PrepUnits
+import PrepDataTypes
 
 extension FoodForm {
     struct NutrientsPerCell: View {

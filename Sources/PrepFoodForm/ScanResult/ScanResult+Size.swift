@@ -284,7 +284,7 @@ extension ScanResult {
     }
 }
 
-import PrepUnits
+import PrepDataTypes
 
 extension DoubleText {
     var asValueText: ValueText? {

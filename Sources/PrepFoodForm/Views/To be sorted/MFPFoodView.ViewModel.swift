@@ -1,7 +1,7 @@
 import SwiftUI
 import MFPScraper
 import FoodLabel
-import PrepUnits
+import PrepDataTypes
 
 extension MFPFoodView {
     

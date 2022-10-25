@@ -1,7 +1,7 @@
 import FoodLabelScanner
 import VisionSugar
 import Foundation
-import PrepUnits
+import PrepDataTypes
 
 extension ScanResult {
 

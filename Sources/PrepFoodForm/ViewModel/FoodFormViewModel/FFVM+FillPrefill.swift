@@ -1,6 +1,6 @@
 import MFPScraper
 import SwiftUI
-import PrepUnits
+import PrepDataTypes
 import VisionSugar
 
 extension FoodFormViewModel {
