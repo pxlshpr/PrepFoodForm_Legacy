@@ -126,10 +126,11 @@ public struct FoodForm: View {
                             dismiss()
                         }
                     } else {
-                        FormPrimaryButton(title: "Add to Private Database") {
+                        FormSecondaryButton(title: "Add to Private Database") {
+//                        FormPrimaryButton(title: "Add to Private Database") {
                             dismiss()
                         }
-                        .padding(.top)
+                        .padding(.vertical)
                     }
                 }
                 /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **

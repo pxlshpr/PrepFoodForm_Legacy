@@ -233,7 +233,7 @@ extension ServingUnit {
             guard let size else {
                 return .weight(.g)
             }
-            return .size(size, nil)
+            return .size(size, .cup)
         }
     }
 }

@@ -64,6 +64,7 @@ extension FieldValue {
         var fill: Fill
     }
 }
+
 extension FieldValue {
     struct MicroValue: Hashable, Codable {
         var nutrientType: NutrientType

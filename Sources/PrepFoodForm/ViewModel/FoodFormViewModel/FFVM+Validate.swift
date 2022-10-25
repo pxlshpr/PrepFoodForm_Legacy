@@ -4,11 +4,18 @@ import PrepDataTypes
 extension FoodFormViewModel {
     
     var shouldShowSaveButtons: Bool {
-        try? userFoodCreateForm?.validate()
+        var isValid: Bool?
+        do {
+            isValid = try userFoodCreateForm?.validate()
+        } catch {
+            print("🧼 Form validation error: \(error)")
+        }
+        return isValid ?? false
     }
     
     var shouldShowSavePublicButton: Bool {
-        //TODO: only show if user includes a valid source
-        true
+        imageViewModels.contains(where: { $0.scanResult != nil })
+        ||
+        linkInfo != nil
     }
 }
