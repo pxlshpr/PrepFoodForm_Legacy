@@ -114,32 +114,6 @@ extension FieldViewModel {
         string.isEmpty ? nil : string
     }
 }
-
-//extension VolumeUnit {
-//    var serverInt: Int16? {
-//        //TODO: Choose these based on user settings
-//        switch self {
-//        case .gallon:
-//            return VolumeGallonUserUnit.gallonUSLiquid.rawValue
-//        case .quart:
-//            return VolumeQuartUserUnit.quartUSLiquid.rawValue
-//        case .pint:
-//            return VolumePintUserUnit.pintUSLiquid.rawValue
-//        case .cup:
-//            return VolumeCupUserUnit.cupUSLegal.rawValue
-//        case .fluidOunce:
-//            return VolumeFluidOunceUserUnit.fluidOunceUSNutritionLabeling.rawValue
-//        case .tablespoon:
-//            return VolumeTablespoonUserUnit.tablespoonUS.rawValue
-//        case .teaspoon:
-//            return VolumeTeaspoonUserUnit.teaspoonUS.rawValue
-//        case .mL:
-//            return VolumeMilliliterUserUnit.ml.rawValue
-//        case .liter:
-//            return VolumeLiterUserUnit.liter.rawValue
-//        }
-//    }
-//}
 //
 //extension WeightUnit {
 //    var serverInt: Int16 {

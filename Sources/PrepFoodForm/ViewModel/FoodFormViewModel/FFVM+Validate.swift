@@ -4,7 +4,7 @@ import PrepDataTypes
 extension FoodFormViewModel {
     
     var shouldShowSaveButtons: Bool {
-        false
+        try? userFoodCreateForm?.validate()
     }
     
     var shouldShowSavePublicButton: Bool {
