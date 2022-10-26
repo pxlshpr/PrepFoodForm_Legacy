@@ -31,7 +31,7 @@ extension FoodForm {
                 textInputIsValid: textInputIsValidHandler,
                 textInputHandler:
                     { string in
-//                        viewModel.submittedSourceLink(string)
+                        sourcesViewModel.linkInfo = LinkInfo(string)
                     }
             )
         )

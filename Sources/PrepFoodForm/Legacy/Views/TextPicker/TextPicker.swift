@@ -813,6 +813,7 @@ struct TextPicker: View {
             }
             .disabled(textPickerViewModel.selectedImageTexts.isEmpty)
             .transition(.scale)
+            .buttonStyle(.borderless)
         }
     }
     var dismissButton: some View {
