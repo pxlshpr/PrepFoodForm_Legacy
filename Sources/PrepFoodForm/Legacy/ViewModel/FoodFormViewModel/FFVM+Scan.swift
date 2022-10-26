@@ -20,20 +20,20 @@ extension ScanResult {
 extension FoodFormViewModel {
     
     func processScanResults() {
-        relevantScanResults = scanResults.relevantScanResults ?? []
-        if let bestScanResult = relevantScanResults.bestScanResult,
+        candidateScanResults = scanResults.candidateScanResults
+        if let bestScanResult = candidateScanResults.bestScanResult,
             bestScanResult.columnCount == 2
         {
-            textPickerColumn1 = TextPickerColumn(
+            textPickerColumn1 = TextColumn(
                 column: 1,
                 name: bestScanResult.headerTitle1,
-                imageTexts: bestColumnImageTexts(at: 1, from: relevantScanResults)
+                imageTexts: bestColumnImageTexts(at: 1, from: candidateScanResults)
             )
 
-            textPickerColumn2 = TextPickerColumn(
+            textPickerColumn2 = TextColumn(
                 column: 2,
                 name: bestScanResult.headerTitle2,
-                imageTexts: bestColumnImageTexts(at: 2, from: relevantScanResults)
+                imageTexts: bestColumnImageTexts(at: 2, from: candidateScanResults)
             )
             
             pickedColumn = bestScanResult.bestColumn
@@ -41,7 +41,7 @@ extension FoodFormViewModel {
                 self.showingColumnPicker = true
             }
         } else {
-            processScanResults(column: 1, from: relevantScanResults)
+            processScanResults(column: 1, from: candidateScanResults)
         }
     }
 
@@ -62,10 +62,10 @@ extension FoodFormViewModel {
     }
     
     /// Get's the `ImageText`s for the `TextPickerColumn` at `column` of the best values picked from the provided array of `ScanResult`s.
-    func bestColumnImageTexts(at column: Int, from relevantScanResults: [ScanResult]) -> [ImageText] {
+    func bestColumnImageTexts(at column: Int, from candidateScanResults: [ScanResult]) -> [ImageText] {
         
         let fieldValues = textPickerFieldViewModels.compactMap {
-            relevantScanResults.pickFieldValue(for: $0.fieldValue, at: column)
+            candidateScanResults.bestFieldValue(for: $0.fieldValue, at: column)
         }
         return fieldValues.compactMap { $0.fill.imageText }
     }
@@ -80,7 +80,7 @@ extension FoodFormViewModel {
 
     func processScanResults(
         column pickedColumn: Int,
-        from relevantScanResults: [ScanResult],
+        from candidateScanResults: [ScanResult],
         isUserInitiated: Bool = false
     ) {
         let column = pickedColumn
@@ -93,13 +93,13 @@ extension FoodFormViewModel {
         for fieldViewModel in fieldViewModelsToExtract {
             extractField(for: fieldViewModel,
                          at: column,
-                         from: relevantScanResults,
+                         from: candidateScanResults,
                          isUserInitiated: isUserInitiated
             )
         }
         
         /// For each of the size view models in ALL the scan results
-        for sizeViewModel in relevantScanResults.allSizeViewModels(at: column) {
+        for sizeViewModel in candidateScanResults.allSizeViewModels(at: column) {
             /// If we were able to add this size view model (if it wasn't a duplicate) ...
             guard add(sizeViewModel: sizeViewModel) else {
                 continue
@@ -138,10 +138,10 @@ extension FoodFormViewModel {
     func extractField(
         for existingFieldViewModel: FieldViewModel,
         at column: Int,
-        from relevantScanResults: [ScanResult],
+        from candidateScanResults: [ScanResult],
         isUserInitiated: Bool
     ) {
-        guard let fieldValue = relevantScanResults.pickFieldValue(
+        guard let fieldValue = candidateScanResults.bestFieldValue(
             for: existingFieldViewModel.fieldValue,
             at: column)
         else {

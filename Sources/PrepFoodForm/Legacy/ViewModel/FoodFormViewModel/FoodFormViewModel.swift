@@ -153,9 +153,9 @@ public class FoodFormViewModel: ObservableObject {
     
     var selectedImageIndex: Int = 0
     
-    var relevantScanResults: [ScanResult] = []
-    var textPickerColumn1: TextPickerColumn? = nil
-    var textPickerColumn2: TextPickerColumn? = nil
+    var candidateScanResults: [ScanResult] = []
+    var textPickerColumn1: TextColumn? = nil
+    var textPickerColumn2: TextColumn? = nil
     var pickedColumn = 1
 }
 

@@ -22,58 +22,63 @@ extension ScanResult {
         }
     }
 }
+
+enum FieldType {
+    case amount, serving, density, energy, macro, micro
+}
+
 extension Array where Element == ScanResult {
 
-    func pickFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
+    func bestFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
         switch fieldValue {
         case .amount:
-            return pickedAmount(at: column)
+            return bestAmountFieldValue(at: column)
         case .serving:
-            return pickedServing(at: column)
+            return bestServingFieldValue(at: column)
         case .density:
-            return pickedDensity
+            return bestDensityFieldValue
         case .energy:
-            return pickEnergy(at: column)
+            return bestEnergyFieldValue(at: column)
         case .macro(let macroValue):
-            return pickedMacro(macroValue.macro, at: column)
+            return bestMacroFieldValue(macroValue.macro, at: column)
         case .micro(let microValue):
-            return pickedMicro(microValue.nutrientType, at: column)
+            return bestMicroFieldValue(microValue.nutrientType, at: column)
         default:
             return nil
         }
     }
     
-    func pickedAmount(at column: Int) -> FieldValue? {
+    func bestAmountFieldValue(at column: Int) -> FieldValue? {
         filter { $0.amountFieldValue(for: column) != nil }
             .bestScanResult?
             .amountFieldValue(for: column)
     }
     
-    func pickedServing(at column: Int) -> FieldValue? {
+    func bestServingFieldValue(at column: Int) -> FieldValue? {
         filter { $0.servingFieldValue(for: column) != nil }
             .bestScanResult?
             .servingFieldValue(for: column)
     }
     
-    var pickedDensity: FieldValue? {
+    var bestDensityFieldValue: FieldValue? {
         filter { $0.densityFieldValue != nil }
             .bestScanResult?
             .densityFieldValue
     }
     
-    func pickEnergy(at column: Int) -> FieldValue? {
+    func bestEnergyFieldValue(at column: Int) -> FieldValue? {
         filter { $0.containsValue(for: .energy, at: column) }
             .bestScanResult?
             .energyFieldValue(at: column)
     }
     
-    func pickedMacro(_ macro: Macro, at column: Int) -> FieldValue? {
+    func bestMacroFieldValue(_ macro: Macro, at column: Int) -> FieldValue? {
         filter { $0.containsValue(for: macro.attribute, at: column) }
             .bestScanResult?
             .macroFieldValue(for: macro, at: column)
     }
     
-    func pickedMicro(_ nutrientType: NutrientType, at column: Int) -> FieldValue? {
+    func bestMicroFieldValue(_ nutrientType: NutrientType, at column: Int) -> FieldValue? {
         guard let attribute = nutrientType.attribute else { return nil }
         return filter { $0.containsValue(for: attribute, at: column) }
             .bestScanResult?
@@ -104,8 +109,13 @@ extension Array where Element == ScanResult {
         return sizeViewModels
     }
     
-    var relevantScanResults: [ScanResult]? {
-        guard let bestScanResult else { return nil }
+    /**
+     First gets the `bestScanResult` (with the greatest `nutrientCount`).
+     
+     Then filters this array to only include those that have the same number of columns as this best result, and matches the headers, *if present*.
+     */
+    var candidateScanResults: [ScanResult] {
+        guard let bestScanResult else { return [] }
         return filter {
             $0.columnCount == bestScanResult.columnCount
             && $0.hasCompatibleHeadersWith(bestScanResult)

@@ -391,13 +391,13 @@ public struct BottomMenuModifier: ViewModifier {
                 dismiss()
             } else if action.type == .textField {
                 /// If this has a text input handler—change the UI to be able to recieve text input
-                Haptics.transientHaptic()
+                Haptics.feedback(style: .soft)
                 withAnimation {
                     actionToReceiveTextInputFor = action
                 }
                 isFocused = true
             } else if action.type == .link, let linkedActions = action.linkedActionGroups {
-                Haptics.transientHaptic()
+                Haptics.feedback(style: .soft)
                 menuTransition = .move(edge: .leading)
                 withAnimation {
                     self.linkedActions = linkedActions

@@ -1,6 +1,8 @@
 import SwiftUI
 import SwiftUISugar
 import Combine
+import FoodLabelScanner
+
 
 public struct FoodForm: View {
     
@@ -14,11 +16,22 @@ public struct FoodForm: View {
     @State var brand: String = ""
     
     @State var showingEmojiPicker = false
-    
+    @State var showingCamera = false
+    @State var showingFoodLabelCamera = false
+    @State var showingPhotosPicker = false
+    @State var showingPrefill = false
+    @State var showingPrefillInfo = false
+
     @State var shouldShowWizard = true
     @State var showingWizard = true
     @State var showingWizardOverlay = true
     @State var formDisabled = false
+
+    @State var imageViewModels: [ImageViewModel] = []
+    @State var imageSetStatus: ImageStatus = .loading
+
+    @State var twoColumnOutput: ScanResultsTwoColumnOutput? = nil
+    @State var selectedScanResultsColumn = 1
 
     public init(didSave: @escaping (FoodFormData) -> ()) {
         self.didSave = didSave
@@ -31,8 +44,10 @@ public struct FoodForm: View {
             content
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
-                .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .onAppear(perform: appeared)
+                .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
+                .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
+                .fullScreenCover(item: $twoColumnOutput) { columnPicker($0) }
         }
     }
     
@@ -65,9 +80,7 @@ public struct FoodForm: View {
     @ViewBuilder
     var wizardLayer: some View {
         if showingWizard {
-            Wizard(didTapBackground: {
-                startWithEmptyFood()
-            })
+            Wizard(tapHandler: tappedWizardButton)
         }
     }
     

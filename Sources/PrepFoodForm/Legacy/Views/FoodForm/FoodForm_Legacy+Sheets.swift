@@ -56,7 +56,7 @@ extension FoodForm_Legacy {
                     selectionHandler: { pickedColumn in
                         viewModel.processScanResults(
                             column: pickedColumn,
-                            from: viewModel.relevantScanResults
+                            from: viewModel.candidateScanResults
                         )
                         return true
                     })

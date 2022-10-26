@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftHaptics
+import FoodLabelScanner
 
 extension FoodForm {
 
@@ -19,6 +20,34 @@ extension FoodForm {
         }
     }
     
+    //MARK: - Handlers
+    func receivedScanResult(_ scanResult: ScanResult, for image: UIImage) {
+        let imageViewModel = ImageViewModel(image: image, scanResult: scanResult)
+        imageViewModels.append(imageViewModel)
+        processScanResults()
+    }
+
+    //MARK: - Wizard Actions
+    func tappedWizardButton(_ button: WizardButton) {
+        Haptics.feedback(style: .soft)
+        dismissWizard()
+        switch button {
+        case .background, .startWithEmptyFood:
+            break
+//            dismissWizard()
+        case .takePhotos:
+            showingCamera = true
+        case .scanAFoodLabel:
+            showingFoodLabelCamera = true
+        case .choosePhotos:
+            showingPhotosPicker = true
+        case .prefill:
+            showingPrefill = true
+        case .prefillInfo:
+            showingPrefillInfo = true
+        }
+    }
+    
     func dismissWizard() {
         withAnimation(WizardAnimation) {
             showingWizard = false
@@ -27,10 +56,5 @@ extension FoodForm {
             showingWizardOverlay = false
         }
         formDisabled = false
-    }
-    
-    func startWithEmptyFood() {
-        Haptics.feedback(style: .soft)
-        dismissWizard()
     }
 }

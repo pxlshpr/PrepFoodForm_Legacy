@@ -1,9 +1,19 @@
 import SwiftUI
 
 extension FoodForm {
+    enum WizardButton {
+        case background
+        case startWithEmptyFood
+        case takePhotos
+        case scanAFoodLabel
+        case choosePhotos
+        case prefill
+        case prefillInfo
+    }
+    
     struct Wizard: View {
         @Environment(\.colorScheme) var colorScheme
-        var didTapBackground: (() -> Void)? = nil
+        var tapHandler: ((WizardButton) -> Void)
     }
 }
 
@@ -37,7 +47,7 @@ extension FoodForm.Wizard {
         Color.clear
             .contentShape(Rectangle())
             .onTapGesture {
-                didTapBackground?()
+                tapHandler(.background)
             }
     }
     
@@ -46,7 +56,7 @@ extension FoodForm.Wizard {
     var manualEntrySection: some View {
         Section("Start with an empty food") {
             Button {
-//                startWithEmptyFood()
+                tapHandler(.startWithEmptyFood)
             } label: {
                 Label("Empty Food", systemImage: "square.and.pencil")
                     .foregroundColor(.primary)
@@ -73,7 +83,7 @@ extension FoodForm.Wizard {
     
     var cameraButton: some View {
         Button {
-//            viewModel.showingCamera = true
+            tapHandler(.takePhotos)
         } label: {
             Label("Take Photos", systemImage: "camera")
                 .foregroundColor(.primary)
@@ -84,7 +94,7 @@ extension FoodForm.Wizard {
 
     var foodLabelCameraButton: some View {
         Button {
-//            viewModel.showingFoodLabelCamera = true
+            tapHandler(.scanAFoodLabel)
         } label: {
             Label("Scan a Food Label", systemImage: "text.viewfinder")
                 .foregroundColor(.primary)
@@ -95,7 +105,7 @@ extension FoodForm.Wizard {
 
     var photosPickerButton: some View {
         Button {
-//            showingPhotosPicker = true
+            tapHandler(.choosePhotos)
         } label: {
             Label("Choose Photos", systemImage: SourceType.images.systemImage)
                 .foregroundColor(.primary)
@@ -109,7 +119,7 @@ extension FoodForm.Wizard {
         }
         var footer: some View {
             Button {
-//                showingThirdPartyInfo = true
+                tapHandler(.prefillInfo)
             } label: {
                 Label("Learn more", systemImage: "info.circle")
                     .font(.footnote)
@@ -123,7 +133,7 @@ extension FoodForm.Wizard {
         
         return Section(header: header, footer: footer) {
             Button {
-//                viewModel.showingThirdPartySearch = true
+                tapHandler(.prefill)
             } label: {
                 Label("Search", systemImage: "magnifyingglass")
                     .foregroundColor(.primary)

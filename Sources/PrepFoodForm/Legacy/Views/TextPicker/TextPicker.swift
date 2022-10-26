@@ -158,13 +158,15 @@ class TextPickerViewModel: ObservableObject {
         
         let initialZoomBox = ZoomBox(
             boundingBox: boundingBox(forImageAt: index),
-            animated: false,
+            animated: true,
             padded: true,
             imageSize: imageSize,
             imageId: imageViewModels[index].id
         )
-        let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
-        NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
+            NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+        }
     }
 
     func setZoomFocusBox(forImageAt index: Int) {
@@ -269,12 +271,12 @@ class TextPickerViewModel: ObservableObject {
             shouldDismiss = true
 
         } else if scanResult.columnCount == 2 {
-            let column1 = TextPickerColumn(
+            let column1 = TextColumn(
                 column: 1,
                 name: scanResult.headerTitle1,
                 imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 1, from: scanResult)
             )
-            let column2 = TextPickerColumn(
+            let column2 = TextColumn(
                 column: 2,
                 name: scanResult.headerTitle2,
                 imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
@@ -479,7 +481,7 @@ class TextPickerViewModel: ObservableObject {
 //        imageViewModels.count == 1 && shouldShowActions && allowsMultipleSelection == false
     }
     
-    var columns: [TextPickerColumn]? {
+    var columns: [TextColumn]? {
         guard case .columnSelection(let column1, let column2, _, _, _) = mode else {
             return nil
         }
@@ -731,7 +733,7 @@ struct TextPicker: View {
         }
     }
 
-    func selectedTextButton(for column: TextPickerColumn) -> some View {
+    func selectedTextButton(for column: TextColumn) -> some View {
         Button {
             withAnimation {
                 textPickerViewModel.pickedColumn(column.column)

@@ -8,8 +8,8 @@ enum TextPickerMode {
     case multiSelection(filter: TextPickerFilter,
                         selectedImageTexts: [ImageText],
                         handler: MultiSelectionHandler)
-    case columnSelection(column1: TextPickerColumn,
-                         column2: TextPickerColumn,
+    case columnSelection(column1: TextColumn,
+                         column2: TextColumn,
                          selectedColumn: Int,
                          dismissHandler: DismissHandler,
                          selectionHandler: ColumnSelectionHandler)
@@ -49,7 +49,7 @@ extension TextPickerMode {
         return selectedColumn.contains(text)
     }
     
-    var selectedColumn: TextPickerColumn? {
+    var selectedColumn: TextColumn? {
         guard case .columnSelection(let column1, let column2, let selectedColumn, _, _) = self else {
             return nil
         }
@@ -199,7 +199,7 @@ typealias ColumnSelectionHandler = ((Int) -> (Bool))
 typealias DeleteImageHandler = ((Int) -> ())
 typealias DismissHandler = (() -> ())
 
-struct TextPickerColumn {
+struct TextColumn {
     let column: Int
     let name: String
     let imageTexts: [ImageText]

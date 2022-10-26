@@ -1,6 +1,7 @@
 import SwiftUI
 import EmojiPicker
 import SwiftHaptics
+import FoodLabelCamera
 
 extension FoodForm {
     var emojiPicker: some View {
@@ -14,4 +15,8 @@ extension FoodForm {
             showingEmojiPicker = false
         }
     }
+    
+    var foodLabelCamera: some View {
+        FoodLabelCamera(foodLabelScanHandler: receivedScanResult)
+    }    
 }
