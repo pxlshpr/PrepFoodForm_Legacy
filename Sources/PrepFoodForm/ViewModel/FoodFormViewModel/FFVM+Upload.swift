@@ -4,16 +4,25 @@ import PrepDataTypes
 extension FoodFormViewModel {
 
     var userFoodCreateForm: UserFoodCreateForm? {
-        guard let amountFoodValue = FoodValue(fieldViewModel: amountViewModel),
-              let foodNutrients
-        else {
-            return nil
-        }
+        guard let info = userFoodInfo else { return nil }
         return UserFoodCreateForm(
             name: nameViewModel.string,
             emoji: emojiViewModel.string,
             detail: detailViewModel.string,
             brand: brandViewModel.string,
+            barcodes: foodBarcodes,
+            status: .notPublished,
+            info: info
+        )
+    }
+    
+    var userFoodInfo: UserFoodInfo? {
+        guard let amountFoodValue = FoodValue(fieldViewModel: amountViewModel),
+              let foodNutrients
+        else {
+            return nil
+        }
+        return UserFoodInfo(
             amount: amountFoodValue,
             serving: FoodValue(fieldViewModel: servingViewModel),
             nutrients: foodNutrients,
@@ -22,11 +31,9 @@ extension FoodFormViewModel {
             linkUrl: linkInfo?.urlString,
             prefilledUrl: prefilledFood?.sourceUrl,
             imageIds: imageViewModels.map { $0.id },
-            status: .notPublished,
             spawnedUserFoodId: nil,
             spawnedDatabaseFoodId: nil,
-            userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!,
-            barcodes: foodBarcodes
+            userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!
         )
     }
     

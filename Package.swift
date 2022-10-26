@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
 //        .package(url: "https://github.com/pxlshpr/PrepUnits", from: "0.0.120"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.17"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.21"),
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.35"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.18"),
