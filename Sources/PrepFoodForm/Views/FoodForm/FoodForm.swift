@@ -20,6 +20,8 @@ public struct FoodForm: View {
     @State var showingPhotosPicker = false
     
     public init() {
+        /// Reset between uses
+        FoodFormViewModel.shared = FoodFormViewModel()
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
     }
     
