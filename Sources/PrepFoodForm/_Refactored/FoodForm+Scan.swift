@@ -2,30 +2,21 @@ import SwiftUI
 import FoodLabelScanner
 import PrepDataTypes
 
-extension FoodForm {
-    func processScanResults() {
-        imageSetStatus = .scanned
-        
-        Task {
-            guard let output = await ScanResultsProcessor.shared.process(allScanResults) else {
-                return
-            }
-            await MainActor.run {
-                switch output {
-                case .twoColumns(let twoColumnOutput):
-                    print("🍩 Setting twoColumnOutput")
-                    self.twoColumnOutput = twoColumnOutput
-                case .oneColumn:
-                    break
-                }
-            }
-        }
+extension DataPointsCount {
+    init(imageViewModels: [ImageViewModel]) {
+        self.total = imageViewModels.reduce(0) { $0 + $1.dataPointsCount }
+        self.autoFilled = 0
+        self.selected = 0
+        self.barcodes = 0
     }
+}
+extension FoodForm {
     
+
     @ViewBuilder
     func columnPicker(_ twoColumnOutput: ScanResultsTwoColumnOutput) -> some View {
         TextPicker(
-            imageViewModels: imageViewModels.containingTexts(in: twoColumnOutput),
+            imageViewModels: sourcesViewModel.imageViewModels(for: twoColumnOutput),
             mode: .columnSelection(
                 column1: twoColumnOutput.column1,
                 column2: twoColumnOutput.column2,
@@ -43,9 +34,6 @@ extension FoodForm {
         )
     }
 
-    var allScanResults: [ScanResult] {
-        imageViewModels.compactMap { $0.scanResult }
-    }
 }
 
 extension Array where Element == ImageViewModel {

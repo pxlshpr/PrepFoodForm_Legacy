@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftHaptics
 import FoodLabelScanner
+import PhotosUI
 
 extension FoodForm {
 
@@ -21,11 +22,7 @@ extension FoodForm {
     }
     
     //MARK: - Handlers
-    func receivedScanResult(_ scanResult: ScanResult, for image: UIImage) {
-        let imageViewModel = ImageViewModel(image: image, scanResult: scanResult)
-        imageViewModels.append(imageViewModel)
-        processScanResults()
-    }
+
 
     //MARK: - Wizard Actions
     func tappedWizardButton(_ button: WizardButton) {

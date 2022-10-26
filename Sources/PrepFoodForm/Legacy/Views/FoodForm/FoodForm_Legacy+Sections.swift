@@ -60,7 +60,7 @@ extension FoodForm_Legacy {
     }
     
     var sourceSection: some View {
-        SourceSection()
+        SourceSection_Legacy()
             .environmentObject(viewModel)
     }
 

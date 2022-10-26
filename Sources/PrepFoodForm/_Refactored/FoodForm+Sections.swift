@@ -13,4 +13,10 @@ extension FoodForm {
             }
         }
     }
+    
+    var sourcesSection: some View {
+        FoodSourcesView(sourcesViewModel: sourcesViewModel) {
+            showingSourcesMenu = true
+        }
+    }
 }

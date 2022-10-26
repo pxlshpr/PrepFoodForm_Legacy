@@ -6,6 +6,12 @@ import ZoomableScrollView
 import PrepDataTypes
 import PrepNetworkController
 
+protocol ImageViewModelDelegate {
+    func imageDidFinishLoading(_ imageViewModel: ImageViewModel)
+    func imageDidFinishScanning(_ imageViewModel: ImageViewModel)
+    func imageDidStartScanning(_ imageViewModel: ImageViewModel)
+}
+
 class ImageViewModel: ObservableObject, Identifiable {
     
     @Published var status: ImageStatus
@@ -29,41 +35,59 @@ class ImageViewModel: ObservableObject, Identifiable {
     
     var uploadStatus: UploadStatus = .notUploaded
 
-    init(_ image: UIImage) {
+    let delegate: ImageViewModelDelegate?
+    
+    init(_ image: UIImage,
+         delegate: ImageViewModelDelegate? = nil
+    ) {
         self.image = image
         self.status = .notScanned
         self.id = UUID()
-        self.startScanTask(with: image)
+        self.delegate = delegate
         
+        self.startScanTask(with: image)
         self.prepareThumbnails()
         self.startUploadTask()
     }
 
-    init(barcodeImage image: UIImage, recognizedBarcodes: [RecognizedBarcode]) {
+    init(barcodeImage image: UIImage,
+         recognizedBarcodes: [RecognizedBarcode],
+         delegate: ImageViewModelDelegate? = nil
+    ) {
         self.image = image
         self.status = .scanned
         self.id = UUID()
         self.recognizedBarcodes = recognizedBarcodes
-        
+        self.delegate = delegate
+
         self.prepareThumbnails()
         self.startUploadTask()
     }
 
-    init(photosPickerItem: PhotosPickerItem) {
+    init(
+        photosPickerItem: PhotosPickerItem,
+        delegate: ImageViewModelDelegate? = nil
+    ) {
         self.image = nil
         self.photosPickerItem = photosPickerItem
         self.status = .loading
         self.id = UUID()
+        self.delegate = delegate
+        
         self.startLoadTask(with: photosPickerItem)
     }
     
     /// Create this with a preset `ScanResult` to skip the scanning process entirely
-    init(image: UIImage, scanResult: ScanResult) {
+    init(image: UIImage,
+         scanResult: ScanResult,
+         delegate: ImageViewModelDelegate? = nil
+    ) {
         self.image = image
         self.status = .scanned
         self.photosPickerItem = nil
         self.scanResult = scanResult
-        
+        self.delegate = delegate
+
         self.id = scanResult.id
         
         self.texts = scanResult.texts
@@ -71,7 +95,7 @@ class ImageViewModel: ObservableObject, Identifiable {
         self.textsWithoutFoodLabelValues = scanResult.textsWithoutFoodLabelValues
         self.textsWithDensities = scanResult.textsWithDensities
         self.recognizedBarcodes = scanResult.barcodes
-
+        
         self.prepareThumbnails()
         self.startUploadTask()
     }
@@ -136,6 +160,8 @@ class ImageViewModel: ObservableObject, Identifiable {
     
     func startScanTask(with image: UIImage) {
         self.status = .scanning
+        delegate?.imageDidStartScanning(self)
+
         Task(priority: .userInitiated) {
             
 //            try await taskSleep(Double.random(in: 1...6))
@@ -160,7 +186,10 @@ class ImageViewModel: ObservableObject, Identifiable {
 
                 await MainActor.run {
                     self.status = .scanned
+                    self.delegate?.imageDidFinishScanning(self)
                 }
+                
+                //TODO: Remove this after we migrate to refactored form
                 FoodFormViewModel.shared.imageDidFinishScanning(self)
             }
         }
@@ -185,6 +214,10 @@ class ImageViewModel: ObservableObject, Identifiable {
                 
                 self.status = .notScanned
                 self.startScanTask(with: image)
+                
+                //TODO: Remove this after we migrate to refactored form
+                self.delegate?.imageDidFinishScanning(self)
+                
                 FoodFormViewModel.shared.imageDidFinishLoading(self)
             }
         }
