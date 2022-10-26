@@ -29,7 +29,8 @@ public struct FoodForm: View {
     }
     
     public var body: some View {
-        NavigationView {
+        let _ = Self._printChanges()
+        return NavigationView {
             content
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }

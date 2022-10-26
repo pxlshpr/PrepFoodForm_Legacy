@@ -14,7 +14,10 @@ extension FoodForm {
         FormStyledSection(header: Text("Details")) {
             NavigationLink {
                 DetailsForm()
-                .environmentObject(viewModel)
+                    .environmentObject(viewModel)
+                    .onDisappear {
+                        print("Do it here")
+                    }
             } label: {
                 DetailsCell()
                     .environmentObject(viewModel)

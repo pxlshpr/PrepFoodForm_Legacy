@@ -7,10 +7,15 @@ extension FoodForm {
     struct DetailsForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingCodeScanner = false
+        @State var name: String = ""
+        @State var detail: String = ""
+        @State var brand: String = ""
+        
     }
 }
 
 extension FoodForm.DetailsForm {
+    
     var body: some View {
         basicForm
 //        formWithTextPickers
@@ -24,6 +29,15 @@ extension FoodForm.DetailsForm {
     //MARK: - Basic Form
     var basicForm: some View {
         Form {
+//            Section("Name") {
+//                TextField("Required", text: $name)
+//            }
+//            Section("Detail") {
+//                TextField("Optional", text: $detail)
+//            }
+//            Section("Brand") {
+//                TextField("Optional", text: $brand)
+//            }
             Section("Name") {
                 TextField("Required", text: $viewModel.nameViewModel.fieldValue.string)
             }
