@@ -19,7 +19,10 @@ public struct FoodForm: View {
     @State var showingThirdPartyInfo = false
     @State var showingPhotosPicker = false
     
-    public init() {
+    let didSave: (FoodFormData) -> ()
+    
+    public init(didSave: @escaping (FoodFormData) -> ()) {
+        self.didSave = didSave
         /// Reset between uses
         FoodFormViewModel.shared = FoodFormViewModel()
         _viewModel = StateObject(wrappedValue: FoodFormViewModel.shared)
@@ -114,17 +117,22 @@ public struct FoodForm: View {
     
     @ViewBuilder
     var saveButtons: some View {
-        if viewModel.shouldShowSaveButtons {
+        if let rawData = viewModel.rawData {
             VStack(spacing: 0) {
                 Divider()
                 VStack {
                     if viewModel.shouldShowSavePublicButton {
                         FormPrimaryButton(title: "Add to Public Database") {
-                            FoodFormData.save(viewModel)
+                            didSave(FoodFormData(rawData: rawData,
+                                                 images: viewModel.images,
+                                                 shouldPublish: true))
                             dismiss()
                         }
                         .padding(.top)
                         FormSecondaryButton(title: "Add to Private Database") {
+                            didSave(FoodFormData(rawData: rawData,
+                                                 images: viewModel.images,
+                                                 shouldPublish: false))
                             dismiss()
                         }
                     } else {

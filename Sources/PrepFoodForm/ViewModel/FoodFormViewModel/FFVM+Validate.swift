@@ -1,7 +1,23 @@
-import Foundation
+import SwiftUI
 import PrepDataTypes
 
 extension FoodFormViewModel {
+    
+    var rawData: FoodFormRawData? {
+        FoodFormRawData(self)
+    }
+    
+    var images: [UUID: UIImage] {
+        [:]
+    }
+    
+    var isValid: Bool {
+        guard !nameViewModel.string.isEmpty else {
+            return false
+        }
+        
+        return true
+    }
     
     var shouldShowSaveButtons: Bool {
         var isValid: Bool?

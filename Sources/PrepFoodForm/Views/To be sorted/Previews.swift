@@ -77,8 +77,10 @@ struct FoodFormPreview: View {
     }
 
     var body: some View {
-        FoodForm()
-            .environmentObject(viewModel)
+        FoodForm { foodFormData in
+            
+        }
+        .environmentObject(viewModel)
     }
 }
 
