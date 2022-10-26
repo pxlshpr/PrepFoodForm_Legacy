@@ -15,6 +15,7 @@ extension FoodForm {
         @Published var selectedScanResultsColumn = 1
         
         @Published var selectedPhotos: [PhotosPickerItem] = []
+        var presentingImageIndex: Int = 0
     }
 }
 

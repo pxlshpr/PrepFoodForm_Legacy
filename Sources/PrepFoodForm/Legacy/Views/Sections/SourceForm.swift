@@ -2,7 +2,11 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
+let LabelSpacing: CGFloat = 10
+let LabelImageWidth: CGFloat = 20
+
 struct SourceForm: View {
+
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingRemoveAllImagesConfirmation = false
     @State var showingPhotosPicker = false
@@ -153,14 +157,13 @@ struct SourceForm: View {
     }
     
     var imagesCarousel: some View {
-        SourceImagesCarousel { index in
+        SourceImagesCarousel(imageViewModels: $viewModel.imageViewModels) { index in
             viewModel.selectedImageIndex = index
             print("🍱 viewModel.selectedImageIndex is now: \(viewModel.selectedImageIndex)")
             showingTextPicker = true
         } didTapDeleteOnImage: { index in
             removeImage(at: index)
         }
-        .environmentObject(viewModel)
     }
     
     var addImagesSection: some View {
@@ -302,7 +305,6 @@ extension FoodFormViewModel {
     }
 }
 
-
 struct SourceFormPreview: View {
     
     @StateObject var viewModel: FoodFormViewModel
@@ -324,19 +326,5 @@ struct SourceFormPreview: View {
 struct SourceForm_Previews: PreviewProvider {
     static var previews: some View {
         SourceFormPreview()
-    }
-}
-
-
-let LabelSpacing: CGFloat = 10
-let LabelImageWidth: CGFloat = 20
-
-extension String {
-    
-    var htmlTitle: String? {
-        let openGraphPattern = #"og:title\"[^\"]*\"([^\"]*)"#
-        let htmlTitlePattern = #"<title>(.*)<\/title>"#
-        
-        return self.secondCapturedGroup(using: openGraphPattern) ?? self.secondCapturedGroup(using: htmlTitlePattern)
     }
 }

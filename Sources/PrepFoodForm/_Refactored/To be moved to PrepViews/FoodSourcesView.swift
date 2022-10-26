@@ -47,8 +47,7 @@ struct FoodSourcesView: View {
     
     var navigationLink: some View {
         NavigationLink {
-//                SourceForm()
-//                    .environmentObject(viewModel)
+            FoodForm.Sources(sourcesViewModel: sourcesViewModel)
         } label: {
             VStack(spacing: 0) {
                 imagesRow
