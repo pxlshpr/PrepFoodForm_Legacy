@@ -15,6 +15,11 @@ public struct FoodForm: View {
     
     @State var showingEmojiPicker = false
     
+    @State var shouldShowWizard = true
+    @State var showingWizard = true
+    @State var showingWizardOverlay = true
+    @State var formDisabled = false
+
     public init(didSave: @escaping (FoodFormData) -> ()) {
         self.didSave = didSave
         _emoji = State(initialValue: randomFoodEmoji())
@@ -26,24 +31,47 @@ public struct FoodForm: View {
             content
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
+                .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
+                .onAppear(perform: appeared)
         }
     }
     
-    //MARK: Main Content
-    
     var content: some View {
-        form
-            .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
+        ZStack {
+            formLayer
+            wizardLayer
+        }
     }
     
+    //MARK: - Layers
+    
     @ViewBuilder
-    var form: some View {
+    var formLayer: some View {
         FormStyledScrollView {
             detailsSection
         }
+        .safeAreaInset(edge: .bottom) {
+            //TODO: Programmatically get this inset (67516AA6)
+            Spacer().frame(height: 150)
+        }
+        .overlay(
+            Color(.quaternarySystemFill)
+                .opacity(showingWizardOverlay ? 0.3 : 0)
+        )
+        .blur(radius: showingWizardOverlay ? 5 : 0)
+        .disabled(formDisabled)
     }
     
-    //MARK: Toolbars
+    @ViewBuilder
+    var wizardLayer: some View {
+        if showingWizard {
+            Wizard(didTapBackground: {
+                startWithEmptyFood()
+            })
+        }
+    }
+    
+    //MARK: - Toolbars
     
     var navigationLeadingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarLeading) {
