@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 import FoodLabel
 
-extension FoodForm {
+extension FoodForm_Legacy {
     struct NutritionFactsCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @Environment(\.colorScheme) var colorScheme
@@ -11,7 +11,7 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.NutritionFactsCell {
+extension FoodForm_Legacy.NutritionFactsCell {
     
     var body: some View {
         Group {
@@ -52,7 +52,7 @@ public struct NutritionFactsCellPreview: View {
                 Section {
                     NavigationLink {
                     } label: {
-                        FoodForm.NutritionFactsCell()
+                        FoodForm_Legacy.NutritionFactsCell()
                             .environmentObject(viewModel)
                     }
                 }

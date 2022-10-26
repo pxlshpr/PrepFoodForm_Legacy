@@ -8,7 +8,7 @@ import SwiftUISugar
 import FoodLabelCamera
 import RSBarcodes_Swift
 
-extension FoodForm {
+extension FoodForm_Legacy {
     
     var detailsSection: some View {
         FormStyledSection(header: Text("Details")) {
@@ -87,7 +87,7 @@ extension FoodForm {
     }
     
     var nutrientsCell: some View {
-        FoodForm.NutrientsCell()
+        FoodForm_Legacy.NutrientsCell()
     }
     
     var foodLabelScanCell: some View {

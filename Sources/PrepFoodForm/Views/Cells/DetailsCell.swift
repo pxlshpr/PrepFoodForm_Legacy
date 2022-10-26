@@ -3,13 +3,13 @@ import RSBarcodes_Swift
 import AVFoundation
 import Vision
 
-extension FoodForm {
+extension FoodForm_Legacy {
     struct DetailsCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
     }
 }
 
-extension FoodForm.DetailsCell {
+extension FoodForm_Legacy.DetailsCell {
     
     var body: some View {
         Group {
@@ -180,7 +180,7 @@ struct DetailsCellPreview: View {
                 Section("Details") {
                     NavigationLink {
                     } label: {
-                        FoodForm.DetailsCell()
+                        FoodForm_Legacy.DetailsCell()
                         .environmentObject(viewModel)
                     }
                     .buttonStyle(.borderless)

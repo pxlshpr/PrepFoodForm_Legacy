@@ -1,13 +1,13 @@
 import SwiftUI
 import PrepDataTypes
 
-extension FoodForm {
+extension FoodForm_Legacy {
     struct NutrientsPerCell: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
     }
 }
 
-extension FoodForm.NutrientsPerCell {
+extension FoodForm_Legacy.NutrientsPerCell {
     
     var body: some View {
         Group {
@@ -78,7 +78,7 @@ public struct ServingCellPreview: View {
                 Section("Nutrients per") {
                     NavigationLink {
                     } label: {
-                        FoodForm.NutrientsPerCell()
+                        FoodForm_Legacy.NutrientsPerCell()
                             .environmentObject(viewModel)
                     }
                 }

@@ -1,11 +1,11 @@
 import SwiftUI
 
-extension FoodForm {
+extension FoodForm_Legacy {
     struct NutrientsCell: View {
     }
 }
 
-extension FoodForm.NutrientsCell {
+extension FoodForm_Legacy.NutrientsCell {
     
     var body: some View {
         emptyContent

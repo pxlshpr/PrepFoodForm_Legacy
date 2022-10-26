@@ -3,7 +3,7 @@ import SwiftUISugar
 import SwiftHaptics
 import Camera
 
-extension FoodForm {
+extension FoodForm_Legacy {
     struct DetailsForm: View {
         @EnvironmentObject var viewModel: FoodFormViewModel
         @State var showingCodeScanner = false
@@ -14,7 +14,7 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.DetailsForm {
+extension FoodForm_Legacy.DetailsForm {
     
     var body: some View {
         basicForm
@@ -219,7 +219,7 @@ struct DetailsFormPreview: View {
     @StateObject var viewModel = FoodFormViewModel()
     
     var body: some View {
-        FoodForm.DetailsForm()
+        FoodForm_Legacy.DetailsForm()
         .environmentObject(viewModel)
     }
 }

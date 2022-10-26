@@ -8,7 +8,7 @@ import SwiftUISugar
 import FoodLabelCamera
 import RSBarcodes_Swift
 
-extension FoodForm {
+extension FoodForm_Legacy {
     
     @ViewBuilder
     var wizard: some View {

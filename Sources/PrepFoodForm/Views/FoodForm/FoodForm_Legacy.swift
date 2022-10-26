@@ -11,7 +11,7 @@ import RSBarcodes_Swift
 //let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 let WizardAnimation = Animation.easeIn(duration: 0.2)
 
-public struct FoodForm: View {
+public struct FoodForm_Legacy: View {
     
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
