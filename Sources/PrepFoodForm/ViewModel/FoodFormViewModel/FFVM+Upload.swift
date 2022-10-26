@@ -10,7 +10,6 @@ extension FoodFormViewModel {
             emoji: emojiViewModel.string,
             detail: detailViewModel.string,
             brand: brandViewModel.string,
-            barcodes: foodBarcodes,
             status: .notPublished,
             info: info
         )
@@ -31,6 +30,7 @@ extension FoodFormViewModel {
             linkUrl: linkInfo?.urlString,
             prefilledUrl: prefilledFood?.sourceUrl,
             imageIds: imageViewModels.map { $0.id },
+            barcodes: foodBarcodes,
             spawnedUserFoodId: nil,
             spawnedDatabaseFoodId: nil,
             userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!
