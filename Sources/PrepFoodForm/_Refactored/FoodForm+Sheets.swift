@@ -6,7 +6,8 @@ extension FoodForm {
     var emojiPicker: some View {
         EmojiPicker(
             categories: [.foodAndDrink, .animalsAndNature],
-            focusOnAppear: true
+            focusOnAppear: true,
+            includeCancelButton: true
         ) { emoji in
             Haptics.successFeedback()
             self.emoji = emoji
