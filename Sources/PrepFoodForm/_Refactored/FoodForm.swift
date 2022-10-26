@@ -13,6 +13,8 @@ public struct FoodForm: View {
     @State var detail: String = ""
     @State var brand: String = ""
     
+    @State var showingEmojiPicker = false
+    
     public init(didSave: @escaping (FoodFormData) -> ()) {
         self.didSave = didSave
         _emoji = State(initialValue: randomFoodEmoji())
@@ -31,6 +33,7 @@ public struct FoodForm: View {
     
     var content: some View {
         form
+            .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
     }
     
     @ViewBuilder
