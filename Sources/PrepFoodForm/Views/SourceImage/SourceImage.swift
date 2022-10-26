@@ -134,23 +134,23 @@ struct SourceImage: View {
     }
 }
 
-public struct SourceImagePreview: View {
-        
-    @StateObject var viewModel: ImageViewModel
-    
-    public init() {
-        let image = PrepFoodForm.sampleImage(6)!
-        let viewModel = ImageViewModel(image)
-        _viewModel = StateObject(wrappedValue: viewModel)
-    }
-    
-    public var body: some View {
-        SourceImage(imageViewModel: viewModel)
-    }
-}
-
-struct SourceImage_Previews: PreviewProvider {
-    static var previews: some View {
-        SourceImagePreview()
-    }
-}
+//public struct SourceImagePreview: View {
+//        
+//    @StateObject var viewModel: ImageViewModel
+//    
+//    public init() {
+//        let image = PrepFoodForm.sampleImage(6)!
+//        let viewModel = ImageViewModel(image)
+//        _viewModel = StateObject(wrappedValue: viewModel)
+//    }
+//    
+//    public var body: some View {
+//        SourceImage(imageViewModel: viewModel)
+//    }
+//}
+//
+//struct SourceImage_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SourceImagePreview()
+//    }
+//}

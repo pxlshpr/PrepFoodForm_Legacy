@@ -489,114 +489,114 @@ public extension View {
 
 //MARK: - Preview
 
-public struct BottomMenuPreview: View {
-    @State var showingMenu: Bool = true
-    @Environment(\.colorScheme) var colorScheme
-    @State var image: UIImage?
-    public init() {
-        _image = State(initialValue: sampleImage(imageFilename: "screenshot-light", type: "png"))
-    }
-    
-    public var body: some View {
-        Group {
-//            Color.green
-            ZStack {
-                if let image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .edgesIgnoringSafeArea(.all)
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .bottomMenu(isPresented: .constant(true), actionGroups: linkedActionGroup)
-    }
-
-    var menuActionGroups: [[BottomMenuAction]] {
-        [
-            [
-                BottomMenuAction(
-                    title: "Add a Link",
-                    systemImage: "link",
-                    textInput: BottomMenuTextInput(
-                        placeholder: "https://fastfood.com/nutrition",
-                        submitString: "Add Link",
-                        textInputHandler: { string in
-                            print("Got back: \(string)")
-                        }
-                    )
-                )
-            ]
-        ]
-    }
-
-    var linkedActionGroup: [[BottomMenuAction]] {
-        [[
-            BottomMenuAction(
-                title: "AutoFill",
-                systemImage: "text.viewfinder",
-                linkedActionGroups: confirmActionGroup
-            )
-        ]]
-    }
-    
-    var confirmActionGroup: [[BottomMenuAction]] {
-        [[
-            BottomMenuAction(
-                title: "This will replace any existing data."
-            ),
-            BottomMenuAction(
-                title: "AutoFill",
-                tapHandler: {
-                }
-            )
-        ]]
-    }
-
-    var removeAllImagesActionGroups: [[BottomMenuAction]] {
-        [[
-            BottomMenuAction(
-                title: "Remove All Photos",
-//                systemImage: "trash",
-                role: .destructive,
-                tapHandler: {
-                }
-            )
-        ]]
-    }
-
-    var menuActionGroups2: [[BottomMenuAction]] {
-        [
-            [
-                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
-                    
-                }),
-                BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
-                    
-                })
-            ],
-            [
-                BottomMenuAction(
-                    title: "Add a Link",
-                    systemImage: "link",
-                    textInput: BottomMenuTextInput(
-                        placeholder: "https://fastfood.com/nutrition",
-                        submitString: "Add Link",
-                        textInputHandler: { string in
-                            print("Got back: \(string)")
-                        }
-                    )
-                )
-            ]
-        ]
-    }
-}
-
-struct BottomMenu_Previews: PreviewProvider {
-    static var previews: some View {
-        BottomMenuPreview()
-    }
-}
+//public struct BottomMenuPreview: View {
+//    @State var showingMenu: Bool = true
+//    @Environment(\.colorScheme) var colorScheme
+//    @State var image: UIImage?
+//    public init() {
+//        _image = State(initialValue: sampleImage(imageFilename: "screenshot-light", type: "png"))
+//    }
+//    
+//    public var body: some View {
+//        Group {
+////            Color.green
+//            ZStack {
+//                if let image {
+//                    Image(uiImage: image)
+//                        .resizable()
+//                        .edgesIgnoringSafeArea(.all)
+//                }
+//            }
+//            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        }
+//        .bottomMenu(isPresented: .constant(true), actionGroups: linkedActionGroup)
+//    }
+//
+//    var menuActionGroups: [[BottomMenuAction]] {
+//        [
+//            [
+//                BottomMenuAction(
+//                    title: "Add a Link",
+//                    systemImage: "link",
+//                    textInput: BottomMenuTextInput(
+//                        placeholder: "https://fastfood.com/nutrition",
+//                        submitString: "Add Link",
+//                        textInputHandler: { string in
+//                            print("Got back: \(string)")
+//                        }
+//                    )
+//                )
+//            ]
+//        ]
+//    }
+//
+//    var linkedActionGroup: [[BottomMenuAction]] {
+//        [[
+//            BottomMenuAction(
+//                title: "AutoFill",
+//                systemImage: "text.viewfinder",
+//                linkedActionGroups: confirmActionGroup
+//            )
+//        ]]
+//    }
+//    
+//    var confirmActionGroup: [[BottomMenuAction]] {
+//        [[
+//            BottomMenuAction(
+//                title: "This will replace any existing data."
+//            ),
+//            BottomMenuAction(
+//                title: "AutoFill",
+//                tapHandler: {
+//                }
+//            )
+//        ]]
+//    }
+//
+//    var removeAllImagesActionGroups: [[BottomMenuAction]] {
+//        [[
+//            BottomMenuAction(
+//                title: "Remove All Photos",
+////                systemImage: "trash",
+//                role: .destructive,
+//                tapHandler: {
+//                }
+//            )
+//        ]]
+//    }
+//
+//    var menuActionGroups2: [[BottomMenuAction]] {
+//        [
+//            [
+//                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
+//                    
+//                }),
+//                BottomMenuAction(title: "Take Photo", systemImage: "camera", tapHandler: {
+//                    
+//                })
+//            ],
+//            [
+//                BottomMenuAction(
+//                    title: "Add a Link",
+//                    systemImage: "link",
+//                    textInput: BottomMenuTextInput(
+//                        placeholder: "https://fastfood.com/nutrition",
+//                        submitString: "Add Link",
+//                        textInputHandler: { string in
+//                            print("Got back: \(string)")
+//                        }
+//                    )
+//                )
+//            ]
+//        ]
+//    }
+//}
+//
+//struct BottomMenu_Previews: PreviewProvider {
+//    static var previews: some View {
+//        BottomMenuPreview()
+//    }
+//}
 
 extension View {
   func readSize(onChange: @escaping (CGSize) -> Void) -> some View {

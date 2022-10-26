@@ -147,6 +147,7 @@ struct FillOptionsSections: View {
     }
     
     var sampleImage: UIImage? {
-        PrepFoodForm.sampleImage(imageFilename: "energy1")
+        nil
+//        PrepFoodForm.sampleImage(imageFilename: "energy1")
     }
 }

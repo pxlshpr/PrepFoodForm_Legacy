@@ -482,15 +482,18 @@ extension FoodFormViewModel {
         }
         
         var image: UIImage? {
-            sampleImage(imageFilename: rawValue)
+            nil
+//            sampleImage(imageFilename: rawValue)
         }
         
         var scanResult: ScanResult? {
-            sampleScanResult(jsonFilename: rawValue)
+            nil
+//            sampleScanResult(jsonFilename: rawValue)
         }
         
         var mfpProcessedFood: MFPProcessedFood? {
-            sampleMFPProcessedFood(jsonFilename: "mfp_\(self.rawValue)")
+            nil
+//            sampleMFPProcessedFood(jsonFilename: "mfp_\(self.rawValue)")
         }
         
         var linkUrlString: String? {
@@ -566,12 +569,12 @@ extension FoodFormViewModel {
     public static var mock: FoodFormViewModel {
         let viewModel = FoodFormViewModel()
         
-        guard let mfpProcessedFood = sampleMFPProcessedFood(10) else {
-            fatalError("Couldn't load mock files")
-        }
-        
-        viewModel.shouldShowWizard = false
-        viewModel.prefill(mfpProcessedFood)
+//        guard let mfpProcessedFood = sampleMFPProcessedFood(10) else {
+//            fatalError("Couldn't load mock files")
+//        }
+//
+//        viewModel.shouldShowWizard = false
+//        viewModel.prefill(mfpProcessedFood)
         return viewModel
     }
 }
@@ -701,10 +704,10 @@ extension FoodFormViewModel {
     }
 
     func populateWithSampleImage(_ number: Int) {
-        guard let image = sampleImage(number), let scanResult = sampleScanResult(number) else {
-            fatalError("Couldn't populate sample image: \(number)")
-        }
-        imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
+//        guard let image = sampleImage(number), let scanResult = sampleScanResult(number) else {
+//            fatalError("Couldn't populate sample image: \(number)")
+//        }
+//        imageViewModels.append(ImageViewModel(image: image, scanResult: scanResult))
     }
 
 }

@@ -26,9 +26,9 @@ extension FoodFormViewModel {
     }
     
     func simulateAddingImage(_ number: Int) {
-        let image = PrepFoodForm.sampleImage(number)!
-        let imageViewModel = ImageViewModel(image)
-        imageViewModels.append(imageViewModel)
+//        let image = PrepFoodForm.sampleImage(number)!
+//        let imageViewModel = ImageViewModel(image)
+//        imageViewModels.append(imageViewModel)
     }
     
     func simulateImageSelection() {
