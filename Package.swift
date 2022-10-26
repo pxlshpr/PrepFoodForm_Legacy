@@ -34,6 +34,7 @@ let package = Package(
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
         .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.39"),
         .package(url: "https://github.com/siteline/SwiftUI-Introspect", from: "0.1.4"),
+        .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -58,6 +59,7 @@ let package = Package(
                 .product(name: "SwiftUIPager", package: "swiftuipager"),
                 .product(name: "ZoomableScrollView", package: "zoomablescrollview"),
                 .product(name: "Introspect", package: "swiftui-introspect"),
+                .product(name: "SwiftHaptics", package: "swifthaptics"),
             ],
             resources: [.process("SampleImages")]
         ),

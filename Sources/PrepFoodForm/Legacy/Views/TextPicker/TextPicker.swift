@@ -329,7 +329,7 @@ class TextPickerViewModel: ObservableObject {
                 selectedImageTexts.removeAll(where: { $0 == imageText })
             }
         } else {
-            Haptics.transientHaptic()
+            Haptics.feedback(style: .soft)
             withAnimation {
                 selectedImageTexts.append(imageText)
             }
@@ -862,7 +862,7 @@ struct TextPicker: View {
     
     var topMenuButton: some View {
         Button {
-            Haptics.transientHaptic()
+            Haptics.feedback(style: .soft)
             textPickerViewModel.showingMenu = true
         } label: {
             Image(systemName: "ellipsis")
@@ -1018,7 +1018,7 @@ struct TextPicker: View {
                 textPickerViewModel.selectedImageTexts.removeAll(where: { $0 == imageText })
             }
         } else {
-            Haptics.transientHaptic()
+            Haptics.feedback(style: .soft)
             withAnimation {
                 textPickerViewModel.selectedImageTexts.append(imageText)
             }

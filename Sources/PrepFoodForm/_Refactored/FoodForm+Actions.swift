@@ -30,7 +30,7 @@ extension FoodForm {
     }
     
     func startWithEmptyFood() {
-        Haptics.transientHaptic()
+        Haptics.feedback(style: .soft)
         dismissWizard()
     }
 }

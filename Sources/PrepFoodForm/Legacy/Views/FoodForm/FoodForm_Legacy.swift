@@ -164,7 +164,7 @@ public struct FoodForm_Legacy: View {
     func appeared() {
         if viewModel.shouldShowWizard {
             DispatchQueue.global(qos: .userInteractive).asyncAfter(deadline: .now() + 0) {
-                Haptics.transientHaptic()
+                Haptics.feedback(style: .soft)
             }
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
@@ -186,7 +186,7 @@ public struct FoodForm_Legacy: View {
     }
     
     func startWithEmptyFood() {
-        Haptics.transientHaptic()
+        Haptics.feedback(style: .soft)
         viewModel.dismissWizard()
     }
     

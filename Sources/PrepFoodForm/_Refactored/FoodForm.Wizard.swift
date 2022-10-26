@@ -1,5 +1,4 @@
 import SwiftUI
-import SwiftHaptics
 
 extension FoodForm {
     struct Wizard: View {
