@@ -137,7 +137,9 @@ public struct FoodForm: View {
                         }
                     } else {
                         FormSecondaryButton(title: "Add to Private Database") {
-//                        FormPrimaryButton(title: "Add to Private Database") {
+                            didSave(FoodFormData(rawData: rawData,
+                                                 images: viewModel.images,
+                                                 shouldPublish: true))
                             dismiss()
                         }
                         .padding(.vertical)
