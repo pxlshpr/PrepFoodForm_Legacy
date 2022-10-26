@@ -12,15 +12,45 @@ extension FoodForm {
 
 extension FoodForm.DetailsForm {
     var body: some View {
-        form
-        .toolbar { bottomToolbarContent }
+        basicForm
+//        formWithTextPickers
+//        .toolbar { bottomToolbarContent }
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.interactively)
         .interactiveDismissDisabled()
     }
     
-
+    //MARK: - Basic Form
+    var basicForm: some View {
+        Form {
+            Section("Name") {
+                TextField("Required", text: $viewModel.nameViewModel.fieldValue.string)
+            }
+            Section("Detail") {
+                TextField("Optional", text: $viewModel.detailViewModel.fieldValue.string)
+            }
+            Section("Brand") {
+                TextField("Optional", text: $viewModel.brandViewModel.fieldValue.string)
+            }
+        }
+    }
+    
+    //MARK: - Form with TextPickers
+    var formWithTextPickers: some View {
+        FormStyledScrollView {
+            FormStyledSection(header: Text("Name")) {
+                nameButton
+            }
+            FormStyledSection(header: Text("Detail")) {
+                detailButton
+            }
+            FormStyledSection(header: Text("Brand")) {
+                brandButton
+            }
+        }
+    }
+    
     func form(for fieldViewModel: FieldViewModel) -> some View {
         StringFieldValueForm(existingFieldViewModel: fieldViewModel)
             .environmentObject(viewModel)
@@ -82,44 +112,6 @@ extension FoodForm.DetailsForm {
                 Spacer()
             }
             .contentShape(Rectangle())
-        }
-    }
-    
-    var barcodeButton: some View {
-        Button {
-            showingCodeScanner = true
-        } label: {
-            HStack {
-                if let barcodeValue = viewModel.primaryBarcodeValue {
-                    Text(barcodeValue.payloadString)
-                } else {
-                    Text("Scan a barcode")
-                }
-                Spacer()
-            }
-            .contentShape(Rectangle())
-        }
-    }
-    
-    var form: some View {
-//        Form {
-        FormStyledScrollView {
-//            Section("Name") {
-            FormStyledSection(header: Text("Name")) {
-                nameButton
-            }
-//            Section("Detail") {
-            FormStyledSection(header: Text("Detail")) {
-                detailButton
-            }
-//            Section("Brand") {
-            FormStyledSection(header: Text("Brand")) {
-                brandButton
-            }
-//            Section("Barcode") {
-            FormStyledSection(header: Text("Barcode")) {
-                barcodeButton
-            }
         }
     }
     
