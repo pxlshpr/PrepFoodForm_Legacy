@@ -115,31 +115,38 @@ public struct FoodForm: View {
         }
     }
     
+    func foodFormData(shouldPublish: Bool) -> FoodFormData? {
+        guard let rawData = viewModel.rawData else { return nil }
+        return FoodFormData(rawData: rawData, images: viewModel.images, shouldPublish: shouldPublish)
+    }
+    
+    var foodFormDataPublic: FoodFormData? {
+        foodFormData(shouldPublish: true)
+    }
+    
+    var foodFormDataPrivate: FoodFormData? {
+        foodFormData(shouldPublish: false)
+    }
+    
     @ViewBuilder
     var saveButtons: some View {
-        if let rawData = viewModel.rawData {
+        if let foodFormDataPublic, let foodFormDataPrivate {
             VStack(spacing: 0) {
                 Divider()
                 VStack {
                     if viewModel.shouldShowSavePublicButton {
                         FormPrimaryButton(title: "Add to Public Database") {
-                            didSave(FoodFormData(rawData: rawData,
-                                                 images: viewModel.images,
-                                                 shouldPublish: true))
+                            didSave(foodFormDataPublic)
                             dismiss()
                         }
                         .padding(.top)
                         FormSecondaryButton(title: "Add to Private Database") {
-                            didSave(FoodFormData(rawData: rawData,
-                                                 images: viewModel.images,
-                                                 shouldPublish: false))
+                            didSave(foodFormDataPrivate)
                             dismiss()
                         }
                     } else {
                         FormSecondaryButton(title: "Add to Private Database") {
-                            didSave(FoodFormData(rawData: rawData,
-                                                 images: viewModel.images,
-                                                 shouldPublish: true))
+                            didSave(foodFormDataPrivate)
                             dismiss()
                         }
                         .padding(.vertical)

@@ -1,99 +1,99 @@
 import Foundation
 import PrepDataTypes
 
-extension FoodFormViewModel {
-
-    var userFoodCreateForm: UserFoodCreateForm? {
-        guard let info = userFoodInfo else { return nil }
-        return UserFoodCreateForm(
-            name: nameViewModel.string,
-            emoji: emojiViewModel.string,
-            detail: detailViewModel.string,
-            brand: brandViewModel.string,
-            status: .notPublished,
-            info: info
-        )
-    }
-    
-    var userFoodInfo: UserFoodInfo? {
-        guard let amountFoodValue = FoodValue(fieldViewModel: amountViewModel),
-              let foodNutrients
-        else {
-            return nil
-        }
-        return UserFoodInfo(
-            amount: amountFoodValue,
-            serving: FoodValue(fieldViewModel: servingViewModel),
-            nutrients: foodNutrients,
-            sizes: foodSizes,
-            density: foodDensity,
-            linkUrl: linkInfo?.urlString,
-            prefilledUrl: prefilledFood?.sourceUrl,
-            imageIds: imageViewModels.map { $0.id },
-            barcodes: foodBarcodes,
-            spawnedUserFoodId: nil,
-            spawnedDatabaseFoodId: nil,
-            userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!
-        )
-    }
-    
-    var foodBarcodes: [FoodBarcode] {
-        barcodeViewModels.compactMap { $0.foodBarcode }
-    }
-    
-    var foodDensity: FoodDensity? {
-        densityViewModel.fieldValue.densityValue?.foodDensity
-    }
-    
-    var foodSizes: [FoodSize] {
-        allSizes.compactMap {
-            guard let quantity = $0.quantity,
-                  let value = $0.foodValue
-            else {
-                return nil
-            }
-            
-            return FoodSize(
-                name: $0.name,
-                volumePrefixExplicitUnit: $0.volumePrefixUnit?.volumeUnit?.volumeExplicitUnit,
-                quantity: quantity,
-                value: value
-            )
-        }
-    }
-    
-    var foodNutrients: FoodNutrients? {
-        guard let energy = energyViewModel.energyInKcal,
-              let carb = carbViewModel.macroDouble,
-              let fat = fatViewModel.macroDouble,
-              let protein = proteinViewModel.macroDouble
-        else {
-            return nil
-        }
-              
-        return FoodNutrients(
-            energyInKcal: energy,
-            carb: carb,
-            protein: protein,
-            fat: fat,
-            micros: foodNutrientsArray
-        )
-    }
-    
-    var foodNutrientsArray: [FoodNutrient] {
-        allIncludedMicronutrientFieldViewModels.compactMap {
-            let microValue = $0.fieldValue.microValue
-            guard let value = microValue.double else {
-                return nil
-            }
-            return FoodNutrient(
-                nutrientType: microValue.nutrientType,
-                value: value,
-                nutrientUnit: microValue.unit
-            )
-        }
-    }
-}
+//extension FoodFormViewModel {
+//
+//    var userFoodCreateForm: UserFoodCreateForm? {
+//        guard let info = userFoodInfo else { return nil }
+//        return UserFoodCreateForm(
+//            name: nameViewModel.string,
+//            emoji: emojiViewModel.string,
+//            detail: detailViewModel.string,
+//            brand: brandViewModel.string,
+//            status: .notPublished,
+//            info: info
+//        )
+//    }
+//
+//    var userFoodInfo: UserFoodInfo? {
+//        guard let amountFoodValue = FoodValue(fieldViewModel: amountViewModel),
+//              let foodNutrients
+//        else {
+//            return nil
+//        }
+//        return UserFoodInfo(
+//            amount: amountFoodValue,
+//            serving: FoodValue(fieldViewModel: servingViewModel),
+//            nutrients: foodNutrients,
+//            sizes: foodSizes,
+//            density: foodDensity,
+//            linkUrl: linkInfo?.urlString,
+//            prefilledUrl: prefilledFood?.sourceUrl,
+//            imageIds: imageViewModels.map { $0.id },
+//            barcodes: foodBarcodes,
+//            spawnedUserFoodId: nil,
+//            spawnedDatabaseFoodId: nil,
+//            userId: UUID(uuidString: "951917ab-594a-4424-88e5-012223e8dfaf")!
+//        )
+//    }
+//
+//    var foodBarcodes: [FoodBarcode] {
+//        barcodeViewModels.compactMap { $0.foodBarcode }
+//    }
+//
+//    var foodDensity: FoodDensity? {
+//        densityViewModel.fieldValue.densityValue?.foodDensity
+//    }
+//
+//    var foodSizes: [FoodSize] {
+//        allSizes.compactMap {
+//            guard let quantity = $0.quantity,
+//                  let value = $0.foodValue
+//            else {
+//                return nil
+//            }
+//
+//            return FoodSize(
+//                name: $0.name,
+//                volumePrefixExplicitUnit: $0.volumePrefixUnit?.volumeUnit?.volumeExplicitUnit,
+//                quantity: quantity,
+//                value: value
+//            )
+//        }
+//    }
+//
+//    var foodNutrients: FoodNutrients? {
+//        guard let energy = energyViewModel.energyInKcal,
+//              let carb = carbViewModel.macroDouble,
+//              let fat = fatViewModel.macroDouble,
+//              let protein = proteinViewModel.macroDouble
+//        else {
+//            return nil
+//        }
+//
+//        return FoodNutrients(
+//            energyInKcal: energy,
+//            carb: carb,
+//            protein: protein,
+//            fat: fat,
+//            micros: foodNutrientsArray
+//        )
+//    }
+//
+//    var foodNutrientsArray: [FoodNutrient] {
+//        allIncludedMicronutrientFieldViewModels.compactMap {
+//            let microValue = $0.fieldValue.microValue
+//            guard let value = microValue.double else {
+//                return nil
+//            }
+//            return FoodNutrient(
+//                nutrientType: microValue.nutrientType,
+//                value: value,
+//                nutrientUnit: microValue.unit
+//            )
+//        }
+//    }
+//}
 
 extension FieldValue.DensityValue {
     var foodDensity: FoodDensity? {
@@ -121,10 +121,10 @@ extension FormSize {
     }
 }
 
-extension FieldViewModel {
+extension FieldValue {
     var energyInKcal: Double? {
-        guard let value = fieldValue.energyValue.double else { return nil }
-        if fieldValue.energyValue.unit == .kcal {
+        guard let value = energyValue.double else { return nil }
+        if energyValue.unit == .kcal {
             return value
         } else {
             return value * KcalsPerKilojule
@@ -132,9 +132,8 @@ extension FieldViewModel {
     }
     
     var macroDouble: Double? {
-        fieldValue.macroValue.double
+        macroValue.double
     }
-    
     var foodBarcode: FoodBarcode? {
         guard let barcodeValue, let symbology = barcodeValue.barcodeSymbology else {
             return nil
@@ -145,18 +144,17 @@ extension FieldViewModel {
         )
     }
 }
-
 extension FoodValue {
-    
-    init?(fieldViewModel: FieldViewModel) {
-        let doubleValue = fieldViewModel.fieldValue.doubleValue
+
+    init?(fieldValue: FieldValue) {
+        let doubleValue = fieldValue.doubleValue
         let unit = doubleValue.unit
         guard let value = doubleValue.double else {
             return nil
         }
         self.init(value: value, formUnit: unit)
     }
-    
+
     init(value: Double, formUnit: FormUnit) {
         let unitType = formUnit.unitType
         let weightUnit = formUnit.weightUnit
