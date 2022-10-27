@@ -30,9 +30,9 @@ extension FoodForm.Fields {
                 case .carb:
                     carb.value = fieldValue
                 case .fat:
-                    protein.value = fieldValue
-                case .protein:
                     fat.value = fieldValue
+                case .protein:
+                    protein.value = fieldValue
                 }
             }
         }
