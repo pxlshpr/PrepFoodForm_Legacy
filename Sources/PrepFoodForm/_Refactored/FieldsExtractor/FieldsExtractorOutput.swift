@@ -1,4 +1,5 @@
 import Foundation
+import FoodLabelScanner
 
 enum FieldsExtractorOutput {
     case needsColumnSelection(ColumnSelectionInfo)
@@ -7,6 +8,7 @@ enum FieldsExtractorOutput {
 
 struct ColumnSelectionInfo: Identifiable, Equatable {
     let id = UUID()
+    let candidates: [ScanResult]
     let column1: TextColumn
     let column2: TextColumn
     let bestColumn: Int

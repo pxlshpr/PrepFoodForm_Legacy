@@ -19,14 +19,16 @@ extension TextPicker {
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding(.horizontal, 12)
-                .frame(height: 33)
+                .frame(height: 31.5)
                 .background(
-                    Capsule(style: .continuous)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .foregroundColor(.accentColor)
                 )
-                .padding(.horizontal, 20)
+                .padding(.leading, 10)
+                .padding(.trailing, 20)
                 .padding(.vertical, 10)
-                .contentShape(Rectangle())        }
+                .contentShape(Rectangle())
+        }
     }
 
     @ViewBuilder

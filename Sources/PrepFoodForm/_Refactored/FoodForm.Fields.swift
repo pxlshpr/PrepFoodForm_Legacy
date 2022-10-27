@@ -19,6 +19,32 @@ extension FoodForm {
 }
 
 extension FoodForm.Fields {
+    func handleExtractedFieldsValues(_ fieldValues: [FieldValue]) {
+        for fieldValue in fieldValues {
+            if fieldValue.isEnergy {
+                energy.value = fieldValue
+            }
+            if fieldValue.isMacro {
+                let macro = fieldValue.macroValue.macro
+                switch macro {
+                case .carb:
+                    carb.value = fieldValue
+                case .fat:
+                    protein.value = fieldValue
+                case .protein:
+                    fat.value = fieldValue
+                }
+            }
+        }
+        
+        updateShouldShowFoodLabel()
+        
+        print("Got \(fieldValues.count) fieldValues to fill in")
+        print("We here")
+    }
+}
+
+extension FoodForm.Fields {
     
     func updateShouldShowFoodLabel() {
         shouldShowFoodLabel = (

@@ -17,15 +17,16 @@ extension FoodForm {
         
         @Published var selectedPhotos: [PhotosPickerItem] = []
         var presentingImageIndex: Int = 0
+        
+        var didScanAllPickedImages: (() -> ())? = nil
     }
 }
 
 extension FoodForm.Sources {
     
-    func receivedScanResult(_ scanResult: ScanResult, for image: UIImage) {
+    func add(_ image: UIImage, with scanResult: ScanResult) {
         let imageViewModel = ImageViewModel(image: image, scanResult: scanResult, delegate: self)
         imageViewModels.append(imageViewModel)
-        tryExtractFieldsFromScanResults()
     }
     
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
@@ -36,27 +37,32 @@ extension FoodForm.Sources {
         selectedPhotos = []
     }
     
-    func tryExtractFieldsFromScanResults() {
-        imageSetStatus = .extracting(numberOfImages: imageViewModels.count)
+    func tryExtractFieldsFromScanResults() async -> [FieldValue]? {
         
-        Task {
-            guard let output = await FieldsExtractor.shared.tryExtractFieldsFrom(allScanResults)
-            else {
-                return
-            }
-            await MainActor.run {
-                switch output {
-                case .needsColumnSelection(let columnSelectionInfo):
-                    self.columnSelectionInfo = columnSelectionInfo
-                case .fieldValues(let fieldValues):
-                    
-//                    let counts = DataPointsCount(imageViewModels: imageViewModels)
-//                    imageSetStatus = .scanned(numberOfImages: imageViewModels.count, counts: counts)
-                    print("WE HERE")
-                    break
-                }
-            }
+        await MainActor.run {
+            imageSetStatus = .extracting(numberOfImages: imageViewModels.count)
         }
+        
+        guard let output = await FieldsExtractor.shared.tryExtractFieldsFrom(allScanResults)
+        else {
+            return nil
+        }
+        switch output {
+        case .needsColumnSelection(let columnSelectionInfo):
+            await MainActor.run {
+                self.columnSelectionInfo = columnSelectionInfo
+            }
+            return nil
+        case .fieldValues(let fieldValues):
+            return fieldValues
+        }
+    }
+    
+    func extractFieldsFrom(_ results: [ScanResult], at column: Int) async -> [FieldValue] {
+        guard case .fieldValues(let fieldValues) = await FieldsExtractor.shared.extractFieldsFrom(results, at: column) else {
+            return []
+        }
+        return fieldValues
     }
 }
 
@@ -103,8 +109,7 @@ extension FoodForm.Sources: ImageViewModelDelegate {
         }
         
         if imageViewModels.allSatisfy({ $0.status == .scanned }) {
-//            Haptics.successFeedback()
-            tryExtractFieldsFromScanResults()
+            didScanAllPickedImages?()
         }
     }
 

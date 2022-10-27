@@ -95,12 +95,13 @@ extension TextPickerViewModel {
     func color(for text: RecognizedText) -> Color {
         if selectedImageTexts.contains(where: { $0.text == text }) {
             if mode.isColumnSelection {
-                return Color.white
+                return Color(.systemBackground)
+//                return Color.white
             } else {
                 return Color.accentColor
             }
         } else {
-            return mode.isColumnSelection ? Color.white.opacity(0.3) : Color.yellow
+            return mode.isColumnSelection ? Color(.systemBackground).opacity(0.3) : Color.yellow
         }
     }
     

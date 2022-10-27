@@ -6,6 +6,8 @@ import PhotosUI
 extension FoodForm {
 
     func appeared() {
+        sources.didScanAllPickedImages = didScanAllPickedImages
+        
         if shouldShowWizard {
             withAnimation(WizardAnimation) {
                 formDisabled = true
@@ -18,6 +20,36 @@ extension FoodForm {
             formDisabled = false
         }
     }
+    
+    //MARK: - Scanning
+    
+    func didReceiveScanFromFoodLabelCamera(_ scanResult: ScanResult, image: UIImage) {
+        sources.add(image, with: scanResult)
+        extractAndFillFieldValuesFromScanResults()
+    }
+    
+    func didScanAllPickedImages() {
+        extractAndFillFieldValuesFromScanResults()
+    }
+    
+    func extractAndFillFieldValuesFromScanResults() {
+        Task {
+            guard let fieldValues = await sources.tryExtractFieldsFromScanResults() else {
+                return
+            }
+            didExtractFieldValues(fieldValues)
+        }
+    }
+    
+    func didExtractFieldValues(_ fieldValues: [FieldValue]) {
+        fields.handleExtractedFieldsValues(fieldValues)
+        sources.imageSetStatus = .scanned(
+            numberOfImages: sources.imageViewModels.count,
+//            counts: fields.dataPointsCount //TODO: Do this
+            counts: DataPointsCount(total: 0, autoFilled: 0, selected: 0, barcodes: 0)
+        )
+    }
+    
 
     //MARK: - Sources
     func tappedAddSource() {

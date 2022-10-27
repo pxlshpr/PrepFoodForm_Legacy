@@ -32,7 +32,7 @@ enum ImageSetStatus {
     var numberOfImages: Int {
         switch self {
         case .loading(let count), .scanning(let count), .extracting(let count), .scanned(let count, _):
-            return numberOfImages
+            return count
         }
     }
     

@@ -25,7 +25,7 @@ public struct FoodForm: View {
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
-    @State var showingColumnPicker = false
+    @State var showingTextPicker = false
 
     /// Menus
     @State var showingSourcesMenu = false
@@ -43,7 +43,7 @@ public struct FoodForm: View {
 
     public init(didSave: @escaping (FoodFormData) -> ()) {
         self.didSave = didSave
-        _emoji = State(initialValue: randomFoodEmoji())
+        _emoji = State(initialValue: randomFoodEmoji())        
     }
     
     public var body: some View {
@@ -56,7 +56,7 @@ public struct FoodForm: View {
                 .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
-                .fullScreenCover(isPresented: $showingColumnPicker) { columnPicker }
+                .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $sources.selectedPhotos,
@@ -65,7 +65,7 @@ public struct FoodForm: View {
                 )
                 .onChange(of: sources.columnSelectionInfo) { columnSelectionInfo in
                     if columnSelectionInfo != nil {
-                        self.showingColumnPicker = true
+                        self.showingTextPicker = true
                     }
                 }
         }

@@ -42,6 +42,7 @@ class FieldsExtractor {
         let bestColumn = best.bestColumn
         
         let columnSelectionInfo = ColumnSelectionInfo(
+            candidates: candidates,
             column1: column1,
             column2: column2,
             bestColumn: bestColumn
