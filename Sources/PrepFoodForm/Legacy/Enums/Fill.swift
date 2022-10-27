@@ -398,14 +398,26 @@ struct ImageText: Hashable, Codable {
         self.attributeText = valueText.attributeText
         self.imageId = imageId
         self.pickedCandidate = pickedCandidate
-    }
-    
+    }    
+}
+
+extension ImageText {
     var withoutPickedCandidate: ImageText {
         var newImageText = self
         newImageText.pickedCandidate = nil
         return newImageText
     }
+
+    var boundingBoxWithAttribute: CGRect {
+        guard let attributeText else { return text.boundingBox }
+        return attributeText.boundingBox.union(text.boundingBox)
+    }
+    
+    var boundingBox: CGRect {
+        text.boundingBox
+    }
 }
+
 
 struct ScannedFillInfo: Hashable, Codable {
     var imageText: ImageText
