@@ -122,7 +122,7 @@ extension FoodFormViewModel {
 
     //MARK: Choose
     func selectFillOption(for fieldValue: FieldValue) -> FillOption? {
-        
+        //TODO: Only show this when we actually have sources
 //        guard fieldValue.supportsSelectingText,
 //              hasAvailableTexts(for: fieldValue) else {
 //            return nil

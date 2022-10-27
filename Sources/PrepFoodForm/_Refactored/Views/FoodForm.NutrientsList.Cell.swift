@@ -5,13 +5,8 @@ import ActivityIndicatorView
 extension FoodForm.NutrientsList {
     struct Cell: View {
         @Environment(\.colorScheme) var colorScheme
-//        @EnvironmentObject var viewModel: FoodFormViewModel
-//        @ObservedObject var fieldViewModel: FieldViewModel
-        
-        @Binding var fieldValue: FieldValue
-//        @Binding var showFillIcon: Bool
-//        @Binding var showCroppedImage: Bool
-//        @Binding var croppedImage: UIImage?
+        @EnvironmentObject var fields: FoodForm.Fields
+        @ObservedObject var field: Field
     }
 }
 
@@ -50,26 +45,26 @@ extension FoodForm.NutrientsList.Cell {
         HStack {
             Spacer().frame(width: 2)
             HStack(spacing: 4) {
-                Image(systemName: fieldValue.iconImageName)
+                Image(systemName: field.value.iconImageName)
                     .font(.system(size: 14))
-                Text(fieldValue.description)
+                Text(field.value.description)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             Spacer()
 //            fillTypeIcon
             disclosureArrow
         }
-        .foregroundColor(fieldValue.labelColor(for: colorScheme))
+        .foregroundColor(field.value.labelColor(for: colorScheme))
     }
     
     var amountText: Text {
-        Text(fieldValue.amountString)
-            .foregroundColor(fieldValue.amountColor)
-            .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
+        Text(field.value.amountString)
+            .foregroundColor(field.value.amountColor)
+            .font(.system(size: field.value.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
     }
     
     var unitText: Text {
-        Text(fieldValue.unitString)
+        Text(field.value.unitString)
             .font(.system(size: 17, weight: .semibold, design: .rounded))
             .bold()
             .foregroundColor(Color(.secondaryLabel))
@@ -164,6 +159,6 @@ extension FoodForm.NutrientsList.Cell {
     //MARK: Convenience
     
     var isEmpty: Bool {
-        fieldValue.double == nil
+        field.value.double == nil
     }
 }

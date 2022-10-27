@@ -2,13 +2,15 @@ import SwiftUI
 import SwiftUISugar
 import FoodLabelScanner
 import PhotosUI
+import MFPScraper
 
 extension FoodForm {
     class Sources: ObservableObject {
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()
         @Published var linkInfo: LinkInfo? = nil
-        
+        @Published var prefilledFood: MFPProcessedFood? = nil
+
         /// Scan Results
         @Published var columnSelectionInfo: ColumnSelectionInfo? = nil
         @Published var selectedScanResultsColumn = 1

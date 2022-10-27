@@ -5,12 +5,11 @@ import SwiftUISugar
 
 extension FoodForm {
     struct NutrientsList: View {
-//        @EnvironmentObject var viewModel: FoodFormViewModel
+        @EnvironmentObject var fields: FoodForm.Fields
+        
         @State var showImages = true
         @State var showingMenu = false
         @State var showingMicronutrientsPicker = false
-        
-        @Binding var fieldValues: [FieldValue]
     }
 }
 
@@ -29,7 +28,7 @@ extension FoodForm.NutrientsList {
         ScrollView {
             LazyVStack(spacing: 0) {
                 energyCell
-//                macronutrientsGroup
+                macronutrientsGroup
 //                micronutrientsGroup
             }
             .padding(.horizontal, 20)
@@ -41,9 +40,10 @@ extension FoodForm.NutrientsList {
     
     var energyCell: some View {
         NavigationLink {
-            EnergyForm(fieldValue: $fieldValues[0])
+            FoodForm.EnergyForm(existingField: fields.energy)
+                .environmentObject(fields)
         } label: {
-            Cell(fieldValue: $fieldValues[0])
+            Cell(field: fields.energy)
         }
     }
 
@@ -57,31 +57,24 @@ extension FoodForm.NutrientsList {
 //        }
 //    }
 //
-//    func macronutrientCell(for fieldViewModel: FieldViewModel) -> some View {
-//        NavigationLink {
-//            MacroForm(existingFieldViewModel: fieldViewModel)
-//                .environmentObject(viewModel)
-//        } label: {
+    func macronutrientCell(for field: Field) -> some View {
+        NavigationLink {
+            MacroForm(existingField: field)
+                .environmentObject(fields)
+        } label: {
+            Cell(field: field)
 //            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
 //                .environmentObject(viewModel)
-//        }
-//    }
-//
-//    var macronutrientsGroup: some View {
-//        Group {
-//            titleCell("Macronutrients")
-//            NavigationLink {
-//                MacroForm(existingFieldViewModel: viewModel.carbViewModel)
-//                    .environmentObject(viewModel)
-//            } label: {
-//                NutritionFactCell(fieldViewModel: viewModel.carbViewModel, showImage: $showImages)
-//                    .environmentObject(viewModel)
-//            }
-////            macronutrientForm(for: viewModel.carbViewModel)
-//            macronutrientCell(for: viewModel.fatViewModel)
-//            macronutrientCell(for: viewModel.proteinViewModel)
-//        }
-//    }
+        }
+    }
+    var macronutrientsGroup: some View {
+        Group {
+            titleCell("Macronutrients")
+            macronutrientCell(for: fields.carb)
+            macronutrientCell(for: fields.fat)
+            macronutrientCell(for: fields.protein)
+        }
+    }
     
     //MARK: - Nutrient Groups
     

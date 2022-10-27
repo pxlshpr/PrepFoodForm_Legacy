@@ -24,29 +24,18 @@ extension FoodForm {
     
     var foodLabelSection: some View {
         @ViewBuilder var header: some View {
-            if !fields.hasNutritionFacts {
+            if !fields.shouldShowFoodLabel {
                 Text("Nutrition Facts")
             }
         }
         
-        let energyBinding = Binding<FoodLabelValue>(
-            get: { energy.value ?? .init(amount: 0, unit: .kcal)  },
-            set: { newValue in }
-        )
-
         return FormStyledSection(header: header) {
             NavigationLink {
-                NutrientsList(fieldValues: $fieldValues)
+                NutrientsList()
+                    .environmentObject(fields)
             } label: {
-                if shouldShowFoodLabel {
-                    FoodLabel(
-                        energyValue: energyBinding,
-                        carb: .constant(0),
-                        fat: .constant(0),
-                        protein: .constant(0),
-                        nutrients: .constant([:]),
-                        amountPerString: .constant("amountPerString")
-                    )
+                if fields.shouldShowFoodLabel {
+                    foodLabel
                 } else {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
@@ -54,5 +43,36 @@ extension FoodForm {
                 }
             }
         }
+    }
+    
+    var foodLabel: FoodLabel {
+        let energyBinding = Binding<FoodLabelValue>(
+            get: { fields.energy.value.value ?? .init(amount: 0, unit: .kcal)  },
+            set: { newValue in }
+        )
+
+        let carbBinding = Binding<Double>(
+            get: { fields.carb.value.double ?? 0  },
+            set: { newValue in }
+        )
+
+        let fatBinding = Binding<Double>(
+            get: { fields.fat.value.double ?? 0  },
+            set: { newValue in }
+        )
+
+        let proteinBinding = Binding<Double>(
+            get: { fields.protein.value.double ?? 0  },
+            set: { newValue in }
+        )
+
+        return FoodLabel(
+            energyValue: energyBinding,
+            carb: carbBinding,
+            fat: fatBinding,
+            protein: proteinBinding,
+            nutrients: .constant([:]),
+            amountPerString: .constant("amountPerString")
+        )
     }
 }
