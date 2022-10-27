@@ -3,7 +3,7 @@ import SwiftHaptics
 import SwiftUISugar
 
 extension FoodForm {
-    struct Details: View {
+    struct DetailsForm: View {
         enum FocusedField {
             case name, detail, brand
         }
@@ -21,7 +21,7 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.Details {
+extension FoodForm.DetailsForm {
 
     var body: some View {
         form

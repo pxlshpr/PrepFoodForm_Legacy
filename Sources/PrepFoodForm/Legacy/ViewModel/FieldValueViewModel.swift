@@ -1,91 +1,23 @@
 import SwiftUI
 import FoodLabelScanner
 
-extension FieldViewModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-        hasher.combine(fieldValue)
-        hasher.combine(imageToDisplay)
-        hasher.combine(isCroppingNextImage)
-    }
-}
-
-extension FieldViewModel: Equatable {
-    static func ==(lhs: FieldViewModel, rhs: FieldViewModel) -> Bool {
-//        lhs.hashValue == rhs.hashValue
-        lhs.id == rhs.id
-        && lhs.fieldValue == rhs.fieldValue
-        && lhs.imageToDisplay == rhs.imageToDisplay
-        && lhs.isCroppingNextImage == rhs.isCroppingNextImage
-        && lhs.prefillUrl == rhs.prefillUrl
-        && lhs.isPrefilled == rhs.isPrefilled
-    }
-}
-
-
 class FieldViewModel: ObservableObject, Identifiable {
     @Published var id = UUID()
-    @Published var fieldValue: FieldValue {
-        didSet {
-           withAnimation {
-                isPrefilled = fieldValue.fill.isPrefill
-            }
-        }
-    }
+    @Published var fieldValue: FieldValue
+    
     @Published var imageToDisplay: UIImage? = nil
     @Published var isCroppingNextImage: Bool = false
 
-    //TODO: Don't store this here, we only need one copy if FFVM
-    @Published var prefillUrl: String? = nil
-    @Published var isPrefilled: Bool = false
-
+    init(fieldValue: FieldValue) {
+        self.fieldValue = fieldValue
+    }
+    
     func fillScannedFieldValue(_ fieldValue: FieldValue) {
         self.fieldValue = fieldValue
         resetAndCropImage()
     }
-    
-    func resetAndCropImage() {
-        prefillUrl = nil
-        isPrefilled = false
-        imageToDisplay = nil
-        
-        isCroppingNextImage = true
-        cropFilledImage()
-    }
-    init(fieldValue: FieldValue) {
-        self.fieldValue = fieldValue
-        
-        if fieldValue.fill.isPrefill {
-            self.prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
-        }
-    }
-    
-    var copy: FieldViewModel {
-        let new = FieldViewModel(fieldValue: fieldValue)
-        new.copyData(from: self)
-        return new
-    }
-    
-    func copyData(from fieldViewModel: FieldViewModel) {
-        fieldValue = fieldViewModel.fieldValue
-        
-        if fieldValue.fill.usesImage {
-            continueCroppingImageIfNeeded(for: fieldViewModel)
-        } else if fieldValue.fill.isPrefill {
-            prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
-        }
-    }
-    
-    func continueCroppingImageIfNeeded(for fieldViewModel: FieldViewModel) {
-        /// If the the image is still being cropped (during a copy)—do the crop ourselves instead of setting it here incorrectly
-        if fieldViewModel.isCroppingNextImage {
-            isCroppingNextImage = true
-            cropFilledImage()
-        } else {
-            imageToDisplay = fieldViewModel.imageToDisplay
-            isCroppingNextImage = false
-        }
-    }
+
+    //MARK: - Fill Manipulation
     
     func registerUserInput() {
         fieldValue.fill = .userInput
@@ -113,6 +45,13 @@ class FieldViewModel: ObservableObject, Identifiable {
         }
     }
     
+    //MARK: - Image Cropping
+    func resetAndCropImage() {
+        imageToDisplay = nil
+        isCroppingNextImage = true
+        cropFilledImage()
+    }
+    
     func cropFilledImage() {
         guard fieldValue.fill.usesImage else {
             withAnimation {
@@ -138,36 +77,34 @@ class FieldViewModel: ObservableObject, Identifiable {
         }
     }
     
-//    func changeFillType(to fill: FillType) {
-//        print("🔘 🔒 isFilling set to true for: \(fieldValue.description)")
-//        isFilling = true
-//
-//        fieldValue.fill = fill
-//        switch fill {
-//        case .selection(let text, let scanResultId, let supplementaryTexts, let value):
-//            break
-//        case .scanResult(let valueText, scanResultId: _, value: let value):
-//            changeFillTypeToAutofill(of: valueText, withAltValue: value)
-//        default:
-//            break
-//        }
-//
-//        isFilling = false
-//        print("🔘 🔓 isFilling set to false for: \(fieldValue.description)")
-//    }
+    //MARK: - Copying
     
-//    func changeFillTypeToAutofill(of valueText: ValueText, withAltValue altValue: Value?) {
-//        guard let altValue else {
-//            fieldValue.double = valueText.value.amount
-//            fieldValue.nutritionUnit = valueText.value.unit
-//            return
-//        }
-//        fieldValue.double = altValue.amount
-//        fieldValue.nutritionUnit = altValue.unit
-//    }
-}
+    var copy: FieldViewModel {
+        let new = FieldViewModel(fieldValue: fieldValue)
+        new.copyData(from: self)
+        return new
+    }
+    
+    func copyData(from fieldViewModel: FieldViewModel) {
+        fieldValue = fieldViewModel.fieldValue
+        
+        if fieldValue.fill.usesImage {
+            /// If the the image is still being cropped—do the crop ourselves instead of setting it here incorrectly
+            if fieldViewModel.isCroppingNextImage {
+                isCroppingNextImage = true
+                cropFilledImage()
+            } else {
+                imageToDisplay = fieldViewModel.imageToDisplay
+                isCroppingNextImage = false
+            }
 
-extension FieldViewModel {
+        } else if fieldValue.fill.isPrefill {
+//            prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
+        }
+    }
+    
+    //MARK: - Convenience
+    
     var isValid: Bool {
         switch fieldValue {
         case .size(let sizeValue):
@@ -176,9 +113,6 @@ extension FieldViewModel {
             return false
         }
     }
-}
-
-extension FieldViewModel {
     
     func contains(_ fieldString: PrefillFieldString) -> Bool {
         guard case .prefill(let info) = fieldValue.fill else {
@@ -209,3 +143,23 @@ extension FieldViewModel {
 
 }
 
+extension FieldViewModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(fieldValue)
+        hasher.combine(imageToDisplay)
+        hasher.combine(isCroppingNextImage)
+    }
+}
+
+extension FieldViewModel: Equatable {
+    static func ==(lhs: FieldViewModel, rhs: FieldViewModel) -> Bool {
+//        lhs.hashValue == rhs.hashValue
+        lhs.id == rhs.id
+        && lhs.fieldValue == rhs.fieldValue
+        && lhs.imageToDisplay == rhs.imageToDisplay
+        && lhs.isCroppingNextImage == rhs.isCroppingNextImage
+//        && lhs.prefillUrl == rhs.prefillUrl
+//        && lhs.isPrefilled == rhs.isPrefilled
+    }
+}

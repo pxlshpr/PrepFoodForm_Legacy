@@ -53,7 +53,7 @@ struct FillOptionsSections: View {
             return true
         }
         
-        if fieldViewModel.prefillUrl != nil, fieldViewModel.isPrefilled {
+        if fieldViewModel.fill.isPrefill {
             return true
         }
         
@@ -68,9 +68,10 @@ struct FillOptionsSections: View {
                     imageSection(for: image)
                         .fixedSize(horizontal: true, vertical: false)
                 }
-                if let prefillUrl = fieldViewModel.prefillUrl {
-                    prefillSection(for: prefillUrl)
-                }
+                //TODO: Get prefillUrl passed into this (from sourcesViewModel perhaps)
+//                if let prefillUrl = fieldViewModel.prefillUrl {
+//                    prefillSection(for: prefillUrl)
+//                }
             }
         }
     }

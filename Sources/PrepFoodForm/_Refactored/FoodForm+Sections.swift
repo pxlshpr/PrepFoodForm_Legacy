@@ -6,7 +6,7 @@ extension FoodForm {
     var detailsSection: some View {
         FormStyledSection(header: Text("Details")) {
             NavigationLink {
-                Details(name: $name, detail: $detail, brand: $brand)
+                DetailsForm(name: $name, detail: $detail, brand: $brand)
             } label: {
                 FoodDetailsView(emoji: $emoji, name: $name, detail: $detail, brand: $brand, didTapEmoji: {
                     showingEmojiPicker = true
@@ -30,9 +30,7 @@ extension FoodForm {
         
         return FormStyledSection(header: header) {
             NavigationLink {
-//                NutritionFactsList()
-//                    .environmentObject(viewModel)
-                Color.blue
+                NutrientsList(energy: $energy)
             } label: {
                 if fieldsViewModel.hasNutritionFacts {
                     FoodLabel(dataSource: fieldsViewModel)
