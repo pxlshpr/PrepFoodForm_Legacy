@@ -1,13 +1,8 @@
 import SwiftUI
 import ActivityIndicatorView
 
-extension FoodSourcesView {
-    struct ImageSetSummary: View {
-        @Binding var imageSetStatus: ImageSetStatus
-    }
-}
-
-extension FoodSourcesView.ImageSetSummary {
+struct FoodImageSetSummary: View {
+    @Binding var imageSetStatus: ImageSetStatus
     
     var body: some View {
         HStack {

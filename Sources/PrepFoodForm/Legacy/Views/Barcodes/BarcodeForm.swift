@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import RSBarcodes_Swift
 import AVKit
+import SwiftUISugar
 
 struct BarcodesForm: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -16,25 +17,18 @@ struct BarcodesForm: View {
             .onDelete(perform: delete)
         }
         .toolbar { navigationTrailingContent }
-        .bottomMenu(isPresented: $showingAddBarcodeMenu, actionGroups: addBarcodeActionGroups)
+        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: barcodeMenu)
     }
     
-    var addBarcodeActionGroups: [[BottomMenuAction]] {
-        [
-            [
-                BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
-                    viewModel.showingBarcodeScanner = true
-                }),
-                enterBarcodeManuallyLink
-//                BottomMenuAction(title: "Choose Photo", systemImage: "photo.on.rectangle", tapHandler: {
-//
-//                }),
-            ]
-//            ,
-//            [enterBarcodeManuallyLink]
-        ]
+    var barcodeMenu: BottomMenu {
+        BottomMenu(actions: [scanBarcodeAction, enterBarcodeManuallyLink])
     }
     
+    var scanBarcodeAction: BottomMenuAction {
+        BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
+            viewModel.showingBarcodeScanner = true
+        })
+    }
     var enterBarcodeManuallyLink: BottomMenuAction {
        BottomMenuAction(
            title: "Enter Manually",

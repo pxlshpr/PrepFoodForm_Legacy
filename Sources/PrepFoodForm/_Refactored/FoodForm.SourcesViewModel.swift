@@ -53,7 +53,21 @@ extension FoodForm.SourcesViewModel {
             }
         }
     }
+}
+
+extension FoodForm.SourcesViewModel {
+    func removeLink() {
+        linkInfo = nil
+    }
     
+    func removeImage(at index: Int) {
+        imageViewModels.remove(at: index)
+    }
+
+}
+
+//MARK: - Helpers
+extension FoodForm.SourcesViewModel {
     func imageViewModels(for twoColumnOutput: ScanResultsTwoColumnOutput) -> [ImageViewModel] {
         imageViewModels.containingTexts(in: twoColumnOutput)
     }
@@ -69,10 +83,13 @@ extension FoodForm.SourcesViewModel {
     var isEmpty: Bool {
         imageViewModels.isEmpty && linkInfo == nil
     }
+    
+    var pluralS: String {
+        availableImagesCount == 1 ? "" : "s"
+    }
 }
-//TODO: Finish this
-//Also migrate form to use this
-//Also have scan results moved here possibly
+
+//MARK: - ImageViewModelDelegate
 extension FoodForm.SourcesViewModel: ImageViewModelDelegate {
     
     func imageDidFinishScanning(_ imageViewModel: ImageViewModel) {

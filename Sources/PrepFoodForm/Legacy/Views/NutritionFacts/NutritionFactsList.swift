@@ -1,6 +1,7 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
+import SwiftUISugar
 
 public struct NutritionFactsList: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -14,7 +15,7 @@ public struct NutritionFactsList: View {
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
             .sheet(isPresented: $viewModel.showingMicronutrientsPicker) { microPicker }
-            .bottomMenu(isPresented: $showingMenu, actionGroups: menuActionGroups)
+            .bottomMenu(isPresented: $showingMenu, menu: bottomMenu)
     }
     
     var scrollView: some View {
@@ -181,10 +182,8 @@ public struct NutritionFactsList: View {
         }
     }
     
-    var menuActionGroups: [[BottomMenuAction]] {
-        [[
-            showHideAction
-        ]]
+    var bottomMenu: BottomMenu {
+        BottomMenu(action: showHideAction)
     }
 
     var showHideAction: BottomMenuAction {

@@ -28,6 +28,9 @@ public struct FoodForm: View {
 
     /// Menus
     @State var showingSourcesMenu = false
+    @State var showingPhotosMenu = false
+    @State var showingAddLinkMenu = false
+    @State var showingConfirmRemoveLinkMenu = false
 
     /// Wizard
     @State var shouldShowWizard = true
@@ -61,7 +64,10 @@ public struct FoodForm: View {
                     self.presentedTwoColumnOutput = twoColumnOutput
                 }
         }
-        .bottomMenu(isPresented: $showingSourcesMenu, actionGroups: sourcesMenuContents)
+        .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)
+        .bottomMenu(isPresented: $showingPhotosMenu, menu: photosMenu)
+        .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
+        .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
     }
     
     var content: some View {

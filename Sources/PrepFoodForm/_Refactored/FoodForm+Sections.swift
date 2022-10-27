@@ -15,8 +15,8 @@ extension FoodForm {
     }
     
     var sourcesSection: some View {
-        FoodSourcesView(sourcesViewModel: sourcesViewModel) {
-            showingSourcesMenu = true
-        }
-    }
+        SourcesView(sourcesViewModel: sourcesViewModel,
+                    didTapAddSource: tappedAddSource,
+                    handleSourcesAction: handleSourcesAction)
+    }    
 }

@@ -5,6 +5,7 @@ import VisionSugar
 import SwiftUIPager
 import ZoomableScrollView
 import ActivityIndicatorView
+import SwiftUISugar
 
 class TextPickerViewModel: ObservableObject {
     
@@ -536,9 +537,9 @@ struct TextPicker: View {
                 dismiss()
             }
         }
-        .bottomMenu(isPresented: $textPickerViewModel.showingMenu, actionGroups: menuActions)
+        .bottomMenu(isPresented: $textPickerViewModel.showingMenu, menu: bottomMenu)
         .bottomMenu(isPresented: $textPickerViewModel.showingAutoFillConfirmation,
-                    actionGroups: [autoFillConfirmActionGroup])
+                    menu: confirmAutoFillMenu)
     }
     
     //MARK:  Pager Layer
@@ -888,8 +889,8 @@ struct TextPicker: View {
         }
     }
     
-    var autoFillConfirmActionGroup: [BottomMenuAction] {
-        [
+    var confirmAutoFillMenu: BottomMenu {
+        let group = BottomMenuActionGroup(actions: [
             BottomMenuAction(
                 title: "This will replace any existing data."
             ),
@@ -899,14 +900,15 @@ struct TextPicker: View {
                     textPickerViewModel.tappedConfirmAutoFill()
                 }
             )
-        ]
+        ])
+        return BottomMenu(group: group)
     }
     
     var autoFillLinkAction: BottomMenuAction {
         BottomMenuAction(
             title: "AutoFill",
             systemImage: "text.viewfinder",
-            linkedActionGroups: [autoFillConfirmActionGroup]
+            linkedMenu: confirmAutoFillMenu
         )
     }
     
@@ -939,37 +941,43 @@ struct TextPicker: View {
             })
     }
     
-    var topActionSections: [BottomMenuAction] {
+    var firstMenuGroup: BottomMenuActionGroup {
+        let actions: [BottomMenuAction]
         if let autoFillAction {
-            return [autoFillAction, showHideAction]
+            actions = [autoFillAction, showHideAction]
         } else {
-            return [showHideAction]
+            actions = [showHideAction]
         }
+        return BottomMenuActionGroup(actions: actions)
     }
     
-    var menuActions: [[BottomMenuAction]] {
-        [
-            topActionSections,
-            [
-                BottomMenuAction(
-                    title: "Delete Photo",
-                    systemImage: "trash",
-                    role: .destructive,
-                    linkedActionGroups: [[
-                        BottomMenuAction(
-                            title: "This photo will be deleted while the data you filled from it will remain."
-                        ),
-                        BottomMenuAction(
-                            title: "Delete Photo",
-                            role: .destructive,
-                            tapHandler: {
-                                textPickerViewModel.deleteCurrentImage()
-                            })
-                    ]]
-                ),
-
-            ]
-        ]
+    var confirmDeleteMenu: BottomMenu {
+        let title = BottomMenuAction(
+            title: "This photo will be deleted while the data you filled from it will remain."
+        )
+        let deleteAction = BottomMenuAction(
+            title: "Delete Photo",
+            role: .destructive,
+            tapHandler: {
+                textPickerViewModel.deleteCurrentImage()
+            })
+        return BottomMenu(actions: [title, deleteAction])
+    }
+    
+    var deletePhotoAction: BottomMenuAction {
+        BottomMenuAction(
+            title: "Delete Photo",
+            systemImage: "trash",
+            role: .destructive,
+            linkedMenu: confirmDeleteMenu
+        )
+    }
+    
+    var bottomMenu: BottomMenu {
+        BottomMenu(groups: [
+            firstMenuGroup,
+            BottomMenuActionGroup(action: deletePhotoAction)]
+        )
     }
     
     func thumbnail(at index: Int) -> some View {

@@ -4,14 +4,22 @@ import SwiftUISugar
 import PhotosUI
 
 extension FoodForm {
-    struct Sources: View {
+    enum SourcesAction {
+        case removeLink
+        case addLink
+        case showPhotosMenu
+        case removeImage(index: Int)
+    }
+
+    struct SourcesForm: View {
         @ObservedObject var sourcesViewModel: SourcesViewModel
         @State var showingRemoveAllImagesConfirmation = false
         @State var showingPhotosPicker = false
-        @State var showingTextPicker: Bool = false        
+        @State var showingTextPicker: Bool = false
+        var actionHandler: ((SourcesAction) -> Void)
     }
 }
-extension FoodForm.Sources {
+extension FoodForm.SourcesForm {
 
     var body: some View {
         form
@@ -62,7 +70,7 @@ extension FoodForm.Sources {
     
     var removeLinkButton: some View {
         Button(role: .destructive) {
-//            viewModel.showingRemoveLinkConfirmation = true
+            actionHandler(.removeLink)
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "trash")
@@ -79,7 +87,7 @@ extension FoodForm.Sources {
             verticalPadding: 15
         ) {
             Button {
-//                viewModel.showingAddLinkMenu = true
+                actionHandler(.addLink)
             } label: {
                 Label("Add a Link", systemImage: "link")
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -114,14 +122,13 @@ extension FoodForm.Sources {
             mode: .imageViewer(
                 initialImageIndex: sourcesViewModel.presentingImageIndex,
                 deleteHandler: { deletedImageIndex in
-//                    viewModel.removeImage(at: deletedImageIndex)
+                    actionHandler(.removeImage(index: deletedImageIndex))
                 }
             )
         )
     }
     
     var imagesCarousel: some View {
-//        Color.blue
         SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
             sourcesViewModel.presentingImageIndex = index
             showingTextPicker = true
@@ -139,76 +146,25 @@ extension FoodForm.Sources {
         }
     }
     
-    var photosPickerButton: some View {
-        Button {
-            showingPhotosPicker = true
-        } label: {
-            Label("Choose Photos", systemImage: SourceType.images.systemImage)
-        }
-    }
-    
-    var cameraButton: some View {
-        Button {
-//            viewModel.showingCamera = true
-        } label: {
-            Label("Take Photo", systemImage: "camera")
-        }
-    }
-
-    var foodLabelScannerButton: some View {
-        Button {
-//            viewModel.showingFoodLabelCamera = true
-        } label: {
-            Label("Scan a Food Label", systemImage: "text.viewfinder")
-        }
-    }
-
     var addImagesButton: some View {
         Button {
-//            viewModel.showingPhotosMenu = true
+            actionHandler(.showPhotosMenu)
         } label: {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "plus")
                     .frame(width: LabelImageWidth)
-                Text("Add Photo\(sourcesViewModel.availableImagesCount == 1 ? "" : "s")")
+                Text("Add Photo\(sourcesViewModel.pluralS)")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
     }
 
-    var autofillButton: some View {
-        Button {
-//            viewModel.showingAutofillMenu = true
-        } label: {
-            HStack(spacing: LabelSpacing) {
-                Image(systemName: "text.viewfinder")
-                    .frame(width: LabelImageWidth)
-                Text("AutoFill")
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-        }
-    }
-    
-    var removeAllImagesButton: some View {
-        Button(role: .destructive) {
-//            viewModel.showingRemoveImagesConfirmation = true
-        } label: {
-            HStack(spacing: LabelSpacing) {
-                Image(systemName: "trash")
-                    .frame(width: LabelImageWidth)
-                Text("Remove All Photos")
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-    
     //MARK: - Actions
     func removeImage(at index: Int) {
         Haptics.feedback(style: .rigid)
         withAnimation {
-//            viewModel.removeImage(at: index)
+            actionHandler(.removeImage(index: index))
         }
     }
 }

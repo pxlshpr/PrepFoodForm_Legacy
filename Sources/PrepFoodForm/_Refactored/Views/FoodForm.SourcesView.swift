@@ -4,13 +4,17 @@ import PhotosUI
 import SwiftHaptics
 import SwiftUISugar
 
-struct FoodSourcesView: View {
-    
-    @ObservedObject var sourcesViewModel: FoodForm.SourcesViewModel
-    @State var showingPhotosPicker = false
-    
-    let didTapAddSource: () -> ()
-    
+extension FoodForm {
+    struct SourcesView: View {
+        @ObservedObject var sourcesViewModel: FoodForm.SourcesViewModel
+        
+        let didTapAddSource: () -> ()
+        let handleSourcesAction: (SourcesAction) -> ()
+    }
+}
+
+extension FoodForm.SourcesView {
+        
     var body: some View {
         Group {
             if sourcesViewModel.isEmpty {
@@ -19,12 +23,6 @@ struct FoodSourcesView: View {
                 content
             }
         }
-//        .photosPicker(
-//            isPresented: $showingPhotosPicker,
-//            selection: $viewModel.selectedPhotos,
-//            maxSelectionCount: viewModel.availableImagesCount,
-//            matching: .images
-//        )
     }
     
     var emptyContent: some View {
@@ -47,7 +45,7 @@ struct FoodSourcesView: View {
     
     var navigationLink: some View {
         NavigationLink {
-            FoodForm.Sources(sourcesViewModel: sourcesViewModel)
+            FoodForm.SourcesForm(sourcesViewModel: sourcesViewModel, actionHandler: handleSourcesAction)
         } label: {
             VStack(spacing: 0) {
                 imagesRow
@@ -99,8 +97,7 @@ struct FoodSourcesView: View {
     }
     
     var imageSetSummary: some View {
-//        Color.green
-        ImageSetSummary(imageSetStatus: $sourcesViewModel.imageSetStatus)
+        FoodImageSetSummary(imageSetStatus: $sourcesViewModel.imageSetStatus)
     }
 
     var header: some View {

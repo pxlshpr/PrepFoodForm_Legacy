@@ -48,14 +48,14 @@ public struct FoodForm_Legacy: View {
                     matching: .images
                 )
         }
-        .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingPhotosMenu, actionGroups: photosActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingAddLinkMenu, actionGroups: addLinkActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
-        .bottomMenu(isPresented: $viewModel.showingAddBarcodeMenu, actionGroups: addBarcodeActionGroups)
-        .fullScreenCover(isPresented: $viewModel.showingColumnPicker) { columnPicker }
+//        .bottomMenu(isPresented: $viewModel.showingSourceMenu, actionGroups: sourceMenuActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingPhotosMenu, actionGroups: photosActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingAddLinkMenu, actionGroups: addLinkActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingRemoveLinkConfirmation, actionGroups: removeLinkActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingRemoveImagesConfirmation, actionGroups: removeAllImagesActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingAutofillMenu, actionGroups: autofillActionGroups)
+//        .bottomMenu(isPresented: $viewModel.showingAddBarcodeMenu, actionGroups: addBarcodeActionGroups)
+//        .fullScreenCover(isPresented: $viewModel.showingColumnPicker) { columnPicker }
     }
     
     //MARK: - Main Content

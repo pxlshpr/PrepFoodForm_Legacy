@@ -27,7 +27,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.57"),
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.14"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.200"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.202"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.73"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),

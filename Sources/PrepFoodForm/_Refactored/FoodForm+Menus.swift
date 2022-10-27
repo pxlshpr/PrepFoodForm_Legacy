@@ -2,23 +2,51 @@ import SwiftUI
 import SwiftUISugar
 
 extension FoodForm {
-    var sourcesMenuContents: [[BottomMenuAction]] {
-        [
-            [
-                BottomMenuAction(title: "Scan a Food Label", systemImage: "text.viewfinder", tapHandler: {
-                    showingFoodLabelCamera = true
-                }),
-                BottomMenuAction(title: "Take Photos", systemImage: "camera", tapHandler: {
-                    showingCamera = true
-                }),
-                BottomMenuAction(title: "Choose Photos", systemImage: "photo.on.rectangle", tapHandler: {
-                    showingPhotosPicker = true
-                }),
-            ],
-            [addLinkMenuAction]
-        ]
+    
+    
+    //MARK: - Sources
+    var sourcesMenu: BottomMenu {
+        let addLinkGroup = BottomMenuActionGroup(action: addLinkMenuAction)
+        return BottomMenu(groups: [photosMenuGroup, addLinkGroup])
     }
     
+    //MARK: - Photos
+
+    var photosMenu: BottomMenu {
+        BottomMenu(groups: [photosMenuGroup])
+    }
+    
+    var photosMenuGroup: BottomMenuActionGroup {
+        BottomMenuActionGroup(actions: [
+            BottomMenuAction(title: "Scan a Food Label",
+                             systemImage: "text.viewfinder",
+                             tapHandler: { showingFoodLabelCamera = true }),
+            BottomMenuAction(title: "Take Photo\(sourcesViewModel.pluralS)",
+                             systemImage: "camera",
+                             tapHandler: { showingCamera = true }),
+            BottomMenuAction(title: "Choose Photo\(sourcesViewModel.pluralS)",
+                             systemImage: "photo.on.rectangle",
+                             tapHandler: { showingPhotosPicker = true }),
+        ])
+    }
+    
+    //MARK: - Link
+    var addLinkMenu: BottomMenu {
+        BottomMenu(action: addLinkMenuAction)
+    }
+
+    var confirmRemoveLinkMenu: BottomMenu {
+        BottomMenu(action: BottomMenuAction(
+            title: "Remove Link",
+            role: .destructive,
+            tapHandler: {
+                withAnimation {
+                    sourcesViewModel.removeLink()
+                }
+            }
+        ))
+    }
+
     var addLinkMenuAction: BottomMenuAction {
         BottomMenuAction(
             title: "Add a Link",
@@ -36,6 +64,8 @@ extension FoodForm {
             )
         )
     }
+    
+    //MARK: - Helpers
     
     func textInputIsValidHandler(_ string: String) -> Bool {
         string.isValidUrl
