@@ -21,7 +21,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.35"),
         .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.18"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.71"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.72"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.73"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.25"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.57"),

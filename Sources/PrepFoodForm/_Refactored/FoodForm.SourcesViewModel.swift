@@ -10,7 +10,7 @@ extension FoodForm {
         @Published var linkInfo: LinkInfo? = nil
         
         /// Scan Results
-        @Published var twoColumnOutput: ScanResultsTwoColumnOutput? = nil
+        @Published var columnSelectionInfo: ColumnSelectionInfo? = nil
         @Published var selectedScanResultsColumn = 1
         
         @Published var selectedPhotos: [PhotosPickerItem] = []
@@ -23,7 +23,7 @@ extension FoodForm.SourcesViewModel {
     func receivedScanResult(_ scanResult: ScanResult, for image: UIImage) {
         let imageViewModel = ImageViewModel(image: image, scanResult: scanResult, delegate: self)
         imageViewModels.append(imageViewModel)
-        processScanResults()
+        tryExtractFieldsFromScanResults()
     }
     
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
@@ -34,20 +34,23 @@ extension FoodForm.SourcesViewModel {
         selectedPhotos = []
     }
     
-    func processScanResults() {
-        let counts = DataPointsCount(imageViewModels: imageViewModels)
-        imageSetStatus = .scanned(numberOfImages: imageViewModels.count, counts: counts)
+    func tryExtractFieldsFromScanResults() {
+        imageSetStatus = .extracting(numberOfImages: imageViewModels.count)
         
         Task {
-            guard let output = await ScanResultsProcessor.shared.process(allScanResults) else {
+            guard let output = await FieldsExtractor.shared.tryExtractFieldsFrom(allScanResults)
+            else {
                 return
             }
             await MainActor.run {
                 switch output {
-                case .twoColumns(let twoColumnOutput):
-                    print("🍩 Setting twoColumnOutput")
-                    self.twoColumnOutput = twoColumnOutput
-                case .oneColumn:
+                case .needsColumnSelection(let columnSelectionInfo):
+                    self.columnSelectionInfo = columnSelectionInfo
+                case .fieldValues(let fieldValues):
+                    
+//                    let counts = DataPointsCount(imageViewModels: imageViewModels)
+//                    imageSetStatus = .scanned(numberOfImages: imageViewModels.count, counts: counts)
+                    print("WE HERE")
                     break
                 }
             }
@@ -68,8 +71,8 @@ extension FoodForm.SourcesViewModel {
 
 //MARK: - Helpers
 extension FoodForm.SourcesViewModel {
-    func imageViewModels(for twoColumnOutput: ScanResultsTwoColumnOutput) -> [ImageViewModel] {
-        imageViewModels.containingTexts(in: twoColumnOutput)
+    func imageViewModels(for columnSelectionInfo: ColumnSelectionInfo) -> [ImageViewModel] {
+        imageViewModels.containingTexts(in: columnSelectionInfo)
     }
     var allScanResults: [ScanResult] {
         imageViewModels.compactMap { $0.scanResult }
@@ -99,9 +102,7 @@ extension FoodForm.SourcesViewModel: ImageViewModelDelegate {
         
         if imageViewModels.allSatisfy({ $0.status == .scanned }) {
 //            Haptics.successFeedback()
-            withAnimation {
-                processScanResults()
-            }
+            tryExtractFieldsFromScanResults()
         }
     }
 

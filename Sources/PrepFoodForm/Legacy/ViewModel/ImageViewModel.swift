@@ -282,3 +282,11 @@ extension ImageViewModel: Equatable {
         lhs.hashValue == rhs.hashValue
     }
 }
+
+extension Array where Element == ImageViewModel {
+    func containingTexts(in output: ColumnSelectionInfo) -> [ImageViewModel] {
+        filter {
+            output.column1.containsTexts(from: $0) || output.column2.containsTexts(from: $0)
+        }
+    }
+}

@@ -8,36 +8,40 @@ extension ScanResult {
      in which case—an additional size with the name "serving" will be returned with the amount of the
      */
     func allSizeViewModels(at column: Int) -> [FieldViewModel] {
-        let sizeViewModels =
+        allSizeFieldValues(at: column)
+            .map { FieldViewModel(fieldValue: $0) }
+    }
+    
+    func allSizeFieldValues(at column: Int) -> [FieldValue] {
+        var fieldValues: [FieldValue] =
         [
-            servingUnitSizeViewModel,
-            equivalentUnitSizeViewModel,
-            perContainerSizeViewModel,
-            headerServingSizeViewModel,
-            headerEquivalentUnitSizeViewModel
+            servingUnitFieldValue,
+            equivalentUnitSizeFieldValue,
+            perContainerSizeFieldValue,
+            headerServingSizeFieldValue,
+            headerEquivalentUnitSizeFieldValue
         ]
         .compactMap { $0 }
         
-        if (headerType(for: column) == .per100g || headerType(for: column) == .per100ml),
-           let servingSizeViewModel
-        {
-            return sizeViewModels + [servingSizeViewModel]
-        } else {
-            return sizeViewModels
+        let eitherColumnIsPer100 = headerType(for: column) == .per100g || headerType(for: column) == .per100ml
+        if eitherColumnIsPer100, let servingSizeFieldValue {
+            fieldValues.append(servingSizeFieldValue)
         }
+        return fieldValues
     }
     
-    var servingSizeViewModel: FieldViewModel? {
+    
+    var servingSizeFieldValue: FieldValue? {
         guard let servingSize, let servingSizeValueText else {
             return nil
         }
         
-        return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
+        return .size(FieldValue.SizeValue(
             size: servingSize,
             fill: scannedFill(
                 for: servingSize,
                 in: ImageText(text: servingSizeValueText.text, imageId: id))
-        )))
+        ))
     }
     
     var servingSize: FormSize? {
@@ -53,17 +57,17 @@ extension ScanResult {
         serving?.amountText?.asValueText
     }
     
-    var perContainerSizeViewModel: FieldViewModel? {
+    var perContainerSizeFieldValue: FieldValue? {
         guard let perContainerSize, let perContainerSizeValueText else {
             return nil
         }
         
-        return FieldViewModel(fieldValue: .size(FieldValue.SizeValue(
+        return .size(FieldValue.SizeValue(
             size: perContainerSize,
             fill: scannedFill(
                 for: perContainerSize,
                 in: ImageText(text: perContainerSizeValueText.text, imageId: id))
-        )))
+        ))
     }
     
     var perContainerSize: FormSize? {
@@ -78,67 +82,63 @@ extension ScanResult {
         )
     }
     
-    var headerServingSizeViewModel: FieldViewModel? {
+    var headerServingSizeFieldValue: FieldValue? {
         guard let headerServingSize, let valueText = servingBasedHeaderText?.asValueText else {
             return nil
         }
         
-        let fieldValue: FieldValue = .size(.init(
+        return .size(.init(
             size: headerServingSize,
             fill: scannedFill(
                 for: headerServingSize,
                 in: ImageText(text: valueText.text, imageId: id)
             )
         ))
-        return FieldViewModel(fieldValue: fieldValue)
     }
 
-    var headerEquivalentUnitSizeViewModel: FieldViewModel? {
+    var headerEquivalentUnitSizeFieldValue: FieldValue? {
         guard let headerEquivalentUnitSize, let valueText = servingBasedHeaderText?.asValueText else {
             return nil
         }
         
-        let fieldValue: FieldValue = .size(.init(
+        return .size(.init(
             size: headerEquivalentUnitSize,
             fill: scannedFill(
                 for: headerEquivalentUnitSize,
                 in: ImageText(text: valueText.text, imageId: id)
             )
         ))
-        return FieldViewModel(fieldValue: fieldValue)
     }
 
 //    var servingSizeViewModel: FieldViewModel? {
 //        guard let
 //    }
-    var servingUnitSizeViewModel: FieldViewModel? {
+    var servingUnitFieldValue: FieldValue? {
         guard let servingUnitSize, let servingUnitSizeValueText else {
             return nil
         }
         
-        let fieldValue: FieldValue = .size(.init(
+        return .size(.init(
             size: servingUnitSize,
             fill: scannedFill(
                 for: servingUnitSize,
                 in: ImageText(text: servingUnitSizeValueText.text, imageId: id)
             )
         ))
-        return FieldViewModel(fieldValue: fieldValue)
     }
     
-    var equivalentUnitSizeViewModel: FieldViewModel? {
+    var equivalentUnitSizeFieldValue: FieldValue? {
         guard let equivalentUnitSize, let equivalentUnitSizeValueText else {
             return nil
         }
         
-        let fieldValue: FieldValue = .size(.init(
+        return .size(.init(
             size: equivalentUnitSize,
             fill: scannedFill(
                 for: equivalentUnitSize,
                 in: ImageText(text: equivalentUnitSizeValueText.text, imageId: id)
             )
         ))
-        return FieldViewModel(fieldValue: fieldValue)
     }
     
     //MARK: Units Sizes

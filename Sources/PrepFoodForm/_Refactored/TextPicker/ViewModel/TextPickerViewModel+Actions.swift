@@ -6,6 +6,7 @@ extension TextPickerViewModel {
     
     func tappedConfirmAutoFill() {
         guard let currentScanResult else { return }
+        //TODO: Handle this outside the TextPicker
         FoodFormViewModel.shared.processScanResults(
             column: selectedColumn,
             from: [currentScanResult],
@@ -92,6 +93,7 @@ extension TextPickerViewModel {
         }
         if scanResult.columnCount == 1 {
             
+            //TODO: Handle this outside the TextPicker
             FoodFormViewModel.shared.processScanResults(
                 column: 1,
                 from: [scanResult],

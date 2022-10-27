@@ -60,8 +60,8 @@ public struct FoodForm: View {
                     maxSelectionCount: sourcesViewModel.availableImagesCount,
                     matching: .images
                 )
-                .onChange(of: sourcesViewModel.twoColumnOutput) { twoColumnOutput in
-                    if twoColumnOutput != nil {
+                .onChange(of: sourcesViewModel.columnSelectionInfo) { columnSelectionInfo in
+                    if columnSelectionInfo != nil {
                         self.showingColumnPicker = true
                     }
                 }

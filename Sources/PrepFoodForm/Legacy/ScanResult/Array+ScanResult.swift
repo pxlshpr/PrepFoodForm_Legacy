@@ -29,6 +29,35 @@ enum FieldType {
 
 extension Array where Element == ScanResult {
 
+    func bestFieldValues(at column: Int) -> [FieldValue] {
+        
+        /// Single fields
+        var fieldValues: [FieldValue?] = [
+            bestAmountFieldValue(at: column),
+            bestServingFieldValue(at: column),
+            bestDensityFieldValue,
+            bestEnergyFieldValue(at: column)
+        ]
+
+        /// Macros
+        for macro in Macro.allCases {
+            fieldValues.append(bestMacroFieldValue(macro, at: column))
+        }
+        
+        /// Micronutrients
+        for nutrientType in NutrientType.allCases {
+            fieldValues.append(bestMicroFieldValue(nutrientType, at: column))
+        }
+        
+        /// Sizes
+        fieldValues.append(contentsOf: allSizeFieldValues(at: column))
+
+        /// Barcodes
+        fieldValues.append(contentsOf: allBarcodeFieldValues)
+
+        return fieldValues.compactMap { $0 }
+    }
+    
     func bestFieldValue(for fieldValue: FieldValue, at column: Int) -> FieldValue? {
         switch fieldValue {
         case .amount:
@@ -88,25 +117,36 @@ extension Array where Element == ScanResult {
 
 extension Array where Element == ScanResult {
     
-    var allBarcodeViewModels: [FieldViewModel] {
+    var allBarcodeFieldValues: [FieldValue] {
         reduce([]) { partialResult, scanResult in
-            partialResult + scanResult.barcodeFieldValues.map { FieldViewModel(fieldValue: $0) }
+            partialResult + scanResult.barcodeFieldValues
         }
     }
-    
-    func allSizeViewModels(at column: Int) -> [FieldViewModel] {
+
+    func allSizeFieldValues(at column: Int) -> [FieldValue] {
         guard let bestScanResult else { return [] }
-        var sizeViewModels: [FieldViewModel] = []
+        var fieldValues: [FieldValue] = []
         
         /// Start by adding the best `ScanResult`'s size view models (as it gets first preference)
-        sizeViewModels.append(contentsOf: bestScanResult.allSizeViewModels(at: column))
+        fieldValues.append(contentsOf: bestScanResult.allSizeFieldValues(at: column))
         
         /// Now go through the remaining `ScanResult`s and add those
         for scanResult in filter({ $0.id != bestScanResult.id }) {
-            sizeViewModels.append(contentsOf: scanResult.allSizeViewModels(at: column))
+            fieldValues.append(contentsOf: scanResult.allSizeFieldValues(at: column))
         }
         
-        return sizeViewModels
+        return fieldValues
+    }
+
+    //TODO: Remove this
+    var allBarcodeViewModels: [FieldViewModel] {
+        allBarcodeFieldValues.map { FieldViewModel(fieldValue: $0) }
+    }
+
+    //TODO: Remove this
+    func allSizeViewModels(at column: Int) -> [FieldViewModel] {
+        allSizeFieldValues(at: column)
+            .map { FieldViewModel(fieldValue: $0) }
     }
     
     /**
@@ -143,7 +183,23 @@ extension Array where Element == ScanResult {
 //        map { $0.columnWithTheMostNutrients}
 //            .mostFrequent ?? 1
 //    }
+
+    func imageTextsForColumnSelection(at column: Int) -> [ImageText] {
+        var fieldValues: [FieldValue?] = []
+        fieldValues.append(bestEnergyFieldValue(at: column))
+        for macro in Macro.allCases {
+            fieldValues.append(bestMacroFieldValue(macro, at: column))
+        }
+        for nutrientType in NutrientType.allCases {
+            fieldValues.append(bestMicroFieldValue(nutrientType, at: column))
+        }
+        return fieldValues.compactMap({ $0?.fill.imageText })
+    }
     
+    /** Minimum number of columns */
+    var minimumNumberOfColumns: Int {
+        allSatisfy({ $0.columnCount == 2 }) ? 2 : 1
+    }
 }
 
 extension ScanResult {

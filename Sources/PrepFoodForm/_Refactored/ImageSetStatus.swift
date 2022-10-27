@@ -3,6 +3,7 @@ import Foundation
 enum ImageSetStatus {
     case loading(numberOfImages: Int = 0)
     case scanning(numberOfImages: Int)
+    case extracting(numberOfImages: Int)
     case scanned(numberOfImages: Int, counts: DataPointsCount)
     
     var description: String {
@@ -12,6 +13,8 @@ enum ImageSetStatus {
             return "Loading image\(s)"
         case .scanning:
             return "Reading food label\(s)"
+        case .extracting:
+            return "Picking best results"
         case .scanned:
             return "facts detected"
         }
@@ -28,7 +31,7 @@ enum ImageSetStatus {
     
     var numberOfImages: Int {
         switch self {
-        case .loading(let numberOfImages), .scanning(let numberOfImages), .scanned(let numberOfImages, _):
+        case .loading(let count), .scanning(let count), .extracting(let count), .scanned(let count, _):
             return numberOfImages
         }
     }
