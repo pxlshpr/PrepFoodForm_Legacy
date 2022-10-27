@@ -45,11 +45,15 @@ extension Array where Element == ImageViewModel {
 }
 
 
-struct ScanResultsTwoColumnOutput: Identifiable {
+struct ScanResultsTwoColumnOutput: Identifiable, Equatable {
     let id = UUID()
     let column1: TextColumn
     let column2: TextColumn
     let bestColumn: Int
+    
+    static func == (lhs: ScanResultsTwoColumnOutput, rhs: ScanResultsTwoColumnOutput) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 enum ScanResultsOutput {

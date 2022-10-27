@@ -159,17 +159,18 @@ extension FoodFormViewModel {
     }
 
     func modifyServingUnitIfServingBased() {
-        guard servingViewModel.fieldValue.doubleValue.unit.isServingBased, case .size(let size, _) = servingViewModel.fieldValue.doubleValue.unit else {
-            return
-        }
-        let newAmount: Double
-        if let quantity = size.quantity, let servingAmount = servingViewModel.fieldValue.doubleValue.double, servingAmount > 0 {
-            newAmount = quantity / servingAmount
-        } else {
-            newAmount = 0
-        }
+        //TODO: Do this
+//        guard servingViewModel.fieldValue.doubleValue.unit.isServingBased, case .size(let size, _) = servingViewModel.fieldValue.doubleValue.unit else {
+//            return
+//        }
+//        let newAmount: Double
+//        if let quantity = size.quantity, let servingAmount = servingViewModel.fieldValue.doubleValue.double, servingAmount > 0 {
+//            newAmount = quantity / servingAmount
+//        } else {
+//            newAmount = 0
+//        }
         
-        //TODO-SIZE: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
+        //TODO: We need to get access to it here—possibly need to add it to sizes to begin with so that we can modify it here
 //        size.amountDouble = newAmount
 //        updateSummary()
     }

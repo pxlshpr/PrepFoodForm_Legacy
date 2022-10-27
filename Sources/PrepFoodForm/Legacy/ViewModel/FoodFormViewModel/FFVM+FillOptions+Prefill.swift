@@ -53,7 +53,7 @@ extension FoodFormViewModel {
         case .size(let sizeValue):
             return sizeValue.size.fullNameString.lowercased()
             
-        case .barcode(let barcodeValue):
+        case .barcode:
             return "(barcodes prefill not supported)"
         }
     }

@@ -198,7 +198,7 @@ extension MFPSearch.ResultCell {
     
     @ViewBuilder
     var sizesButton: some View {
-        if let sizes = viewModel.sizes {
+//        if let sizes = viewModel.sizes {
             Button {
                 
             } label: {
@@ -216,12 +216,12 @@ extension MFPSearch.ResultCell {
                 )
             }
             .buttonStyle(.borderless)
-        }
+//        }
     }
     
     @ViewBuilder
     var nutrientsButton: some View {
-        if let nutrients = viewModel.nutrients {
+//        if let nutrients = viewModel.nutrients {
             Button {
                 
             } label: {
@@ -239,7 +239,7 @@ extension MFPSearch.ResultCell {
                 )
             }
             .buttonStyle(.borderless)
-        }
+//        }
     }
     
     var sizesAndNutrients_legacy: some View {

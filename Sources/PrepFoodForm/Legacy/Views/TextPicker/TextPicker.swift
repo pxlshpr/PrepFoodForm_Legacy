@@ -789,7 +789,9 @@ struct TextPicker: View {
             Button {
                 if textPickerViewModel.shouldDismissAfterTappingDone() {
                     Haptics.successFeedback()
-                    dismiss()
+                    DispatchQueue.main.async {
+                        dismiss()
+                    }
                 }
             } label: {
                 Text("Done")

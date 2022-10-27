@@ -1,14 +1,14 @@
 import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
+import PhotosUI
 
 extension FoodForm {
     struct Sources: View {
         @ObservedObject var sourcesViewModel: SourcesViewModel
         @State var showingRemoveAllImagesConfirmation = false
         @State var showingPhotosPicker = false
-        @State var showingTextPicker: Bool = false
-        
+        @State var showingTextPicker: Bool = false        
     }
 }
 extension FoodForm.Sources {
@@ -18,12 +18,12 @@ extension FoodForm.Sources {
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
-        .photosPicker(
-            isPresented: $showingPhotosPicker,
-            selection: $sourcesViewModel.selectedPhotos,
-            maxSelectionCount: sourcesViewModel.availableImagesCount,
-            matching: .images
-        )
+//        .photosPicker(
+//            isPresented: $showingPhotosPicker,
+//            selection: $sourcesViewModel.selectedPhotos,
+//            maxSelectionCount: sourcesViewModel.availableImagesCount,
+//            matching: .images
+//        )
     }
     
     var form: some View {
@@ -121,12 +121,13 @@ extension FoodForm.Sources {
     }
     
     var imagesCarousel: some View {
-        SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
-            sourcesViewModel.presentingImageIndex = index
-            showingTextPicker = true
-        } didTapDeleteOnImage: { index in
-            removeImage(at: index)
-        }
+        Color.blue
+//        SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
+//            sourcesViewModel.presentingImageIndex = index
+//            showingTextPicker = true
+//        } didTapDeleteOnImage: { index in
+//            removeImage(at: index)
+//        }
     }
     
     var addImagesSection: some View {

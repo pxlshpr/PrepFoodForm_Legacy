@@ -61,7 +61,9 @@ let package = Package(
                 .product(name: "Introspect", package: "swiftui-introspect"),
                 .product(name: "SwiftHaptics", package: "swifthaptics"),
             ],
-            resources: [.process("SampleImages")]
+            resources: [
+//                .process("SampleImages")
+            ]
         ),
         .testTarget(
             name: "PrepFoodFormTests",
