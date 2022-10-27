@@ -3,8 +3,34 @@ import SwiftHaptics
 
 extension TextPicker {
 
-    @ViewBuilder
     var doneButton: some View {
+        Button {
+            if textPickerViewModel.shouldDismissAfterTappingDone() {
+                Haptics.feedback(style: .medium)
+                DispatchQueue.main.async {
+                    dismiss()
+                }
+            }
+        } label: {
+            HStack {
+                Image(systemName: "checkmark")
+                Text("AutoFill")
+            }
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .frame(height: 33)
+                .background(
+                    Capsule(style: .continuous)
+                        .foregroundColor(.accentColor)
+                )
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+                .contentShape(Rectangle())        }
+    }
+
+    @ViewBuilder
+    var doneButton_legacy: some View {
         if textPickerViewModel.shouldShowDoneButton {
             Button {
                 if textPickerViewModel.shouldDismissAfterTappingDone() {
@@ -132,5 +158,73 @@ extension TextPicker {
             .transition(.move(edge: .leading))
         }
         .frame(height: 40)
+    }
+    
+    func columnPicker(columns: [TextColumn]) -> some View {
+        Picker("", selection: $textPickerViewModel.selectedColumn) {
+            ForEach(columns.indices, id: \.self) { i in
+                Text(columns[i].name)
+                    .tag(i+1)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.leading, 20)
+        .frame(maxWidth: .infinity)
+        .frame(height: 40)
+        .onChange(of: textPickerViewModel.selectedColumn) { newValue in
+            Haptics.feedback(style: .soft)
+            textPickerViewModel.pickedColumn(newValue)
+        }
+    }
+}
+
+struct TextPickerPreview: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            ZStack {
+                Color.clear
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        Picker("", selection: .constant(1)) {
+                            Text("100g").tag(1)
+                            Text("Serving").tag(2)
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.leading, 20)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        Button {
+                        } label: {
+                            HStack {
+                                Image(systemName: "checkmark")
+                                Text("AutoFill")
+                            }
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .frame(height: 31.5)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+//                                    Capsule(style: .continuous)
+                                        .foregroundColor(.accentColor)
+                                )
+                                .padding(.leading, 10)
+                                .padding(.trailing, 20)
+                                .padding(.vertical, 10)
+                                .contentShape(Rectangle())
+                        }
+                    }
+                }
+            }
+            .frame(height: 60)
+            .background(.ultraThinMaterial)
+        }
+    }
+}
+
+struct TextPicker_Previews: PreviewProvider {
+    static var previews: some View {
+        TextPickerPreview()
     }
 }

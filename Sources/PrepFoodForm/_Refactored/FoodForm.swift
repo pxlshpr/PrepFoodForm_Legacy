@@ -24,7 +24,7 @@ public struct FoodForm: View {
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
-    @State var presentedTwoColumnOutput: ScanResultsTwoColumnOutput? = nil
+    @State var showingColumnPicker = false
 
     /// Menus
     @State var showingSourcesMenu = false
@@ -53,7 +53,7 @@ public struct FoodForm: View {
                 .onChange(of: sourcesViewModel.selectedPhotos, perform: sourcesViewModel.selectedPhotosChanged)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
-                .fullScreenCover(item: $presentedTwoColumnOutput) { columnPicker($0) }
+                .fullScreenCover(isPresented: $showingColumnPicker) { columnPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
                     selection: $sourcesViewModel.selectedPhotos,
@@ -61,7 +61,9 @@ public struct FoodForm: View {
                     matching: .images
                 )
                 .onChange(of: sourcesViewModel.twoColumnOutput) { twoColumnOutput in
-                    self.presentedTwoColumnOutput = twoColumnOutput
+                    if twoColumnOutput != nil {
+                        self.showingColumnPicker = true
+                    }
                 }
         }
         .bottomMenu(isPresented: $showingSourcesMenu, menu: sourcesMenu)

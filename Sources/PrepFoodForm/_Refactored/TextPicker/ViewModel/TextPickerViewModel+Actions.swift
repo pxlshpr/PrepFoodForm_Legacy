@@ -47,7 +47,7 @@ extension TextPickerViewModel {
             return nil
         }
         return {
-            Haptics.feedback(style: .heavy)
+//            Haptics.feedback(style: .heavy)
             withAnimation {
                 self.selectedColumn = selectedColumnIndex == 1 ? 2 : 1
             }

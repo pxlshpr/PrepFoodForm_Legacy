@@ -8,13 +8,13 @@ extension ScanResult {
         guard let headerType = headers?.header1Type else {
             return "Column 1"
         }
-        return headerType.description
+        return headerType.description.replacingFirstOccurrence(of: "Per ", with: "")
     }
     var headerTitle2: String {
         guard let headerType = headers?.header2Type else {
             return "Column 2"
         }
-        return headerType.description
+        return headerType.description.replacingFirstOccurrence(of: "Per ", with: "")
     }
 }
 extension FoodFormViewModel {

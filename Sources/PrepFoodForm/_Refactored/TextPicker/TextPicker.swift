@@ -22,6 +22,7 @@ struct TextPicker: View {
         .onAppear(perform: appeared)
         .onChange(of: textPickerViewModel.shouldDismiss) { newValue in
             if newValue {
+                print("🥹 textPickerViewModel.shouldDismiss is \(newValue) so dismissing")
                 dismiss()
             }
         }
@@ -35,18 +36,4 @@ struct TextPicker: View {
             textPickerViewModel.setInitialState()
 //        }
     }
-    
-    func toggleSelection(of imageText: ImageText) {
-        if textPickerViewModel.selectedImageTexts.contains(imageText) {
-            Haptics.feedback(style: .light)
-            withAnimation {
-                textPickerViewModel.selectedImageTexts.removeAll(where: { $0 == imageText })
-            }
-        } else {
-            Haptics.feedback(style: .soft)
-            withAnimation {
-                textPickerViewModel.selectedImageTexts.append(imageText)
-            }
-        }
-    }    
 }

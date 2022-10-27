@@ -27,7 +27,7 @@ extension TextPickerViewModel {
             imageSize: imageSize,
             imageId: imageViewModels[index].id
         )
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
             NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
         }

@@ -33,7 +33,8 @@ extension TextPicker {
             Spacer()
             if textPickerViewModel.shouldShowBottomBar {
                 bottomBar
-                    .transition(.move(edge: .bottom))
+                //TODO: Bring this back after figuring out what's causing the EXC_BAD_ACCESS (code=1) crash
+//                    .transition(.move(edge: .bottom))
             }
         }
     }

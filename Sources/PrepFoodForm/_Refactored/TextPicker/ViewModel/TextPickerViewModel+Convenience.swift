@@ -4,6 +4,43 @@ import FoodLabelScanner
 
 extension TextPickerViewModel {
     
+    //MARK: - TextBoxes
+    
+    func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
+        
+        guard !mode.isColumnSelection else {
+            return mode.columnTexts(onImageWithId: imageViewModel.id)
+        }
+        
+        let filter = mode.filter ?? .allTextsAndBarcodes
+        let start = CFAbsoluteTimeGetCurrent()
+        let texts = imageViewModel.texts(for: filter)
+        return texts
+    }
+   
+    func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
+        let texts = texts(for: imageViewModel)
+        var textBoxes: [TextBox] = []
+        textBoxes = texts.map {
+            TextBox(
+                boundingBox: $0.boundingBox,
+                color: color(for: $0),
+                tapHandler: tapHandler(for: $0)
+            )
+        }
+        
+        textBoxes.append(
+            contentsOf: barcodes(for: imageViewModel).map {
+                TextBox(boundingBox: $0.boundingBox,
+                        color: color(for: $0),
+                        tapHandler: tapHandler(for: $0)
+                )
+        })
+        return textBoxes
+    }
+    
+    //MARK: - Helpers
+    
     var columnCountForCurrentImage: Int {
         currentImageViewModel?.scanResult?.columnCount ?? 0
     }
@@ -31,28 +68,7 @@ extension TextPickerViewModel {
             return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
         }
     }
-    
-    func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
-        let texts = texts(for: imageViewModel)
-        var textBoxes: [TextBox] = []
-        textBoxes = texts.map {
-            TextBox(
-                boundingBox: $0.boundingBox,
-                color: color(for: $0),
-                tapHandler: tapHandler(for: $0)
-            )
-        }
-        
-        textBoxes.append(
-            contentsOf: barcodes(for: imageViewModel).map {
-                TextBox(boundingBox: $0.boundingBox,
-                        color: color(for: $0),
-                        tapHandler: tapHandler(for: $0)
-                )
-        })
-        return textBoxes
-    }
-    
+
     func shouldDismissAfterTappingDone() -> Bool {
         if case .multiSelection(_, _, let handler) = mode {
             handler(selectedImageTexts)
@@ -72,28 +88,19 @@ extension TextPickerViewModel {
         return imageViewModel.recognizedBarcodes
     }
     
-    func texts(for imageViewModel: ImageViewModel) -> [RecognizedText] {
-        
-        guard !mode.isColumnSelection else {
-            return mode.columnTexts(onImageWithId: imageViewModel.id)
-        }
-        
-        let filter = mode.filter ?? .allTextsAndBarcodes
-        let start = CFAbsoluteTimeGetCurrent()
-        let texts = imageViewModel.texts(for: filter)
-        print("🥸 texts took \(CFAbsoluteTimeGetCurrent()-start)s")
-        return texts
-    }
-    
     func color(for barcode: RecognizedBarcode) -> Color {
         return Color.blue
     }
     
     func color(for text: RecognizedText) -> Color {
         if selectedImageTexts.contains(where: { $0.text == text }) {
-            return Color.accentColor
+            if mode.isColumnSelection {
+                return Color.white
+            } else {
+                return Color.accentColor
+            }
         } else {
-            return mode.isColumnSelection ? Color.white : Color.yellow
+            return mode.isColumnSelection ? Color.white.opacity(0.3) : Color.yellow
         }
     }
     

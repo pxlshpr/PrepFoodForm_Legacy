@@ -12,26 +12,27 @@ extension DataPointsCount {
 }
 extension FoodForm {
     
-
     @ViewBuilder
-    func columnPicker(_ twoColumnOutput: ScanResultsTwoColumnOutput) -> some View {
-        TextPicker(
-            imageViewModels: sourcesViewModel.imageViewModels(for: twoColumnOutput),
-            mode: .columnSelection(
-                column1: twoColumnOutput.column1,
-                column2: twoColumnOutput.column2,
-                selectedColumn: twoColumnOutput.bestColumn,
-                dismissHandler: {
-//                    viewModel.removeUnprocessedImageViewModels()
-                },
-                selectionHandler: { pickedColumn in
-//                    viewModel.processScanResults(
-//                        column: pickedColumn,
-//                        from: viewModel.candidateScanResults
-//                    )
-                    return true
-                })
-        )
+    var columnPicker: some View {
+        if let twoColumnOutput = sourcesViewModel.twoColumnOutput {
+            TextPicker(
+                imageViewModels: sourcesViewModel.imageViewModels(for: twoColumnOutput),
+                mode: .columnSelection(
+                    column1: twoColumnOutput.column1,
+                    column2: twoColumnOutput.column2,
+                    selectedColumn: twoColumnOutput.bestColumn,
+                    dismissHandler: {
+                        //                    viewModel.removeUnprocessedImageViewModels()
+                    },
+                    selectionHandler: { pickedColumn in
+                        //                    viewModel.processScanResults(
+                        //                        column: pickedColumn,
+                        //                        from: viewModel.candidateScanResults
+                        //                    )
+                        return true
+                    })
+            )
+        }
     }
 
 }

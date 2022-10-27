@@ -22,9 +22,10 @@ extension TextPicker {
                 if textPickerViewModel.shouldShowMenuInTopBar {
                     topMenuButton
                         .transition(.move(edge: .trailing))
-                } else {
-                    doneButton
                 }
+//                else {
+//                    doneButton
+//                }
             }
         }
         .frame(height: 64)
@@ -84,22 +85,10 @@ extension TextPicker {
     @ViewBuilder
     var columnPickerBar: some View {
         if let columns = textPickerViewModel.columns {
-            Picker("", selection: $textPickerViewModel.selectedColumn) {
-                ForEach(columns.indices, id: \.self) { i in
-//                    selectedTextButton(for: columns[i])
-                    Text(columns[i].name)
-                        .tag(i+1)
-                }
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity)
-            .frame(height: 40)
-            .onChange(of: textPickerViewModel.selectedColumn) { newValue in
-                Haptics.feedback(style: .soft)
-                textPickerViewModel.pickedColumn(newValue)
+            HStack {
+                columnPicker(columns: columns)
+                doneButton
             }
         }
     }
-
 }
