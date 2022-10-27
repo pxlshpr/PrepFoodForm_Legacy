@@ -18,12 +18,12 @@ extension FoodForm.Sources {
         .navigationTitle("Sources")
         .navigationBarTitleDisplayMode(.large)
         .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
-//        .photosPicker(
-//            isPresented: $showingPhotosPicker,
-//            selection: $sourcesViewModel.selectedPhotos,
-//            maxSelectionCount: sourcesViewModel.availableImagesCount,
-//            matching: .images
-//        )
+        .photosPicker(
+            isPresented: $showingPhotosPicker,
+            selection: $sourcesViewModel.selectedPhotos,
+            maxSelectionCount: sourcesViewModel.availableImagesCount,
+            matching: .images
+        )
     }
     
     var form: some View {
@@ -121,13 +121,13 @@ extension FoodForm.Sources {
     }
     
     var imagesCarousel: some View {
-        Color.blue
-//        SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
-//            sourcesViewModel.presentingImageIndex = index
-//            showingTextPicker = true
-//        } didTapDeleteOnImage: { index in
-//            removeImage(at: index)
-//        }
+//        Color.blue
+        SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
+            sourcesViewModel.presentingImageIndex = index
+            showingTextPicker = true
+        } didTapDeleteOnImage: { index in
+            removeImage(at: index)
+        }
     }
     
     var addImagesSection: some View {

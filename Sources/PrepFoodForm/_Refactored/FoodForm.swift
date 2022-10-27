@@ -24,7 +24,8 @@ public struct FoodForm: View {
     @State var showingPhotosPicker = false
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
-    
+    @State var presentedTwoColumnOutput: ScanResultsTwoColumnOutput? = nil
+
     /// Menus
     @State var showingSourcesMenu = false
 
@@ -34,15 +35,11 @@ public struct FoodForm: View {
     @State var showingWizardOverlay = true
     @State var formDisabled = false
 
-    @State var selectedPhotos: [PhotosPickerItem] = []
-
     public init(didSave: @escaping (FoodFormData) -> ()) {
         self.didSave = didSave
         _emoji = State(initialValue: randomFoodEmoji())
     }
     
-    @State var twoColumnOutput: ScanResultsTwoColumnOutput? = nil
-
     public var body: some View {
         let _ = Self._printChanges()
         return NavigationView {
@@ -53,19 +50,15 @@ public struct FoodForm: View {
                 .onChange(of: sourcesViewModel.selectedPhotos, perform: sourcesViewModel.selectedPhotosChanged)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
-                .fullScreenCover(item: $twoColumnOutput) { columnPicker($0) }
+                .fullScreenCover(item: $presentedTwoColumnOutput) { columnPicker($0) }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
-//                    selection: $sourcesViewModel.selectedPhotos,
-                    selection: $selectedPhotos,
+                    selection: $sourcesViewModel.selectedPhotos,
                     maxSelectionCount: sourcesViewModel.availableImagesCount,
                     matching: .images
                 )
-                .onChange(of: sourcesViewModel.twoColumnOutput, perform: { newValue in
-                    self.twoColumnOutput = newValue
-                })
-                .onChange(of: selectedPhotos) { newValue in
-                    sourcesViewModel.selectedPhotos = newValue
+                .onChange(of: sourcesViewModel.twoColumnOutput) { twoColumnOutput in
+                    self.presentedTwoColumnOutput = twoColumnOutput
                 }
         }
         .bottomMenu(isPresented: $showingSourcesMenu, actionGroups: sourcesMenuContents)

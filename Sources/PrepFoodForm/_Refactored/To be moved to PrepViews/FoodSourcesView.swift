@@ -99,8 +99,8 @@ struct FoodSourcesView: View {
     }
     
     var imageSetSummary: some View {
-        Color.green
-//        ImageSetSummary(imageSetStatus: $sourcesViewModel.imageSetStatus)
+//        Color.green
+        ImageSetSummary(imageSetStatus: $sourcesViewModel.imageSetStatus)
     }
 
     var header: some View {
