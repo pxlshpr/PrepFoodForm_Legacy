@@ -31,9 +31,9 @@ struct TextPicker: View {
     }
     
     func appeared() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             textPickerViewModel.setInitialState()
-        }
+//        }
     }
     
     func toggleSelection(of imageText: ImageText) {
