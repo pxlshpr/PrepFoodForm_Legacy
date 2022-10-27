@@ -10,7 +10,7 @@ extension FoodForm {
         @State var showingMenu = false
         @State var showingMicronutrientsPicker = false
         
-        @Binding var energy: FieldValue
+        @Binding var fieldValues: [FieldValue]
     }
 }
 
@@ -41,9 +41,9 @@ extension FoodForm.NutrientsList {
     
     var energyCell: some View {
         NavigationLink {
-            EnergyForm(fieldValue: $energy)
+            EnergyForm(fieldValue: $fieldValues[0])
         } label: {
-            Cell(fieldValue: $energy)
+            Cell(fieldValue: $fieldValues[0])
         }
     }
 

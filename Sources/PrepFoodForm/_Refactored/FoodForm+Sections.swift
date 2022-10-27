@@ -36,7 +36,7 @@ extension FoodForm {
 
         return FormStyledSection(header: header) {
             NavigationLink {
-                NutrientsList(energy: $energy)
+                NutrientsList(fieldValues: $fieldValues)
             } label: {
                 if shouldShowFoodLabel {
                     FoodLabel(

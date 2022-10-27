@@ -14,7 +14,8 @@ public struct FoodForm: View {
     @State var detail: String = ""
     @State var brand: String = ""
     
-    @State var energy: FieldValue = .energy()
+    @State var fieldValues: [FieldValue] = [.energy()]
+//    @State var energy: FieldValue = .energy()
     
     /// ViewModels
     @StateObject var fieldsViewModel = FieldsViewModel()
