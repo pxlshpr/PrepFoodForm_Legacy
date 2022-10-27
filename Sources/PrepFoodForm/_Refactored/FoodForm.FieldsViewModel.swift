@@ -1,8 +1,11 @@
-//
-//  File.swift
-//  
-//
-//  Created by Ahmed Khalaf on 27/10/2022.
-//
+import SwiftUI
 
-import Foundation
+extension FoodForm {
+    class FieldsViewModel: ObservableObject {
+        @Published var energyViewModel: FieldViewModel
+        
+        init() {
+            self.energyViewModel = .init(fieldValue: .energy())
+        }
+    }
+}

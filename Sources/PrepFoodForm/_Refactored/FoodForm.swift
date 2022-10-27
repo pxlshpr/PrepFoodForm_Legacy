@@ -14,6 +14,9 @@ public struct FoodForm: View {
     @State var detail: String = ""
     @State var brand: String = ""
     
+    /// Fields
+    @StateObject var fieldsViewModel = FieldsViewModel()
+    
     /// Sources
     @StateObject var sourcesViewModel = SourcesViewModel()
 

@@ -3,39 +3,6 @@ import PrepDataTypes
 import FoodLabelScanner
 import Vision
 
-extension FieldValue: Equatable {
-    static func ==(lhs: FieldValue, rhs: FieldValue) -> Bool {
-        switch (lhs, rhs) {
-        case (.name(let lhsValue), .name(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.emoji(let lhsValue), .emoji(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.brand(let lhsValue), .brand(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.barcode(let lhsValue), .barcode(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.detail(let lhsValue), .detail(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.amount(let lhsValue), .amount(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.serving(let lhsValue), .serving(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.density(let lhsValue), .density(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.energy(let lhsValue), .energy(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.macro(let lhsValue), .macro(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.micro(let lhsValue), .micro(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.size(let lhsValue), .size(let rhsValue)):
-            return lhsValue == rhsValue
-        default:
-            return false
-        }
-    }
-}
-
 enum FieldValue: Hashable, Codable {
     case name(StringValue = StringValue())
     case emoji(StringValue = StringValue(string: randomFoodEmoji()))
@@ -1180,3 +1147,36 @@ extension EnergyUnit {
     }
 }
 
+
+extension FieldValue: Equatable {
+    static func ==(lhs: FieldValue, rhs: FieldValue) -> Bool {
+        switch (lhs, rhs) {
+        case (.name(let lhsValue), .name(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.emoji(let lhsValue), .emoji(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.brand(let lhsValue), .brand(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.barcode(let lhsValue), .barcode(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.detail(let lhsValue), .detail(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.amount(let lhsValue), .amount(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.serving(let lhsValue), .serving(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.density(let lhsValue), .density(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.energy(let lhsValue), .energy(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.macro(let lhsValue), .macro(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.micro(let lhsValue), .micro(let rhsValue)):
+            return lhsValue == rhsValue
+        case (.size(let lhsValue), .size(let rhsValue)):
+            return lhsValue == rhsValue
+        default:
+            return false
+        }
+    }
+}
