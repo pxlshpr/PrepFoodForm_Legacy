@@ -62,16 +62,33 @@ extension FoodForm.NutrientsList.Cell {
         .foregroundColor(fieldValue.labelColor(for: colorScheme))
     }
     
+    var amountText: Text {
+        Text(fieldValue.amountString)
+            .foregroundColor(fieldValue.amountColor)
+            .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
+    }
+    
+    var unitText: Text {
+        Text(fieldValue.unitString)
+            .font(.system(size: 17, weight: .semibold, design: .rounded))
+            .bold()
+            .foregroundColor(Color(.secondaryLabel))
+    }
+    
+    var amountAndUnitText: some View {
+        if !isEmpty {
+            return amountText + unitText
+        } else {
+            return amountText
+        }
+    }
+    
     var bottomRow: some View {
         HStack(alignment: .firstTextBaseline, spacing: 3) {
-            Text(fieldValue.amountString)
-                .foregroundColor(fieldValue.amountColor)
-                .font(.system(size: fieldValue.isEmpty ? 20 : 28, weight: .medium, design: .rounded))
+            amountText
+                .multilineTextAlignment(.leading)
             if !isEmpty {
-                Text(fieldValue.unitString)
-                    .font(.system(size: 17, weight: .semibold, design: .rounded))
-                    .bold()
-                    .foregroundColor(Color(.secondaryLabel))
+                unitText
             }
             Spacer()
         }

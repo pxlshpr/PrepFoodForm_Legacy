@@ -31,8 +31,9 @@ extension FoodForm_Legacy.NutritionFactsCell {
     }
     
     var foodLabel: some View {
-        FoodLabel(dataSource: viewModel)
-            .id(viewModel.foodLabelRefreshBool)
+        Color.blue
+//        FoodLabel(dataSource: viewModel)
+//            .id(viewModel.foodLabelRefreshBool)
     }
 }
 

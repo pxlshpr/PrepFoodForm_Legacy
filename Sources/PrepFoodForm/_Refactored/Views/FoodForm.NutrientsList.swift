@@ -41,11 +41,9 @@ extension FoodForm.NutrientsList {
     
     var energyCell: some View {
         NavigationLink {
-//            EnergyForm(existingFieldViewModel: viewModel.energyViewModel)
-//                .environmentObject(viewModel)
+            EnergyForm(fieldValue: $energy)
         } label: {
             Cell(fieldValue: $energy)
-//            NutritionFactCell(fieldViewModel: viewModel.energyViewModel, showImage: $showImages)
         }
     }
 

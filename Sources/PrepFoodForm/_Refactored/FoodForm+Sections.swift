@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftUISugar
 import FoodLabel
+import PrepDataTypes
 
 extension FoodForm {
     var detailsSection: some View {
@@ -28,12 +29,24 @@ extension FoodForm {
             }
         }
         
+        let energyBinding = Binding<FoodLabelValue>(
+            get: { energy.value ?? .init(amount: 0, unit: .kcal)  },
+            set: { newValue in }
+        )
+
         return FormStyledSection(header: header) {
             NavigationLink {
                 NutrientsList(energy: $energy)
             } label: {
-                if fieldsViewModel.hasNutritionFacts {
-                    FoodLabel(dataSource: fieldsViewModel)
+                if shouldShowFoodLabel {
+                    FoodLabel(
+                        energyValue: energyBinding,
+                        carb: .constant(0),
+                        fat: .constant(0),
+                        protein: .constant(0),
+                        nutrients: .constant([:]),
+                        amountPerString: .constant("amountPerString")
+                    )
                 } else {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
