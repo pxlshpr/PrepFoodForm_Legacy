@@ -1,8 +1,244 @@
-//
-//  File.swift
-//  
-//
-//  Created by Ahmed Khalaf on 27/10/2022.
-//
+import SwiftUI
+import ZoomableScrollView
+import SwiftHaptics
+import VisionSugar
 
-import Foundation
+extension TextPickerViewModel {
+    
+    func setInitialState() {
+        withAnimation {
+            self.hasAppeared = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            for i in self.imageViewModels.indices {
+                self.setDefaultZoomBox(forImageAt: i)
+                self.setZoomFocusBox(forImageAt: i)
+            }
+        }
+    }
+    
+    func deleteCurrentImage() {
+        guard let deleteImageHandler = mode.deleteImageHandler else { return }
+        withAnimation {
+            let _ = imageViewModels.remove(at: currentIndex)
+            deleteImageHandler(currentIndex)
+            if imageViewModels.isEmpty {
+                shouldDismiss = true
+            } else if currentIndex != 0 {
+                currentIndex -= 1
+            }
+        }
+    }
+    
+    func pickedColumn(_ index: Int) {
+        mode.selectedColumnIndex = index
+        withAnimation {
+            selectedImageTexts = mode.selectedImageTexts
+        }
+    }
+    
+    func tappedConfirmAutoFill() {
+        guard let currentScanResult else { return }
+        FoodFormViewModel.shared.processScanResults(
+            column: selectedColumn,
+            from: [currentScanResult],
+            isUserInitiated: true
+        )
+        shouldDismiss = true
+    }
+    
+    func selectedBoundingBox(forImageAt index: Int) -> CGRect? {
+        guard let singleSelectedImageText, singleSelectedImageText.imageId == imageViewModels[index].id else {
+            return nil
+        }
+        
+        let texts = textsForCurrentImage
+        
+        /// Only show the union of the attribute and selected texts if the union of them both does not entirely cover any other texts we will be displaying.
+        if !texts.contains(where: { singleSelectedImageText.boundingBoxWithAttribute.contains($0.boundingBox)}) {
+            return singleSelectedImageText.boundingBoxWithAttribute
+        } else {
+            return singleSelectedImageText.boundingBox
+        }
+    }
+    
+    func setDefaultZoomBox(forImageAt index: Int) {
+        guard let imageSize = imageSize(at: index) else {
+            return
+        }
+        
+        let initialZoomBox = ZoomBox(
+            boundingBox: boundingBox(forImageAt: index),
+            animated: true,
+            padded: true,
+            imageSize: imageSize,
+            imageId: imageViewModels[index].id
+        )
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
+            NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
+        }
+    }
+
+    func setZoomFocusBox(forImageAt index: Int) {
+        guard let imageSize = imageSize(at: index), zoomBoxes[index] == nil else {
+            return
+        }
+        
+        let zoomFocusedBox = ZoomBox(
+            boundingBox: boundingBox(forImageAt: index),
+            animated: true,
+            padded: true,
+            imageSize: imageSize,
+            imageId: imageViewModels[index].id
+        )
+        zoomBoxes[index] = zoomFocusedBox
+    }
+    func tapHandler(for barcode: RecognizedBarcode) -> (() -> ())? {
+        nil
+    }
+
+    func tapHandlerForColumnSelection(for text: RecognizedText) -> (() -> ())? {
+        guard !mode.selectedColumnContains(text),
+              let selectedColumnIndex = mode.selectedColumnIndex
+        else {
+            return nil
+        }
+        return {
+            Haptics.feedback(style: .heavy)
+            withAnimation {
+                self.selectedColumn = selectedColumnIndex == 1 ? 2 : 1
+            }
+        }
+    }
+
+    func tapHandlerForTextSelection(for text: RecognizedText) -> (() -> ())? {
+        guard let currentImageId else {
+            return nil
+        }
+        
+        let imageText = ImageText(text: text, imageId: currentImageId)
+
+        if mode.isMultiSelection {
+            return {
+                self.toggleSelection(of: imageText)
+            }
+        } else {
+            guard let singleSelectionHandler = mode.singleSelectionHandler else {
+                return nil
+            }
+            return {
+                singleSelectionHandler(imageText)
+                self.shouldDismiss = true
+            }
+        }
+    }
+    
+    func tapHandler(for text: RecognizedText) -> (() -> ())? {
+        if mode.isColumnSelection {
+            return tapHandlerForColumnSelection(for: text)
+        } else if mode.supportsTextSelection {
+            return tapHandlerForTextSelection(for: text)
+        } else {
+            return nil
+        }
+    }
+    
+    func tappedAutoFill() {
+        guard let scanResult = imageViewModels[currentIndex].scanResult else {
+            return
+        }
+        if scanResult.columnCount == 1 {
+            
+            FoodFormViewModel.shared.processScanResults(
+                column: 1,
+                from: [scanResult],
+                isUserInitiated: true
+            )
+            
+            shouldDismiss = true
+
+        } else if scanResult.columnCount == 2 {
+            let column1 = TextColumn(
+                column: 1,
+                name: scanResult.headerTitle1,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 1, from: scanResult)
+            )
+            let column2 = TextColumn(
+                column: 2,
+                name: scanResult.headerTitle2,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
+            )
+            withAnimation {
+                let bestColumn = scanResult.bestColumn
+                self.selectedColumn = bestColumn
+                mode = .columnSelection(
+                    column1: column1,
+                    column2: column2,
+                    selectedColumn: bestColumn,
+                    dismissHandler: {
+                        self.shouldDismiss = true
+                    },
+                    selectionHandler: { selectedColumn in
+                        self.showingAutoFillConfirmation = true
+                        return false
+                    }
+                )
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation {
+                    self.showingBoxes = true
+                    self.selectedImageTexts = self.mode.selectedImageTexts
+                }
+            }
+        } else {
+            shouldDismiss = true
+        }
+    }
+    
+    func tappedDismiss() {
+        if case .columnSelection(_, _, _, let dismissHandler, _) = mode {
+            dismissHandler()
+        }
+    }
+    
+    func toggleSelection(of imageText: ImageText) {
+        if selectedImageTexts.contains(imageText) {
+            Haptics.feedback(style: .light)
+            withAnimation {
+                selectedImageTexts.removeAll(where: { $0 == imageText })
+            }
+        } else {
+            Haptics.feedback(style: .soft)
+            withAnimation {
+                selectedImageTexts.append(imageText)
+            }
+        }
+    }
+
+    func didTapThumbnail(at index: Int) {
+        Haptics.feedback(style: .rigid)
+        page(toImageAt: index)
+        
+        /// wait till the page animation completes
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//
+//            /// send the focus message to this page if we haven't sent the animated one yet
+//            if !self.didSendAnimatedFocusMessage[index] {
+//                self.setFocusBoxForImage(at: index, animated: true)
+//            }
+//
+//            /// send a (non-animated) focus message to all *other* pages that have already received an animated focus message
+//            for i in 0..<self.imageViewModels.count {
+//                guard i != index,
+//                      self.didSendAnimatedFocusMessage[index]
+//                else {
+//                    continue
+//                }
+//
+//                self.setFocusBoxForImage(at: i, animated: false)
+//            }
+//        }
+    }
+    
+}
