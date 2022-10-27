@@ -14,7 +14,6 @@ class TextPickerViewModel: ObservableObject {
     @Published var imageViewModels: [ImageViewModel]
     @Published var showingBoxes: Bool
     @Published var selectedImageTexts: [ImageText]
-//    @Published var focusedBoxes: [FocusedBox?]
     @Published var zoomBoxes: [ZoomBox?]
     @Published var page: Page
     
@@ -31,21 +30,22 @@ class TextPickerViewModel: ObservableObject {
         self.mode = mode
         self.selectedImageTexts = mode.selectedImageTexts
         showingBoxes = !mode.isImageViewer
-//        focusedBoxes = Array(repeating: nil, count: imageViewModels.count)
         zoomBoxes = Array(repeating: nil, count: imageViewModels.count)
-
+        
         initialImageIndex = mode.initialImageIndex(from: imageViewModels)
         page = .withIndex(initialImageIndex)
         currentIndex = initialImageIndex
         selectedColumn = mode.selectedColumnIndex ?? 1
     }
+}
+
+//MARK: - Actions
+extension TextPickerViewModel {
     
     func setInitialState() {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            withAnimation {
-                self.hasAppeared = true
-            }
-//        }
+        withAnimation {
+            self.hasAppeared = true
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             for i in self.imageViewModels.indices {
                 self.setDefaultZoomBox(forImageAt: i)
@@ -67,24 +67,11 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
-    var columnCountForCurrentImage: Int {
-        currentImageViewModel?.scanResult?.columnCount ?? 0
-    }
-    
-    var currentImageViewModel: ImageViewModel? {
-        guard currentIndex < imageViewModels.count else { return nil }
-        return imageViewModels[currentIndex]
-    }
-    
     func pickedColumn(_ index: Int) {
         mode.selectedColumnIndex = index
         withAnimation {
             selectedImageTexts = mode.selectedImageTexts
         }
-    }
-    
-    var currentScanResult: ScanResult? {
-        currentImageViewModel?.scanResult
     }
     
     func tappedConfirmAutoFill() {
@@ -95,19 +82,6 @@ class TextPickerViewModel: ObservableObject {
             isUserInitiated: true
         )
         shouldDismiss = true
-    }
-    
-//    func removeFocusedBoxAfterDelay(forImageAt index: Int) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + (0.1)) {
-//            self.focusedBoxes[index] = nil
-//        }
-//    }
-    
-    var singleSelectedImageText: ImageText? {
-        guard selectedImageTexts.count == 1 else {
-            return nil
-        }
-        return selectedImageTexts.first
     }
     
     func selectedBoundingBox(forImageAt index: Int) -> CGRect? {
@@ -122,33 +96,6 @@ class TextPickerViewModel: ObservableObject {
             return singleSelectedImageText.boundingBoxWithAttribute
         } else {
             return singleSelectedImageText.boundingBox
-        }
-    }
-    
-    func pageWillChange(to index: Int) {
-        withAnimation {
-            currentIndex = index
-        }
-        
-//        for i in imageViewModels.indices {
-//            setDefaultZoomBox(forImageAt: i)
-//        }
-    }
-    
-    func pageDidChange(to index: Int) {
-        /// Now reset the focus box for all the other images
-        for i in imageViewModels.indices {
-            guard i != index else { continue }
-            setDefaultZoomBox(forImageAt: i)
-        }
-    }
-    
-    func boundingBox(forImageAt index: Int) -> CGRect {
-        if mode.isColumnSelection {
-            return mode.boundingBox(forImageWithId: imageViewModels[index].id) ?? .zero
-        } else {
-            return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
-//            return selectedBoundingBox(forImageAt: index) ?? .zero
         }
     }
     
@@ -183,30 +130,7 @@ class TextPickerViewModel: ObservableObject {
             imageId: imageViewModels[index].id
         )
         zoomBoxes[index] = zoomFocusedBox
-        
     }
-    
-    func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
-        let texts = texts(for: imageViewModel)
-        var textBoxes: [TextBox] = []
-        textBoxes = texts.map {
-            TextBox(
-                boundingBox: $0.boundingBox,
-                color: color(for: $0),
-                tapHandler: tapHandler(for: $0)
-            )
-        }
-        
-        textBoxes.append(
-            contentsOf: barcodes(for: imageViewModel).map {
-                TextBox(boundingBox: $0.boundingBox,
-                        color: color(for: $0),
-                        tapHandler: tapHandler(for: $0)
-                )
-        })
-        return textBoxes
-    }
-    
     func tapHandler(for barcode: RecognizedBarcode) -> (() -> ())? {
         nil
     }
@@ -309,16 +233,6 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
-    func shouldDismissAfterTappingDone() -> Bool {
-        if case .multiSelection(_, _, let handler) = mode {
-            handler(selectedImageTexts)
-            return true
-        } else if case .columnSelection(_, _, let selectedColumn, _, let selectionHandler) = mode {
-            return selectionHandler(selectedColumn)
-        }
-        return true
-    }
-    
     func tappedDismiss() {
         if case .columnSelection(_, _, _, let dismissHandler, _) = mode {
             dismissHandler()
@@ -364,6 +278,24 @@ class TextPickerViewModel: ObservableObject {
 //        }
     }
     
+}
+
+//MARK: - Pager Related
+extension TextPickerViewModel {
+    func pageWillChange(to index: Int) {
+        withAnimation {
+            currentIndex = index
+        }
+    }
+    
+    func pageDidChange(to index: Int) {
+        /// Now reset the focus box for all the other images
+        for i in imageViewModels.indices {
+            guard i != index else { continue }
+            setDefaultZoomBox(forImageAt: i)
+        }
+    }
+    
     func page(toImageAt index: Int) {
         /// **We can't do this here, because it doesn't exist yet**
 //        setDefaultZoomBox(forImageAt: index)
@@ -387,6 +319,72 @@ class TextPickerViewModel: ObservableObject {
         }
     }
     
+}
+
+//MARK: - Convenience
+extension TextPickerViewModel {
+    
+    var columnCountForCurrentImage: Int {
+        currentImageViewModel?.scanResult?.columnCount ?? 0
+    }
+    
+    var currentImageViewModel: ImageViewModel? {
+        guard currentIndex < imageViewModels.count else { return nil }
+        return imageViewModels[currentIndex]
+    }
+    
+    var currentScanResult: ScanResult? {
+        currentImageViewModel?.scanResult
+    }
+    
+    var singleSelectedImageText: ImageText? {
+        guard selectedImageTexts.count == 1 else {
+            return nil
+        }
+        return selectedImageTexts.first
+    }
+    
+    func boundingBox(forImageAt index: Int) -> CGRect {
+        if mode.isColumnSelection {
+            return mode.boundingBox(forImageWithId: imageViewModels[index].id) ?? .zero
+        } else {
+            return selectedBoundingBox(forImageAt: index) ?? imageViewModels[index].relevantBoundingBox
+        }
+    }
+    
+    func textBoxes(for imageViewModel: ImageViewModel) -> [TextBox] {
+        let texts = texts(for: imageViewModel)
+        var textBoxes: [TextBox] = []
+        textBoxes = texts.map {
+            TextBox(
+                boundingBox: $0.boundingBox,
+                color: color(for: $0),
+                tapHandler: tapHandler(for: $0)
+            )
+        }
+        
+        textBoxes.append(
+            contentsOf: barcodes(for: imageViewModel).map {
+                TextBox(boundingBox: $0.boundingBox,
+                        color: color(for: $0),
+                        tapHandler: tapHandler(for: $0)
+                )
+        })
+        return textBoxes
+    }
+    
+    func shouldDismissAfterTappingDone() -> Bool {
+        if case .multiSelection(_, _, let handler) = mode {
+            handler(selectedImageTexts)
+            return true
+        } else if case .columnSelection(_, _, let selectedColumn, _, let selectionHandler) = mode {
+            return selectionHandler(selectedColumn)
+        }
+        return true
+    }
+    
+
+
     func barcodes(for imageViewModel: ImageViewModel) -> [RecognizedBarcode] {
         guard mode.filter?.includesBarcodes == true else {
             return []

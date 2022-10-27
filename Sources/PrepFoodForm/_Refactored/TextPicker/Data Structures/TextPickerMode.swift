@@ -27,6 +27,7 @@ extension TextPickerFilter {
         }
     }
 }
+
 extension TextPickerMode {
     
     func boundingBox(forImageWithId imageId: UUID) -> CGRect? {
@@ -179,40 +180,6 @@ extension TextPickerMode {
             return imageViewModels.firstIndex(where: { $0.id == first.imageId }) ?? 0
         case .columnSelection:
             return 0
-        }
-    }
-}
-
-enum TextPickerFilter {
-    case allTextsAndBarcodes
-    case allTexts
-    case textsWithDensities
-    case textsWithFoodLabelValues
-    case textsWithoutFoodLabelValues
-    case textsInColumn1
-    case textsInColumn2
-}
-
-typealias SingleSelectionHandler = ((ImageText) -> ())
-typealias MultiSelectionHandler = (([ImageText]) -> ())
-typealias ColumnSelectionHandler = ((Int) -> (Bool))
-typealias DeleteImageHandler = ((Int) -> ())
-typealias DismissHandler = (() -> ())
-
-struct TextColumn {
-    let column: Int
-    let name: String
-    let imageTexts: [ImageText]
-    
-    func containsTexts(from imageViewModel: ImageViewModel) -> Bool {
-        imageTexts.contains {
-            $0.imageId == imageViewModel.id
-        }
-    }
-    
-    func contains(_ text: RecognizedText) -> Bool {
-        imageTexts.contains {
-            $0.text.id == text.id
         }
     }
 }
