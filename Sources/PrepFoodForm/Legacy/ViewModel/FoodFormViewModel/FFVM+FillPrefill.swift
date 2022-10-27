@@ -102,13 +102,13 @@ extension FoodFormViewModel {
     func prefillDetails(from food: MFPProcessedFood) {
         /// We only ever prefill it at the beginning, so we can be sure there aren't any user-input values already
         if let fieldValue = food.nameFieldValue {
-            nameViewModel.fieldValue = fieldValue
+            nameViewModel.value = fieldValue
         }
         if let fieldValue = food.detailFieldValue {
-            detailViewModel.fieldValue = fieldValue
+            detailViewModel.value = fieldValue
         }
         if let fieldValue = food.brandFieldValue {
-            brandViewModel.fieldValue = fieldValue
+            brandViewModel.value = fieldValue
         }
     }
 
@@ -119,7 +119,7 @@ extension FoodFormViewModel {
     }
     
     func prefillSize(_ processedSize: MFPProcessedFood.Size) {
-        let fieldViewModel: FieldViewModel = .init(fieldValue: processedSize.fieldValue)
+        let fieldViewModel: Field = .init(fieldValue: processedSize.fieldValue)
         if processedSize.isVolumePrefixed {
             addVolumePrefixedSizeViewModel(fieldViewModel)
         } else {
@@ -128,7 +128,7 @@ extension FoodFormViewModel {
     }
     
     func prefillSize(_ size: FormSize) {
-        let fieldViewModel: FieldViewModel = .init(fieldValue: size.fieldValue)
+        let fieldViewModel: Field = .init(fieldValue: size.fieldValue)
         if size.isVolumePrefixed {
             addVolumePrefixedSizeViewModel(fieldViewModel)
         } else {
@@ -156,7 +156,7 @@ extension FoodFormViewModel {
 //            prefillSize(size)
 //        }
         
-        amountViewModel.fieldValue = fieldValue
+        amountViewModel.value = fieldValue
     }
     
     func prefillServing(from food: MFPProcessedFood) {
@@ -189,16 +189,16 @@ extension FoodFormViewModel {
                 else {
                     continue
                 }
-                let fieldViewModel = FieldViewModel(fieldValue: fieldValue)
+                let fieldViewModel = Field(fieldValue: fieldValue)
                 micronutrients[groupIndex].fieldViewModels[index].copyData(from: fieldViewModel)
             }
         }
     }
 }
 
-extension FieldViewModel {
+extension Field {
     var nutrientType: NutrientType? {
-        fieldValue.microValue.nutrientType
+        value.microValue.nutrientType
     }
 }
 

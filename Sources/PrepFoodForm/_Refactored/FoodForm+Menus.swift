@@ -21,10 +21,10 @@ extension FoodForm {
             BottomMenuAction(title: "Scan a Food Label",
                              systemImage: "text.viewfinder",
                              tapHandler: { showingFoodLabelCamera = true }),
-            BottomMenuAction(title: "Take Photo\(sourcesViewModel.pluralS)",
+            BottomMenuAction(title: "Take Photo\(sources.pluralS)",
                              systemImage: "camera",
                              tapHandler: { showingCamera = true }),
-            BottomMenuAction(title: "Choose Photo\(sourcesViewModel.pluralS)",
+            BottomMenuAction(title: "Choose Photo\(sources.pluralS)",
                              systemImage: "photo.on.rectangle",
                              tapHandler: { showingPhotosPicker = true }),
         ])
@@ -41,7 +41,7 @@ extension FoodForm {
             role: .destructive,
             tapHandler: {
                 withAnimation {
-                    sourcesViewModel.removeLink()
+                    sources.removeLink()
                 }
             }
         ))
@@ -59,7 +59,7 @@ extension FoodForm {
                 textInputIsValid: textInputIsValidHandler,
                 textInputHandler:
                     { string in
-                        sourcesViewModel.linkInfo = LinkInfo(string)
+                        sources.linkInfo = LinkInfo(string)
                     }
             )
         )

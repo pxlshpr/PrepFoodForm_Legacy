@@ -6,9 +6,9 @@ extension FoodForm {
     
     @ViewBuilder
     var columnPicker: some View {
-        if let columnSelectionInfo = sourcesViewModel.columnSelectionInfo {
+        if let columnSelectionInfo = sources.columnSelectionInfo {
             TextPicker(
-                imageViewModels: sourcesViewModel.imageViewModels(for: columnSelectionInfo),
+                imageViewModels: sources.imageViewModels(for: columnSelectionInfo),
                 mode: .columnSelection(
                     column1: columnSelectionInfo.column1,
                     column2: columnSelectionInfo.column2,

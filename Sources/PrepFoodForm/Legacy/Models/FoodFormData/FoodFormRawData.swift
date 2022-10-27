@@ -28,21 +28,21 @@ struct FoodFormRawData: Codable {
     init?(_ ffvm: FoodFormViewModel) {
         guard ffvm.isValid else { return nil }
         
-        self.name = ffvm.nameViewModel.fieldValue
-        self.emoji = ffvm.emojiViewModel.fieldValue
-        self.detail = ffvm.detailViewModel.fieldValue
-        self.brand = ffvm.brandViewModel.fieldValue
-        self.amount = ffvm.amountViewModel.fieldValue
-        self.serving = ffvm.servingViewModel.fieldValue
-        self.energy = ffvm.energyViewModel.fieldValue
-        self.carb = ffvm.carbViewModel.fieldValue
-        self.fat = ffvm.fatViewModel.fieldValue
-        self.protein = ffvm.proteinViewModel.fieldValue
-        self.density = ffvm.densityViewModel.fieldValue
+        self.name = ffvm.nameViewModel.value
+        self.emoji = ffvm.emojiViewModel.value
+        self.detail = ffvm.detailViewModel.value
+        self.brand = ffvm.brandViewModel.value
+        self.amount = ffvm.amountViewModel.value
+        self.serving = ffvm.servingViewModel.value
+        self.energy = ffvm.energyViewModel.value
+        self.carb = ffvm.carbViewModel.value
+        self.fat = ffvm.fatViewModel.value
+        self.protein = ffvm.proteinViewModel.value
+        self.density = ffvm.densityViewModel.value
         
-        self.sizes = ffvm.allSizeViewModels.map { $0.fieldValue }
-        self.barcodes = ffvm.barcodeViewModels.map { $0.fieldValue }
-        self.micronutrients = ffvm.allIncludedMicronutrientFieldViewModels.map { $0.fieldValue }
+        self.sizes = ffvm.allSizeViewModels.map { $0.value }
+        self.barcodes = ffvm.barcodeViewModels.map { $0.value }
+        self.micronutrients = ffvm.allIncludedMicronutrientFieldViewModels.map { $0.value }
         
         self.link = ffvm.linkInfo?.urlString
         self.prefilledFood = ffvm.prefilledFood

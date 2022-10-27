@@ -6,13 +6,13 @@ struct AmountForm: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     
-    @ObservedObject var existingFieldViewModel: FieldViewModel
-    @StateObject var fieldViewModel: FieldViewModel
+    @ObservedObject var existingFieldViewModel: Field
+    @StateObject var fieldViewModel: Field
 
     @State var showingUnitPicker = false
     @State var showingAddSizeForm = false
 
-    init(existingFieldViewModel: FieldViewModel) {
+    init(existingFieldViewModel: Field) {
         self.existingFieldViewModel = existingFieldViewModel
         
         let fieldViewModel = existingFieldViewModel
@@ -39,7 +39,7 @@ struct AmountForm: View {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(fieldViewModel.fieldValue.doubleValue.unit.shortDescription)
+                Text(fieldViewModel.value.doubleValue.unit.shortDescription)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
@@ -49,7 +49,7 @@ struct AmountForm: View {
 
     var unitPicker: some View {
         UnitPicker(
-            pickedUnit: fieldViewModel.fieldValue.doubleValue.unit
+            pickedUnit: fieldViewModel.value.doubleValue.unit
         ) {
             showingAddSizeForm = true
         } didPickUnit: { unit in
@@ -62,7 +62,7 @@ struct AmountForm: View {
     var addSizeForm: some View {
         SizeForm(includeServing: false, allowAddSize: false) { sizeViewModel in
             guard let size = sizeViewModel.size else { return }
-            fieldViewModel.fieldValue.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+            fieldViewModel.value.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 Haptics.feedback(style: .rigid)
                 showingUnitPicker = false
@@ -90,7 +90,7 @@ struct AmountForm: View {
     }
     
     func setAmount(_ amount: Double) {
-        fieldViewModel.fieldValue.doubleValue.double = amount
+        fieldViewModel.value.doubleValue.double = amount
     }
     
     func didSave() {
@@ -98,11 +98,11 @@ struct AmountForm: View {
     }
     
     func setUnit(_ unit: FormUnit) {
-        fieldViewModel.fieldValue.doubleValue.unit = unit
+        fieldViewModel.value.doubleValue.unit = unit
     }
     
     var headerString: String {
-        switch fieldViewModel.fieldValue.doubleValue.unit {
+        switch fieldViewModel.value.doubleValue.unit {
         case .serving:
             return "Servings"
         case .weight:

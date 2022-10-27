@@ -39,13 +39,13 @@ extension FoodForm_Legacy.DetailsForm {
 //                TextField("Optional", text: $brand)
 //            }
             Section("Name") {
-                TextField("Required", text: $viewModel.nameViewModel.fieldValue.string)
+                TextField("Required", text: $viewModel.nameViewModel.value.string)
             }
             Section("Detail") {
-                TextField("Optional", text: $viewModel.detailViewModel.fieldValue.string)
+                TextField("Optional", text: $viewModel.detailViewModel.value.string)
             }
             Section("Brand") {
-                TextField("Optional", text: $viewModel.brandViewModel.fieldValue.string)
+                TextField("Optional", text: $viewModel.brandViewModel.value.string)
             }
         }
     }
@@ -65,7 +65,7 @@ extension FoodForm_Legacy.DetailsForm {
         }
     }
     
-    func form(for fieldViewModel: FieldViewModel) -> some View {
+    func form(for fieldViewModel: Field) -> some View {
         StringFieldValueForm(existingFieldViewModel: fieldViewModel)
             .environmentObject(viewModel)
     }
@@ -77,11 +77,11 @@ extension FoodForm_Legacy.DetailsForm {
 //            form(for: nameViewModel)
         } label: {
             HStack {
-                if viewModel.nameViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.nameViewModel.value.stringValue.string.isEmpty {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
                 } else {
-                    Text(viewModel.nameViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.nameViewModel.value.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -96,11 +96,11 @@ extension FoodForm_Legacy.DetailsForm {
             form(for: viewModel.detailViewModel)
         } label: {
             HStack {
-                if viewModel.detailViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.detailViewModel.value.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(viewModel.detailViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.detailViewModel.value.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -115,11 +115,11 @@ extension FoodForm_Legacy.DetailsForm {
             form(for: viewModel.brandViewModel)
         } label: {
             HStack {
-                if viewModel.brandViewModel.fieldValue.stringValue.string.isEmpty {
+                if viewModel.brandViewModel.value.stringValue.string.isEmpty {
                     Text("Optional")
                         .foregroundColor(Color(.quaternaryLabel))
                 } else {
-                    Text(viewModel.brandViewModel.fieldValue.stringValue.string)
+                    Text(viewModel.brandViewModel.value.stringValue.string)
                         .foregroundColor(.primary)
                         .multilineTextAlignment(.leading)
                 }
@@ -131,11 +131,11 @@ extension FoodForm_Legacy.DetailsForm {
     
     var emojiCell: some View {
         Group {
-            if viewModel.emojiViewModel.fieldValue.isEmpty {
+            if viewModel.emojiViewModel.value.isEmpty {
                 Text("Required")
                     .foregroundColor(Color(.tertiaryLabel))
             } else {
-                Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
+                Text(viewModel.emojiViewModel.value.stringValue.string)
                     .font(Font.system(size: 50.0))
             }
         }
@@ -172,7 +172,7 @@ struct DetailForm: View {
         Form {
             Section {
                 HStack {
-                    TextField("Optional", text: $viewModel.detailViewModel.fieldValue.stringValue.string)
+                    TextField("Optional", text: $viewModel.detailViewModel.value.stringValue.string)
                         .focused($isFocused)
                         .onSubmit {
                             dismiss()
@@ -198,7 +198,7 @@ struct BrandForm: View {
         Form {
             Section {
                 HStack {
-                    TextField("Optional", text: $viewModel.brandViewModel.fieldValue.stringValue.string)
+                    TextField("Optional", text: $viewModel.brandViewModel.value.stringValue.string)
                         .focused($isFocused)
                         .onSubmit {
                             dismiss()

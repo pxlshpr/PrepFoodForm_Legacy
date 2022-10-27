@@ -1,67 +1,67 @@
 import SwiftUI
 import FoodLabelScanner
 
-class FieldViewModel: ObservableObject, Identifiable {
+class Field: ObservableObject, Identifiable {
     @Published var id = UUID()
-    @Published var fieldValue: FieldValue
+    @Published var value: FieldValue
     
-    @Published var imageToDisplay: UIImage? = nil
-    @Published var isCroppingNextImage: Bool = false
+    @Published var image: UIImage? = nil
+    @Published var isCropping: Bool = false
 
     init(fieldValue: FieldValue) {
-        self.fieldValue = fieldValue
+        self.value = fieldValue
     }
     
     func fillScannedFieldValue(_ fieldValue: FieldValue) {
-        self.fieldValue = fieldValue
+        self.value = fieldValue
         resetAndCropImage()
     }
 
     //MARK: - Fill Manipulation
     
     func registerUserInput() {
-        fieldValue.fill = .userInput
-        imageToDisplay = nil
+        value.fill = .userInput
+        image = nil
     }
     
     func registerDiscardedScan() {
-        fieldValue.fill = .discardable
-        imageToDisplay = nil
+        value.fill = .discardable
+        image = nil
     }
     
     func registerDiscardScanIfUsingImage(withId id: UUID) {
-        if fieldValue.fill.usesImage(with: id) {
+        if value.fill.usesImage(with: id) {
             registerDiscardedScan()
         }
     }
     
     func assignNewScannedFill(_ fill: Fill) {
-        let previousFill = fieldValue.fill
-        fieldValue.fill = fill
+        let previousFill = value.fill
+        value.fill = fill
 
         if fill.text?.id != previousFill.text?.id {
-            isCroppingNextImage = true
+            isCropping = true
             cropFilledImage()
         }
     }
     
     //MARK: - Image Cropping
     func resetAndCropImage() {
-        imageToDisplay = nil
-        isCroppingNextImage = true
+        image = nil
+        isCropping = true
         cropFilledImage()
     }
     
     func cropFilledImage() {
-        guard fieldValue.fill.usesImage else {
+        guard value.fill.usesImage else {
             withAnimation {
-                imageToDisplay = nil
+                image = nil
             }
             return
         }
         Task {
-            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: fieldValue.fill) else {
-                print("⚠️ Couldn't get cropped image for: \(self.fieldValue.description)")
+            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: value.fill) else {
+                print("⚠️ Couldn't get cropped image for: \(self.value.description)")
                 return
             }
 
@@ -69,9 +69,9 @@ class FieldViewModel: ObservableObject, Identifiable {
             
             await MainActor.run {
                 withAnimation {
-                    print("✂️ Got cropped image for: \(self.fieldValue.description)")
-                    self.imageToDisplay = croppedImage
-                    self.isCroppingNextImage = false
+                    print("✂️ Got cropped image for: \(self.value.description)")
+                    self.image = croppedImage
+                    self.isCropping = false
                 }
             }
         }
@@ -79,26 +79,26 @@ class FieldViewModel: ObservableObject, Identifiable {
     
     //MARK: - Copying
     
-    var copy: FieldViewModel {
-        let new = FieldViewModel(fieldValue: fieldValue)
+    var copy: Field {
+        let new = Field(fieldValue: value)
         new.copyData(from: self)
         return new
     }
     
-    func copyData(from fieldViewModel: FieldViewModel) {
-        fieldValue = fieldViewModel.fieldValue
+    func copyData(from fieldViewModel: Field) {
+        value = fieldViewModel.value
         
-        if fieldValue.fill.usesImage {
+        if value.fill.usesImage {
             /// If the the image is still being cropped—do the crop ourselves instead of setting it here incorrectly
-            if fieldViewModel.isCroppingNextImage {
-                isCroppingNextImage = true
+            if fieldViewModel.isCropping {
+                isCropping = true
                 cropFilledImage()
             } else {
-                imageToDisplay = fieldViewModel.imageToDisplay
-                isCroppingNextImage = false
+                image = fieldViewModel.image
+                isCropping = false
             }
 
-        } else if fieldValue.fill.isPrefill {
+        } else if value.fill.isPrefill {
 //            prefillUrl = FoodFormViewModel.shared.prefilledFood?.sourceUrl
         }
     }
@@ -106,7 +106,7 @@ class FieldViewModel: ObservableObject, Identifiable {
     //MARK: - Convenience
     
     var isValid: Bool {
-        switch fieldValue {
+        switch value {
         case .size(let sizeValue):
             return sizeValue.size.isValid
         default:
@@ -115,7 +115,7 @@ class FieldViewModel: ObservableObject, Identifiable {
     }
     
     func contains(_ fieldString: PrefillFieldString) -> Bool {
-        guard case .prefill(let info) = fieldValue.fill else {
+        guard case .prefill(let info) = value.fill else {
             return false
         }
         return info.fieldStrings.contains(fieldString)
@@ -126,39 +126,39 @@ class FieldViewModel: ObservableObject, Identifiable {
     }
     
     func toggleComponentText(_ componentText: ComponentText) {
-        if fieldValue.contains(componentText: componentText) {
-            fieldValue.fill.removeComponentText(componentText)
+        if value.contains(componentText: componentText) {
+            value.fill.removeComponentText(componentText)
         } else {
-            fieldValue.fill.appendComponentText(componentText)
+            value.fill.appendComponentText(componentText)
         }
     }
     
     func toggle(_ fieldString: PrefillFieldString) {
         if contains(fieldString) {
-            fieldValue.fill.removePrefillFieldString(fieldString)
+            value.fill.removePrefillFieldString(fieldString)
         } else {
-            fieldValue.fill.appendPrefillFieldString(fieldString)
+            value.fill.appendPrefillFieldString(fieldString)
         }
     }
 
 }
 
-extension FieldViewModel: Hashable {
+extension Field: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(fieldValue)
-        hasher.combine(imageToDisplay)
-        hasher.combine(isCroppingNextImage)
+        hasher.combine(value)
+        hasher.combine(image)
+        hasher.combine(isCropping)
     }
 }
 
-extension FieldViewModel: Equatable {
-    static func ==(lhs: FieldViewModel, rhs: FieldViewModel) -> Bool {
+extension Field: Equatable {
+    static func ==(lhs: Field, rhs: Field) -> Bool {
 //        lhs.hashValue == rhs.hashValue
         lhs.id == rhs.id
-        && lhs.fieldValue == rhs.fieldValue
-        && lhs.imageToDisplay == rhs.imageToDisplay
-        && lhs.isCroppingNextImage == rhs.isCroppingNextImage
+        && lhs.value == rhs.value
+        && lhs.image == rhs.image
+        && lhs.isCropping == rhs.isCropping
 //        && lhs.prefillUrl == rhs.prefillUrl
 //        && lhs.isPrefilled == rhs.isPrefilled
     }

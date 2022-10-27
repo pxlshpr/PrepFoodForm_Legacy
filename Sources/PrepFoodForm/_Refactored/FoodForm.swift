@@ -15,11 +15,10 @@ public struct FoodForm: View {
     @State var brand: String = ""
     
     @State var fieldValues: [FieldValue] = [.energy()]
-//    @State var energy: FieldValue = .energy()
-    
+
     /// ViewModels
-    @StateObject var fieldsViewModel = FieldsViewModel()
-    @StateObject var sourcesViewModel = SourcesViewModel()
+    @StateObject var fields = Fields()
+    @StateObject var sources = Sources()
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -54,17 +53,17 @@ public struct FoodForm: View {
                 .navigationTitle("New Food")
                 .toolbar { navigationLeadingContent }
                 .onAppear(perform: appeared)
-                .onChange(of: sourcesViewModel.selectedPhotos, perform: sourcesViewModel.selectedPhotosChanged)
+                .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
                 .fullScreenCover(isPresented: $showingColumnPicker) { columnPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
-                    selection: $sourcesViewModel.selectedPhotos,
-                    maxSelectionCount: sourcesViewModel.availableImagesCount,
+                    selection: $sources.selectedPhotos,
+                    maxSelectionCount: sources.availableImagesCount,
                     matching: .images
                 )
-                .onChange(of: sourcesViewModel.columnSelectionInfo) { columnSelectionInfo in
+                .onChange(of: sources.columnSelectionInfo) { columnSelectionInfo in
                     if columnSelectionInfo != nil {
                         self.showingColumnPicker = true
                     }

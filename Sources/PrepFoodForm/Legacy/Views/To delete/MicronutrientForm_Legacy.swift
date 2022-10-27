@@ -1,10 +1,10 @@
 import SwiftUI
 struct MicronutrientForm_Legacy: View {
-    @Binding var fieldViewModel: FieldViewModel
+    @Binding var fieldViewModel: Field
     @State var isBeingEdited: Bool
     var didSubmit: ((FieldValue) -> ())
     
-    init(fieldViewModel: Binding<FieldViewModel>, isBeingEdited: Bool = false, didSubmit: @escaping ((FieldValue) -> ())) {
+    init(fieldViewModel: Binding<Field>, isBeingEdited: Bool = false, didSubmit: @escaping ((FieldValue) -> ())) {
         _fieldViewModel = fieldViewModel
         _isBeingEdited = State(initialValue: isBeingEdited)
         self.didSubmit = didSubmit

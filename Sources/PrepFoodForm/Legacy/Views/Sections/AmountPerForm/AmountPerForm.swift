@@ -8,7 +8,7 @@ public struct AmountPerForm: View {
     @State var showingAddSizeForm = false
     @State var showingDensityForm = false
     
-    @State var sizeToEdit: FieldViewModel?
+    @State var sizeToEdit: Field?
 
     @State var refreshBool: Bool = false
 
@@ -41,7 +41,7 @@ public struct AmountPerForm: View {
             }
     }
     
-    func sizeForm(for sizeViewModel: FieldViewModel) -> some View {
+    func sizeForm(for sizeViewModel: Field) -> some View {
         SizeForm(fieldViewModel: sizeViewModel) { sizeViewModel in
             
         }
@@ -60,7 +60,7 @@ public struct AmountPerForm: View {
         
         var footer: some View {
             Text("How much of this food the nutrition facts are for.")
-                .foregroundColor(viewModel.amountViewModel.fieldValue.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+                .foregroundColor(viewModel.amountViewModel.value.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
         }
         
 //        return Section(footer: footer) {

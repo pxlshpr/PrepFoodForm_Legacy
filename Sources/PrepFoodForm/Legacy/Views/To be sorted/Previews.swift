@@ -11,7 +11,7 @@ public struct FillOptionSectionsPreview: View {
     public init() {
         let viewModel = FoodFormViewModel.mock
         _viewModel = StateObject(wrappedValue: viewModel)
-        _string = State(initialValue: viewModel.energyViewModel.fieldValue.energyValue.string)
+        _string = State(initialValue: viewModel.energyViewModel.value.energyValue.string)
     }
     
     var fieldSection: some View {
@@ -49,12 +49,12 @@ public struct FillOptionSectionsPreview: View {
 //            form
             scrollView
         }
-        .onChange(of: viewModel.energyViewModel.fieldValue.energyValue.double) { newValue in
+        .onChange(of: viewModel.energyViewModel.value.energyValue.double) { newValue in
             string = newValue?.cleanAmount ?? ""
         }
         .onChange(of: string) { newValue in
             withAnimation {
-                viewModel.energyViewModel.fieldValue.energyValue.fill = .userInput
+                viewModel.energyViewModel.value.energyValue.fill = .userInput
             }
         }
     }
@@ -100,7 +100,7 @@ public struct FillOptionsGridPreview: View {
     public init() {
         let viewModel = FoodFormViewModel.mock
         _viewModel = StateObject(wrappedValue: viewModel)
-        _string = State(initialValue: viewModel.energyViewModel.fieldValue.energyValue.string)
+        _string = State(initialValue: viewModel.energyViewModel.value.energyValue.string)
     }
     
     public var body: some View {
@@ -120,7 +120,7 @@ public struct FillOptionsGridPreview: View {
             .navigationBarTitleDisplayMode(.large)
         }
         .onAppear {
-            fillOptions = viewModel.fillOptions(for: viewModel.energyViewModel.fieldValue)
+            fillOptions = viewModel.fillOptions(for: viewModel.energyViewModel.value)
         }
     }
     

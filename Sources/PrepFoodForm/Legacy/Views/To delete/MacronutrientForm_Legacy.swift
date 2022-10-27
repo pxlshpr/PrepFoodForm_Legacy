@@ -1,6 +1,6 @@
 import SwiftUI
 struct MacronutrientForm_Legacy: View {
-    @Binding var fieldViewModel: FieldViewModel
+    @Binding var fieldViewModel: Field
     var body: some View {
         Color.blue
     }

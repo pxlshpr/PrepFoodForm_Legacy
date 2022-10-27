@@ -34,59 +34,59 @@ extension MFPFoodView {
 
 //MARK: - ViewModel: FoodLabelDataSource
 
-extension MFPFoodView.ViewModel: FoodLabelDataSource {
-    var amountPerString: String {
-        guard let processedFood else {
-            return "1 serving"
-        }
-        let amountDescription = processedFood.amountDescription.lowercased()
-        
-        if processedFood.amountUnit == .serving, let servingDescription = processedFood.servingDescription {
-            if case .size = processedFood.servingUnit {
-                return servingDescription.lowercased()
-            } else {
-                return "\(amountDescription) (\(servingDescription.lowercased()))"
-            }
-//            let servingUnit = processedFood.servingUnit,
-//            servingUnit.isNotSize,
-        } else {
-            return amountDescription
-        }
-    }
-    
-    var energyValue: FoodLabelValue {
-        FoodLabelValue(amount: processedFood?.energy ?? 0, unit: .kcal)
-    }
-    
-    var carbAmount: Double {
-        processedFood?.carbohydrate ?? 0
-    }
-    
-    var fatAmount: Double {
-        processedFood?.fat ?? 0
-    }
-    
-    var proteinAmount: Double {
-        processedFood?.protein ?? 0
-    }
-    
-    var nutrients: [NutrientType : Double] {
-        guard let nutrients = processedFood?.nutrients else {
-            return [:]
-        }
-        return nutrients.reduce(into: [NutrientType: Double]()) {
-            $0[$1.type] = $1.amount
-        }
-    }
-    
-    var showFooterText: Bool {
-        false
-    }
-    
-    var showRDAValues: Bool {
-        true
-    }
-}
+//extension MFPFoodView.ViewModel: FoodLabelDataSource {
+//    var amountPerString: String {
+//        guard let processedFood else {
+//            return "1 serving"
+//        }
+//        let amountDescription = processedFood.amountDescription.lowercased()
+//        
+//        if processedFood.amountUnit == .serving, let servingDescription = processedFood.servingDescription {
+//            if case .size = processedFood.servingUnit {
+//                return servingDescription.lowercased()
+//            } else {
+//                return "\(amountDescription) (\(servingDescription.lowercased()))"
+//            }
+////            let servingUnit = processedFood.servingUnit,
+////            servingUnit.isNotSize,
+//        } else {
+//            return amountDescription
+//        }
+//    }
+//    
+//    var energyValue: FoodLabelValue {
+//        FoodLabelValue(amount: processedFood?.energy ?? 0, unit: .kcal)
+//    }
+//    
+//    var carbAmount: Double {
+//        processedFood?.carbohydrate ?? 0
+//    }
+//    
+//    var fatAmount: Double {
+//        processedFood?.fat ?? 0
+//    }
+//    
+//    var proteinAmount: Double {
+//        processedFood?.protein ?? 0
+//    }
+//    
+//    var nutrients: [NutrientType : Double] {
+//        guard let nutrients = processedFood?.nutrients else {
+//            return [:]
+//        }
+//        return nutrients.reduce(into: [NutrientType: Double]()) {
+//            $0[$1.type] = $1.amount
+//        }
+//    }
+//    
+//    var showFooterText: Bool {
+//        false
+//    }
+//    
+//    var showRDAValues: Bool {
+//        true
+//    }
+//}
 
 //MARK: - ViewModel
 extension MFPFoodView.ViewModel {

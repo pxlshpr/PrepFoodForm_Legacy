@@ -5,9 +5,9 @@ import FoodLabelScanner
 import PrepDataTypes
 import PrepNetworkController
 
-extension FieldViewModel {
+extension Field {
     var string: String {
-        fieldValue.string
+        value.string
     }
     
     var stringIfNotEmpty: String? {

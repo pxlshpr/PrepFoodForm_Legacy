@@ -1,13 +1,13 @@
 import Foundation
 import PrepDataTypes
 
-extension FieldViewModel {
+extension Field {
     var size: FormSize? {
-        fieldValue.size
+        value.size
     }
 
     var fill: Fill {
-        fieldValue.fill
+        value.fill
     }
 
     var sizeVolumePrefixString: String {
@@ -38,7 +38,7 @@ extension FieldViewModel {
             }
             var newSize = size
             newSize.amountString = newValue
-            self.fieldValue = .size(.init(size: newSize, fill: fieldValue.fill))
+            self.value = .size(.init(size: newSize, fill: value.fill))
         }
     }
     var sizeVolumePrefixUnit: FormUnit {
@@ -55,7 +55,7 @@ extension FieldViewModel {
             }
             var newSize = size
             newSize.quantityString = newValue
-            self.fieldValue = .size(.init(size: newSize, fill: fieldValue.fill))
+            self.value = .size(.init(size: newSize, fill: value.fill))
         }
     }
     
@@ -68,7 +68,7 @@ extension FieldViewModel {
             var newSize = size
             newSize.quantity = newValue
             newSize.quantityString = newValue.cleanAmount
-            self.fieldValue = .size(.init(size: newSize, fill: fieldValue.fill))
+            self.value = .size(.init(size: newSize, fill: value.fill))
         }
     }
     
@@ -80,7 +80,7 @@ extension FieldViewModel {
             guard let size = self.size else { return }
             var newSize = size
             newSize.unit = newValue
-            self.fieldValue = .size(.init(size: newSize, fill: fieldValue.fill))
+            self.value = .size(.init(size: newSize, fill: value.fill))
         }
     }
     

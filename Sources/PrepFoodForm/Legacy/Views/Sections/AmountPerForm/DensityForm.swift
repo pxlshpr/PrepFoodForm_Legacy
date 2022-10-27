@@ -10,8 +10,8 @@ struct DensityForm: View {
     }
     
     @EnvironmentObject var viewModel: FoodFormViewModel
-    @ObservedObject var existingDensityViewModel: FieldViewModel
-    @StateObject var densityViewModel: FieldViewModel
+    @ObservedObject var existingDensityViewModel: Field
+    @StateObject var densityViewModel: Field
 
     @Environment(\.dismiss) var dismiss
     
@@ -25,7 +25,7 @@ struct DensityForm: View {
     
     let weightFirst: Bool
     
-    init(densityViewModel: FieldViewModel, orderWeightFirst: Bool) {
+    init(densityViewModel: Field, orderWeightFirst: Bool) {
         
         self.existingDensityViewModel = densityViewModel
         _densityViewModel = StateObject(wrappedValue: densityViewModel)
@@ -67,19 +67,19 @@ struct DensityForm: View {
         }
         .sheet(isPresented: $showingWeightUnitPicker) {
             UnitPicker(
-                pickedUnit: densityViewModel.fieldValue.weight.unit,
+                pickedUnit: densityViewModel.value.weight.unit,
                 filteredType: .weight)
             { unit in
-                densityViewModel.fieldValue.weight.unit = unit
+                densityViewModel.value.weight.unit = unit
             }
             .environmentObject(viewModel)
         }
         .sheet(isPresented: $showingVolumeUnitPicker) {
             UnitPicker(
-                pickedUnit: densityViewModel.fieldValue.volume.unit,
+                pickedUnit: densityViewModel.value.volume.unit,
                 filteredType: .volume)
             { unit in
-                densityViewModel.fieldValue.volume.unit = unit
+                densityViewModel.value.volume.unit = unit
             }
             .environmentObject(viewModel)
         }
@@ -107,7 +107,7 @@ struct DensityForm: View {
                 })
         )
         .onDisappear {
-            guard densityViewModel.isCroppingNextImage else {
+            guard densityViewModel.isCropping else {
                 return
             }
             densityViewModel.cropFilledImage()
@@ -131,14 +131,14 @@ struct DensityForm: View {
         
         //Now set this fill on the density value
         setDensityValue(densityValue)
-        densityViewModel.fieldValue.fill = fill
-        densityViewModel.isCroppingNextImage = true
+        densityViewModel.value.fill = fill
+        densityViewModel.isCropping = true
     }
     
     func fill(for imageText: ImageText,
               with densityValue: FieldValue.DensityValue
     ) -> Fill {
-        if let fill = viewModel.firstScannedFill(for: densityViewModel.fieldValue, with: densityValue) {
+        if let fill = viewModel.firstScannedFill(for: densityViewModel.value, with: densityValue) {
             return fill
         } else {
             return .selection(.init(
@@ -205,10 +205,10 @@ struct DensityForm: View {
     }
 
     func setDensityValue(_ densityValue: FieldValue.DensityValue) {
-        densityViewModel.fieldValue.weight.double = densityValue.weight.double
-        densityViewModel.fieldValue.weight.unit = densityValue.weight.unit
-        densityViewModel.fieldValue.volume.double = densityValue.volume.double
-        densityViewModel.fieldValue.volume.unit = densityValue.volume.unit
+        densityViewModel.value.weight.double = densityValue.weight.double
+        densityViewModel.value.weight.unit = densityValue.weight.unit
+        densityViewModel.value.volume.double = densityValue.volume.double
+        densityViewModel.value.volume.unit = densityValue.volume.unit
     }
     
     func saveAndDismiss() {
@@ -293,14 +293,14 @@ struct DensityForm: View {
     
     var weightTextField: some View {
         let binding = Binding<String>(
-            get: { densityViewModel.fieldValue.weight.string },
+            get: { densityViewModel.value.weight.string },
             set: {
-                if !doNotRegisterUserInput, focusedField == .weight, $0 != densityViewModel.fieldValue.weight.string {
+                if !doNotRegisterUserInput, focusedField == .weight, $0 != densityViewModel.value.weight.string {
                     withAnimation {
                         densityViewModel.registerUserInput()
                     }
                 }
-                densityViewModel.fieldValue.weight.string = $0
+                densityViewModel.value.weight.string = $0
             }
         )
         
@@ -332,7 +332,7 @@ struct DensityForm: View {
             showingWeightUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(densityViewModel.fieldValue.weight.unitDescription)
+                Text(densityViewModel.value.weight.unitDescription)
 //                    Image(systemName: "chevron.up.chevron.down")
 //                        .imageScale(.small)
             }
@@ -344,14 +344,14 @@ struct DensityForm: View {
      
     var volumeTextField: some View {
         let binding = Binding<String>(
-            get: { densityViewModel.fieldValue.volume.string },
+            get: { densityViewModel.value.volume.string },
             set: {
-                if !doNotRegisterUserInput, focusedField == .volume, $0 != densityViewModel.fieldValue.volume.string {
+                if !doNotRegisterUserInput, focusedField == .volume, $0 != densityViewModel.value.volume.string {
                     withAnimation {
                         densityViewModel.registerUserInput()
                     }
                 }
-                densityViewModel.fieldValue.volume.string = $0
+                densityViewModel.value.volume.string = $0
             }
         )
         
@@ -370,7 +370,7 @@ struct DensityForm: View {
             showingVolumeUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(densityViewModel.fieldValue.volume.unitDescription)
+                Text(densityViewModel.value.volume.unitDescription)
 //                    Image(systemName: "chevron.up.chevron.down")
 //                        .imageScale(.small)
             }
@@ -453,7 +453,7 @@ struct DensityFormPreview: View {
     
     init() {
         let viewModel = FoodFormViewModel.shared
-        viewModel.densityViewModel.fieldValue = FieldValue.density(FieldValue.DensityValue(
+        viewModel.densityViewModel.value = FieldValue.density(FieldValue.DensityValue(
             weight: FieldValue.DoubleValue(double: 33, string: "33", unit: .weight(.g), fill: .userInput),
             volume: FieldValue.DoubleValue(double: 0.25, string: "0.25", unit: .volume(.cup), fill: .userInput),
             fill: .userInput))

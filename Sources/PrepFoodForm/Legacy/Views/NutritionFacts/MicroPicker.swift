@@ -79,12 +79,12 @@ public struct MicroPicker: View {
         let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
         var searchBool: Bool
         if !searchText.isEmpty {
-            searchBool = fieldViewModel.fieldValue.microValue.matchesSearchString(searchText)
+            searchBool = fieldViewModel.value.microValue.matchesSearchString(searchText)
         } else {
             searchBool = true
         }
         return Group {
-            if fieldViewModel.fieldValue.isEmpty, searchBool, let nutrientType = fieldViewModel.nutrientType {
+            if fieldViewModel.value.isEmpty, searchBool, let nutrientType = fieldViewModel.nutrientType {
                 nutrientButton(for: nutrientType)
             }
         }
@@ -235,15 +235,15 @@ extension FoodFormViewModel {
     func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int, matching searchString: String = "") -> Bool {
         micronutrients[index].fieldViewModels.contains(where: {
             if !searchString.isEmpty {
-                return $0.fieldValue.isEmpty && $0.fieldValue.microValue.matchesSearchString(searchString)
+                return $0.value.isEmpty && $0.value.microValue.matchesSearchString(searchString)
             } else {
-                return $0.fieldValue.isEmpty
+                return $0.value.isEmpty
             }
         })
     }
     
     func hasIncludedFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: { $0.fieldValue.microValue.isIncluded })
+        micronutrients[index].fieldViewModels.contains(where: { $0.value.microValue.isIncluded })
     }
 }
 

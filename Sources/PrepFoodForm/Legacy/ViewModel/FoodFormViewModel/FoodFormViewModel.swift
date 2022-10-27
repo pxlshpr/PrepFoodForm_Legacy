@@ -89,23 +89,23 @@ public class FoodFormViewModel: ObservableObject {
     var id = UUID()
 
     //MARK: - Food Details
-    @Published var nameViewModel: FieldViewModel = FieldViewModel(fieldValue: .name())
-    @Published var emojiViewModel: FieldViewModel = FieldViewModel(fieldValue: .emoji())
-    @Published var detailViewModel: FieldViewModel = FieldViewModel(fieldValue: .detail())
-    @Published var brandViewModel: FieldViewModel = FieldViewModel(fieldValue: .brand())
-    @Published var amountViewModel: FieldViewModel = FieldViewModel(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .discardable)))
-    @Published var servingViewModel: FieldViewModel = FieldViewModel(fieldValue: .serving())
-    @Published var energyViewModel: FieldViewModel = .init(fieldValue: .energy())
-    @Published var carbViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
-    @Published var fatViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
-    @Published var proteinViewModel: FieldViewModel = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
-    @Published var densityViewModel: FieldViewModel = FieldViewModel(fieldValue: FieldValue.density(FieldValue.DensityValue()))
+    @Published var nameViewModel: Field = Field(fieldValue: .name())
+    @Published var emojiViewModel: Field = Field(fieldValue: .emoji())
+    @Published var detailViewModel: Field = Field(fieldValue: .detail())
+    @Published var brandViewModel: Field = Field(fieldValue: .brand())
+    @Published var amountViewModel: Field = Field(fieldValue: .amount(FieldValue.DoubleValue(double: 1, string: "1", unit: .serving, fill: .discardable)))
+    @Published var servingViewModel: Field = Field(fieldValue: .serving())
+    @Published var energyViewModel: Field = .init(fieldValue: .energy())
+    @Published var carbViewModel: Field = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .carb)))
+    @Published var fatViewModel: Field = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .fat)))
+    @Published var proteinViewModel: Field = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
+    @Published var densityViewModel: Field = Field(fieldValue: FieldValue.density(FieldValue.DensityValue()))
 
-    @Published var standardSizeViewModels: [FieldViewModel] = []
-    @Published var volumePrefixedSizeViewModels: [FieldViewModel] = []
+    @Published var standardSizeViewModels: [Field] = []
+    @Published var volumePrefixedSizeViewModels: [Field] = []
     @Published var micronutrients: [MicroGroupTuple] = DefaultMicronutrients()
 
-    @Published var barcodeViewModels: [FieldViewModel] = []
+    @Published var barcodeViewModels: [Field] = []
 
     var scannedFieldValues: [FieldValue] = []
     
@@ -168,7 +168,7 @@ extension FoodFormViewModel {
                       nutrientTypes.contains(nutrientType) else {
                     continue
                 }
-                micronutrients[g].fieldViewModels[f].fieldValue.microValue.isIncluded = true
+                micronutrients[g].fieldViewModels[f].value.microValue.isIncluded = true
             }
         }
     }
@@ -180,10 +180,10 @@ extension FoodFormViewModel {
     
     func amountChanged() {
         updateShouldShowDensitiesSection()
-        if amountViewModel.fieldValue.doubleValue.unit != .serving {
-            servingViewModel.fieldValue.doubleValue.double = nil
-            servingViewModel.fieldValue.doubleValue.string = ""
-            servingViewModel.fieldValue.doubleValue.unit = .weight(.g)
+        if amountViewModel.value.doubleValue.unit != .serving {
+            servingViewModel.value.doubleValue.double = nil
+            servingViewModel.value.doubleValue.string = ""
+            servingViewModel.value.doubleValue.unit = .weight(.g)
         }
     }
     
@@ -196,27 +196,27 @@ extension FoodFormViewModel {
 //        }
     }
     var allMicronutrientFieldValues: [FieldValue] {
-        allMicronutrientFieldViewModels.map { $0.fieldValue }
+        allMicronutrientFieldViewModels.map { $0.value }
     }
 
-    var allMicronutrientFieldViewModels: [FieldViewModel] {
-        micronutrients.reduce([FieldViewModel]()) { partialResult, tuple in
+    var allMicronutrientFieldViewModels: [Field] {
+        micronutrients.reduce([Field]()) { partialResult, tuple in
             partialResult + tuple.fieldViewModels
         }
     }
 
-    var allIncludedMicronutrientFieldViewModels: [FieldViewModel] {
-        micronutrients.reduce([FieldViewModel]()) { partialResult, tuple in
+    var allIncludedMicronutrientFieldViewModels: [Field] {
+        micronutrients.reduce([Field]()) { partialResult, tuple in
             partialResult + tuple.fieldViewModels
         }
-        .filter { $0.fieldValue.microValue.isIncluded }
+        .filter { $0.value.microValue.isIncluded }
     }
 
     var allFieldValues: [FieldValue] {
-        allFieldViewModels.map { $0.fieldValue }
+        allFieldViewModels.map { $0.value }
     }
 
-    var allSingleFieldViewModels: [FieldViewModel] {
+    var allSingleFieldViewModels: [Field] {
         [
             nameViewModel, emojiViewModel, detailViewModel, brandViewModel,
             amountViewModel, servingViewModel, densityViewModel,
@@ -224,7 +224,7 @@ extension FoodFormViewModel {
         ]
     }
 
-    var allFieldViewModels: [FieldViewModel] {
+    var allFieldViewModels: [Field] {
         allSingleFieldViewModels
         + allMicronutrientFieldViewModels
         + standardSizeViewModels
@@ -232,7 +232,7 @@ extension FoodFormViewModel {
         + barcodeViewModels
     }
     
-    var allSizeViewModels: [FieldViewModel] {
+    var allSizeViewModels: [Field] {
         standardSizeViewModels + volumePrefixedSizeViewModels
     }
     
@@ -244,7 +244,7 @@ extension FoodFormViewModel {
         }
         
         for model in allSizeViewModels {
-            if model.fieldValue.fill != .userInput {
+            if model.value.fill != .userInput {
                 return true
             }
         }
@@ -285,7 +285,7 @@ extension FoodFormViewModel {
     }
 
     var densityDescription: String? {
-        densityViewModel.fieldValue.densityValue?.description(weightFirst: isWeightBased)
+        densityViewModel.value.densityValue?.description(weightFirst: isWeightBased)
     }
 }
 
@@ -328,55 +328,55 @@ extension MFPProcessedFood {
 }
 
 
-extension FoodFormViewModel: FoodLabelDataSource {
-    
-    public var allowTapToChangeEnergyUnit: Bool {
-        false
-    }
-    
-    public var nutrients: [NutrientType : Double] {
-        var nutrients: [NutrientType : Double] = [:]
-        for (_, fieldViewModels) in micronutrients {
-            for fieldViewModel in fieldViewModels {
-                guard case .micro = fieldViewModel.fieldValue else {
-                    continue
-                }
-                nutrients[fieldViewModel.fieldValue.microValue.nutrientType] = fieldViewModel.fieldValue.double
-            }
-        }
-        return nutrients
-    }
-    
-    public var showFooterText: Bool {
-        false
-    }
-    
-    public var showRDAValues: Bool {
-        false
-    }
-    
-    public var amountPerString: String {
-        amountViewModel.doubleValueDescription
-    }
-    
-    public var carbAmount: Double {
-        carbViewModel.fieldValue.double ?? 0
-    }
-    
-    public var proteinAmount: Double {
-        proteinViewModel.fieldValue.double ?? 0
-    }
-    
-    public var fatAmount: Double {
-        fatViewModel.fieldValue.double ?? 0
-    }
-    
-    public var energyValue: FoodLabelValue {
-        energyViewModel.fieldValue.value ?? .init(amount: 0, unit: .kcal)
-    }
-}
+//extension FoodFormViewModel: FoodLabelDataSource {
+//    
+//    public var allowTapToChangeEnergyUnit: Bool {
+//        false
+//    }
+//    
+//    public var nutrients: [NutrientType : Double] {
+//        var nutrients: [NutrientType : Double] = [:]
+//        for (_, fieldViewModels) in micronutrients {
+//            for fieldViewModel in fieldViewModels {
+//                guard case .micro = fieldViewModel.value else {
+//                    continue
+//                }
+//                nutrients[fieldViewModel.value.microValue.nutrientType] = fieldViewModel.value.double
+//            }
+//        }
+//        return nutrients
+//    }
+//    
+//    public var showFooterText: Bool {
+//        false
+//    }
+//    
+//    public var showRDAValues: Bool {
+//        false
+//    }
+//    
+//    public var amountPerString: String {
+//        amountViewModel.doubleValueDescription
+//    }
+//    
+//    public var carbAmount: Double {
+//        carbViewModel.value.double ?? 0
+//    }
+//    
+//    public var proteinAmount: Double {
+//        proteinViewModel.value.double ?? 0
+//    }
+//    
+//    public var fatAmount: Double {
+//        fatViewModel.value.double ?? 0
+//    }
+//    
+//    public var energyValue: FoodLabelValue {
+//        energyViewModel.value.value ?? .init(amount: 0, unit: .kcal)
+//    }
+//}
 
-typealias MicroGroupTuple = (group: NutrientTypeGroup, fieldViewModels: [FieldViewModel])
+typealias MicroGroupTuple = (group: NutrientTypeGroup, fieldViewModels: [Field])
 func DefaultMicronutrients() -> [MicroGroupTuple] {
     [
         (NutrientTypeGroup.fats, [

@@ -39,7 +39,7 @@ public struct NutritionFactsList: View {
         .environmentObject(viewModel)
     }
     
-    func macronutrientForm(for fieldViewModel: FieldViewModel) -> some View {
+    func macronutrientForm(for fieldViewModel: Field) -> some View {
         NavigationLink {
             MacroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
@@ -49,7 +49,7 @@ public struct NutritionFactsList: View {
         }
     }
 
-    func micronutrientCell(for fieldViewModel: FieldViewModel) -> some View {
+    func micronutrientCell(for fieldViewModel: Field) -> some View {
         NavigationLink {
             MicroForm(existingFieldViewModel: fieldViewModel)
                 .environmentObject(viewModel)
@@ -112,7 +112,7 @@ public struct NutritionFactsList: View {
                 if viewModel.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
                     subtitleCell(viewModel.micronutrients[g].group.description)
                     ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
-                        if viewModel.micronutrients[g].fieldViewModels[f].fieldValue.microValue.isIncluded {
+                        if viewModel.micronutrients[g].fieldViewModels[f].value.microValue.isIncluded {
                             micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
                         }
                     }

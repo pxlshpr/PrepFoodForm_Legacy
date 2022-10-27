@@ -55,7 +55,7 @@ extension FoodFormViewModel {
         }
     }
     
-    var textPickerFieldViewModels: [FieldViewModel] {
+    var textPickerFieldViewModels: [Field] {
         [
             energyViewModel, carbViewModel, fatViewModel, proteinViewModel
         ] + allMicronutrientFieldViewModels
@@ -65,7 +65,7 @@ extension FoodFormViewModel {
     func bestColumnImageTexts(at column: Int, from candidateScanResults: [ScanResult]) -> [ImageText] {
         
         let fieldValues = textPickerFieldViewModels.compactMap {
-            candidateScanResults.bestFieldValue(for: $0.fieldValue, at: column)
+            candidateScanResults.bestFieldValue(for: $0.value, at: column)
         }
         return fieldValues.compactMap { $0.fill.imageText }
     }
@@ -73,7 +73,7 @@ extension FoodFormViewModel {
     /// Get's the `ImageText`s for the `TextPickerColumn` at `column` of the provided `ScanResult`.
     func columnImageTexts(at column: Int, from scanResult: ScanResult) -> [ImageText] {
         let fieldValues = textPickerFieldViewModels.compactMap {
-            scanResult.fieldValue(for: $0.fieldValue, at: column)
+            scanResult.fieldValue(for: $0.value, at: column)
         }
         return fieldValues.compactMap { $0.fill.imageText }
     }
@@ -106,7 +106,7 @@ extension FoodFormViewModel {
             }
             sizeViewModel.resetAndCropImage()
             /// ... then go ahead and add it to the `scannedFieldValues` array as well
-            replaceOrSetScannedFieldValue(sizeViewModel.fieldValue)
+            replaceOrSetScannedFieldValue(sizeViewModel.value)
         }
         
         /// Get Barcodes from all images
@@ -115,7 +115,7 @@ extension FoodFormViewModel {
                 continue
             }
             barcodeViewModel.resetAndCropImage()
-            replaceOrSetScannedFieldValue(barcodeViewModel.fieldValue)
+            replaceOrSetScannedFieldValue(barcodeViewModel.value)
         }
         
         updateShouldShowDensitiesSection()
@@ -136,13 +136,13 @@ extension FoodFormViewModel {
     }
     
     func extractField(
-        for existingFieldViewModel: FieldViewModel,
+        for existingFieldViewModel: Field,
         at column: Int,
         from candidateScanResults: [ScanResult],
         isUserInitiated: Bool
     ) {
         guard let fieldValue = candidateScanResults.bestFieldValue(
-            for: existingFieldViewModel.fieldValue,
+            for: existingFieldViewModel.value,
             at: column)
         else {
             return
@@ -153,12 +153,12 @@ extension FoodFormViewModel {
         fillScannedFieldValue(fieldValue)
     }
     
-    func existingFieldIsDiscardable(for fieldViewModel: FieldViewModel) -> Bool {
+    func existingFieldIsDiscardable(for fieldViewModel: Field) -> Bool {
         switch fieldViewModel.fill {
         case .scanned, .prefill, .discardable:
             return true
         case .userInput:
-            return fieldViewModel.fieldValue.isEmpty
+            return fieldViewModel.value.isEmpty
         case .selection:
             return false
         case .barcodeScanned:

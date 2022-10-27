@@ -17,14 +17,14 @@ extension FoodForm {
     }
     
     var sourcesSection: some View {
-        SourcesView(sourcesViewModel: sourcesViewModel,
+        SourcesView(sources: sources,
                     didTapAddSource: tappedAddSource,
                     handleSourcesAction: handleSourcesAction)
     }
     
     var foodLabelSection: some View {
         @ViewBuilder var header: some View {
-            if !fieldsViewModel.hasNutritionFacts {
+            if !fields.hasNutritionFacts {
                 Text("Nutrition Facts")
             }
         }

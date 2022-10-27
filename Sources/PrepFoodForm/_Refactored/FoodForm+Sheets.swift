@@ -17,6 +17,6 @@ extension FoodForm {
     }
     
     var foodLabelCamera: some View {
-        FoodLabelCamera(foodLabelScanHandler: sourcesViewModel.receivedScanResult)
+        FoodLabelCamera(foodLabelScanHandler: sources.receivedScanResult)
     }    
 }

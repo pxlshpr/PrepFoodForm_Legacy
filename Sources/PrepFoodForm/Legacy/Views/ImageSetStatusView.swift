@@ -54,7 +54,7 @@ extension FoodFormViewModel {
 
     var autoFilledCount: Int? {
         let count = allFieldViewModels.filter({
-            $0.fill.isImageAutofill && !$0.fieldValue.isBarcode
+            $0.fill.isImageAutofill && !$0.value.isBarcode
         }).count
         return count != 0 ? count : nil
     }

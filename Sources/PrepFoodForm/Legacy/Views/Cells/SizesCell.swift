@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 
 struct SizeCell: View {
-    @ObservedObject var fieldViewModel: FieldViewModel
+    @ObservedObject var fieldViewModel: Field
     
     var body: some View {
         HStack {
@@ -17,7 +17,7 @@ struct SizeCell: View {
     }
     
     var size: FormSize? {
-        fieldViewModel.fieldValue.size
+        fieldViewModel.value.size
     }
     
     var name: String {
@@ -152,9 +152,9 @@ let mockVolumePrefixedSizes: [FormSize] = [
 ]
 
 extension Array where Element == FormSize {
-    var fieldViewModels: [FieldViewModel] {
+    var fieldViewModels: [Field] {
         map {
-            FieldViewModel(fieldValue: .size(.init(size: $0, fill: .discardable)))
+            Field(fieldValue: .size(.init(size: $0, fill: .discardable)))
         }
     }
 }

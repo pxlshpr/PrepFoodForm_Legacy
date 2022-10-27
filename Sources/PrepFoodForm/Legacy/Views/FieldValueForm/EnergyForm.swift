@@ -3,10 +3,10 @@ import PrepDataTypes
 
 struct EnergyForm: View {
     
-    @ObservedObject var existingFieldViewModel: FieldViewModel
-    @StateObject var fieldViewModel: FieldViewModel
+    @ObservedObject var existingFieldViewModel: Field
+    @StateObject var fieldViewModel: Field
     
-    init(existingFieldViewModel: FieldViewModel) {
+    init(existingFieldViewModel: Field) {
         self.existingFieldViewModel = existingFieldViewModel
         
         let fieldViewModel = existingFieldViewModel
@@ -25,7 +25,7 @@ struct EnergyForm: View {
     }
     
     var unitPicker: some View {
-        Picker("", selection: $fieldViewModel.fieldValue.energyValue.unit) {
+        Picker("", selection: $fieldViewModel.value.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
@@ -39,15 +39,15 @@ struct EnergyForm: View {
         guard case .energy(let energyValue) = fieldValue else {
             return
         }
-        fieldViewModel.fieldValue.energyValue = energyValue
+        fieldViewModel.value.energyValue = energyValue
     }
     
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.energyValue.string = value.amount.cleanAmount
+        fieldViewModel.value.energyValue.string = value.amount.cleanAmount
         if let unit = value.unit, unit.isEnergy {
-            fieldViewModel.fieldValue.energyValue.unit = unit.energyUnit
+            fieldViewModel.value.energyValue.unit = unit.energyUnit
         } else {
-            fieldViewModel.fieldValue.energyValue.unit = .kcal
+            fieldViewModel.value.energyValue.unit = .kcal
         }
     }
 }

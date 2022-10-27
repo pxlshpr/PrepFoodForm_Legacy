@@ -8,7 +8,7 @@ struct FillOptionsGrid: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingImagePicker: Bool = false
     
-    @ObservedObject var fieldViewModel: FieldViewModel
+    @ObservedObject var fieldViewModel: Field
     @Binding var shouldAnimate: Bool
     
     var didTapFillOption: (FillOption) -> ()
@@ -31,7 +31,7 @@ struct FillOptionsGrid: View {
         FlowLayout(
             mode: .scrollable,
 //            items: dummyFillOptions,
-            items: viewModel.fillOptions(for: fieldViewModel.fieldValue),
+            items: viewModel.fillOptions(for: fieldViewModel.value),
             itemSpacing: 4,
             shouldAnimateHeight: $shouldAnimate
         ) { fillOption in

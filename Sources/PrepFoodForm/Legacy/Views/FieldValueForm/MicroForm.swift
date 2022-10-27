@@ -3,18 +3,18 @@ import PrepDataTypes
 
 struct MicroForm: View {
     
-    @ObservedObject var existingFieldViewModel: FieldViewModel
-    @StateObject var fieldViewModel: FieldViewModel
+    @ObservedObject var existingFieldViewModel: Field
+    @StateObject var fieldViewModel: Field
     
     @State var unit: NutrientUnit
 
-    init(existingFieldViewModel: FieldViewModel) {
+    init(existingFieldViewModel: Field) {
         self.existingFieldViewModel = existingFieldViewModel
         
         let fieldViewModel = existingFieldViewModel
         _fieldViewModel = StateObject(wrappedValue: fieldViewModel)
         
-        _unit = State(initialValue: existingFieldViewModel.fieldValue.microValue.unit)
+        _unit = State(initialValue: existingFieldViewModel.value.microValue.unit)
     }
 
     
@@ -31,14 +31,14 @@ struct MicroForm: View {
         )
         .onChange(of: unit) { newValue in
             withAnimation {
-                fieldViewModel.fieldValue.microValue.unit = newValue
+                fieldViewModel.value.microValue.unit = newValue
             }
         }
     }
     
     var supplementaryViewHeaderString: String? {
 //        if fieldViewModel.fieldValue.microValue.unit == .p {
-        if fieldViewModel.fieldValue.microValue.convertedFromPercentage != nil {
+        if fieldViewModel.value.microValue.convertedFromPercentage != nil {
             return "Equivalent Value"
         }
         return nil
@@ -46,7 +46,7 @@ struct MicroForm: View {
 
     var supplementaryViewFooterString: String? {
 //        if fieldViewModel.fieldValue.microValue.unit == .p {
-        if fieldViewModel.fieldValue.microValue.convertedFromPercentage != nil {
+        if fieldViewModel.value.microValue.convertedFromPercentage != nil {
             return "% values will be converted and saved as their equivalent amounts."
         }
         
@@ -55,7 +55,7 @@ struct MicroForm: View {
 
     @ViewBuilder
     var percentageInfoView: some View {
-        if let valueAndUnit = fieldViewModel.fieldValue.microValue.convertedFromPercentage {
+        if let valueAndUnit = fieldViewModel.value.microValue.convertedFromPercentage {
             HStack {
                 HStack(alignment: .lastTextBaseline, spacing: 2) {
                     Text(valueAndUnit.amount.cleanAmount)
@@ -82,7 +82,7 @@ struct MicroForm: View {
             }
             .pickerStyle(.menu)
         } else {
-            Text(fieldViewModel.fieldValue.microValue.unitDescription)
+            Text(fieldViewModel.value.microValue.unitDescription)
                 .foregroundColor(.secondary)
                 .font(.title3)
         }
@@ -92,22 +92,22 @@ struct MicroForm: View {
         guard case .micro(let microValue) = fieldValue else {
             return
         }
-        fieldViewModel.fieldValue.microValue = microValue
+        fieldViewModel.value.microValue = microValue
     }
 
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.microValue.string = value.amount.cleanAmount
-        if let unit = value.unit?.nutrientUnit(for: fieldViewModel.fieldValue.microValue.nutrientType),
+        fieldViewModel.value.microValue.string = value.amount.cleanAmount
+        if let unit = value.unit?.nutrientUnit(for: fieldViewModel.value.microValue.nutrientType),
            supportedUnits.contains(unit)
         {
-            fieldViewModel.fieldValue.microValue.unit = unit
+            fieldViewModel.value.microValue.unit = unit
         } else {
-            fieldViewModel.fieldValue.microValue.unit = defaultUnit
+            fieldViewModel.value.microValue.unit = defaultUnit
         }
     }
 
     var supportedUnits: [NutrientUnit] {
-        existingFieldViewModel.fieldValue.microValue.nutrientType.supportedNutrientUnits
+        existingFieldViewModel.value.microValue.nutrientType.supportedNutrientUnits
     }
     
     var defaultUnit: NutrientUnit {

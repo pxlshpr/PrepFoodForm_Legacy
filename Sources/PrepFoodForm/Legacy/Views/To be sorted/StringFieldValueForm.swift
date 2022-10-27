@@ -3,10 +3,10 @@ import VisionSugar
 
 struct StringFieldValueForm: View {
     
-    @ObservedObject var existingFieldViewModel: FieldViewModel
-    @StateObject var fieldViewModel: FieldViewModel
+    @ObservedObject var existingFieldViewModel: Field
+    @StateObject var fieldViewModel: Field
     
-    init(existingFieldViewModel: FieldViewModel) {
+    init(existingFieldViewModel: Field) {
         self.existingFieldViewModel = existingFieldViewModel
         
         let fieldViewModel = existingFieldViewModel

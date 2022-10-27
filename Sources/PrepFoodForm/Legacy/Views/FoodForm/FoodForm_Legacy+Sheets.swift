@@ -34,7 +34,7 @@ extension FoodForm_Legacy {
             focusOnAppear: true
         ) { emoji in
             Haptics.feedback(style: .rigid)
-            viewModel.emojiViewModel.fieldValue.stringValue.string = emoji
+            viewModel.emojiViewModel.value.stringValue.string = emoji
             viewModel.showingEmojiPicker = false
         }
     }

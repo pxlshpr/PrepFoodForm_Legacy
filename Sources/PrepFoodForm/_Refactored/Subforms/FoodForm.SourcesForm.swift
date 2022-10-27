@@ -12,7 +12,7 @@ extension FoodForm {
     }
 
     struct SourcesForm: View {
-        @ObservedObject var sourcesViewModel: SourcesViewModel
+        @ObservedObject var sources: Sources
         @State var showingRemoveAllImagesConfirmation = false
         @State var showingPhotosPicker = false
         @State var showingTextPicker: Bool = false
@@ -28,20 +28,20 @@ extension FoodForm.SourcesForm {
         .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
         .photosPicker(
             isPresented: $showingPhotosPicker,
-            selection: $sourcesViewModel.selectedPhotos,
-            maxSelectionCount: sourcesViewModel.availableImagesCount,
+            selection: $sources.selectedPhotos,
+            maxSelectionCount: sources.availableImagesCount,
             matching: .images
         )
     }
     
     var form: some View {
         FormStyledScrollView {
-            if !sourcesViewModel.imageViewModels.isEmpty {
+            if !sources.imageViewModels.isEmpty {
                 imagesSection
             } else {
                 addImagesSection
             }
-            if let linkInfo = sourcesViewModel.linkInfo {
+            if let linkInfo = sources.linkInfo {
                 linkSections(for: linkInfo)
             } else {
                 addLinkSection
@@ -106,7 +106,7 @@ extension FoodForm.SourcesForm {
             VStack(spacing: 0) {
                 imagesCarousel
                     .padding(.vertical, 15)
-                if sourcesViewModel.availableImagesCount > 0 {
+                if sources.availableImagesCount > 0 {
                     Divider()
                     addImagesButton
                         .padding(.horizontal, 20)
@@ -118,9 +118,9 @@ extension FoodForm.SourcesForm {
     
     var textPicker: some View {
         TextPicker(
-            imageViewModels: sourcesViewModel.imageViewModels,
+            imageViewModels: sources.imageViewModels,
             mode: .imageViewer(
-                initialImageIndex: sourcesViewModel.presentingImageIndex,
+                initialImageIndex: sources.presentingImageIndex,
                 deleteHandler: { deletedImageIndex in
                     actionHandler(.removeImage(index: deletedImageIndex))
                 }
@@ -129,8 +129,8 @@ extension FoodForm.SourcesForm {
     }
     
     var imagesCarousel: some View {
-        SourceImagesCarousel(imageViewModels: $sourcesViewModel.imageViewModels) { index in
-            sourcesViewModel.presentingImageIndex = index
+        SourceImagesCarousel(imageViewModels: $sources.imageViewModels) { index in
+            sources.presentingImageIndex = index
             showingTextPicker = true
         } didTapDeleteOnImage: { index in
             removeImage(at: index)
@@ -153,7 +153,7 @@ extension FoodForm.SourcesForm {
             HStack(spacing: LabelSpacing) {
                 Image(systemName: "plus")
                     .frame(width: LabelImageWidth)
-                Text("Add Photo\(sourcesViewModel.pluralS)")
+                Text("Add Photo\(sources.pluralS)")
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())

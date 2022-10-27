@@ -49,7 +49,7 @@ enum BarcodeSymbology {
     }
 }
 
-extension FieldViewModel {
+extension Field {
     func barcodeThumbnail(asSquare: Bool = false) -> UIImage? {
         let width = 100
         let height = asSquare ? 100 : 40
@@ -131,7 +131,7 @@ struct BarcodesSection: View {
     }
 
     @ViewBuilder
-    func barcodeView(for barcodeViewModel: FieldViewModel) -> some View {
+    func barcodeView(for barcodeViewModel: Field) -> some View {
         if let image = barcodeViewModel.barcodeThumbnail(asSquare: viewModel.hasSquareBarcodes) {
             Image(uiImage: image)
                 .resizable()
@@ -197,7 +197,7 @@ public struct BarcodesSectionPreview: View {
         ]
         
         for (string, symbology) in barcodes {
-            let barcodeViewModel = FieldViewModel(fieldValue: .barcode(
+            let barcodeViewModel = Field(fieldValue: .barcode(
                 FieldValue.BarcodeValue(
                     payloadString: string,
                     symbology: symbology,

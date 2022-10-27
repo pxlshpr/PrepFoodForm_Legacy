@@ -28,7 +28,7 @@ extension FoodFormViewModel {
         let imageViewModel = ImageViewModel(barcodeImage: image, recognizedBarcodes: barcodes )
         var didAddABarcode = false
         for barcode in barcodes {
-            let fieldViewModel = FieldViewModel(fieldValue:
+            let fieldViewModel = Field(fieldValue:
                     .barcode(FieldValue.BarcodeValue(
                         payloadString: barcode.string,
                         symbology: barcode.symbology,

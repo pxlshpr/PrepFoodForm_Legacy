@@ -10,10 +10,10 @@ struct SizeForm: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var viewModel: FoodFormViewModel
     
-    let existingSizeViewModel: FieldViewModel?
+    let existingSizeViewModel: Field?
     
     /// This stores a copy of the data from fieldViewModel until we're ready to persist the change
-    @StateObject var sizeViewModel: FieldViewModel
+    @StateObject var sizeViewModel: Field
     
     @StateObject var formViewModel: SizeFormViewModel
     @State var showingVolumePrefixToggle: Bool
@@ -23,12 +23,12 @@ struct SizeForm: View {
 
     @State var refreshBool = false
 
-    var didAddSizeViewModel: ((FieldViewModel) -> ())?
+    var didAddSizeViewModel: ((Field) -> ())?
 
-    init(fieldViewModel: FieldViewModel? = nil,
+    init(fieldViewModel: Field? = nil,
          includeServing: Bool = true,
          allowAddSize: Bool = true,
-         didAddSizeViewModel: ((FieldViewModel) -> ())? = nil
+         didAddSizeViewModel: ((Field) -> ())? = nil
     ) {
         let formViewModel = SizeFormViewModel(
             includeServing: includeServing,
@@ -44,7 +44,7 @@ struct SizeForm: View {
             _sizeViewModel = StateObject(wrappedValue: fieldViewModel.copy)
         } else {
             _showingVolumePrefixToggle = State(initialValue: false)
-            _sizeViewModel = StateObject(wrappedValue: FieldViewModel.emptySize)
+            _sizeViewModel = StateObject(wrappedValue: Field.emptySize)
         }
         
         self.didAddSizeViewModel = didAddSizeViewModel
@@ -71,11 +71,11 @@ struct SizeForm: View {
                 formViewModel.showingVolumePrefix = showingVolumePrefixToggle
                 /// If we've turned it on and there's no volume prefix for the size—set it to cup
                 if showingVolumePrefixToggle {
-                    if sizeViewModel.fieldValue.size?.volumePrefixUnit == nil {
-                        sizeViewModel.fieldValue.size?.volumePrefixUnit = .volume(.cup)
+                    if sizeViewModel.value.size?.volumePrefixUnit == nil {
+                        sizeViewModel.value.size?.volumePrefixUnit = .volume(.cup)
                     }
                 } else {
-                    sizeViewModel.fieldValue.size?.volumePrefixUnit = nil
+                    sizeViewModel.value.size?.volumePrefixUnit = nil
                 }
 //                formViewModel.updateFormState(of: sizeViewModel, comparedToExisting: existingSizeViewModel)
             }
@@ -98,7 +98,7 @@ struct SizeForm: View {
         .interactiveDismissDisabled(isDirty && !isEmpty)
         .onChange(of: sizeViewModel.sizeAmountUnit) { newValue in
             if !sizeViewModel.sizeAmountIsValid || !newValue.isWeightBased {
-                sizeViewModel.fieldValue.size?.volumePrefixUnit = nil
+                sizeViewModel.value.size?.volumePrefixUnit = nil
             }
         }
     }
@@ -229,12 +229,12 @@ struct SizeForm: View {
     }
     
     func setSize(_ size: FormSize) {
-        sizeViewModel.fieldValue.size?.quantity = size.quantity
-        sizeViewModel.fieldValue.size?.volumePrefixUnit = size.volumePrefixUnit
-        sizeViewModel.fieldValue.size?.name = size.name
-        sizeViewModel.fieldValue.size?.amount = size.amount
-        sizeViewModel.fieldValue.size?.unit = size.unit
-        showingVolumePrefixToggle = sizeViewModel.fieldValue.size?.volumePrefixUnit != nil
+        sizeViewModel.value.size?.quantity = size.quantity
+        sizeViewModel.value.size?.volumePrefixUnit = size.volumePrefixUnit
+        sizeViewModel.value.size?.name = size.name
+        sizeViewModel.value.size?.amount = size.amount
+        sizeViewModel.value.size?.unit = size.unit
+        showingVolumePrefixToggle = sizeViewModel.value.size?.volumePrefixUnit != nil
     }
     
     func saveAndDismiss() {
@@ -270,14 +270,14 @@ struct SizeForm: View {
     
     var nameForm: some View {
         let binding = Binding<String>(
-            get: { sizeViewModel.fieldValue.string },
+            get: { sizeViewModel.value.string },
             set: {
-                if $0 != sizeViewModel.fieldValue.string {
+                if $0 != sizeViewModel.value.string {
                     withAnimation {
                         sizeViewModel.registerUserInput()
                     }
                 }
-                sizeViewModel.fieldValue.string = $0
+                sizeViewModel.value.string = $0
             }
         )
 
@@ -313,7 +313,7 @@ struct SizeForm: View {
             pickedUnit: sizeViewModel.sizeVolumePrefixUnit,
             filteredType: .volume)
         { unit in
-            sizeViewModel.fieldValue.size?.volumePrefixUnit = unit
+            sizeViewModel.value.size?.volumePrefixUnit = unit
         }
         .environmentObject(viewModel)
         .onDisappear {
@@ -327,11 +327,11 @@ struct SizeForm: View {
     }
 
     var detentHeight: CGFloat {
-        viewModel.shouldShowFillOptions(for: sizeViewModel.fieldValue) ? 600 : 400
+        viewModel.shouldShowFillOptions(for: sizeViewModel.value) ? 600 : 400
     }
     
     var isEmpty: Bool {
-        sizeViewModel.fieldValue.isEmpty
+        sizeViewModel.value.isEmpty
     }
     
     var isEditing: Bool {
@@ -339,7 +339,7 @@ struct SizeForm: View {
     }
     
     var isDirty: Bool {
-        existingSizeViewModel?.fieldValue != sizeViewModel.fieldValue
+        existingSizeViewModel?.value != sizeViewModel.value
     }
 
 }

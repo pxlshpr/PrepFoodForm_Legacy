@@ -5,7 +5,7 @@ import ActivityIndicatorView
 struct NutritionFactCell: View {
     @EnvironmentObject var viewModel: FoodFormViewModel
     @Environment(\.colorScheme) var colorScheme
-    @ObservedObject var fieldViewModel: FieldViewModel
+    @ObservedObject var fieldViewModel: Field
     
     @Binding var showImage: Bool
     
@@ -123,9 +123,9 @@ struct NutritionFactCell: View {
         }
         
         return Group {
-            if let image = fieldViewModel.imageToDisplay {
+            if let image = fieldViewModel.image {
                 ZStack {
-                    if fieldViewModel.isCroppingNextImage {
+                    if fieldViewModel.isCropping {
                         activityIndicator
                     } else {
                         Image(uiImage: image)
@@ -145,7 +145,7 @@ struct NutritionFactCell: View {
     
     //MARK: Helpers
     var fieldValue: FieldValue {
-        fieldViewModel.fieldValue
+        fieldViewModel.value
     }
     
     var isEmpty: Bool {

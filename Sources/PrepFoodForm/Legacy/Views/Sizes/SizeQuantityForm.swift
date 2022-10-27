@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SizeQuantityForm: View {
-    @ObservedObject var sizeViewModel: FieldViewModel
+    @ObservedObject var sizeViewModel: Field
     
     @Environment(\.dismiss) var dismiss
     @State var hasBecomeFirstResponder: Bool = false

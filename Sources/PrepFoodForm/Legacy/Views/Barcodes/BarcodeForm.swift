@@ -44,7 +44,7 @@ struct BarcodesForm: View {
                        payloadString: $0,
                        symbology: .ean13,
                        fill: .userInput)
-                   let fieldViewModel = FieldViewModel(fieldValue: .barcode(barcodeValue))
+                   let fieldViewModel = Field(fieldValue: .barcode(barcodeValue))
                    let _ = viewModel.add(barcodeViewModel: fieldViewModel)
                    Haptics.successFeedback()
                }
@@ -61,7 +61,7 @@ struct BarcodesForm: View {
     }
     
     @ViewBuilder
-    func barcodeCell(for barcodeViewModel: FieldViewModel) -> some View {
+    func barcodeCell(for barcodeViewModel: Field) -> some View {
         if let barcodeValue = barcodeViewModel.barcodeValue,
            let image = barcodeViewModel.barcodeThumbnail(asSquare: false)
         {
@@ -75,7 +75,7 @@ struct BarcodesForm: View {
 //                Spacer()
                 Text(barcodeValue.payloadString)
                 Spacer()
-                fillTypeIcon(for: barcodeViewModel.fieldValue)
+                fillTypeIcon(for: barcodeViewModel.value)
             }
         }
     }

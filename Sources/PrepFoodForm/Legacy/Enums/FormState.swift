@@ -9,7 +9,7 @@ enum FormState: Hashable {
     case okToSave
 }
 
-extension FieldViewModel {
+extension Field {
     
     /**
      Returns the current `FormState` that would result from the values present in the `fieldValue`, depending on its type.
@@ -20,10 +20,10 @@ extension FieldViewModel {
      
      Further types will be handled as required.
      */
-    func formState(existingFieldViewModel: FieldViewModel? = nil) -> FormState {
-        switch self.fieldValue {
+    func formState(existingFieldViewModel: Field? = nil) -> FormState {
+        switch self.value {
         case .size(let sizeValue):
-            let sizeBeingEdited = existingFieldViewModel?.fieldValue.size
+            let sizeBeingEdited = existingFieldViewModel?.value.size
             return sizeValue.size.formState(sizeBeingEdited: sizeBeingEdited)
         default:
             return .okToSave

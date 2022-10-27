@@ -30,7 +30,7 @@ extension FoodForm_Legacy.DetailsCell {
         Button {
             viewModel.showingEmojiPicker = true
         } label: {
-            Text(viewModel.emojiViewModel.fieldValue.stringValue.string)
+            Text(viewModel.emojiViewModel.value.stringValue.string)
                 .font(.system(size: 50))
         }
         .buttonStyle(.borderless)
@@ -40,8 +40,8 @@ extension FoodForm_Legacy.DetailsCell {
         
         @ViewBuilder
         var name: some View {
-            if !viewModel.nameViewModel.fieldValue.isEmpty {
-                Text(viewModel.nameViewModel.fieldValue.stringValue.string)
+            if !viewModel.nameViewModel.value.isEmpty {
+                Text(viewModel.nameViewModel.value.stringValue.string)
                     .bold()
                     .multilineTextAlignment(.leading)
             } else {
@@ -52,16 +52,16 @@ extension FoodForm_Legacy.DetailsCell {
         
         @ViewBuilder
         var detail: some View {
-            if !viewModel.detailViewModel.fieldValue.isEmpty {
-                Text(viewModel.detailViewModel.fieldValue.stringValue.string)
+            if !viewModel.detailViewModel.value.isEmpty {
+                Text(viewModel.detailViewModel.value.stringValue.string)
                     .multilineTextAlignment(.leading)
             }
         }
 
         @ViewBuilder
         var brand: some View {
-            if !viewModel.brandViewModel.fieldValue.isEmpty {
-                Text(viewModel.brandViewModel.fieldValue.stringValue.string)
+            if !viewModel.brandViewModel.value.isEmpty {
+                Text(viewModel.brandViewModel.value.stringValue.string)
                     .multilineTextAlignment(.leading)
             }
         }
@@ -118,9 +118,9 @@ extension FoodFormViewModel {
     }
 }
 
-extension FieldViewModel {
+extension Field {
     var barcodeValue: FieldValue.BarcodeValue? {
-        fieldValue.barcodeValue
+        value.barcodeValue
     }
 }
 
@@ -161,10 +161,10 @@ extension VNBarcodeSymbology {
 
 extension FoodFormViewModel {
     var hasDetails: Bool {
-        !nameViewModel.fieldValue.isEmpty
-        || !emojiViewModel.fieldValue.isEmpty
-        || !detailViewModel.fieldValue.isEmpty
-        || !brandViewModel.fieldValue.isEmpty
+        !nameViewModel.value.isEmpty
+        || !emojiViewModel.value.isEmpty
+        || !detailViewModel.value.isEmpty
+        || !brandViewModel.value.isEmpty
     }
 }
 
@@ -193,10 +193,10 @@ struct DetailsCellPreview: View {
     }
     
     func populateData() {
-        viewModel.emojiViewModel.fieldValue = FieldValue.emoji(FieldValue.StringValue(string: "🧈"))
-        viewModel.nameViewModel.fieldValue = FieldValue.name(FieldValue.StringValue(string: "Butter"))
-        viewModel.detailViewModel.fieldValue = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
-        viewModel.brandViewModel.fieldValue = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
+        viewModel.emojiViewModel.value = FieldValue.emoji(FieldValue.StringValue(string: "🧈"))
+        viewModel.nameViewModel.value = FieldValue.name(FieldValue.StringValue(string: "Butter"))
+        viewModel.detailViewModel.value = FieldValue.detail(FieldValue.StringValue(string: "Salted"))
+        viewModel.brandViewModel.value = FieldValue.brand(FieldValue.StringValue(string: "Emborg"))
 //        viewModel.barcodeViewModel.fieldValue = FieldValue.barcode(FieldValue.StringValue(string: "10123456789019"))
 //        viewModel.barcode = "2166529V"
     }

@@ -11,7 +11,7 @@ struct FillOptionsSections: View {
     
     @EnvironmentObject var viewModel: FoodFormViewModel
     @State var showingAutofillInfo = false
-    @ObservedObject var fieldViewModel: FieldViewModel
+    @ObservedObject var fieldViewModel: Field
     @Binding var shouldAnimate: Bool
     
     @State var showingPrefillSource = false
@@ -21,7 +21,7 @@ struct FillOptionsSections: View {
 
     var body: some View {
         Group {
-            if viewModel.shouldShowFillOptions(for: fieldViewModel.fieldValue) {
+            if viewModel.shouldShowFillOptions(for: fieldViewModel.value) {
                 gridSection
                 supplementarySection
             }
@@ -49,7 +49,7 @@ struct FillOptionsSections: View {
     }
     
     var shouldShowSupplementarySection: Bool {
-        if fieldViewModel.imageToDisplay != nil {
+        if fieldViewModel.image != nil {
             return true
         }
         
@@ -64,11 +64,11 @@ struct FillOptionsSections: View {
     var supplementarySection: some View {
         if shouldShowSupplementarySection {
             FormStyledSection {
-                if let image = fieldViewModel.imageToDisplay {
+                if let image = fieldViewModel.image {
                     imageSection(for: image)
                         .fixedSize(horizontal: true, vertical: false)
                 }
-                //TODO: Get prefillUrl passed into this (from sourcesViewModel perhaps)
+                //TODO: Get prefillUrl passed into this (from sources perhaps)
 //                if let prefillUrl = fieldViewModel.prefillUrl {
 //                    prefillSection(for: prefillUrl)
 //                }
@@ -94,7 +94,7 @@ struct FillOptionsSections: View {
     @ViewBuilder
     func imageSection(for image: UIImage) -> some View {
         Group {
-            if fieldViewModel.isCroppingNextImage {
+            if fieldViewModel.isCropping {
                 ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
                     .frame(width: 50, height: 50)
                     .foregroundColor(Color(.tertiaryLabel))
@@ -120,7 +120,7 @@ struct FillOptionsSections: View {
     
     @ViewBuilder
     func croppedImageButton(for image: UIImage) -> some View {
-        if fieldViewModel.fieldValue.supportsSelectingText {
+        if fieldViewModel.value.supportsSelectingText {
             Button {
                 didTapImage()
             } label: {

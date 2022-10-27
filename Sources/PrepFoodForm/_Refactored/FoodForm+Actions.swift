@@ -34,12 +34,12 @@ extension FoodForm {
             showingPhotosMenu = true
         case .removeImage(index: let index):
             resetFillForFieldsUsingImage(at: index)
-            sourcesViewModel.removeImage(at: index)
+            sources.removeImage(at: index)
         }
     }
     
     /// Change all `.scanned` and `.selection` autofills that depend on this to `.userInput`
-    //TODO: Move this to a FieldsViewModel
+    //TODO: Move this to a Fields
     func resetFillForFieldsUsingImage(at index: Int) {
 //        guard index < imageViewModels.count else {
 //            return

@@ -3,7 +3,7 @@ import PrepDataTypes
 
 extension SizesList {
     struct Cell: View {
-        @ObservedObject var fieldViewModel: FieldViewModel
+        @ObservedObject var fieldViewModel: Field
     }
 }
 
@@ -34,7 +34,7 @@ extension SizesList.Cell {
     }
     
     var size: FormSize? {
-        fieldViewModel.fieldValue.size
+        fieldViewModel.value.size
     }
     
     var volumePrefixString: String? {

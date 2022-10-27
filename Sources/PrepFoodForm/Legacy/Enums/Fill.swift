@@ -347,10 +347,10 @@ extension Array where Element == FillOption {
     }
 }
 
-extension FieldViewModel {
+extension Field {
     func appendComponentTexts(for imageText: ImageText) {
         for componentText in imageText.componentTexts {
-            fieldValue.fill.appendComponentText(componentText)
+            value.fill.appendComponentText(componentText)
         }
     }
 }

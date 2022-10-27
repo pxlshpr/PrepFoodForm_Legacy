@@ -7,7 +7,7 @@ struct SizesList: View {
     @State var showingEditSizeForm: Bool = false
     @State var showingAddSizeForm = false
     
-    @State var sizeToEdit: FieldViewModel?
+    @State var sizeToEdit: Field?
 //    @State var standardSizeIndexToEdit: Int? = nil
 //    @State var volumePrefixedSizeIndexToEdit: Int? = nil
 

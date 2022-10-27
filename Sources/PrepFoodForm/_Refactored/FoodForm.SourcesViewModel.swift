@@ -4,7 +4,7 @@ import FoodLabelScanner
 import PhotosUI
 
 extension FoodForm {
-    class SourcesViewModel: ObservableObject {
+    class Sources: ObservableObject {
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()
         @Published var linkInfo: LinkInfo? = nil
@@ -18,7 +18,7 @@ extension FoodForm {
     }
 }
 
-extension FoodForm.SourcesViewModel {
+extension FoodForm.Sources {
     
     func receivedScanResult(_ scanResult: ScanResult, for image: UIImage) {
         let imageViewModel = ImageViewModel(image: image, scanResult: scanResult, delegate: self)
@@ -58,7 +58,7 @@ extension FoodForm.SourcesViewModel {
     }
 }
 
-extension FoodForm.SourcesViewModel {
+extension FoodForm.Sources {
     func removeLink() {
         linkInfo = nil
     }
@@ -70,7 +70,7 @@ extension FoodForm.SourcesViewModel {
 }
 
 //MARK: - Helpers
-extension FoodForm.SourcesViewModel {
+extension FoodForm.Sources {
     func imageViewModels(for columnSelectionInfo: ColumnSelectionInfo) -> [ImageViewModel] {
         imageViewModels.containingTexts(in: columnSelectionInfo)
     }
@@ -93,7 +93,7 @@ extension FoodForm.SourcesViewModel {
 }
 
 //MARK: - ImageViewModelDelegate
-extension FoodForm.SourcesViewModel: ImageViewModelDelegate {
+extension FoodForm.Sources: ImageViewModelDelegate {
     
     func imageDidFinishScanning(_ imageViewModel: ImageViewModel) {
         guard !imageSetStatus.isScanned else {

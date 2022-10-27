@@ -6,7 +6,7 @@ import SwiftUISugar
 
 extension FoodForm {
     struct SourcesView: View {
-        @ObservedObject var sourcesViewModel: FoodForm.SourcesViewModel
+        @ObservedObject var sources: FoodForm.Sources
         
         let didTapAddSource: () -> ()
         let handleSourcesAction: (SourcesAction) -> ()
@@ -17,7 +17,7 @@ extension FoodForm.SourcesView {
         
     var body: some View {
         Group {
-            if sourcesViewModel.isEmpty {
+            if sources.isEmpty {
                 emptyContent
             } else {
                 content
@@ -45,7 +45,7 @@ extension FoodForm.SourcesView {
     
     var navigationLink: some View {
         NavigationLink {
-            FoodForm.SourcesForm(sourcesViewModel: sourcesViewModel, actionHandler: handleSourcesAction)
+            FoodForm.SourcesForm(sources: sources, actionHandler: handleSourcesAction)
         } label: {
             VStack(spacing: 0) {
                 imagesRow
@@ -56,7 +56,7 @@ extension FoodForm.SourcesView {
     
     @ViewBuilder
     var linkRow: some View {
-        if let linkInfo = sourcesViewModel.linkInfo {
+        if let linkInfo = sources.linkInfo {
             LinkCell(linkInfo, titleColor: .secondary, imageColor: .secondary, detailColor: Color(.tertiaryLabel))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 15)
@@ -65,7 +65,7 @@ extension FoodForm.SourcesView {
     
     @ViewBuilder
     var imagesRow: some View {
-        if !sourcesViewModel.imageViewModels.isEmpty {
+        if !sources.imageViewModels.isEmpty {
             HStack(alignment: .top, spacing: LabelSpacing) {
                 Image(systemName: "photo.on.rectangle.angled")
                     .foregroundColor(.secondary)
@@ -78,7 +78,7 @@ extension FoodForm.SourcesView {
             }
             .padding(.horizontal, 17)
             .padding(.vertical, 15)
-            if sourcesViewModel.linkInfo != nil {
+            if sources.linkInfo != nil {
                 Divider()
                     .padding(.leading, 50)
             }
@@ -87,7 +87,7 @@ extension FoodForm.SourcesView {
 
     var imagesGrid: some View {
         HStack {
-            ForEach(sourcesViewModel.imageViewModels, id: \.self.hashValue) { imageViewModel in
+            ForEach(sources.imageViewModels, id: \.self.hashValue) { imageViewModel in
                 SourceImage(
                     imageViewModel: imageViewModel,
                     imageSize: .small
@@ -97,7 +97,7 @@ extension FoodForm.SourcesView {
     }
     
     var imageSetSummary: some View {
-        FoodImageSetSummary(imageSetStatus: $sourcesViewModel.imageSetStatus)
+        FoodImageSetSummary(imageSetStatus: $sources.imageSetStatus)
     }
 
     var header: some View {

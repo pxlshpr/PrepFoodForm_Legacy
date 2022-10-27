@@ -3,10 +3,10 @@ import PrepDataTypes
 
 struct MacroForm: View {
     
-    @ObservedObject var existingFieldViewModel: FieldViewModel
-    @StateObject var fieldViewModel: FieldViewModel
+    @ObservedObject var existingFieldViewModel: Field
+    @StateObject var fieldViewModel: Field
     
-    init(existingFieldViewModel: FieldViewModel) {
+    init(existingFieldViewModel: Field) {
         self.existingFieldViewModel = existingFieldViewModel
         
         let fieldViewModel = existingFieldViewModel
@@ -25,7 +25,7 @@ struct MacroForm: View {
     }
     
     var unit: some View {
-        Text(fieldViewModel.fieldValue.macroValue.unitDescription)
+        Text(fieldViewModel.value.macroValue.unitDescription)
             .foregroundColor(.secondary)
             .font(.title3)
         
@@ -35,10 +35,10 @@ struct MacroForm: View {
         guard case .macro(let macroValue) = fieldValue else {
             return
         }
-        fieldViewModel.fieldValue.macroValue = macroValue
+        fieldViewModel.value.macroValue = macroValue
     }
 
     func setNewValue(_ value: FoodLabelValue) {
-        fieldViewModel.fieldValue.macroValue.string = value.amount.cleanAmount
+        fieldViewModel.value.macroValue.string = value.amount.cleanAmount
     }
 }
