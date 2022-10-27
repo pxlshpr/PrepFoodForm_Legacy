@@ -1,41 +1,8 @@
 import SwiftUI
-import ZoomableScrollView
 import SwiftHaptics
 import VisionSugar
 
 extension TextPickerViewModel {
-    
-    func setInitialState() {
-        withAnimation {
-            self.hasAppeared = true
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            for i in self.imageViewModels.indices {
-                self.setDefaultZoomBox(forImageAt: i)
-                self.setZoomFocusBox(forImageAt: i)
-            }
-        }
-    }
-    
-    func deleteCurrentImage() {
-        guard let deleteImageHandler = mode.deleteImageHandler else { return }
-        withAnimation {
-            let _ = imageViewModels.remove(at: currentIndex)
-            deleteImageHandler(currentIndex)
-            if imageViewModels.isEmpty {
-                shouldDismiss = true
-            } else if currentIndex != 0 {
-                currentIndex -= 1
-            }
-        }
-    }
-    
-    func pickedColumn(_ index: Int) {
-        mode.selectedColumnIndex = index
-        withAnimation {
-            selectedImageTexts = mode.selectedImageTexts
-        }
-    }
     
     func tappedConfirmAutoFill() {
         guard let currentScanResult else { return }
@@ -45,6 +12,13 @@ extension TextPickerViewModel {
             isUserInitiated: true
         )
         shouldDismiss = true
+    }
+    
+    func pickedColumn(_ index: Int) {
+        mode.selectedColumnIndex = index
+        withAnimation {
+            selectedImageTexts = mode.selectedImageTexts
+        }
     }
     
     func selectedBoundingBox(forImageAt index: Int) -> CGRect? {
@@ -61,39 +35,7 @@ extension TextPickerViewModel {
             return singleSelectedImageText.boundingBox
         }
     }
-    
-    func setDefaultZoomBox(forImageAt index: Int) {
-        guard let imageSize = imageSize(at: index) else {
-            return
-        }
-        
-        let initialZoomBox = ZoomBox(
-            boundingBox: boundingBox(forImageAt: index),
-            animated: true,
-            padded: true,
-            imageSize: imageSize,
-            imageId: imageViewModels[index].id
-        )
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let userInfo = [Notification.ZoomableScrollViewKeys.zoomBox: initialZoomBox]
-            NotificationCenter.default.post(name: .zoomZoomableScrollView, object: nil, userInfo: userInfo)
-        }
-    }
 
-    func setZoomFocusBox(forImageAt index: Int) {
-        guard let imageSize = imageSize(at: index), zoomBoxes[index] == nil else {
-            return
-        }
-        
-        let zoomFocusedBox = ZoomBox(
-            boundingBox: boundingBox(forImageAt: index),
-            animated: true,
-            padded: true,
-            imageSize: imageSize,
-            imageId: imageViewModels[index].id
-        )
-        zoomBoxes[index] = zoomFocusedBox
-    }
     func tapHandler(for barcode: RecognizedBarcode) -> (() -> ())? {
         nil
     }
@@ -201,21 +143,7 @@ extension TextPickerViewModel {
             dismissHandler()
         }
     }
-    
-    func toggleSelection(of imageText: ImageText) {
-        if selectedImageTexts.contains(imageText) {
-            Haptics.feedback(style: .light)
-            withAnimation {
-                selectedImageTexts.removeAll(where: { $0 == imageText })
-            }
-        } else {
-            Haptics.feedback(style: .soft)
-            withAnimation {
-                selectedImageTexts.append(imageText)
-            }
-        }
-    }
-
+ 
     func didTapThumbnail(at index: Int) {
         Haptics.feedback(style: .rigid)
         page(toImageAt: index)
@@ -241,4 +169,30 @@ extension TextPickerViewModel {
 //        }
     }
     
+    func deleteCurrentImage() {
+        guard let deleteImageHandler = mode.deleteImageHandler else { return }
+        withAnimation {
+            let _ = imageViewModels.remove(at: currentIndex)
+            deleteImageHandler(currentIndex)
+            if imageViewModels.isEmpty {
+                shouldDismiss = true
+            } else if currentIndex != 0 {
+                currentIndex -= 1
+            }
+        }
+    }
+    
+    func toggleSelection(of imageText: ImageText) {
+        if selectedImageTexts.contains(imageText) {
+            Haptics.feedback(style: .light)
+            withAnimation {
+                selectedImageTexts.removeAll(where: { $0 == imageText })
+            }
+        } else {
+            Haptics.feedback(style: .soft)
+            withAnimation {
+                selectedImageTexts.append(imageText)
+            }
+        }
+    }
 }
