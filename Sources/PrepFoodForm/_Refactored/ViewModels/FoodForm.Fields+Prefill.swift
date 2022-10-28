@@ -13,8 +13,7 @@ extension FoodForm.Fields {
         prefillAmountPer(from: food)
         prefillNutrients(from: food)
 
-        //TODO: Bring this back
-//        updateShouldShowDensitiesSection()
+        updateShouldShowDensitiesSection()
 
         prefilledFood = food
     }
@@ -28,18 +27,18 @@ extension FoodForm.Fields {
     func prefillSize(_ processedSize: MFPProcessedFood.Size) {
         let field: Field = .init(fieldValue: processedSize.fieldValue)
         if processedSize.isVolumePrefixed {
-//            addVolumePrefixedSizeViewModel(field)
+            volumePrefixedSizes.append(field)
         } else {
-//            addStandardSizeViewModel(field)
+            standardSizes.append(field)
         }
     }
     
     func prefillSize(_ size: FormSize) {
         let field: Field = .init(fieldValue: size.fieldValue)
         if size.isVolumePrefixed {
-//            addVolumePrefixedSizeViewModel(field)
+            volumePrefixedSizes.append(field)
         } else {
-//            addStandardSizeViewModel(field)
+            standardSizes.append(field)
         }
     }
 

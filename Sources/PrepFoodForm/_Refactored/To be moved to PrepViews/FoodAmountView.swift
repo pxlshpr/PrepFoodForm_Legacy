@@ -31,7 +31,7 @@ struct FoodAmountView: View {
             HStack {
 //                Image(systemName: "plus.circle.fill")
 //                    .foregroundColor(Color(.quaternaryLabel))
-                Text("\(numberOfSizes) size\(numberOfSizes == 1 ? "s" : "")")
+                Text("\(numberOfSizes) size\(numberOfSizes != 1 ? "s" : "")")
                     .foregroundColor(Color(.secondaryLabel))
             }
             .padding(.vertical, 5)

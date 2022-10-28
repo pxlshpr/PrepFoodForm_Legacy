@@ -93,6 +93,7 @@ public struct FoodForm: View {
     var formLayer: some View {
         FormStyledScrollView {
             detailsSection
+            servingSection
             foodLabelSection
             sourcesSection
             prefillSection

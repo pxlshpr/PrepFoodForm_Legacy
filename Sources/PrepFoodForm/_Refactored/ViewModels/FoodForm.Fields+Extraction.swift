@@ -9,10 +9,50 @@ extension FoodForm.Fields {
             handleOneToOneExtractedNutrientFieldValue(fieldValue, shouldOverwrite: shouldOverwrite)
         }
         
-        updateShouldShowFoodLabel()
+        for sizeFieldValue in fieldValues.filter({ $0.isSize }) {
+            let sizeField = Field(fieldValue: sizeFieldValue)
+            /// If we were able to add this size view model (if it wasn't a duplicate) ...
+            guard add(sizeField: sizeField) else {
+                continue
+            }
+            sizeField.resetAndCropImage()
+            /// ... then go ahead and add it to the `scannedFieldValues` array as well
+            replaceOrSetExtractedFieldValue(sizeFieldValue)
+        }
         
-        print("Got \(fieldValues.count) fieldValues to fill in")
-        print("We here")
+        /// Get Barcodes from all images
+//        for barcodeViewModel in FoodForm.Sources.shared.allScanResults.allBarcodeViewModels {
+//            guard add(barcodeViewModel: barcodeViewModel) else {
+//                continue
+//            }
+//            barcodeViewModel.resetAndCropImage()
+//            replaceOrSetScannedFieldValue(barcodeViewModel.value)
+//        }
+        
+        updateShouldShowDensitiesSection()
+        updateShouldShowFoodLabel()
+
+//        markAllImageViewModelsAsProcessed()
+    }
+    
+    /// Returns true if the size was added
+    func add(sizeField: Field) -> Bool {
+        guard let size = sizeField.size else { return false }
+        
+        if size.isVolumePrefixed {
+            ///Make sure we don't already have one with the name
+            guard !volumePrefixedSizes.containsSizeNamed(size.name) else {
+                return false
+            }
+            volumePrefixedSizes.append(sizeField)
+        } else {
+            ///Make sure we don't already have one with the name
+            guard !standardSizes.containsSizeNamed(size.name) else {
+                return false
+            }
+            standardSizes.append(sizeField)
+        }
+        return true
     }
     
     func handleOneToOneExtractedNutrientFieldValue(_ fieldValue: FieldValue, shouldOverwrite: Bool) {
