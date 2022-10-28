@@ -12,7 +12,7 @@ class Field: ObservableObject, Identifiable {
         self.value = fieldValue
     }
     
-    func fillScannedFieldValue(_ fieldValue: FieldValue) {
+    func fill(with fieldValue: FieldValue) {
         self.value = fieldValue
         resetAndCropImage()
     }

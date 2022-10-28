@@ -45,7 +45,10 @@ extension FoodForm.SourcesView {
     
     var navigationLink: some View {
         NavigationLink {
-            FoodForm.SourcesForm(sources: sources, actionHandler: handleSourcesAction)
+            FoodForm.SourcesForm(
+                sources: sources,
+                actionHandler: handleSourcesAction
+            )
         } label: {
             VStack(spacing: 0) {
                 imagesRow
@@ -110,7 +113,7 @@ extension FoodForm.SourcesView {
             
         } label: {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Provide a source if you want this food to be eligible for the public database and generate subscription tokens.")
+                Text("Add a source if you would like this food to be verified and earn you subscription tokens.")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")

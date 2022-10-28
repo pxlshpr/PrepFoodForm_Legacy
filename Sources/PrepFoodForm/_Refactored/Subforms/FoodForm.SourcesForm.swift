@@ -123,6 +123,9 @@ extension FoodForm.SourcesForm {
                 initialImageIndex: sources.presentingImageIndex,
                 deleteHandler: { deletedImageIndex in
                     actionHandler(.removeImage(index: deletedImageIndex))
+                },
+                columnSelectionHandler: { selectedColumn, scanResult in
+                    sources.autoFillHandler?(selectedColumn, scanResult)
                 }
             )
         )

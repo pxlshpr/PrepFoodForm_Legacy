@@ -3,8 +3,14 @@ import SwiftHaptics
 
 extension TextPicker {
 
-    var doneButton: some View {
+    /**
+     Note: This used to be a multi-purpose button for both column and multi-selection modes.
+     We've now repurposed it for column selection only.
+     We would need to bring back `doneButton_legacy` below when multi-selection is needed agian.
+     */
+    var columnSelectionDoneButton: some View {
         Button {
+            textPickerViewModel.tappedColumnSelectionDone()
             if textPickerViewModel.shouldDismissAfterTappingDone() {
                 Haptics.feedback(style: .medium)
                 DispatchQueue.main.async {

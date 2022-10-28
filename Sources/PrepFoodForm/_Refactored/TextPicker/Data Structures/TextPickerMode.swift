@@ -2,19 +2,29 @@ import Foundation
 import VisionSugar
 
 enum TextPickerMode {
-    case singleSelection(filter: TextPickerFilter,
-                         selectedImageText: ImageText?,
-                         handler: SingleSelectionHandler)
-    case multiSelection(filter: TextPickerFilter,
-                        selectedImageTexts: [ImageText],
-                        handler: MultiSelectionHandler)
-    case columnSelection(column1: TextColumn,
-                         column2: TextColumn,
-                         selectedColumn: Int,
-                         dismissHandler: DismissHandler,
-                         selectionHandler: ColumnSelectionHandler)
-    case imageViewer(initialImageIndex: Int,
-                     deleteHandler: DeleteImageHandler)
+    case singleSelection(
+        filter: TextPickerFilter,
+        selectedImageText: ImageText?,
+        handler: SingleSelectionHandler
+    )
+    case multiSelection(
+        filter: TextPickerFilter,
+        selectedImageTexts: [ImageText],
+        handler: MultiSelectionHandler
+    )
+    case columnSelection(
+        column1: TextColumn,
+        column2: TextColumn,
+        selectedColumn: Int,
+        requireConfirmation: Bool = false,
+        dismissHandler: DismissHandler,
+        columnSelectionHandler: ColumnSelectionHandler
+    )
+    case imageViewer(
+        initialImageIndex: Int,
+        deleteHandler: DeleteImageHandler,
+        columnSelectionHandler: ColumnSelectionHandler
+    )
 }
 
 extension TextPickerFilter {
@@ -30,8 +40,19 @@ extension TextPickerFilter {
 
 extension TextPickerMode {
     
+    var columnSelectionHandler: ColumnSelectionHandler? {
+        switch self {
+        case .columnSelection(_, _, _, _, _, let columnSelectionHandler):
+            return columnSelectionHandler
+        case .imageViewer(_, _, let columnSelectionHandler):
+            return columnSelectionHandler
+        default:
+            return nil
+        }
+    }
+    
     func boundingBox(forImageWithId imageId: UUID) -> CGRect? {
-        guard case .columnSelection(let column1, let column2, _, _, _) = self else {
+        guard case .columnSelection(let column1, let column2, _, _, _, _) = self else {
             return nil
         }
         var boundingBoxes: [CGRect] = []
@@ -51,7 +72,7 @@ extension TextPickerMode {
     }
     
     var selectedColumn: TextColumn? {
-        guard case .columnSelection(let column1, let column2, let selectedColumn, _, _) = self else {
+        guard case .columnSelection(let column1, let column2, let selectedColumn, _, _, _) = self else {
             return nil
         }
         return selectedColumn == 1 ? column1 : column2
@@ -59,17 +80,23 @@ extension TextPickerMode {
     
     var selectedColumnIndex: Int? {
         get {
-            guard case .columnSelection(_, _, let selectedColumn, _, _) = self else {
+            guard case .columnSelection(_, _, let selectedColumn, _, _, _) = self else {
                 return nil
             }
             return selectedColumn
         }
         set {
             guard let newValue,
-                case .columnSelection(let column1, let column2, _, let dismissHandler, let selectionHandler) = self else {
+                case .columnSelection(let column1, let column2, _, let requireConfirmation, let dismissHandler, let columnSelectionHandler) = self else {
                 return
             }
-            self = .columnSelection(column1: column1, column2: column2, selectedColumn: newValue, dismissHandler: dismissHandler, selectionHandler: selectionHandler)
+            self = .columnSelection(
+                column1: column1,
+                column2: column2,
+                selectedColumn: newValue,
+                requireConfirmation: requireConfirmation,
+                dismissHandler: dismissHandler,
+                columnSelectionHandler: columnSelectionHandler)
         }
     }
     
@@ -87,7 +114,7 @@ extension TextPickerMode {
     }
     
     func columnTexts(onImageWithId imageId: UUID) -> [RecognizedText] {
-        guard case .columnSelection(let column1, let column2, _, _, _) = self else {
+        guard case .columnSelection(let column1, let column2, _, _, _, _) = self else {
             return []
         }
         var texts: [RecognizedText] = []
@@ -108,7 +135,7 @@ extension TextPickerMode {
             return [selectedImageText]
         case .multiSelection(_, let selectedImageTexts, _):
             return selectedImageTexts
-        case .columnSelection(let column1, let column2, let selectedColumn, _, _):
+        case .columnSelection(let column1, let column2, let selectedColumn, _, _, _):
             return selectedColumn == 1 ? column1.imageTexts : column2.imageTexts
         case .imageViewer:
             return []
@@ -146,7 +173,7 @@ extension TextPickerMode {
     }
 
     var deleteImageHandler: DeleteImageHandler? {
-        if case .imageViewer(_, let deleteHandler) = self {
+        if case .imageViewer(_, let deleteHandler, _) = self {
             return deleteHandler
         }
         return nil
@@ -170,7 +197,7 @@ extension TextPickerMode {
     
     func initialImageIndex(from imageViewModels: [ImageViewModel]) -> Int {
         switch self {
-        case .imageViewer(let initialImageIndex, _):
+        case .imageViewer(let initialImageIndex, _, _):
             return initialImageIndex
         case .singleSelection(_, let selectedImageText, _):
             guard let selectedImageText else { return 0 }
@@ -180,6 +207,17 @@ extension TextPickerMode {
             return imageViewModels.firstIndex(where: { $0.id == first.imageId }) ?? 0
         case .columnSelection:
             return 0
+        }
+    }
+    
+    var requiresConfirmation: Bool {
+        switch self {
+        case .columnSelection(_, _, _, let requireConfirmation, _, _):
+            return requireConfirmation
+        case .imageViewer:
+            return true
+        default:
+            return false
         }
     }
 }

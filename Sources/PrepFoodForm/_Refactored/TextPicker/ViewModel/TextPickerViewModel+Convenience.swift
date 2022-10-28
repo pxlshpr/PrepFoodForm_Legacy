@@ -13,7 +13,6 @@ extension TextPickerViewModel {
         }
         
         let filter = mode.filter ?? .allTextsAndBarcodes
-        let start = CFAbsoluteTimeGetCurrent()
         let texts = imageViewModel.texts(for: filter)
         return texts
     }
@@ -73,13 +72,11 @@ extension TextPickerViewModel {
         if case .multiSelection(_, _, let handler) = mode {
             handler(selectedImageTexts)
             return true
-        } else if case .columnSelection(_, _, let selectedColumn, _, let selectionHandler) = mode {
-            return selectionHandler(selectedColumn)
+        } else if case .columnSelection(_, _, _, let requireConfirmation, _, _) = mode {
+            return !requireConfirmation
         }
         return true
     }
-    
-
 
     func barcodes(for imageViewModel: ImageViewModel) -> [RecognizedBarcode] {
         guard mode.filter?.includesBarcodes == true else {
@@ -169,9 +166,17 @@ extension TextPickerViewModel {
     }
     
     var columns: [TextColumn]? {
-        guard case .columnSelection(let column1, let column2, _, _, _) = mode else {
+        guard case .columnSelection(let column1, let column2, _, _, _, _) = mode else {
             return nil
         }
         return [column1, column2]
+    }
+    
+    var columnSelectionHandler: ColumnSelectionHandler? {
+        mode.columnSelectionHandler
+    }
+    
+    var requiresConfirmation: Bool {
+        mode.requiresConfirmation
     }
 }

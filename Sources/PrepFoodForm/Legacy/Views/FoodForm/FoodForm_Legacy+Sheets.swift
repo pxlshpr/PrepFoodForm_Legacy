@@ -50,15 +50,15 @@ extension FoodForm_Legacy {
                     column1: column1,
                     column2: column2,
                     selectedColumn: viewModel.pickedColumn,
+                    requireConfirmation: false,
                     dismissHandler: {
                         viewModel.removeUnprocessedImageViewModels()
                     },
-                    selectionHandler: { pickedColumn in
+                    columnSelectionHandler: { pickedColumn, scanResultToAutofill in
                         viewModel.processScanResults(
                             column: pickedColumn,
                             from: viewModel.candidateScanResults
                         )
-                        return true
                     })
             )
         }

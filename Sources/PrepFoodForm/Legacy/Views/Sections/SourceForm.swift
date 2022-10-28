@@ -136,6 +136,9 @@ struct SourceForm: View {
                 initialImageIndex: viewModel.selectedImageIndex,
                 deleteHandler: { deletedImageIndex in
                     viewModel.removeImage(at: deletedImageIndex)
+                },
+                columnSelectionHandler: { selectedColumn, scanResultToAutofill in
+                    //TODO: Handle this
                 }
             )
         )

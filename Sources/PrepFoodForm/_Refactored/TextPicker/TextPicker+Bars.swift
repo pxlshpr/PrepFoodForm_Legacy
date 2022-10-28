@@ -87,7 +87,7 @@ extension TextPicker {
         if let columns = textPickerViewModel.columns {
             HStack {
                 columnPicker(columns: columns)
-                doneButton
+                columnSelectionDoneButton
             }
         }
     }

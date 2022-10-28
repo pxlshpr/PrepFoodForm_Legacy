@@ -21,6 +21,26 @@ extension FoodForm {
         FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
     }
 
+    func didDismissColumnPicker() {
+        //TODO: Remove any unprocessed imageViewModels here
+//        viewModel.removeUnprocessedImageViewModels()
+    }
+    
+    func extract(column: Int, from results: [ScanResult], shouldOverwrite: Bool) {
+        Task {
+            let fieldValues = await sources.extractFieldsFrom(results, at: column)
+            handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+        }
+    }
+    
+    func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
+        guard let scanResult else {
+            /// We shouldn't come here without a `ScanResult`
+            return
+        }
+        extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
+    }
+    
     @ViewBuilder
     var textPicker: some View {
         if let columnSelectionInfo = sources.columnSelectionInfo {
@@ -30,18 +50,13 @@ extension FoodForm {
                     column1: columnSelectionInfo.column1,
                     column2: columnSelectionInfo.column2,
                     selectedColumn: columnSelectionInfo.bestColumn,
-                    dismissHandler: {
-                        //                    viewModel.removeUnprocessedImageViewModels()
-                    },
-                    selectionHandler: { pickedColumn in
-                        Task {
-                            let fieldValues = await sources.extractFieldsFrom(
-                                columnSelectionInfo.candidates,
-                                at: pickedColumn
-                            )
-                            didExtractFieldValues(fieldValues)
-                        }
-                        return true
+                    requireConfirmation: false,
+                    dismissHandler: didDismissColumnPicker,
+                    columnSelectionHandler: { selectedColumn, _ in
+                        extract(column: selectedColumn,
+                                from: columnSelectionInfo.candidates,
+                                shouldOverwrite: false
+                        )
                     })
             )
         }

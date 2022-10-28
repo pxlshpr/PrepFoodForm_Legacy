@@ -5,14 +5,87 @@ import VisionSugar
 extension TextPickerViewModel {
     
     func tappedConfirmAutoFill() {
-        guard let currentScanResult else { return }
-        //TODO: Handle this outside the TextPicker
-        FoodFormViewModel.shared.processScanResults(
-            column: selectedColumn,
-            from: [currentScanResult],
-            isUserInitiated: true
-        )
+        guard let currentScanResult, let columnSelectionHandler else {
+            return
+        }
+        columnSelectionHandler(selectedColumn, currentScanResult)
+//        //TODO: Handle this outside the TextPicker, in a closure
+//        FoodFormViewModel.shared.processScanResults(
+//            column: selectedColumn,
+//            from: [currentScanResult],
+//            isUserInitiated: true
+//        )
         shouldDismiss = true
+    }
+    
+    func tappedAutoFill() {
+        guard let scanResult = imageViewModels[currentIndex].scanResult,
+              let columnSelectionHandler = mode.columnSelectionHandler
+        else {
+            return
+        }
+        
+        if scanResult.columnCount == 1 {
+            
+            columnSelectionHandler(1, scanResult)
+//            //TODO: Handle this outside the TextPicker, in a closure
+//            FoodFormViewModel.shared.processScanResults(
+//                column: 1,
+//                from: [scanResult],
+//                isUserInitiated: true
+//            )
+            
+            shouldDismiss = true
+
+        } else if scanResult.columnCount == 2 {
+            let column1 = TextColumn(
+                column: 1,
+                name: scanResult.headerTitle1,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 1, from: scanResult)
+            )
+            let column2 = TextColumn(
+                column: 2,
+                name: scanResult.headerTitle2,
+                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
+            )
+            withAnimation {
+                let bestColumn = scanResult.bestColumn
+                self.selectedColumn = bestColumn
+                mode = .columnSelection(
+                    column1: column1,
+                    column2: column2,
+                    selectedColumn: bestColumn,
+                    requireConfirmation: true,
+                    dismissHandler: {
+                        self.shouldDismiss = true
+                    },
+                    columnSelectionHandler: columnSelectionHandler
+//                    selectionHandler: { selectedColumn in
+//                        self.showingAutoFillConfirmation = true
+//                        return false
+//                    }
+                )
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation {
+                    self.showingBoxes = true
+                    self.selectedImageTexts = self.mode.selectedImageTexts
+                }
+            }
+        } else {
+            shouldDismiss = true
+        }
+    }
+    
+    func tappedColumnSelectionDone() {
+        guard let columnSelectionHandler else {
+            return
+        }
+        if requiresConfirmation {
+            showingAutoFillConfirmation = true
+        } else {
+            columnSelectionHandler(selectedColumn, nil)
+        }
     }
     
     func pickedColumn(_ index: Int) {
@@ -87,61 +160,8 @@ extension TextPickerViewModel {
         }
     }
     
-    func tappedAutoFill() {
-        guard let scanResult = imageViewModels[currentIndex].scanResult else {
-            return
-        }
-        if scanResult.columnCount == 1 {
-            
-            //TODO: Handle this outside the TextPicker
-            FoodFormViewModel.shared.processScanResults(
-                column: 1,
-                from: [scanResult],
-                isUserInitiated: true
-            )
-            
-            shouldDismiss = true
-
-        } else if scanResult.columnCount == 2 {
-            let column1 = TextColumn(
-                column: 1,
-                name: scanResult.headerTitle1,
-                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 1, from: scanResult)
-            )
-            let column2 = TextColumn(
-                column: 2,
-                name: scanResult.headerTitle2,
-                imageTexts: FoodFormViewModel.shared.columnImageTexts(at: 2, from: scanResult)
-            )
-            withAnimation {
-                let bestColumn = scanResult.bestColumn
-                self.selectedColumn = bestColumn
-                mode = .columnSelection(
-                    column1: column1,
-                    column2: column2,
-                    selectedColumn: bestColumn,
-                    dismissHandler: {
-                        self.shouldDismiss = true
-                    },
-                    selectionHandler: { selectedColumn in
-                        self.showingAutoFillConfirmation = true
-                        return false
-                    }
-                )
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                withAnimation {
-                    self.showingBoxes = true
-                    self.selectedImageTexts = self.mode.selectedImageTexts
-                }
-            }
-        } else {
-            shouldDismiss = true
-        }
-    }
-    
     func tappedDismiss() {
-        if case .columnSelection(_, _, _, let dismissHandler, _) = mode {
+        if case .columnSelection(_, _, _, _, let dismissHandler, _) = mode {
             dismissHandler()
         }
     }

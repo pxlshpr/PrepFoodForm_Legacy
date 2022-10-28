@@ -12,7 +12,7 @@ class FieldsExtractor {
      
      If they are double columned—a `ColumnSelectionInfo` is generated and returned with a `.needsColumnSelection` output, so that the user may be presented with UI to select the desired column, after which the actual process function would be called (with an explicit column provided).
      */
-    func tryExtractFieldsFrom(_ scanResults: [ScanResult]) async -> FieldsExtractorOutput? {
+    func extractFieldsOrGetColumnSelectionInfo(for scanResults: [ScanResult]) async -> FieldsExtractorOutput? {
         
         let candidates = scanResults.candidateScanResults
         if candidates.minimumNumberOfColumns == 2 {

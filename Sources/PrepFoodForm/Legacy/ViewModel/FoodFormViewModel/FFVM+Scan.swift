@@ -169,21 +169,21 @@ extension FoodFormViewModel {
     func fillScannedFieldValue(_ fieldValue: FieldValue) {
         switch fieldValue {
         case .amount:
-            amountViewModel.fillScannedFieldValue(fieldValue)
+            amountViewModel.fill(with: fieldValue)
         case .serving:
-            servingViewModel.fillScannedFieldValue(fieldValue)
+            servingViewModel.fill(with: fieldValue)
         case .density:
-            densityViewModel.fillScannedFieldValue(fieldValue)
+            densityViewModel.fill(with: fieldValue)
         case .energy:
-            energyViewModel.fillScannedFieldValue(fieldValue)
+            energyViewModel.fill(with: fieldValue)
         case .macro(let macroValue):
             switch macroValue.macro {
-            case .carb: carbViewModel.fillScannedFieldValue(fieldValue)
-            case .fat: fatViewModel.fillScannedFieldValue(fieldValue)
-            case .protein: proteinViewModel.fillScannedFieldValue(fieldValue)
+            case .carb: carbViewModel.fill(with: fieldValue)
+            case .fat: fatViewModel.fill(with: fieldValue)
+            case .protein: proteinViewModel.fill(with: fieldValue)
             }
         case .micro(let microValue):
-            micronutrientFieldViewModel(for: microValue.nutrientType)?.fillScannedFieldValue(fieldValue)
+            micronutrientFieldViewModel(for: microValue.nutrientType)?.fill(with: fieldValue)
         default:
             break
         }

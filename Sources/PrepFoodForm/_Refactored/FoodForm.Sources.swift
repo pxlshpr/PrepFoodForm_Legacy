@@ -19,6 +19,7 @@ extension FoodForm {
         var presentingImageIndex: Int = 0
         
         var didScanAllPickedImages: (() -> ())? = nil
+        var autoFillHandler: ColumnSelectionHandler? = nil
     }
 }
 
@@ -37,13 +38,13 @@ extension FoodForm.Sources {
         selectedPhotos = []
     }
     
-    func tryExtractFieldsFromScanResults() async -> [FieldValue]? {
+    func extractFieldsOrSetColumnSelectionInfo() async -> [FieldValue]? {
         
         await MainActor.run {
             imageSetStatus = .extracting(numberOfImages: imageViewModels.count)
         }
         
-        guard let output = await FieldsExtractor.shared.tryExtractFieldsFrom(allScanResults)
+        guard let output = await FieldsExtractor.shared.extractFieldsOrGetColumnSelectionInfo(for: allScanResults)
         else {
             return nil
         }
@@ -59,7 +60,8 @@ extension FoodForm.Sources {
     }
     
     func extractFieldsFrom(_ results: [ScanResult], at column: Int) async -> [FieldValue] {
-        guard case .fieldValues(let fieldValues) = await FieldsExtractor.shared.extractFieldsFrom(results, at: column) else {
+        let output = await FieldsExtractor.shared.extractFieldsFrom(results, at: column)
+        guard case .fieldValues(let fieldValues) = output else {
             return []
         }
         return fieldValues

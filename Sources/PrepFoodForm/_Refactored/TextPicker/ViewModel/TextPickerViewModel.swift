@@ -20,7 +20,7 @@ class TextPickerViewModel: ObservableObject {
     @Published var mode: TextPickerMode
     @Published var selectedColumn: Int
     
-    init(imageViewModels: [ImageViewModel], mode: TextPickerMode ){
+    init(imageViewModels: [ImageViewModel], mode: TextPickerMode){
         self.imageViewModels = imageViewModels
         self.mode = mode
         self.selectedImageTexts = mode.selectedImageTexts
