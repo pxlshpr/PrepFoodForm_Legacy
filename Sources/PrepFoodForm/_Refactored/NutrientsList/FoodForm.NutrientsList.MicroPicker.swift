@@ -61,36 +61,16 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
 
     var form: some View {
         Form {
-            ForEach(fields.micronutrients.indices, id: \.self) {
-                group(atIndex: $0)
+            ForEach(NutrientTypeGroup.allCases.filter({ $0 == .fats || $0 == .fibers })) {
+                group(for: $0)
             }
         }
     }
     
-    func group(atIndex index: Int) -> some View {
-        let groupTuple = fields.micronutrients[index]
-        return Group {
-            if fields.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
-                Section(groupTuple.group.description) {
-                    ForEach(groupTuple.fields.indices, id: \.self) {
-                        micronutrientButton(atIndex: $0, forGroupAtIndex: index)
-                    }
-                }
-            }
-        }
-    }
-    
-    func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let field = fields.micronutrients[groupIndex].fields[index]
-        var searchBool: Bool
-        if !searchText.isEmpty {
-            searchBool = field.value.microValue.matchesSearchString(searchText)
-        } else {
-            searchBool = true
-        }
-        return Group {
-            if field.value.isEmpty, searchBool, let nutrientType = field.nutrientType {
-                nutrientButton(for: nutrientType)
+    func group(for group: NutrientTypeGroup) -> some View {
+        Section(group.description) {
+            ForEach(group.nutrients) {
+                nutrientButton(for: $0)
             }
         }
     }
@@ -115,3 +95,53 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
         }
     }
 }
+
+extension NutrientType: Identifiable {
+    public var id: Int16 {
+        return rawValue
+    }
+}
+
+extension NutrientTypeGroup: Identifiable {
+    public var id: Int16 {
+        return rawValue
+    }
+}
+
+//extension FoodForm.NutrientsList.MicronutrientsPicker {
+//    var formGroupBased: some View {
+//        Form {
+//            ForEach(fields.micronutrients.indices, id: \.self) {
+//                group(atIndex: $0)
+//            }
+//        }
+//    }
+//
+//    func group(atIndex index: Int) -> some View {
+//        let groupTuple = fields.micronutrients[index]
+//        return Group {
+//            if fields.hasRemainingMicrosForGroup(at: index, matching: searchText) {
+//                Section(groupTuple.group.description) {
+//                    ForEach(groupTuple.fields.indices, id: \.self) {
+//                        micronutrientButton(atIndex: $0, forGroupAtIndex: index)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
+//        let field = fields.micronutrients[groupIndex].fields[index]
+//        var searchBool: Bool
+//        if !searchText.isEmpty {
+//            searchBool = field.value.microValue.matchesSearchString(searchText)
+//        } else {
+//            searchBool = true
+//        }
+//        return Group {
+//            if field.value.isEmpty, searchBool, let nutrientType = field.nutrientType {
+//                nutrientButton(for: nutrientType)
+//            }
+//        }
+//    }
+//}

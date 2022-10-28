@@ -7,7 +7,7 @@ import MFPScraper
 extension FoodForm {
     class Sources: ObservableObject {
         
-        static let shared = Sources()
+        static var shared = Sources()
         
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()

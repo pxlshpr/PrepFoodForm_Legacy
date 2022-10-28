@@ -37,7 +37,7 @@ extension FoodForm.NutrientsList {
     var micronutrientsPicker: some View {
         MicronutrientsPicker { nutrientTypes in
             withAnimation {
-                fields.includeMicronutrients(for: nutrientTypes)
+                fields.addMicronutrients(nutrientTypes)
             }
         }
         .environmentObject(fields)
