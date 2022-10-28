@@ -62,7 +62,7 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
     var form: some View {
         Form {
             ForEach(NutrientTypeGroup.allCases) {
-                if fields.hasRemainingMicrosForGroup($0, matching: searchText) {
+                if fields.hasUnusedMicros(in: $0, matching: searchText) {
                     group(for: $0)
                 }
             }

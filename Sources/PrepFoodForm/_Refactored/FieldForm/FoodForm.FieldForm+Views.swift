@@ -128,16 +128,19 @@ extension FoodForm.FieldForm {
     
     //MARK: - Fill Options Sections
     
+    @ViewBuilder
     var fillInfo: some View {
-        FillInfo(
-            field: field,
-            shouldAnimate: $shouldAnimateOptions,
-            didTapImage: {
-                showTextPicker()
-            }, didTapFillOption: { fillOption in
-                didTapFillOption(fillOption)
-            })
-        .environmentObject(fields)
+        if fields.hasFillOptions(for: field.value) {
+            FillInfo(
+                field: field,
+                shouldAnimate: $shouldAnimateOptions,
+                didTapImage: {
+                    showTextPicker()
+                }, didTapFillOption: { fillOption in
+                    didTapFillOption(fillOption)
+                })
+            .environmentObject(fields)
+        }
     }
     
     //MARK: - Text Picker

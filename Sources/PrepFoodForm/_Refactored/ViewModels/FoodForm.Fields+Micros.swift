@@ -5,7 +5,7 @@ extension FoodForm.Fields {
     
     func groupArray(for nutrientType: NutrientType) -> [Field] {
         switch nutrientType.group {
-        case .fats:         return microsFibers
+        case .fats:         return microsFats
         case .fibers:       return microsFibers
         case .sugars:       return microsSugars
         case .minerals:     return microsMinerals
@@ -52,20 +52,27 @@ extension FoodForm.Fields {
         }
     }
 
-    func hasRemainingMicrosForGroup(_ group: NutrientTypeGroup, matching searchString: String = "") -> Bool {
-        //TODO: Do this
-        return true
-//        micronutrients[index].fields.contains(where: {
-//            if !searchString.isEmpty {
-//                return $0.value.isEmpty && $0.value.microValue.matchesSearchString(searchString)
-//            } else {
-//                return $0.value.isEmpty
-//            }
-//        })
+    func hasUnusedMicros(in group: NutrientTypeGroup, matching searchString: String = "") -> Bool {
+        group.nutrients.contains(where: {
+            if searchString.isEmpty {
+                return !hasMicronutrient(for: $0)
+            } else {
+                return !hasMicronutrient(for: $0) && $0.matchesSearchString(searchString)
+            }
+        })
     }
     
     var haveMicronutrients: Bool {
         !allMicronutrientFields.isEmpty
+    }
+    
+    var microsDict: [NutrientType : FoodLabelValue] {
+        var dict: [NutrientType : FoodLabelValue] = [:]
+        for fieldValue in allMicronutrientFieldValues {
+            guard let value = fieldValue.value else { continue }
+            dict[fieldValue.microValue.nutrientType] = value
+        }
+        return dict
     }
 }
 

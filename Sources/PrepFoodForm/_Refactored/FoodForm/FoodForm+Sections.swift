@@ -49,30 +49,36 @@ extension FoodForm {
     var foodLabel: FoodLabel {
         let energyBinding = Binding<FoodLabelValue>(
             get: { fields.energy.value.value ?? .init(amount: 0, unit: .kcal)  },
-            set: { newValue in }
+            set: { _ in }
         )
 
         let carbBinding = Binding<Double>(
             get: { fields.carb.value.double ?? 0  },
-            set: { newValue in }
+            set: { _ in }
         )
 
         let fatBinding = Binding<Double>(
             get: { fields.fat.value.double ?? 0  },
-            set: { newValue in }
+            set: { _ in }
         )
 
         let proteinBinding = Binding<Double>(
             get: { fields.protein.value.double ?? 0  },
-            set: { newValue in }
+            set: { _ in }
         )
+        
+        let microsBinding = Binding<[NutrientType : FoodLabelValue]> {
+            fields.microsDict
+        } set: { newDict in
+            
+        }
 
         return FoodLabel(
             energyValue: energyBinding,
             carb: carbBinding,
             fat: fatBinding,
             protein: proteinBinding,
-            nutrients: .constant([:]),
+            nutrients: microsBinding,
             amountPerString: .constant("amountPerString")
         )
     }
