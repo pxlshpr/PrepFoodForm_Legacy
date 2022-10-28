@@ -12,7 +12,6 @@ extension FoodForm {
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()
         @Published var linkInfo: LinkInfo? = nil
-        @Published var prefilledFood: MFPProcessedFood? = nil
 
         /// Scan Results
         @Published var columnSelectionInfo: ColumnSelectionInfo? = nil
@@ -84,6 +83,7 @@ extension FoodForm.Sources {
 
 //MARK: - Helpers
 extension FoodForm.Sources {
+    
     func imageViewModels(for columnSelectionInfo: ColumnSelectionInfo) -> [ImageViewModel] {
         imageViewModels.containingTexts(in: columnSelectionInfo)
     }
@@ -150,4 +150,42 @@ extension FoodForm.Sources: ImageViewModelDelegate {
             self.imageSetStatus = .scanning(numberOfImages: imageViewModels.count)
         }
     }
+}
+
+import VisionSugar
+
+//MARK: - Available Texts
+extension FoodForm.Sources {
+    
+    /**
+     Returns true if there is at least one available (unused`RecognizedText` in all the `ScanResult`s that is compatible with the `fieldValue`
+     */
+    func hasAvailableTexts(for fieldValue: FieldValue) -> Bool {
+        imageViewModels.contains(where: { $0.scanResult != nil })
+        
+        //TODO: Bring this back, we're currently rudimentarily returning true if we have any ScanResults
+//        !availableTexts(for: fieldValue).isEmpty
+    }
+    
+    func availableTexts(for fieldValue: FieldValue) -> [RecognizedText] {
+        var availableTexts: [RecognizedText] = []
+        for imageViewModel in imageViewModels {
+            let texts = fieldValue.usesValueBasedTexts ? imageViewModel.textsWithFoodLabelValues : imageViewModel.texts
+//            let filtered = texts.filter { isNotUsingText($0) }
+            availableTexts.append(contentsOf: texts)
+        }
+        return availableTexts
+    }
+
+//    func isNotUsingText(_ text: RecognizedText) -> Bool {
+//        fieldValueUsing(text: text) == nil
+//    }
+//    /**
+//     Returns the `fieldValue` (if any) that is using the `RecognizedText`
+//     */
+//    func fieldValueUsing(text: RecognizedText) -> FieldValue? {
+//        allFieldValues.first(where: {
+//            $0.fill.uses(text: text)
+//        })
+//    }
 }
