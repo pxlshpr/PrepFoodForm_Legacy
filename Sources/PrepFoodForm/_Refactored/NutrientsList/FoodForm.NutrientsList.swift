@@ -22,7 +22,7 @@ extension FoodForm.NutrientsList {
             .toolbar { navigationTrailingContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
-//            .sheet(isPresented: $showingMicronutrientsPicker) { microPicker }
+            .sheet(isPresented: $showingMicronutrientsPicker) { micronutrientsPicker }
             .bottomMenu(isPresented: $showingMenu, menu: bottomMenu)
     }
     
@@ -183,13 +183,13 @@ extension FoodForm.NutrientsList {
         }
     }
 
-    var microPicker: some View {
-//        MicroPicker { pickedNutrientTypes in
-//            withAnimation {
-//                viewModel.includeMicronutrients(for: pickedNutrientTypes)
-//            }
-//        }
-//        .environmentObject(viewModel)
+    var micronutrientsPicker: some View {
+        MicronutrientsPicker { nutrientTypes in
+            withAnimation {
+                fields.includeMicronutrients(for: nutrientTypes)
+            }
+        }
+        .environmentObject(fields)
     }
     
     //MARK: Menu

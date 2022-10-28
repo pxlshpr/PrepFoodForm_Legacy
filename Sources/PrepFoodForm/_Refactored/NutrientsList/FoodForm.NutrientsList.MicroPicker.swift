@@ -1,23 +1,26 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
-//import Introspect
 
-public struct MicroPicker: View {
-    @EnvironmentObject var viewModel: FoodFormViewModel
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.colorScheme) var colorScheme
+extension FoodForm.NutrientsList {
+    struct MicronutrientsPicker: View {
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.colorScheme) var colorScheme
+
+        @EnvironmentObject var fields: FoodForm.Fields
+        let didAddNutrientTypes: ([NutrientType]) -> ()
+
+        @State private var searchText = ""
+        @State var showingSearchLayer: Bool = false
+        @FocusState var isFocused: Bool
+        @State var hasBecomeFirstResponder: Bool = false
+        @State var pickedNutrientTypes: [NutrientType] = []
+    }
+}
+
+extension FoodForm.NutrientsList.MicronutrientsPicker {
     
-    @State private var searchText = ""
-    @State var showingSearchLayer: Bool = false
-    @FocusState var isFocused: Bool
-    @State var hasBecomeFirstResponder: Bool = false
-    
-    @State var pickedNutrientTypes: [NutrientType] = []
-    
-    let didAddNutrientTypes: ([NutrientType]) -> ()
-    
-    public var body: some View {
+    var body: some View {
         NavigationView {
             ZStack {
                 form
@@ -56,16 +59,16 @@ public struct MicroPicker: View {
 
     var form: some View {
         Form {
-            ForEach(viewModel.micronutrients.indices, id: \.self) {
+            ForEach(fields.micronutrients.indices, id: \.self) {
                 group(atIndex: $0)
             }
         }
     }
     
     func group(atIndex index: Int) -> some View {
-        let groupTuple = viewModel.micronutrients[index]
+        let groupTuple = fields.micronutrients[index]
         return Group {
-            if viewModel.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
+            if fields.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
                 Section(groupTuple.group.description) {
                     ForEach(groupTuple.fieldViewModels.indices, id: \.self) {
                         micronutrientButton(atIndex: $0, forGroupAtIndex: index)
@@ -76,7 +79,7 @@ public struct MicroPicker: View {
     }
     
     func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
+        let fieldViewModel = fields.micronutrients[groupIndex].fieldViewModels[index]
         var searchBool: Bool
         if !searchText.isEmpty {
             searchBool = fieldViewModel.value.microValue.matchesSearchString(searchText)
@@ -204,33 +207,3 @@ public struct MicroPicker: View {
         isFocused = false
     }
 }
-
-extension FoodFormViewModel {
-    
-    func hasNutrientsLeftToAdd(in group: NutrientTypeGroup) -> Bool {
-        group.nutrients.contains { nutrientType in
-            !hasAddedNutrient(nutrientType)
-        }
-    }
-    
-    func hasAddedNutrient(_ type: NutrientType) -> Bool {
-        //TODO: Micronutrients
-        false
-//        micronutrients.contains(where: { $0.identifier.nutrientType == type })
-    }
-    
-    func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int, matching searchString: String = "") -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: {
-            if !searchString.isEmpty {
-                return $0.value.isEmpty && $0.value.microValue.matchesSearchString(searchString)
-            } else {
-                return $0.value.isEmpty
-            }
-        })
-    }
-    
-    func hasIncludedFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: { $0.value.microValue.isIncluded })
-    }
-}
-
