@@ -10,25 +10,18 @@ struct FoodDetailsView: View {
     var didTapEmoji: (() -> Void)? = nil
     
     var body: some View {
-        Group {
-            if isEmpty {
-                Text("Required")
+        HStack {
+            emojiButton
+            VStack(alignment: .leading) {
+                nameText
+                detailText
+                    .foregroundColor(.secondary)
+                brandText
                     .foregroundColor(Color(.tertiaryLabel))
-            } else {
-                HStack {
-                    emojiButton
-                    VStack(alignment: .leading) {
-                        nameText
-                        detailText
-                            .foregroundColor(.secondary)
-                        brandText
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
-                    Spacer()
-                }
-                .foregroundColor(.primary)
             }
+            Spacer()
         }
+        .foregroundColor(.primary)
     }
     
     var emojiButton: some View {
@@ -76,9 +69,5 @@ struct FoodDetailsView: View {
             Text(brand)
                 .multilineTextAlignment(.leading)
         }
-    }
-    
-    var isEmpty: Bool {
-        name.isEmpty && emoji.isEmpty && detail.isEmpty && brand.isEmpty
-    }
+    }    
 }

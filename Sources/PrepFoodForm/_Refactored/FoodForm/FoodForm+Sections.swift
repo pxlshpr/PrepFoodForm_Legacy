@@ -9,9 +9,14 @@ extension FoodForm {
             NavigationLink {
                 DetailsForm(name: $name, detail: $detail, brand: $brand)
             } label: {
-                FoodDetailsView(emoji: $emoji, name: $name, detail: $detail, brand: $brand, didTapEmoji: {
-                    showingEmojiPicker = true
-                })
+                if detailsAreEmpty {
+                    Text("Required")
+                        .foregroundColor(Color(.tertiaryLabel))
+                } else {
+                    FoodDetailsView(emoji: $emoji, name: $name, detail: $detail, brand: $brand, didTapEmoji: {
+                        showingEmojiPicker = true
+                    })
+                }
             }
         }
     }
@@ -59,40 +64,19 @@ extension FoodForm {
         }
     }
     
-    var foodLabel: FoodLabel {
-        let energyBinding = Binding<FoodLabelValue>(
-            get: { fields.energy.value.value ?? .init(amount: 0, unit: .kcal)  },
-            set: { _ in }
-        )
-
-        let carbBinding = Binding<Double>(
-            get: { fields.carb.value.double ?? 0  },
-            set: { _ in }
-        )
-
-        let fatBinding = Binding<Double>(
-            get: { fields.fat.value.double ?? 0  },
-            set: { _ in }
-        )
-
-        let proteinBinding = Binding<Double>(
-            get: { fields.protein.value.double ?? 0  },
-            set: { _ in }
-        )
-        
-        let microsBinding = Binding<[NutrientType : FoodLabelValue]> {
-            fields.microsDict
-        } set: { newDict in
-            
+    var servingSection: some View {
+        FormStyledSection(header: Text("Amount Per")) {
+            NavigationLink {
+                Color.blue
+//                AmountPerForm()
+            } label: {
+                if fields.hasAmount {
+                    foodAmountView
+                } else {
+                    Text("Required")
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
+            }
         }
-
-        return FoodLabel(
-            energyValue: energyBinding,
-            carb: carbBinding,
-            fat: fatBinding,
-            protein: proteinBinding,
-            nutrients: microsBinding,
-            amountPerString: .constant("amountPerString")
-        )
     }
 }
