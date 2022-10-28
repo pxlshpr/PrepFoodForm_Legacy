@@ -1,6 +1,7 @@
 import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
+import SwiftUISugar
 
 extension FoodForm.NutrientsList {
     struct MicronutrientsPicker: View {
@@ -10,11 +11,10 @@ extension FoodForm.NutrientsList {
         @EnvironmentObject var fields: FoodForm.Fields
         let didAddNutrientTypes: ([NutrientType]) -> ()
 
-        @State private var searchText = ""
-        @State var showingSearchLayer: Bool = false
-        @FocusState var isFocused: Bool
-        @State var hasBecomeFirstResponder: Bool = false
         @State var pickedNutrientTypes: [NutrientType] = []
+
+        @State var searchText = ""
+        @State var searchIsFocused: Bool = false
     }
 }
 
@@ -22,20 +22,22 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
     
     var body: some View {
         NavigationView {
-            ZStack {
-                form
-                searchLayer
-            }
+            SearchableView(
+                searchText: $searchText,
+                focused: $searchIsFocused,
+                content: {
+                    form
+                }
+            )
             .navigationTitle("Add Micronutrients")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { navigationLeadingContent }
             .toolbar { navigationTrailingContent }
-            .onAppear {
-                showingSearchLayer = true
-            }
-            .interactiveDismissDisabled(isFocused)
+//            .interactiveDismissDisabled(searchIsFocused)
         }
     }
+    
+    func didSubmit() { }
     
     var navigationTrailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
@@ -93,16 +95,13 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
         }
     }
     
-
     func nutrientButton(for nutrientType: NutrientType) -> some View {
         Button {
-//            withAnimation {
-                if pickedNutrientTypes.contains(nutrientType) {
-                    pickedNutrientTypes.removeAll(where: { $0 == nutrientType })
-                } else {
-                    pickedNutrientTypes.append(nutrientType)
-                }
-//            }
+            if pickedNutrientTypes.contains(nutrientType) {
+                pickedNutrientTypes.removeAll(where: { $0 == nutrientType })
+            } else {
+                pickedNutrientTypes.append(nutrientType)
+            }
         } label: {
             HStack {
                 Image(systemName: "checkmark")
@@ -114,96 +113,5 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
                     .contentShape(Rectangle())
             }
         }
-    }
-    
-    //MARK: - Search
-    var searchLayer: some View {
-        var keyboardColor: Color {
-            colorScheme == .light ? Color(hex: colorHexKeyboardLight) : Color(hex: colorHexKeyboardDark)
-        }
-
-        var textFieldColor: Color {
-            colorScheme == .light ? Color(hex: colorHexSearchTextFieldLight) : Color(hex: colorHexSearchTextFieldDark)
-        }
-
-        
-        var searchBar: some View {
-            var background: some View {
-                keyboardColor
-                    .frame(height: 65)
-            }
-            
-            var textField: some View {
-                TextField("Search or enter website link", text: $searchText)
-                    .focused($isFocused)
-                    .font(.system(size: 18))
-                    .keyboardType(.alphabet)
-                    .autocorrectionDisabled()
-                    .onSubmit {
-//                        guard !searchViewModel.searchText.isEmpty else {
-//                            dismiss()
-//                            return
-//                        }
-                        resignFocusOfSearchTextField()
-//                        startSearching()
-                    }
-            }
-            
-            var textFieldBackground: some View {
-                RoundedRectangle(cornerRadius: 15, style: .circular)
-                    .foregroundColor(textFieldColor)
-                    .frame(height: 48)
-            }
-            
-            var searchIcon: some View {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(Color(.secondaryLabel))
-                    .font(.system(size: 18))
-                    .fontWeight(.semibold)
-            }
-            
-            var clearButton: some View {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(Color(.secondaryLabel))
-                }
-                .opacity(searchText.isEmpty ? 0 : 1)
-            }
-            
-            return ZStack {
-                background
-                ZStack {
-                    textFieldBackground
-                    HStack(spacing: 5) {
-                        searchIcon
-                        textField
-                        Spacer()
-                        clearButton
-                    }
-                    .padding(.horizontal, 12)
-                }
-                .padding(.horizontal, 7)
-            }
-        }
-        
-        return ZStack {
-            VStack {
-                Spacer()
-                searchBar
-                    .background(
-                        keyboardColor
-                            .edgesIgnoringSafeArea(.bottom)
-                    )
-            }
-        }
-    }
-    
-    func resignFocusOfSearchTextField() {
-        withAnimation {
-            showingSearchLayer = false
-        }
-        isFocused = false
     }
 }
