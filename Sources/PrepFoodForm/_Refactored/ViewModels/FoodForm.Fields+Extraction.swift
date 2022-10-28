@@ -1,4 +1,5 @@
 import Foundation
+import PrepDataTypes
 
 extension FoodForm.Fields {
     
@@ -38,11 +39,16 @@ extension FoodForm.Fields {
             case .protein: protein.fill(with: fieldValue)
             }
         case .micro(let microValue):
-            micronutrientField(for: microValue.nutrientType)?.fill(with: fieldValue)
+            fillMicroFieldValue(fieldValue, for: microValue.nutrientType)
         default:
             break
         }
         replaceOrSetExtractedFieldValue(fieldValue)
+    }
+    
+    func fillMicroFieldValue(_ fieldValue: FieldValue, for nutrientType: NutrientType) {
+        micronutrientField(for: nutrientType)?.fill(with: fieldValue)
+        //TODO: Next
     }
     
     func replaceOrSetExtractedFieldValue(_ fieldValue: FieldValue) {

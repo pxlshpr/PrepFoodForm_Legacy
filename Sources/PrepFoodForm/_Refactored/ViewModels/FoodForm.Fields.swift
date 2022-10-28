@@ -23,9 +23,14 @@ extension FoodForm {
         @Published var volumePrefixedSizes: [Field] = []
         @Published var density: Field
 
-        @Published var micronutrients: [MicroGroupTuple] = DefaultMicronutrients()
+//        @Published var micronutrients: [MicroGroupTuple] = DefaultMicronutrients()
+        
         @Published var microsFats: [Field] = []
         @Published var microsFibers: [Field] = []
+        @Published var microsSugars: [Field] = []
+        @Published var microsMinerals: [Field] = []
+        @Published var microsVitamins: [Field] = []
+        @Published var microsMisc: [Field] = []
         
         @Published var barcodes: [Field] = []
 
@@ -134,16 +139,7 @@ extension FoodForm.Fields {
     }
 
     var allMicronutrientFields: [Field] {
-        micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fields
-        }
-    }
-
-    var allIncludedMicronutrientFields: [Field] {
-        micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fields
-        }
-        .filter { $0.value.microValue.isIncluded }
+        microsFats + microsFibers + microsSugars + microsMinerals + microsVitamins + microsMisc
     }
 
     var allFieldValues: [FieldValue] {

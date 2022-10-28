@@ -44,8 +44,12 @@ extension FoodForm.NutrientsList {
 
             microsGroup(.fats, fields: fields.microsFats)
             microsGroup(.fibers, fields: fields.microsFibers)
-            
-            if fields.micronutrientsIsEmpty {
+            microsGroup(.sugars, fields: fields.microsSugars)
+            microsGroup(.minerals, fields: fields.microsMinerals)
+            microsGroup(.vitamins, fields: fields.microsVitamins)
+            microsGroup(.misc, fields: fields.microsMisc)
+ 
+            if !fields.haveMicronutrients {
                 addMicronutrientButton
             }
         }
@@ -56,7 +60,7 @@ extension FoodForm.NutrientsList {
         if !fields.isEmpty {
             Group {
                 subtitleCell(group.description)
-                ForEach(fields, id: \.self) { field in
+                ForEach(fields, id: \.self.nutrientType) { field in
                     micronutrientCell(for: field)
                 }
             }
@@ -89,31 +93,5 @@ extension FoodForm.NutrientsList {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.borderless)
-    }
-    
-    var micronutrientsGroup_Legacy: some View {
-        Group {
-            titleCell("Micronutrients")
-            ForEach(fields.micronutrients.indices, id: \.self) { g in
-                if fields.hasMicrosForGroup(at: g) {
-                    group(at: g)
-                }
-            }
-            if fields.micronutrientsIsEmpty {
-                addMicronutrientButton
-            }
-        }
-    }
-    
-    func group(at index: Int) -> some View {
-        Group {
-            subtitleCell(fields.micronutrients[index].group.description)
-            ForEach(fields.micronutrients[index].fields.indices, id: \.self) { f in
-                let field = fields.micronutrients[index].fields[f]
-                if field.value.microValue.isIncluded {
-                    micronutrientCell(for: fields.micronutrients[index].fields[f])
-                }
-            }
-        }
     }
 }

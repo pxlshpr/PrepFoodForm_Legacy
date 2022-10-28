@@ -61,8 +61,10 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
 
     var form: some View {
         Form {
-            ForEach(NutrientTypeGroup.allCases.filter({ $0 == .fats || $0 == .fibers })) {
-                group(for: $0)
+            ForEach(NutrientTypeGroup.allCases) {
+                if fields.hasRemainingMicrosForGroup($0, matching: searchText) {
+                    group(for: $0)
+                }
             }
         }
     }
@@ -70,12 +72,28 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
     func group(for group: NutrientTypeGroup) -> some View {
         Section(group.description) {
             ForEach(group.nutrients) {
-                nutrientButton(for: $0)
+                if !fields.hasMicronutrient(for: $0) {
+                    cell(for: $0)
+                }
             }
         }
     }
     
-    func nutrientButton(for nutrientType: NutrientType) -> some View {
+    func cell(for nutrientType: NutrientType) -> some View {
+        var shouldInclude: Bool
+        if !searchText.isEmpty {
+            shouldInclude = nutrientType.matchesSearchString(searchText)
+        } else {
+            shouldInclude = true
+        }
+        return Group {
+            if shouldInclude {
+                label(for: nutrientType)
+            }
+        }
+    }
+    
+    func label(for nutrientType: NutrientType) -> some View {
         Button {
             if pickedNutrientTypes.contains(nutrientType) {
                 pickedNutrientTypes.removeAll(where: { $0 == nutrientType })

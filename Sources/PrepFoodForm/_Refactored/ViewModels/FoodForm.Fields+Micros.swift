@@ -5,12 +5,13 @@ extension FoodForm.Fields {
     
     func groupArray(for nutrientType: NutrientType) -> [Field] {
         switch nutrientType.group {
-        case .fats:
-            return microsFibers
-        case .fibers:
-            return microsFibers
-        default:
-            return []
+        case .fats:         return microsFibers
+        case .fibers:       return microsFibers
+        case .sugars:       return microsSugars
+        case .minerals:     return microsMinerals
+        case .vitamins:     return microsVitamins
+        case .misc:         return microsMisc
+        default:            return []
         }
     }
     
@@ -22,6 +23,10 @@ extension FoodForm.Fields {
         }
         return nil
     }
+    
+    func hasMicronutrient(for nutrientType: NutrientType) -> Bool {
+        micronutrientField(for: nutrientType) != nil
+    }
 
     func addMicronutrient(for nutrientType: NutrientType) {
         /// Make sure we don't already have it
@@ -31,8 +36,12 @@ extension FoodForm.Fields {
         
         let field = Field.init(fieldValue: .init(micronutrient: nutrientType))
         switch nutrientType.group {
-        case .fats:     microsFats.append(field)
-        case .fibers:   microsFibers.append(field)
+        case .fats:         microsFats.append(field)
+        case .fibers:       microsFibers.append(field)
+        case .sugars:       microsSugars.append(field)
+        case .minerals:     microsMinerals.append(field)
+        case .vitamins:     microsVitamins.append(field)
+        case .misc:         microsMisc.append(field)
         default:        return
         }
     }
@@ -55,19 +64,8 @@ extension FoodForm.Fields {
 //        })
     }
     
-    func hasMicrosForGroup(at index: Int) -> Bool {
-        micronutrients[index].fields.contains(where: { $0.value.microValue.isIncluded })
-    }
-    
-    var micronutrientsIsEmpty: Bool {
-        for (_, fields) in micronutrients {
-            for field in fields {
-                if !field.value.isEmpty {
-                    return false
-                }
-            }
-        }
-        return true
+    var haveMicronutrients: Bool {
+        !allMicronutrientFields.isEmpty
     }
 }
 
