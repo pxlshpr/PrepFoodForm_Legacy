@@ -31,7 +31,7 @@ extension FoodForm.NutrientsList {
             LazyVStack(spacing: 0) {
                 energyCell
                 macronutrientsGroup
-//                micronutrientsGroup
+                micronutrientsGroup
             }
             .padding(.horizontal, 20)
         }

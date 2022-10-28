@@ -15,8 +15,8 @@ public struct FoodForm: View {
     @State var brand: String = ""
     
     /// ViewModels
-    @StateObject var fields = Fields.shared
-    @StateObject var sources = Sources.shared
+    @StateObject var fields: Fields
+    @StateObject var sources: Sources
 
     /// Sheets
     @State var showingEmojiPicker = false
@@ -42,8 +42,12 @@ public struct FoodForm: View {
     @State var formDisabled = false
 
     public init(didSave: @escaping (FoodFormData) -> ()) {
+        Fields.shared = Fields()
+        Sources.shared = Sources()
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
+        _emoji = State(initialValue: randomFoodEmoji())
         self.didSave = didSave
-        _emoji = State(initialValue: randomFoodEmoji())        
     }
     
     public var body: some View {
