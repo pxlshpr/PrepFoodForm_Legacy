@@ -167,7 +167,6 @@ extension FoodForm.NutrientsList {
         } label: {
             Image(systemName: "plus")
                 .padding(.vertical)
-//                .background(.green)
         }
         .buttonStyle(.borderless)
     }
@@ -185,7 +184,6 @@ extension FoodForm.NutrientsList {
     }
 
     var microPicker: some View {
-        Color.blue
 //        MicroPicker { pickedNutrientTypes in
 //            withAnimation {
 //                viewModel.includeMicronutrients(for: pickedNutrientTypes)
@@ -202,7 +200,7 @@ extension FoodForm.NutrientsList {
 
     var showHideAction: BottomMenuAction {
         BottomMenuAction(
-            title: "\(showingImages ? "Hide" : "Show") Detected Texts",
+            title: "\(showingImages ? "Hide" : "Show") Images",
             systemImage: "eye\(showingImages ? ".slash" : "")",
             tapHandler: {
                 withAnimation {
