@@ -60,6 +60,7 @@ public struct FoodForm: View {
                 .onChange(of: sources.selectedPhotos, perform: sources.selectedPhotosChanged)
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
+                .sheet(isPresented: $showingPrefill) { mfpSearch }
                 .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,

@@ -62,4 +62,8 @@ extension FoodForm {
         }
     }
 
+    
+    var mfpSearch: some View {
+        MFPSearch()
+    }
 }

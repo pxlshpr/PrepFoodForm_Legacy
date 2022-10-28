@@ -136,7 +136,7 @@ extension FoodForm.FieldForm.FillInfo {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(width: 350)
+            .frame(width: imageWidth)
             .fixedSize()
             .clipShape(
                 RoundedRectangle(cornerRadius: 6, style: .continuous)
@@ -145,5 +145,13 @@ extension FoodForm.FieldForm.FillInfo {
             .padding(.top, 5)
             .padding(.bottom, 8)
             .padding(.horizontal, 3)
+    }
+    
+    var imageWidth: CGFloat {
+        let sectionPaddingOuter = 20.0
+        let sectionPaddingInner = 17.0
+        let imagePadding = 3.0
+        let padding = sectionPaddingInner + sectionPaddingOuter + imagePadding
+        return UIScreen.main.bounds.width - (2 * padding)
     }
 }
