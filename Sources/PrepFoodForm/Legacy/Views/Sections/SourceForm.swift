@@ -2,9 +2,6 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
-let LabelSpacing: CGFloat = 10
-let LabelImageWidth: CGFloat = 20
-
 struct SourceForm: View {
 
     @EnvironmentObject var viewModel: FoodFormViewModel
@@ -51,7 +48,7 @@ struct SourceForm: View {
         FormStyledSection(header: Text("Link"), horizontalPadding: 0, verticalPadding: 0) {
             VStack(spacing: 0) {
                 NavigationLink {
-                    SourceWebView(urlString: linkInfo.urlString)
+                    WebView(urlString: linkInfo.urlString)
                 } label: {
                     LinkCell(linkInfo, alwaysIncludeUrl: true, includeSymbol: true)
                         .padding(.horizontal, 20)

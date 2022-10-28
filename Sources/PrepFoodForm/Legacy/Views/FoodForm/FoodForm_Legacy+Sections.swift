@@ -74,7 +74,7 @@ extension FoodForm_Legacy {
         if let url = viewModel.prefilledFood?.sourceUrl {
             FormStyledSection(header: Text("Prefilled Food")) {
                 NavigationLink {
-                    SourceWebView(urlString: url)
+                    WebView(urlString: url)
                 } label: {
                     LinkCell(LinkInfo("https://myfitnesspal.com")!, title: "MyFitnessPal")
                 }

@@ -31,12 +31,13 @@ public struct NutritionFactsList: View {
     }
     
     var microPicker: some View {
-        MicroPicker { pickedNutrientTypes in
-            withAnimation {
-                viewModel.includeMicronutrients(for: pickedNutrientTypes)
-            }
-        }
-        .environmentObject(viewModel)
+        Color.blue
+//        MicroPicker { pickedNutrientTypes in
+//            withAnimation {
+//                viewModel.includeMicronutrients(for: pickedNutrientTypes)
+//            }
+//        }
+//        .environmentObject(viewModel)
     }
     
     func macronutrientForm(for fieldViewModel: Field) -> some View {

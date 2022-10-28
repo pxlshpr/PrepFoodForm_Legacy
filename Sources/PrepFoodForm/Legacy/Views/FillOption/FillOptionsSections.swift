@@ -6,6 +6,7 @@ import MFPScraper
 import PrepDataTypes
 import SwiftUISugar
 import ActivityIndicatorView
+import SwiftUISugar
 
 struct FillOptionsSections: View {
     
@@ -78,7 +79,7 @@ struct FillOptionsSections: View {
     
     func prefillSection(for prefillUrl: String) -> some View {
         NavigationLink {
-            SourceWebView(urlString: prefillUrl)
+            WebView(urlString: prefillUrl)
         } label: {
             HStack {
                 Label("MyFitnessPal", systemImage: "link")
@@ -87,7 +88,7 @@ struct FillOptionsSections: View {
             }
         }
         .sheet(isPresented: $showingPrefillSource) {
-            SourceWebView(urlString: prefillUrl)
+            WebView(urlString: prefillUrl)
         }
     }
 

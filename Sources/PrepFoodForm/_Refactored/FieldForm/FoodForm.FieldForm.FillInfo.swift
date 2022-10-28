@@ -6,6 +6,7 @@ import MFPScraper
 import PrepDataTypes
 import SwiftUISugar
 import ActivityIndicatorView
+import SwiftUISugar
 
 extension FoodForm.FieldForm {
     struct FillInfo: View {
@@ -78,7 +79,7 @@ extension FoodForm.FieldForm.FillInfo {
 
     func prefillSection(for prefillUrl: String) -> some View {
         NavigationLink {
-            SourceWebView(urlString: prefillUrl)
+            WebView(urlString: prefillUrl)
         } label: {
             HStack {
                 Label("MyFitnessPal", systemImage: "link")
@@ -87,7 +88,7 @@ extension FoodForm.FieldForm.FillInfo {
             }
         }
         .sheet(isPresented: $showingPrefillSource) {
-            SourceWebView(urlString: prefillUrl)
+            WebView(urlString: prefillUrl)
         }
     }
 

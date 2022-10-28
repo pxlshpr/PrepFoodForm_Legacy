@@ -3,6 +3,7 @@ import EmojiPicker
 import SwiftHaptics
 import FoodLabelCamera
 import FoodLabelScanner
+import MFPSearch
 
 extension FoodForm {
     var emojiPicker: some View {
@@ -64,6 +65,8 @@ extension FoodForm {
 
     
     var mfpSearch: some View {
-        MFPSearch()
+        MFPSearch { food in
+            print("We here")
+        }
     }
 }

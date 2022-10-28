@@ -3,6 +3,9 @@ import SwiftHaptics
 import SwiftUISugar
 import PhotosUI
 
+let LabelSpacing: CGFloat = 10
+let LabelImageWidth: CGFloat = 20
+
 extension FoodForm {
     enum SourcesAction {
         case removeLink
@@ -53,7 +56,7 @@ extension FoodForm.SourcesForm {
         FormStyledSection(header: Text("Link"), horizontalPadding: 0, verticalPadding: 0) {
             VStack(spacing: 0) {
                 NavigationLink {
-                    SourceWebView(urlString: linkInfo.urlString)
+                    WebView(urlString: linkInfo.urlString)
                 } label: {
                     LinkCell(linkInfo, alwaysIncludeUrl: true, includeSymbol: true)
                         .padding(.horizontal, 20)

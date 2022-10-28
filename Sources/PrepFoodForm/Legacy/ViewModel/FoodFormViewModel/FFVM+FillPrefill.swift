@@ -22,7 +22,7 @@ extension FoodFormViewModel {
     }
     
     func simulateThirdPartyImport() {
-        prefill(MockProcessedFood.Banana)
+//        prefill(MockProcessedFood.Banana)
     }
     
     func simulateAddingImage(_ number: Int) {

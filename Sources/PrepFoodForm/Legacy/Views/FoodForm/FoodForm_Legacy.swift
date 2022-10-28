@@ -7,6 +7,7 @@ import EmojiPicker
 import SwiftUISugar
 import FoodLabelCamera
 import RSBarcodes_Swift
+import MFPSearch
 
 //let WizardAnimation = Animation.interpolatingSpring(mass: 0.5, stiffness: 120, damping: 10, initialVelocity: 2)
 let WizardAnimation = Animation.easeIn(duration: 0.2)
@@ -87,8 +88,9 @@ public struct FoodForm_Legacy: View {
             .edgesIgnoringSafeArea(.bottom)
         }
         .sheet(isPresented: $viewModel.showingThirdPartySearch) {
-            MFPSearch()
-                .environmentObject(viewModel)
+            MFPSearch { food in
+                viewModel.prefilledFood = food
+            }
         }
     }
     
