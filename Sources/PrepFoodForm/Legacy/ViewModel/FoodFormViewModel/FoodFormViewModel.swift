@@ -163,12 +163,12 @@ extension FoodFormViewModel {
     
     func includeMicronutrients(for nutrientTypes: [NutrientType]) {
         for g in micronutrients.indices {
-            for f in micronutrients[g].fieldViewModels.indices {
-                guard let nutrientType = micronutrients[g].fieldViewModels[f].nutrientType,
+            for f in micronutrients[g].fields.indices {
+                guard let nutrientType = micronutrients[g].fields[f].nutrientType,
                       nutrientTypes.contains(nutrientType) else {
                     continue
                 }
-                micronutrients[g].fieldViewModels[f].value.microValue.isIncluded = true
+                micronutrients[g].fields[f].value.microValue.isIncluded = true
             }
         }
     }
@@ -201,13 +201,13 @@ extension FoodFormViewModel {
 
     var allMicronutrientFieldViewModels: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fieldViewModels
+            partialResult + tuple.fields
         }
     }
 
     var allIncludedMicronutrientFieldViewModels: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fieldViewModels
+            partialResult + tuple.fields
         }
         .filter { $0.value.microValue.isIncluded }
     }
@@ -376,7 +376,8 @@ extension MFPProcessedFood {
 //    }
 //}
 
-typealias MicroGroupTuple = (group: NutrientTypeGroup, fieldViewModels: [Field])
+typealias MicroGroupTuple = (group: NutrientTypeGroup, fields: [Field])
+
 func DefaultMicronutrients() -> [MicroGroupTuple] {
     [
         (NutrientTypeGroup.fats, [

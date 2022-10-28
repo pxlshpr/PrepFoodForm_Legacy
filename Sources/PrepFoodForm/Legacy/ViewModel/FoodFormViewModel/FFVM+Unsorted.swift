@@ -74,24 +74,24 @@ extension FoodFormViewModel {
             //TODO: Micronutrients
             if includeAllMicronutrients {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldViewModels.indices {
-                        micronutrients[g].fieldViewModels[f].value.microValue.double = Double.random(in: 1...300)
+                    for f in micronutrients[g].fields.indices {
+                        micronutrients[g].fields[f].value.microValue.double = Double.random(in: 1...300)
                     }
                 }
             } else {
                 for g in micronutrients.indices {
-                    for f in micronutrients[g].fieldViewModels.indices {
-                        if micronutrients[g].fieldViewModels[f].value.microValue.nutrientType == .saturatedFat {
-                            micronutrients[g].fieldViewModels[f].value.microValue.double = 25
+                    for f in micronutrients[g].fields.indices {
+                        if micronutrients[g].fields[f].value.microValue.nutrientType == .saturatedFat {
+                            micronutrients[g].fields[f].value.microValue.double = 25
                         }
-                        if micronutrients[g].fieldViewModels[f].value.microValue.nutrientType == .vitaminB7_biotin {
-                            micronutrients[g].fieldViewModels[f].value.microValue.double = 5
+                        if micronutrients[g].fields[f].value.microValue.nutrientType == .vitaminB7_biotin {
+                            micronutrients[g].fields[f].value.microValue.double = 5
                         }
-                        if micronutrients[g].fieldViewModels[f].value.microValue.nutrientType == .caffeine {
-                            micronutrients[g].fieldViewModels[f].value.microValue.double = 250
+                        if micronutrients[g].fields[f].value.microValue.nutrientType == .caffeine {
+                            micronutrients[g].fields[f].value.microValue.double = 250
                         }
-                        if micronutrients[g].fieldViewModels[f].value.microValue.nutrientType == .addedSugars {
-                            micronutrients[g].fieldViewModels[f].value.microValue.double = 35
+                        if micronutrients[g].fields[f].value.microValue.nutrientType == .addedSugars {
+                            micronutrients[g].fields[f].value.microValue.double = 35
                         }
                     }
                 }
@@ -613,7 +613,7 @@ extension FieldValue {
 extension FoodFormViewModel {
     func micronutrientFieldViewModel(for nutrientType: NutrientType) -> Field? {
         for group in micronutrients {
-            for fieldViewModel in group.fieldViewModels {
+            for fieldViewModel in group.fields {
                 if case .micro(let microValue) = fieldViewModel.value, microValue.nutrientType == nutrientType {
                     return fieldViewModel
                 }

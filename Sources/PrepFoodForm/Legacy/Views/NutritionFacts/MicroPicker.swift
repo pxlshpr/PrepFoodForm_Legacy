@@ -67,7 +67,7 @@ public struct MicroPicker: View {
         return Group {
             if viewModel.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
                 Section(groupTuple.group.description) {
-                    ForEach(groupTuple.fieldViewModels.indices, id: \.self) {
+                    ForEach(groupTuple.fields.indices, id: \.self) {
                         micronutrientButton(atIndex: $0, forGroupAtIndex: index)
                     }
                 }
@@ -76,7 +76,7 @@ public struct MicroPicker: View {
     }
     
     func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let fieldViewModel = viewModel.micronutrients[groupIndex].fieldViewModels[index]
+        let fieldViewModel = viewModel.micronutrients[groupIndex].fields[index]
         var searchBool: Bool
         if !searchText.isEmpty {
             searchBool = fieldViewModel.value.microValue.matchesSearchString(searchText)
@@ -220,7 +220,7 @@ extension FoodFormViewModel {
     }
     
     func hasEmptyFieldValuesInMicronutrientsGroup(at index: Int, matching searchString: String = "") -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: {
+        micronutrients[index].fields.contains(where: {
             if !searchString.isEmpty {
                 return $0.value.isEmpty && $0.value.microValue.matchesSearchString(searchString)
             } else {
@@ -230,7 +230,7 @@ extension FoodFormViewModel {
     }
     
     func hasIncludedFieldValuesInMicronutrientsGroup(at index: Int) -> Bool {
-        micronutrients[index].fieldViewModels.contains(where: { $0.value.microValue.isIncluded })
+        micronutrients[index].fields.contains(where: { $0.value.microValue.isIncluded })
     }
 }
 

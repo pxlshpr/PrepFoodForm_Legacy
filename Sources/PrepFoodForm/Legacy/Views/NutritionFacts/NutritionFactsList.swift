@@ -108,16 +108,16 @@ public struct NutritionFactsList: View {
 
         return Group {
             titleCell("Micronutrients")
-            ForEach(viewModel.micronutrients.indices, id: \.self) { g in
-                if viewModel.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
-                    subtitleCell(viewModel.micronutrients[g].group.description)
-                    ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
-                        if viewModel.micronutrients[g].fieldViewModels[f].value.microValue.isIncluded {
-                            micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
-                        }
-                    }
-                }
-            }
+//            ForEach(viewModel.micronutrients.indices, id: \.self) { g in
+//                if viewModel.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
+//                    subtitleCell(viewModel.micronutrients[g].group.description)
+//                    ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
+//                        if viewModel.micronutrients[g].fieldViewModels[f].value.microValue.isIncluded {
+//                            micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
+//                        }
+//                    }
+//                }
+//            }
             if viewModel.micronutrientsIsEmpty {
                 addMicronutrientButton
             }

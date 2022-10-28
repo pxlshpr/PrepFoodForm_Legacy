@@ -143,9 +143,9 @@ extension FoodForm.Fields {
     
     func micronutrientField(for nutrientType: NutrientType) -> Field? {
         for group in micronutrients {
-            for fieldViewModel in group.fieldViewModels {
-                if case .micro(let microValue) = fieldViewModel.value, microValue.nutrientType == nutrientType {
-                    return fieldViewModel
+            for field in group.fields {
+                if case .micro(let microValue) = field.value, microValue.nutrientType == nutrientType {
+                    return field
                 }
             }
         }
@@ -221,13 +221,13 @@ extension FoodForm.Fields {
 
     var allMicronutrientFields: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fieldViewModels
+            partialResult + tuple.fields
         }
     }
 
     var allIncludedMicronutrientFields: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
-            partialResult + tuple.fieldViewModels
+            partialResult + tuple.fields
         }
         .filter { $0.value.microValue.isIncluded }
     }

@@ -14,7 +14,7 @@ extension FoodFormViewModel {
             print("Couldn't find indexes for nutrientType: \(nutrientType) in micronutrients array")
             return
         }
-        micronutrients[indexes.groupIndex].fieldViewModels[indexes.fieldIndex] = .init(fieldValue: fieldValue)
+        micronutrients[indexes.groupIndex].fields[indexes.fieldIndex] = .init(fieldValue: fieldValue)
         scannedFieldValues.append(fieldValue)
     }
     
@@ -22,7 +22,7 @@ extension FoodFormViewModel {
         guard let groupIndex = micronutrients.firstIndex(where: { $0.group == nutrientType.group }) else {
             return nil
         }
-        guard let fieldIndex = micronutrients[groupIndex].fieldViewModels.firstIndex(where: { $0.value.microValue.nutrientType == nutrientType }) else {
+        guard let fieldIndex = micronutrients[groupIndex].fields.firstIndex(where: { $0.value.microValue.nutrientType == nutrientType }) else {
             return nil
         }
         return (groupIndex, fieldIndex)

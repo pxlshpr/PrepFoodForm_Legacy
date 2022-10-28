@@ -183,14 +183,14 @@ extension FoodFormViewModel {
     
     func setMicronutrients(with fieldValues: [FieldValue]) {
         for groupIndex in micronutrients.indices {
-            for index in micronutrients[groupIndex].fieldViewModels.indices {
-                guard let nutrientType = micronutrients[groupIndex].fieldViewModels[index].nutrientType,
+            for index in micronutrients[groupIndex].fields.indices {
+                guard let nutrientType = micronutrients[groupIndex].fields[index].nutrientType,
                       let fieldValue = fieldValues.first(where: { $0.microValue.nutrientType == nutrientType })
                 else {
                     continue
                 }
                 let fieldViewModel = Field(fieldValue: fieldValue)
-                micronutrients[groupIndex].fieldViewModels[index].copyData(from: fieldViewModel)
+                micronutrients[groupIndex].fields[index].copyData(from: fieldViewModel)
             }
         }
     }

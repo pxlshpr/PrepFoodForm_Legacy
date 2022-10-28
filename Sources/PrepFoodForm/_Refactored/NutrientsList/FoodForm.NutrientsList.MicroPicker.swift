@@ -72,7 +72,7 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
         return Group {
             if fields.hasEmptyFieldValuesInMicronutrientsGroup(at: index, matching: searchText) {
                 Section(groupTuple.group.description) {
-                    ForEach(groupTuple.fieldViewModels.indices, id: \.self) {
+                    ForEach(groupTuple.fields.indices, id: \.self) {
                         micronutrientButton(atIndex: $0, forGroupAtIndex: index)
                     }
                 }
@@ -81,15 +81,15 @@ extension FoodForm.NutrientsList.MicronutrientsPicker {
     }
     
     func micronutrientButton(atIndex index: Int, forGroupAtIndex groupIndex: Int) -> some View {
-        let fieldViewModel = fields.micronutrients[groupIndex].fieldViewModels[index]
+        let field = fields.micronutrients[groupIndex].fields[index]
         var searchBool: Bool
         if !searchText.isEmpty {
-            searchBool = fieldViewModel.value.microValue.matchesSearchString(searchText)
+            searchBool = field.value.microValue.matchesSearchString(searchText)
         } else {
             searchBool = true
         }
         return Group {
-            if fieldViewModel.value.isEmpty, searchBool, let nutrientType = fieldViewModel.nutrientType {
+            if field.value.isEmpty, searchBool, let nutrientType = field.nutrientType {
                 nutrientButton(for: nutrientType)
             }
         }

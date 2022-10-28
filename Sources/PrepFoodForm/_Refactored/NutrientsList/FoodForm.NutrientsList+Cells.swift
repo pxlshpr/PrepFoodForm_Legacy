@@ -12,16 +12,16 @@ extension FoodForm.NutrientsList {
         }
     }
 
-//    func micronutrientCell(for fieldViewModel: FieldViewModel) -> some View {
-//        NavigationLink {
-//            MicroForm(existingFieldViewModel: fieldViewModel)
-//                .environmentObject(viewModel)
-//        } label: {
-//            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
-//                .environmentObject(viewModel)
-//        }
-//    }
-//
+    func micronutrientCell(for field: Field) -> some View {
+        NavigationLink {
+            MicroForm(existingField: field)
+                .environmentObject(fields)
+                .environmentObject(sources)
+        } label: {
+            Cell(field: field, showImage: $showingImages)
+        }
+    }
+
     func macronutrientCell(for field: Field) -> some View {
         NavigationLink {
             MacroForm(existingField: field)
@@ -29,10 +29,12 @@ extension FoodForm.NutrientsList {
                 .environmentObject(sources)
         } label: {
             Cell(field: field, showImage: $showingImages)
-//            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
-//                .environmentObject(viewModel)
         }
     }
+    
+    
+    //MARK: - Groups
+
     var macronutrientsGroup: some View {
         Group {
             titleCell("Macronutrients")
@@ -41,43 +43,48 @@ extension FoodForm.NutrientsList {
             macronutrientCell(for: fields.protein)
         }
     }
+
+    var micronutrientsGroup: some View {
+        var addMicronutrientButton: some View {
+            Button {
+                showingMicronutrientsPicker = true
+            } label: {
+                Text("Add a micronutrient")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.accentColor)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 13)
+                    .padding(.top, 13)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(10)
+                    .padding(.bottom, 10)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+        }
+
+        return Group {
+            titleCell("Micronutrients")
+            ForEach(fields.micronutrients.indices, id: \.self) { g in
+                if fields.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
+                    group(at: g)
+                }
+            }
+            if fields.micronutrientsIsEmpty {
+                addMicronutrientButton
+            }
+        }
+    }
     
-    //MARK: - Nutrient Groups
-    
-//    var micronutrientsGroup: some View {
-//        var addMicronutrientButton: some View {
-//            Button {
-//                viewModel.showingMicronutrientsPicker = true
-//            } label: {
-//                Text("Add a micronutrient")
-//                    .frame(maxWidth: .infinity, alignment: .leading)
-//                    .foregroundColor(.accentColor)
-//                    .padding(.horizontal, 16)
-//                    .padding(.bottom, 13)
-//                    .padding(.top, 13)
-//                    .background(Color(.secondarySystemGroupedBackground))
-//                    .cornerRadius(10)
-//                    .padding(.bottom, 10)
-//                    .contentShape(Rectangle())
-//            }
-//            .buttonStyle(.borderless)
-//        }
-//
-//        return Group {
-//            titleCell("Micronutrients")
-//            ForEach(viewModel.micronutrients.indices, id: \.self) { g in
-//                if viewModel.hasIncludedFieldValuesInMicronutrientsGroup(at: g) {
-//                    subtitleCell(viewModel.micronutrients[g].group.description)
-//                    ForEach(viewModel.micronutrients[g].fieldViewModels.indices, id: \.self) { f in
-//                        if viewModel.micronutrients[g].fieldViewModels[f].fieldValue.microValue.isIncluded {
-//                            micronutrientCell(for: viewModel.micronutrients[g].fieldViewModels[f])
-//                        }
-//                    }
-//                }
-//            }
-//            if viewModel.micronutrientsIsEmpty {
-//                addMicronutrientButton
-//            }
-//        }
-//    }
+    func group(at index: Int) -> some View {
+        Group {
+            subtitleCell(fields.micronutrients[index].group.description)
+            ForEach(fields.micronutrients[index].fields.indices, id: \.self) { f in
+                let field = fields.micronutrients[index].fields[f]
+                if field.value.microValue.isIncluded {
+                    micronutrientCell(for: fields.micronutrients[index].fields[f])
+                }
+            }
+        }
+    }
 }
