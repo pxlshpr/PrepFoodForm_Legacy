@@ -60,6 +60,17 @@ extension FoodFormViewModel {
 //        }
     }
     
+    func dismissWizard() {
+        withAnimation(WizardAnimation) {
+            showingWizard = false
+        }
+        withAnimation(.easeOut(duration: 0.1)) {
+            showingWizardOverlay = false
+        }
+        formDisabled = false
+    }
+    
+
     func prefill(_ food: MFPProcessedFood) {
         
         /// For testing purposes
@@ -87,16 +98,6 @@ extension FoodFormViewModel {
 //        withAnimation {
 //            showingWizard = false
 //        }
-    }
-    
-    func dismissWizard() {
-        withAnimation(WizardAnimation) {
-            showingWizard = false
-        }
-        withAnimation(.easeOut(duration: 0.1)) {
-            showingWizardOverlay = false
-        }
-        formDisabled = false
     }
     
     func prefillDetails(from food: MFPProcessedFood) {

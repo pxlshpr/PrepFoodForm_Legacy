@@ -66,6 +66,8 @@ extension FoodForm {
     var mfpSearch: some View {
         MFPSearch { food in
             showingPrefill = false
+            prefill(food)
         }
-    }
+    }    
+
 }

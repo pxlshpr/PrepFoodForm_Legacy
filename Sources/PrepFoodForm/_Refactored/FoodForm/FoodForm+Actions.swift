@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import FoodLabelScanner
 import PhotosUI
+import MFPScraper
 
 extension FoodForm {
 
@@ -22,6 +23,20 @@ extension FoodForm {
         }
     }
 
+    func prefill(_ food: MFPProcessedFood) {
+        if let fieldValue = food.nameFieldValue {
+            name = fieldValue.string
+        }
+        if let fieldValue = food.detailFieldValue {
+            detail = fieldValue.string
+        }
+        if let fieldValue = food.brandFieldValue {
+            brand = fieldValue.string
+        }
+        fields.prefill(food)
+        fields.updateShouldShowFoodLabel()
+    }
+    
     //MARK: - Sources
     func tappedAddSource() {
         showingSourcesMenu = true
