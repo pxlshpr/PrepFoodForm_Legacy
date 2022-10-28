@@ -39,9 +39,14 @@ class Field: ObservableObject, Identifiable {
         let previousFill = value.fill
         value.fill = fill
 
-        if fill.text?.id != previousFill.text?.id {
-            isCropping = true
-            cropFilledImage()
+        if fill.usesImage {
+            if fill.text?.id != previousFill.text?.id {
+                isCropping = true
+                cropFilledImage()
+            }
+        } else {
+            isCropping = false
+            image = nil
         }
     }
     
