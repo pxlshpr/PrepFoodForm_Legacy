@@ -188,6 +188,8 @@ extension FoodForm.Fields {
         || serving.value.doubleValue.unit.isWeightBased
     }
     
+    //MARK: Fills
+    
     var hasNonUserInputFills: Bool {
         for field in allFieldValues {
             if field.fill != .userInput {
@@ -195,7 +197,7 @@ extension FoodForm.Fields {
             }
         }
         
-        for model in allSizeViewModels {
+        for model in allSizeFields {
             if model.value.fill != .userInput {
                 return true
             }
@@ -203,22 +205,27 @@ extension FoodForm.Fields {
         return false
     }
 
-    //MARK: - Field Collection Helpers
-    var allSingleFieldViewModels: [Field] {
+    var containsFieldWithFillImage: Bool {
+        allFieldValues.contains(where: { $0.fill.usesImage })
+    }
+    
+    //MARK: Fields
+    
+    var allSingleFields: [Field] {
         [amount, serving, density, energy, carb, fat, protein]
     }
 
     var allMicronutrientFieldValues: [FieldValue] {
-        allMicronutrientFieldViewModels.map { $0.value }
+        allMicronutrientFields.map { $0.value }
     }
 
-    var allMicronutrientFieldViewModels: [Field] {
+    var allMicronutrientFields: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
             partialResult + tuple.fieldViewModels
         }
     }
 
-    var allIncludedMicronutrientFieldViewModels: [Field] {
+    var allIncludedMicronutrientFields: [Field] {
         micronutrients.reduce([Field]()) { partialResult, tuple in
             partialResult + tuple.fieldViewModels
         }
@@ -226,18 +233,18 @@ extension FoodForm.Fields {
     }
 
     var allFieldValues: [FieldValue] {
-        allFieldViewModels.map { $0.value }
+        allFields.map { $0.value }
     }
 
-    var allFieldViewModels: [Field] {
-        allSingleFieldViewModels
-        + allMicronutrientFieldViewModels
+    var allFields: [Field] {
+        allSingleFields
+        + allMicronutrientFields
         + standardSizes
         + volumePrefixedSizes
         + barcodes
     }
     
-    var allSizeViewModels: [Field] {
+    var allSizeFields: [Field] {
         standardSizes + volumePrefixedSizes
     }
     

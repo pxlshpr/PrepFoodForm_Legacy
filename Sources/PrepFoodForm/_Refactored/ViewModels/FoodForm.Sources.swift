@@ -81,7 +81,7 @@ extension FoodForm.Sources {
 
 }
 
-//MARK: - Helpers
+//MARK: - Convenience
 extension FoodForm.Sources {
     
     func imageViewModels(for columnSelectionInfo: ColumnSelectionInfo) -> [ImageViewModel] {

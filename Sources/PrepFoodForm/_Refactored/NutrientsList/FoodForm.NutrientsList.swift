@@ -19,7 +19,7 @@ extension FoodForm.NutrientsList {
     
     public var body: some View {
         scrollView
-//            .toolbar { navigationTrailingContent }
+            .toolbar { navigationTrailingContent }
             .navigationTitle("Nutrition Facts")
             .navigationBarTitleDisplayMode(.large)
 //            .sheet(isPresented: $showingMicronutrientsPicker) { microPicker }
@@ -153,45 +153,46 @@ extension FoodForm.NutrientsList {
     
     //MARK: - UI
     
-//    var navigationTrailingContent: some ToolbarContent {
-//        ToolbarItemGroup(placement: .navigationBarTrailing) {
-//            addButton
-//            menuButton
-//        }
-//    }
-//
-//    var addButton: some View {
-//        Button {
-//            Haptics.feedback(style: .soft)
-//            viewModel.showingMicronutrientsPicker = true
-//        } label: {
-//            Image(systemName: "plus")
-//                .padding(.vertical)
-////                .background(.green)
-//        }
-//        .buttonStyle(.borderless)
-//    }
-//
-//    @ViewBuilder
-//    var menuButton: some View {
-//        if viewModel.shouldShowImagesButton {
-//            Button {
-//                showingMenu = true
-//            } label: {
-//                Image(systemName: "ellipsis")
-//                    .padding(.vertical)
-//            }
-//        }
-//    }
-//
-//    var microPicker: some View {
+    var navigationTrailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            addButton
+            menuButton
+        }
+    }
+
+    var addButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            showingMicronutrientsPicker = true
+        } label: {
+            Image(systemName: "plus")
+                .padding(.vertical)
+//                .background(.green)
+        }
+        .buttonStyle(.borderless)
+    }
+
+    @ViewBuilder
+    var menuButton: some View {
+        if fields.containsFieldWithFillImage {
+            Button {
+                showingMenu = true
+            } label: {
+                Image(systemName: "ellipsis")
+                    .padding(.vertical)
+            }
+        }
+    }
+
+    var microPicker: some View {
+        Color.blue
 //        MicroPicker { pickedNutrientTypes in
 //            withAnimation {
 //                viewModel.includeMicronutrients(for: pickedNutrientTypes)
 //            }
 //        }
 //        .environmentObject(viewModel)
-//    }
+    }
     
     //MARK: Menu
     
