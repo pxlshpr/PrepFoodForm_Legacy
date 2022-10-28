@@ -46,6 +46,19 @@ extension FoodForm {
         }
     }
     
+    @ViewBuilder
+    var prefillSection: some View {
+        if let url = fields.prefilledFood?.sourceUrl {
+            FormStyledSection(header: Text("Prefilled Food")) {
+                NavigationLink {
+                    WebView(urlString: url)
+                } label: {
+                    LinkCell(LinkInfo("https://myfitnesspal.com")!, title: "MyFitnessPal")
+                }
+            }
+        }
+    }
+    
     var foodLabel: FoodLabel {
         let energyBinding = Binding<FoodLabelValue>(
             get: { fields.energy.value.value ?? .init(amount: 0, unit: .kcal)  },

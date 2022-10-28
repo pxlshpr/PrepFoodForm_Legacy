@@ -95,6 +95,7 @@ public struct FoodForm: View {
             detailsSection
             foodLabelSection
             sourcesSection
+            prefillSection
         }
         .safeAreaInset(edge: .bottom) {
             //TODO: Programmatically get this inset (67516AA6)

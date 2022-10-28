@@ -83,20 +83,20 @@ extension FoodForm.FieldForm {
     }
     
     func tappedPrefill(_ info: PrefillFillInfo) {
-//        if let tappedPrefillFieldValue {
-//            /// Tapped a prefill or calculated value
-//            guard let prefillFieldValue = viewModel.prefillOptionFieldValues(for: fieldValue).first else {
-//                return
-//            }
-//
-//            tappedPrefillFieldValue(prefillFieldValue)
-//        } else {
-//            if !fieldValue.usesValueBasedTexts, let fieldString = info.fieldStrings.first {
-//                withAnimation {
-//                    field.toggle(fieldString)
-//                }
-//            }
-//        }
+        if let tappedPrefillFieldValue {
+            /// Tapped a prefill or calculated value
+            guard let prefillFieldValue = fields.prefillFieldValues(for: fieldValue).first else {
+                return
+            }
+
+            tappedPrefillFieldValue(prefillFieldValue)
+        } else {
+            if !fieldValue.usesValueBasedTexts, let fieldString = info.fieldStrings.first {
+                withAnimation {
+                    field.toggle(fieldString)
+                }
+            }
+        }
     }
 
     

@@ -8,7 +8,7 @@ extension FoodForm.Fields {
 
         fillOptions.append(contentsOf: extractedFillOptions(for: fieldValue))
         fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
-//        fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
+        fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
 
         if let selectFillOption = selectFillOption(for: fieldValue) {
             fillOptions .append(selectFillOption)
