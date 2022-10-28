@@ -22,7 +22,7 @@ extension FoodForm.FieldForm {
         FormStyledScrollView {
             textFieldSection
             supplementaryViewSection
-            fillOptionsSections
+            fillInfo
         }
     }
     
@@ -138,17 +138,16 @@ extension FoodForm.FieldForm {
     
     //MARK: - Fill Options Sections
     
-    var fillOptionsSections: some View {
-        Color.blue
-        //        FillOptionsSections(
-        //            fieldViewModel: field,
-        //            shouldAnimate: $shouldAnimateOptions,
-        //            didTapImage: {
-        //                showTextPicker()
-        //            }, didTapFillOption: { fillOption in
-        //                didTapFillOption(fillOption)
-        //            })
-        //        .environmentObject(viewModel)
+    var fillInfo: some View {
+        FillInfo(
+            field: field,
+            shouldAnimate: $shouldAnimateOptions,
+            didTapImage: {
+                showTextPicker()
+            }, didTapFillOption: { fillOption in
+                didTapFillOption(fillOption)
+            })
+        .environmentObject(fields)
     }
     
     //MARK: - Text Picker

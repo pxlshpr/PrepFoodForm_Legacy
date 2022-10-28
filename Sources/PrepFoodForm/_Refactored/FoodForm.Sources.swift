@@ -6,6 +6,9 @@ import MFPScraper
 
 extension FoodForm {
     class Sources: ObservableObject {
+        
+        static let shared = Sources()
+        
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()
         @Published var linkInfo: LinkInfo? = nil
@@ -99,6 +102,27 @@ extension FoodForm.Sources {
     
     var pluralS: String {
         availableImagesCount == 1 ? "" : "s"
+    }
+    
+    func croppedImage(for fill: Fill) async -> UIImage? {
+        guard let resultId = fill.imageId,
+              let boundingBoxToCrop = fill.boundingBoxToCrop,
+              let image = image(for: resultId)
+        else {
+            return nil
+        }
+        
+        return await image.cropped(boundingBox: boundingBoxToCrop)
+    }
+    
+    func image(for id: UUID) -> UIImage? {
+        for imageViewModel in imageViewModels {
+            if imageViewModel.id == id {
+//            if imageViewModel.scanResult?.id == scanResultId {
+                return imageViewModel.image
+            }
+        }
+        return nil
     }
 }
 

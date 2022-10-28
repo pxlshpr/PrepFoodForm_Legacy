@@ -1055,10 +1055,9 @@ extension FieldValue {
             }
         }
     }
-}
-
-//MARK: - Helpers
-extension FieldValue {
+    
+    //MARK: - Helpers
+    
     var usesValueBasedTexts: Bool {
         switch self {
         case .amount, .serving, .density, .energy, .macro, .micro, .size:
@@ -1067,8 +1066,25 @@ extension FieldValue {
             return false
         }
     }
+    
+    /**
+     Returns `true` if there can only be one of this field for any given food.
+     
+     This returns `true` for `.macro` and `.macro` as it considers them along with their `Macro` or `NutrientType` identifiers.
+     */
+    var isOneToOne: Bool {
+        switch self {
+        case .name, .emoji, .brand, .detail, .amount, .serving, .density, .energy, .macro, .micro:
+            return true
+        case .size, .barcode:
+            return false
+        }
+    }
+    
+    var isOneToMany: Bool {
+        !isOneToOne
+    }
 }
-
 //MARK: - To be moved
 func randomFoodEmoji() -> String {
     let foodEmojis = "🍇🍈🍉🍊🍋🍌🍍🥭🍎🍏🍐🍑🍒🍓🫐🥝🍅🫒🥥🥑🍆🥔🥕🌽🌶️🫑🥒🥬🥦🧄🧅🍄🥜🫘🌰🍞🥐🥖🫓🥨🥯🥞🧇🧀🍖🍗🥩🥓🍔🍟🍕🌭🥪🌮🌯🫔🥙🧆🥚🍳🥘🍲🫕🥣🥗🍿🧈🧂🥫🍱🍘🍙🍚🍛🍜🍝🍠🍢🍣🍤🍥🥮🍡🥟🥠🥡🦪🍦🍧🍨🍩🍪🎂🍰🧁🥧🍫🍬🍭🍮🍯🍼🥛☕🫖🍵🍶🍾🍷🍸🍹🍺🍻🥂🥃🫗🥤🧋🧃🧉🧊🥢🍽️🍴🥄"

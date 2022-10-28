@@ -60,7 +60,8 @@ class Field: ObservableObject, Identifiable {
             return
         }
         Task {
-            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: value.fill) else {
+//            guard let croppedImage = await FoodFormViewModel.shared.croppedImage(for: value.fill) else {
+            guard let croppedImage = await FoodForm.Sources.shared.croppedImage(for: value.fill) else {
                 print("⚠️ Couldn't get cropped image for: \(self.value.description)")
                 return
             }
@@ -140,9 +141,20 @@ class Field: ObservableObject, Identifiable {
             value.fill.appendPrefillFieldString(fieldString)
         }
     }
-
+    
+    var isDiscardable: Bool {
+        switch fill {
+        case .scanned, .prefill, .discardable:
+            return true
+        case .userInput:
+            return value.isEmpty
+        case .selection:
+            return false
+        case .barcodeScanned:
+            return true
+        }
+    }
 }
-
 extension Field: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

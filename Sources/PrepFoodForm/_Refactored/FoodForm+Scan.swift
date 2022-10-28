@@ -19,7 +19,9 @@ extension FoodForm {
                 /// Either `sources.columnSelectionInfo` is set, causing us to present the `TextPicker`—or there were no results
                 return
             }
-            handleExtractedFieldValues(fieldValues, shouldOverwrite: false)
+            withAnimation {
+                handleExtractedFieldValues(fieldValues, shouldOverwrite: false)
+            }
         }
     }
     

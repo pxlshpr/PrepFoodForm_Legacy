@@ -15,8 +15,8 @@ public struct FoodForm: View {
     @State var brand: String = ""
     
     /// ViewModels
-    @StateObject var fields = Fields()
-    @StateObject var sources = Sources()
+    @StateObject var fields = Fields.shared
+    @StateObject var sources = Sources.shared
 
     /// Sheets
     @State var showingEmojiPicker = false

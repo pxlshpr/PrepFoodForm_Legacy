@@ -5,6 +5,8 @@ import PrepDataTypes
 extension FoodForm {
     class Fields: ObservableObject {
         
+        static let shared = Fields()
+        
         @Published var energy: Field
         @Published var carb: Field
         @Published var fat: Field
@@ -132,43 +134,6 @@ extension FoodForm.Fields {
             return nil
         }
     }
-}
-
-extension Field {
-    var isDiscardable: Bool {
-        switch fill {
-        case .scanned, .prefill, .discardable:
-            return true
-        case .userInput:
-            return value.isEmpty
-        case .selection:
-            return false
-        case .barcodeScanned:
-            return true
-        }
-    }
-}
-
-extension FieldValue {
-    /**
-     Returns `true` if there can only be one of this field for any given food.
-     
-     This returns `true` for `.macro` and `.macro` as it considers them along with their `Macro` or `NutrientType` identifiers.
-     */
-    var isOneToOne: Bool {
-        switch self {
-        case .name, .emoji, .brand, .detail, .amount, .serving, .density, .energy, .macro, .micro:
-            return true
-        case .size, .barcode:
-            return false
-        }
-    }
-    
-    var isOneToMany: Bool {
-        !isOneToOne
-    }
-}
-extension FoodForm.Fields {
     
     func updateShouldShowFoodLabel() {
         shouldShowFoodLabel = (
@@ -177,5 +142,105 @@ extension FoodForm.Fields {
             && !fat.value.isEmpty
             && !protein.value.isEmpty
         )
+    }
+}
+
+extension FoodForm.Fields {
+    
+    func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
+        var fillOptions: [FillOption] = []
+
+        fillOptions.append(contentsOf: scannedFillOptions(for: fieldValue))
+//        fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
+//        fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
+//
+////        fillOptions.removeFillOptionValueDuplicates()
+//
+//        if let selectFillOption = selectFillOption(for: fieldValue) {
+//            fillOptions .append(selectFillOption)
+//        }
+//
+        return fillOptions
+    }
+    
+
+    func scannedFillOptions(for fieldValue: FieldValue) -> [FillOption] {
+        let extractedFieldValues = extractedFieldValues(for: fieldValue)
+        var fillOptions: [FillOption] = []
+        
+        for scannedFieldValue in extractedFieldValues {
+            guard case .scanned(let info) = scannedFieldValue.fill else {
+                continue
+            }
+            
+            fillOptions.append(
+                FillOption(
+                    string: fillButtonString(for: scannedFieldValue),
+                    systemImage: Fill.SystemImage.scanned,
+                    isSelected: fieldValue.equalsScannedFieldValue(scannedFieldValue),
+                    type: .fill(scannedFieldValue.fill)
+                )
+            )
+            
+            /// Show alts if selected (only check the text because it might have a different value attached to it)
+            for altValue in scannedFieldValue.altValues {
+                fillOptions.append(
+                    FillOption(
+                        string: altValue.fillOptionString,
+                        systemImage: Fill.SystemImage.scanned,
+                        isSelected: fieldValue.value == altValue && fieldValue.fill.isImageAutofill,
+                        type: .fill(.scanned(info.withAltValue(altValue)))
+                    )
+                )
+            }
+        }
+                
+        return fillOptions
+    }
+    
+    func extractedFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
+        switch fieldValue {
+        case .energy:
+            return extractedFieldValues.filter({ $0.isEnergy })
+        case .macro(let macroValue):
+            return extractedFieldValues.filter({ $0.isMacro && $0.macroValue.macro == macroValue.macro })
+        case .micro(let microValue):
+            return extractedFieldValues.filter({ $0.isMicro && $0.microValue.nutrientType == microValue.nutrientType })
+        case .amount:
+            return extractedFieldValues.filter({ $0.isAmount })
+        case .serving:
+            return extractedFieldValues.filter({ $0.isServing })
+        case .density:
+            return extractedFieldValues.filter({ $0.isDensity })
+//        case .size:
+//            return extractedSizeFieldValues(for: fieldValue)
+        default:
+            return []
+        }
+    }
+    
+    func fillButtonString(for fieldValue: FieldValue) -> String {
+        switch fieldValue {
+        case .amount(let doubleValue), .serving(let doubleValue):
+            return doubleValue.description
+        case .energy(let energyValue):
+            return energyValue.description
+        case .macro(let macroValue):
+            return macroValue.description
+        case .micro(let microValue):
+            return microValue.description
+        case .density(let densityValue):
+            return densityValue.description(weightFirst: isWeightBased)
+        case .size(let sizeValue):
+            return sizeValue.size.fullNameString
+        default:
+            return "(not implemented)"
+        }
+    }
+    
+    var isWeightBased: Bool {
+        true
+        //TODO: Do this once amountViewModel is brought in
+//        amountViewModel.value.doubleValue.unit.isWeightBased || servingViewModel.value.doubleValue.unit.isWeightBased
     }
 }
