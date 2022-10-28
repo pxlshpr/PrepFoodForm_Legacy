@@ -58,19 +58,13 @@ extension FoodForm.FieldForm {
     }
     
     var defaultFooter: some View {
-        Text("Footer")
-        //        var string: String {
-        //            let autofillString = viewModel.shouldShowFillOptions(for: field.value) ? "or autofill " : ""
-        //            return "Enter \(autofillString)a value"
-        //        }
-        //
-        //        return Group {
-        //            if !isForDecimalValue {
-        //                EmptyView()
-        //            } else {
-        //                Text(string)
-        //            }
-        //        }
+        Group {
+            if !isForDecimalValue {
+                EmptyView()
+            } else {
+                Text("Enter \(fields.hasFillOptions(for: field.value) ? "or autofill " : "")a value")
+            }
+        }
     }
     
     //MARK: - TextField
@@ -103,10 +97,6 @@ extension FoodForm.FieldForm {
                     .lineLimit(1...3)
             }
             .scrollDismissesKeyboard(.interactively)
-        //            .introspectTextField(customize: { textField in
-        //                print("WE HERE")
-        //            })
-        //            .introspectTextField(customize: introspectTextField)
     }
     
     //MARK: - Supplementary Section
@@ -151,6 +141,20 @@ extension FoodForm.FieldForm {
     }
     
     //MARK: - Text Picker
+    var textPicker: some View {
+        TextPicker(
+            imageViewModels: sources.imageViewModels,
+            mode: textPickerMode
+        )
+        .onDisappear {
+            guard field.isCropping else {
+                return
+            }
+            field.cropFilledImage()
+            doNotRegisterUserInput = false
+        }
+    }
+    
     var textPickerMode: TextPickerMode {
         if isForDecimalValue {
             return .singleSelection(
@@ -165,21 +169,6 @@ extension FoodForm.FieldForm {
                     didSelectImageTexts(imageTexts)
                 }
         }
-    }
-    
-    var textPicker: some View {
-        Color.blue
-        //        TextPicker(
-        //            imageViewModels: viewModel.imageViewModels,
-        //            mode: textPickerMode
-        //        )
-        //        .onDisappear {
-        //            guard field.isCropping else {
-        //                return
-        //            }
-        //            field.cropFilledImage()
-        //            doNotRegisterUserInput = false
-        //        }
     }
     
     //MARK: - Buttons

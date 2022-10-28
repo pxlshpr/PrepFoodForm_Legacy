@@ -35,4 +35,8 @@ extension FoodForm.Fields {
             return "(not implemented)"
         }
     }
+    
+    func hasFillOptions(for fieldValue: FieldValue) -> Bool {
+        !fillOptions(for: fieldValue).isEmpty
+    }
 }

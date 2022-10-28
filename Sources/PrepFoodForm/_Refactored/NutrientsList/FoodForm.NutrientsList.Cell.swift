@@ -7,6 +7,7 @@ extension FoodForm.NutrientsList {
         @Environment(\.colorScheme) var colorScheme
         @EnvironmentObject var fields: FoodForm.Fields
         @ObservedObject var field: Field
+        @Binding var showImage: Bool
     }
 }
 
@@ -15,9 +16,9 @@ extension FoodForm.NutrientsList.Cell {
     var body: some View {
         ZStack {
             content
-//            if showCroppedImage {
-//                imageLayer
-//            }
+            if showImage {
+                imageLayer
+            }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 13)
@@ -25,9 +26,6 @@ extension FoodForm.NutrientsList.Cell {
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(10)
         .padding(.bottom, 10)
-//        .onAppear {
-//            getCroppedImage(for: fieldValue.fill)
-//        }
     }
     
     var content: some View {
@@ -51,7 +49,7 @@ extension FoodForm.NutrientsList.Cell {
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
             }
             Spacer()
-//            fillTypeIcon
+            fillTypeIcon
             disclosureArrow
         }
         .foregroundColor(field.value.labelColor(for: colorScheme))
@@ -89,13 +87,13 @@ extension FoodForm.NutrientsList.Cell {
         }
     }
     
-//    @ViewBuilder
-//    var fillTypeIcon: some View {
-//        if viewModel.hasNonUserInputFills, !isEmpty {
-//            Image(systemName: fieldValue.fill.iconSystemImage)
-//                .foregroundColor(Color(.secondaryLabel))
-//        }
-//    }
+    @ViewBuilder
+    var fillTypeIcon: some View {
+        if fields.hasNonUserInputFills, !isEmpty {
+            Image(systemName: field.fill.iconSystemImage)
+                .foregroundColor(Color(.secondaryLabel))
+        }
+    }
     
     var disclosureArrow: some View {
         Image(systemName: "chevron.forward")
@@ -106,55 +104,55 @@ extension FoodForm.NutrientsList.Cell {
     
     //MARK: - Image
     
-//    var imageLayer: some View {
-//        VStack {
-//            Spacer()
-//            HStack(alignment: .bottom) {
-//                Spacer()
-//                VStack {
-//                    Spacer()
-//                    croppedImage
-//                    .frame(maxWidth: 200, alignment: .trailing)
-//                    .grayscale(1.0)
-//                }
-//                .frame(height: 40)
-//                .padding(.trailing, 16)
-//                .padding(.bottom, 6)
-//            }
-//        }
-//    }
-//
-//    var croppedImage: some View {
-//
-//        var activityIndicator: some View {
-//            ZStack {
-//                ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
-//                    .frame(width: 50, height: 50)
-//                    .foregroundColor(Color(.tertiaryLabel))
-//            }
-//            .frame(maxWidth: .infinity, alignment: .trailing)
-//        }
-//
-//        return Group {
-//            if let image = fieldViewModel.imageToDisplay {
-//                ZStack {
-//                    if fieldViewModel.isCroppingNextImage {
-//                        activityIndicator
-//                    } else {
-//                        Image(uiImage: image)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fit)
-//                            .clipShape(
-//                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-//                            )
-//                            .shadow(radius: 3, x: 0, y: 3)
-//                    }
-//                }
-//            } else if fieldValue.fill.usesImage {
-//                activityIndicator
-//            }
-//        }
-//    }
+    var imageLayer: some View {
+        VStack {
+            Spacer()
+            HStack(alignment: .bottom) {
+                Spacer()
+                VStack {
+                    Spacer()
+                    croppedImage
+                    .frame(maxWidth: 200, alignment: .trailing)
+                    .grayscale(1.0)
+                }
+                .frame(height: 40)
+                .padding(.trailing, 16)
+                .padding(.bottom, 6)
+            }
+        }
+    }
+
+    var croppedImage: some View {
+
+        var activityIndicator: some View {
+            ZStack {
+                ActivityIndicatorView(isVisible: .constant(true), type: .scalingDots())
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+
+        return Group {
+            if let image = field.image {
+                ZStack {
+                    if field.isCropping {
+                        activityIndicator
+                    } else {
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            )
+                            .shadow(radius: 3, x: 0, y: 3)
+                    }
+                }
+            } else if field.fill.usesImage {
+                activityIndicator
+            }
+        }
+    }
     
     //MARK: Convenience
     

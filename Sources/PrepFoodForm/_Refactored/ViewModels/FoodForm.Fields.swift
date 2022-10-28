@@ -188,10 +188,82 @@ extension FoodForm.Fields {
         || serving.value.doubleValue.unit.isWeightBased
     }
     
+    var hasNonUserInputFills: Bool {
+        for field in allFieldValues {
+            if field.fill != .userInput {
+                return true
+            }
+        }
+        
+        for model in allSizeViewModels {
+            if model.value.fill != .userInput {
+                return true
+            }
+        }
+        return false
+    }
+
+    //MARK: - Field Collection Helpers
+    var allSingleFieldViewModels: [Field] {
+        [amount, serving, density, energy, carb, fat, protein]
+    }
+
+    var allMicronutrientFieldValues: [FieldValue] {
+        allMicronutrientFieldViewModels.map { $0.value }
+    }
+
+    var allMicronutrientFieldViewModels: [Field] {
+        micronutrients.reduce([Field]()) { partialResult, tuple in
+            partialResult + tuple.fieldViewModels
+        }
+    }
+
+    var allIncludedMicronutrientFieldViewModels: [Field] {
+        micronutrients.reduce([Field]()) { partialResult, tuple in
+            partialResult + tuple.fieldViewModels
+        }
+        .filter { $0.value.microValue.isIncluded }
+    }
+
+    var allFieldValues: [FieldValue] {
+        allFieldViewModels.map { $0.value }
+    }
+
+    var allFieldViewModels: [Field] {
+        allSingleFieldViewModels
+        + allMicronutrientFieldViewModels
+        + standardSizes
+        + volumePrefixedSizes
+        + barcodes
+    }
+    
+    var allSizeViewModels: [Field] {
+        standardSizes + volumePrefixedSizes
+    }
+    
+    //MARK: - Extracted Fields Convenience
+    
     func firstExtractedText(for fieldValue: FieldValue) -> RecognizedText? {
         guard let fill = extractedFieldValues(for: fieldValue).first?.fill else {
             return nil
         }
         return fill.text
+    }
+    
+    func firstExtractedFill(for fieldValue: FieldValue, with densityValue: FieldValue.DensityValue) -> Fill? {
+        guard let fill = extractedFieldValues(for: fieldValue).first?.fill,
+              let fillDensityValue = fill.densityValue,
+              fillDensityValue.equalsValues(of: densityValue) else {
+            return nil
+        }
+        return fill
+    }
+
+    func firstExtractedFill(for fieldValue: FieldValue, with text: RecognizedText) -> Fill? {
+        guard let fill = extractedFieldValues(for: fieldValue).first?.fill,
+              fill.text == text else {
+            return nil
+        }
+        return fill
     }
 }

@@ -101,12 +101,11 @@ extension FoodForm.FieldForm {
 
     
     func fill(for text: RecognizedText, onImageWithId imageId: UUID) -> Fill {
-        .userInput
-//        if let fill = viewModel.firstScannedFill(for: fieldValue, with: text) {
-//            return fill
-//        } else {
-//            return .selection(.init(imageText: ImageText(text: text, imageId: imageId)))
-//        }
+        if let fill = fields.firstExtractedFill(for: fieldValue, with: text) {
+            return fill
+        } else {
+            return .selection(.init(imageText: ImageText(text: text, imageId: imageId)))
+        }
     }
     
     func didSelectImageTexts(_ imageTexts: [ImageText]) {

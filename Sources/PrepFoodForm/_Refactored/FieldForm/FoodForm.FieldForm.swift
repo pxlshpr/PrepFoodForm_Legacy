@@ -5,7 +5,8 @@ extension FoodForm {
     struct FieldForm<UnitView: View, SupplementaryView: View>: View {
         
         @EnvironmentObject var fields: Fields
-        
+        @EnvironmentObject var sources: Sources
+
         var unitView: UnitView?
         var supplementaryView: SupplementaryView?
         var supplementaryViewFooterString: String?

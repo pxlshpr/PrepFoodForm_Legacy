@@ -6,10 +6,12 @@ import SwiftUISugar
 extension FoodForm {
     struct NutrientsList: View {
         @EnvironmentObject var fields: FoodForm.Fields
-        
-        @State var showImages = true
+        @EnvironmentObject var sources: FoodForm.Sources
+
         @State var showingMenu = false
         @State var showingMicronutrientsPicker = false
+
+        @State var showingImages = true
     }
 }
 
@@ -42,8 +44,9 @@ extension FoodForm.NutrientsList {
         NavigationLink {
             FoodForm.EnergyForm(existingField: fields.energy)
                 .environmentObject(fields)
+                .environmentObject(sources)
         } label: {
-            Cell(field: fields.energy)
+            Cell(field: fields.energy, showImage: $showingImages)
         }
     }
 
@@ -61,8 +64,9 @@ extension FoodForm.NutrientsList {
         NavigationLink {
             MacroForm(existingField: field)
                 .environmentObject(fields)
+                .environmentObject(sources)
         } label: {
-            Cell(field: field)
+            Cell(field: field, showImage: $showingImages)
 //            NutritionFactCell(fieldViewModel: fieldViewModel, showImage: $showImages)
 //                .environmentObject(viewModel)
         }
@@ -197,11 +201,11 @@ extension FoodForm.NutrientsList {
 
     var showHideAction: BottomMenuAction {
         BottomMenuAction(
-            title: "\(showImages ? "Hide" : "Show") Detected Texts",
-            systemImage: "eye\(showImages ? ".slash" : "")",
+            title: "\(showingImages ? "Hide" : "Show") Detected Texts",
+            systemImage: "eye\(showingImages ? ".slash" : "")",
             tapHandler: {
                 withAnimation {
-                    showImages.toggle()
+                    showingImages.toggle()
                 }
             })
     }

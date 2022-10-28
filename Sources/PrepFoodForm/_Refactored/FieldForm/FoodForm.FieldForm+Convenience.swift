@@ -25,8 +25,7 @@ extension FoodForm.FieldForm {
     }
     
     var selectedImageIndex: Int? {
-        nil
-//        viewModel.imageViewModels.firstIndex(where: { $0.id == fieldValue.fill.imageId })
+        sources.imageViewModels.firstIndex(where: { $0.id == fieldValue.fill.imageId })
     }
     
 }

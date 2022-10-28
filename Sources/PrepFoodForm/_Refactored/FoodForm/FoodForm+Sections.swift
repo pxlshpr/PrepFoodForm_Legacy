@@ -33,6 +33,7 @@ extension FoodForm {
             NavigationLink {
                 NutrientsList()
                     .environmentObject(fields)
+                    .environmentObject(sources)
             } label: {
                 if fields.shouldShowFoodLabel {
                     foodLabel
