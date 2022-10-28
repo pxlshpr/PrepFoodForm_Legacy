@@ -38,6 +38,12 @@ extension FoodForm.Fields {
         || serving.value.doubleValue.unit.isWeightBased
     }
     
+    var hasSquareBarcodes: Bool {
+        barcodes.contains {
+            $0.barcodeValue?.symbology.isSquare == true
+        }
+    }
+
     //MARK: Fills
     
     var hasNonUserInputFills: Bool {

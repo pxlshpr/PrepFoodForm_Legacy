@@ -110,7 +110,7 @@ extension FoodFormViewModel {
         }
         
         /// Get Barcodes from all images
-        for barcodeViewModel in scanResults.allBarcodeViewModels {
+        for barcodeViewModel in scanResults.allBarcodeFields {
             guard add(barcodeViewModel: barcodeViewModel) else {
                 continue
             }

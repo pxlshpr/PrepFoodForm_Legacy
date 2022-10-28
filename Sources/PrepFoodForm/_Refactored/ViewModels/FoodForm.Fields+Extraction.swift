@@ -21,13 +21,13 @@ extension FoodForm.Fields {
         }
         
         /// Get Barcodes from all images
-//        for barcodeViewModel in FoodForm.Sources.shared.allScanResults.allBarcodeViewModels {
-//            guard add(barcodeViewModel: barcodeViewModel) else {
-//                continue
-//            }
-//            barcodeViewModel.resetAndCropImage()
-//            replaceOrSetScannedFieldValue(barcodeViewModel.value)
-//        }
+        for barcodeField in FoodForm.Sources.shared.allScanResults.allBarcodeFields {
+            guard add(barcodeField: barcodeField) else {
+                continue
+            }
+            barcodeField.resetAndCropImage()
+            replaceOrSetExtractedFieldValue(barcodeField.value)
+        }
         
         updateShouldShowDensitiesSection()
         updateShouldShowFoodLabel()
@@ -35,6 +35,19 @@ extension FoodForm.Fields {
 //        markAllImageViewModelsAsProcessed()
     }
     
+    func add(barcodeField: Field) -> Bool {
+        guard !contains(barcodeField: barcodeField) else { return false }
+        barcodes.append(barcodeField)
+        return true
+    }
+
+    func contains(barcodeField: Field) -> Bool {
+        guard let string = barcodeField.barcodeValue?.payloadString else { return false }
+        return barcodes.contains(where: {
+            $0.barcodeValue?.payloadString == string
+        })
+    }
+
     /// Returns true if the size was added
     func add(sizeField: Field) -> Bool {
         guard let size = sizeField.size else { return false }

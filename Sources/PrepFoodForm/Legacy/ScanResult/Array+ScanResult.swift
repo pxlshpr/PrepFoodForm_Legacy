@@ -138,12 +138,10 @@ extension Array where Element == ScanResult {
         return fieldValues
     }
 
-    //TODO: Remove this
-    var allBarcodeViewModels: [Field] {
+    var allBarcodeFields: [Field] {
         allBarcodeFieldValues.map { Field(fieldValue: $0) }
     }
-
-    //TODO: Remove this
+    
     func allSizeViewModels(at column: Int) -> [Field] {
         allSizeFieldValues(at: column)
             .map { Field(fieldValue: $0) }

@@ -95,6 +95,7 @@ public struct FoodForm: View {
             detailsSection
             servingSection
             foodLabelSection
+            barcodesSection
             sourcesSection
             prefillSection
         }
