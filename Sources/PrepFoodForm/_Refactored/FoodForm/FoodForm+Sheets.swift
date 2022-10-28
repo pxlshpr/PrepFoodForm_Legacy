@@ -4,6 +4,7 @@ import SwiftHaptics
 import FoodLabelCamera
 import FoodLabelScanner
 import MFPSearch
+import Camera
 
 extension FoodForm {
     var emojiPicker: some View {
@@ -22,24 +23,10 @@ extension FoodForm {
         FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
     }
 
-    func didDismissColumnPicker() {
-        //TODO: Remove any unprocessed imageViewModels here
-//        viewModel.removeUnprocessedImageViewModels()
-    }
-    
-    func extract(column: Int, from results: [ScanResult], shouldOverwrite: Bool) {
-        Task {
-            let fieldValues = await sources.extractFieldsFrom(results, at: column)
-            handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+    var barcodeScanner: some View {
+        BarcodeScanner { barcodes, image in
+            handleScannedBarcodes(barcodes, on: image)
         }
-    }
-    
-    func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
-        guard let scanResult else {
-            /// We shouldn't come here without a `ScanResult`
-            return
-        }
-        extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
     }
     
     @ViewBuilder

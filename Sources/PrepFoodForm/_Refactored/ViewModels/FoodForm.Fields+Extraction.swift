@@ -32,7 +32,7 @@ extension FoodForm.Fields {
         updateShouldShowDensitiesSection()
         updateShouldShowFoodLabel()
 
-//        markAllImageViewModelsAsProcessed()
+        FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
     }
     
     func add(barcodeField: Field) -> Bool {
@@ -43,7 +43,11 @@ extension FoodForm.Fields {
 
     func contains(barcodeField: Field) -> Bool {
         guard let string = barcodeField.barcodeValue?.payloadString else { return false }
-        return barcodes.contains(where: {
+        return contains(barcode: string)
+    }
+    
+    func contains(barcode string: String) -> Bool {
+        barcodes.contains(where: {
             $0.barcodeValue?.payloadString == string
         })
     }
@@ -91,18 +95,20 @@ extension FoodForm.Fields {
             case .fat: fat.fill(with: fieldValue)
             case .protein: protein.fill(with: fieldValue)
             }
-        case .micro(let microValue):
-            fillMicroFieldValue(fieldValue, for: microValue.nutrientType)
+        case .micro:
+            addMicronutrient(fieldValue)
+//            fillMicroFieldValue(fieldValue, for: microValue.nutrientType)
         default:
             break
         }
         replaceOrSetExtractedFieldValue(fieldValue)
     }
     
-    func fillMicroFieldValue(_ fieldValue: FieldValue, for nutrientType: NutrientType) {
-        micronutrientField(for: nutrientType)?.fill(with: fieldValue)
-        //TODO: Next
-    }
+//    func fillMicroFieldValue(_ fieldValue: FieldValue, for nutrientType: NutrientType) {
+//        micronutrientField(for: nutrientType)?.fill(with: fieldValue)
+//        //TODO: Next
+//        
+//    }
     
     func replaceOrSetExtractedFieldValue(_ fieldValue: FieldValue) {
         /// First remove any existing `FieldValue` for this type (or a duplicate in the 1-many cases)

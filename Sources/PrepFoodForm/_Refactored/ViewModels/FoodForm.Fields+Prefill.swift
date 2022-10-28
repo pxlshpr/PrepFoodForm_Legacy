@@ -98,6 +98,7 @@ extension FoodForm.Fields {
             return
         }
         let field = Field(fieldValue: fieldValue)
+        field.resetAndCropImage()
         switch group {
         case .fats:         microsFats.append(field)
         case .fibers:       microsFibers.append(field)

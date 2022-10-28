@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import FoodLabelScanner
 import PhotosUI
+import VisionSugar
 import MFPScraper
 
 extension FoodForm {
@@ -35,6 +36,73 @@ extension FoodForm {
         }
         fields.prefill(food)
         fields.updateShouldShowFoodLabel()
+    }
+    
+    func handleScannedBarcodes(_ barcodes: [RecognizedBarcode], on image: UIImage) {
+        let imageViewModel = ImageViewModel(barcodeImage: image, recognizedBarcodes: barcodes)
+        var didAddABarcode = false
+        for barcode in barcodes {
+            let field = Field(fieldValue:
+                    .barcode(FieldValue.BarcodeValue(
+                        payloadString: barcode.string,
+                        symbology: barcode.symbology,
+                        fill: .barcodeScanned(
+                            ScannedFillInfo(
+                                recognizedBarcode: barcode,
+                                imageId: imageViewModel.id)
+                        )
+                    ))
+            )
+            didAddABarcode = fields.add(barcodeField: field)
+        }
+        if didAddABarcode {
+            sources.imageViewModels.append(imageViewModel)
+            sources.updateImageSetStatusToScanned()
+        }
+    }
+    
+    func handleTypedOutBarcode(_ payload: String) {
+        let barcodeValue = FieldValue.BarcodeValue(payload: payload, fill: .userInput)
+        let field = Field(fieldValue: .barcode(barcodeValue))
+        withAnimation {
+            let didAdd = fields.add(barcodeField: field)
+            if didAdd {
+                Haptics.successFeedback()
+            } else {
+                Haptics.errorFeedback()
+            }
+        }
+    }
+    
+    func deleteBarcodes(at offsets: IndexSet) {
+//        let indices = Array(offsets)
+//        for i in indices {
+//            let barcodeViewModel = viewModel.barcodeViewModels[i]
+//            guard let payloadString = barcodeViewModel.barcodeValue?.payloadString else {
+//                continue
+//            }
+//            viewModel.removeBarcodePayload(payloadString)
+//        }
+//        viewModel.barcodeViewModels.remove(atOffsets: offsets)
+    }
+
+    func didDismissColumnPicker() {
+        sources.removeUnprocessedImageViewModels()
+    }
+    
+    func extract(column: Int, from results: [ScanResult], shouldOverwrite: Bool) {
+        Task {
+            let fieldValues = await sources.extractFieldsFrom(results, at: column)
+            handleExtractedFieldValues(fieldValues, shouldOverwrite: shouldOverwrite)
+        }
+    }
+    
+    func autoFillColumn(_ selectedColumn: Int, from scanResult: ScanResult?) {
+        guard let scanResult else {
+            /// We shouldn't come here without a `ScanResult`
+            return
+        }
+        extract(column: selectedColumn, from: [scanResult], shouldOverwrite: true)
     }
     
     //MARK: - Sources

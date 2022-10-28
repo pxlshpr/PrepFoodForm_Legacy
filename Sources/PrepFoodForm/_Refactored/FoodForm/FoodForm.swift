@@ -26,13 +26,15 @@ public struct FoodForm: View {
     @State var showingPrefill = false
     @State var showingPrefillInfo = false
     @State var showingTextPicker = false
+    @State var showingBarcodeScanner = false
 
     /// Menus
     @State var showingSourcesMenu = false
     @State var showingPhotosMenu = false
     @State var showingAddLinkMenu = false
     @State var showingConfirmRemoveLinkMenu = false
-    
+    @State var showingAddBarcodeMenu = false
+
     @State var showingFoodLabel = false
 
     /// Wizard
@@ -61,6 +63,7 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
+                .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,
@@ -78,6 +81,7 @@ public struct FoodForm: View {
         .bottomMenu(isPresented: $showingPhotosMenu, menu: photosMenu)
         .bottomMenu(isPresented: $showingAddLinkMenu, menu: addLinkMenu)
         .bottomMenu(isPresented: $showingConfirmRemoveLinkMenu, menu: confirmRemoveLinkMenu)
+        .bottomMenu(isPresented: $showingAddBarcodeMenu, menu: addBarcodeMenu)
     }
     
     var content: some View {
@@ -99,10 +103,10 @@ public struct FoodForm: View {
             sourcesSection
             prefillSection
         }
-        .safeAreaInset(edge: .bottom) {
-            //TODO: Programmatically get this inset (67516AA6)
-            Spacer().frame(height: 150)
-        }
+//        .safeAreaInset(edge: .bottom) {
+//            //TODO: Programmatically get this inset (67516AA6)
+//            Spacer().frame(height: 150)
+//        }
         .overlay(
             Color(.quaternarySystemFill)
                 .opacity(showingWizardOverlay ? 0.3 : 0)

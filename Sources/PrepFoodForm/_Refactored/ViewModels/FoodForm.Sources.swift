@@ -3,6 +3,7 @@ import SwiftUISugar
 import FoodLabelScanner
 import PhotosUI
 import MFPScraper
+import VisionSugar
 
 extension FoodForm {
     class Sources: ObservableObject {
@@ -40,6 +41,13 @@ extension FoodForm.Sources {
         selectedPhotos = []
     }
     
+    func updateImageSetStatusToScanned() {
+        imageSetStatus = .scanned(
+            numberOfImages: imageViewModels.count,
+            counts: DataPointsCount(total: 0, autoFilled: 0, selected: 0, barcodes: 0) /// do this
+        )
+    }
+    
     func extractFieldsOrSetColumnSelectionInfo() async -> [FieldValue]? {
         
         await MainActor.run {
@@ -67,6 +75,31 @@ extension FoodForm.Sources {
             return []
         }
         return fieldValues
+    }
+    
+    /**
+     This is used to know which `ImageViewModel`s should be discarded when the user dismisses the column picker—by setting a flag in the `ImageViewModel` that marks it as completed.
+     
+     As this only gets called when the actual processing is complete, those without the flag set will be discarded.
+     */
+    func markAllImageViewModelsAsProcessed() {
+        for i in imageViewModels.indices {
+            imageViewModels[i].isProcessed = true
+        }
+    }
+    
+    func removeUnprocessedImageViewModels() {
+        imageViewModels.removeAll(where: { !$0.isProcessed })
+    }
+    
+    func removeBarcodePayload(_ string: String) {
+        /// Remove the `RecognizedBarcode` from all `ImageViewModel`s
+        for i in imageViewModels.indices {
+            imageViewModels[i].recognizedBarcodes.removeAll(where: { $0.string == string })
+        }
+        
+        /// Now remove the redundant `ImageViewModel`s we may have (those that were associated with the scanned barcode and have no other used barcodes remaining in it)
+        imageViewModels.removeAll(where: { $0.scanResult == nil && $0.recognizedBarcodes.isEmpty })
     }
 }
 

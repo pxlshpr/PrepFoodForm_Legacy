@@ -19,5 +19,4 @@ extension FoodForm.Fields {
             (serving.value.doubleValue.unit.isMeasurementBased && (serving.value.doubleValue.double ?? 0) > 0)
         }
     }
-
 }

@@ -48,13 +48,13 @@ extension FoodForm.Fields {
     
     var hasNonUserInputFills: Bool {
         for field in allFieldValues {
-            if field.fill != .userInput {
+            if !(field.fill == .userInput || field.fill == .discardable) {
                 return true
             }
         }
         
         for model in allSizeFields {
-            if model.value.fill != .userInput {
+            if !(model.value.fill == .userInput || model.value.fill == .discardable) {
                 return true
             }
         }

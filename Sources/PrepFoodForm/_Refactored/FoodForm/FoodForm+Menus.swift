@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 extension FoodForm {
     
@@ -8,6 +9,30 @@ extension FoodForm {
     var sourcesMenu: BottomMenu {
         let addLinkGroup = BottomMenuActionGroup(action: addLinkMenuAction)
         return BottomMenu(groups: [photosMenuGroup, addLinkGroup])
+    }
+    
+    //MARK: - Barcodes
+    var addBarcodeMenu: BottomMenu {
+        let scanAction = BottomMenuAction(title: "Scan a Barcode", systemImage: "barcode.viewfinder", tapHandler: {
+            showingBarcodeScanner = true
+        })
+        let group = BottomMenuActionGroup(actions: [scanAction, enterBarcodeManuallyLink])
+        return BottomMenu(group: group)
+    }
+
+    var enterBarcodeManuallyLink: BottomMenuAction {
+       BottomMenuAction(
+           title: "Enter Manually",
+           systemImage: "123.rectangle",
+           textInput: BottomMenuTextInput(
+               placeholder: "012345678912",
+               keyboardType: .decimalPad,
+               submitString: "Add Barcode",
+               autocapitalization: .never,
+               textInputIsValid: isValidBarcode,
+               textInputHandler: handleTypedOutBarcode
+           )
+       )
     }
     
     //MARK: - Photos

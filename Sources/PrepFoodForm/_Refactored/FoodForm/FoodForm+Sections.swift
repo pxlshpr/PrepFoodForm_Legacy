@@ -94,6 +94,46 @@ extension FoodForm {
             .font(.footnote)
         }
         
+        var barcodesForm: some View {
+            BarcodesForm(
+                barcodeValues: Binding<[FieldValue]>(
+                    get: { fields.barcodes.map { $0.value } },
+                    set: { _ in }
+                ),
+                shouldShowFillIcon: Binding<Bool>(
+                    get: { fields.hasNonUserInputFills },
+                    set: { _ in }
+                ),
+                showingAddBarcodeMenu: Binding<Bool>(
+                    get: { showingAddBarcodeMenu },
+                    set: { newValue in showingAddBarcodeMenu = newValue }
+                ),
+                deleteBarcodes: deleteBarcodes)
+        }
+        
+        var barcodesView: some View {
+            BarcodesView(
+                barcodeValues: Binding<[FieldValue]>(
+                    get: { fields.barcodes.map { $0.value } },
+                    set: { _ in }
+                ),
+                showAsSquares: Binding<Bool>(
+                    get: { fields.hasSquareBarcodes },
+                    set: { _ in }
+                )
+            )
+        }
+        
+        var addBarcodeButton: some View {
+            Button {
+                showingAddBarcodeMenu = true
+            } label: {
+                Text("Add a barcode")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+            }
+        }
+        
         return Group {
             if !fields.barcodes.isEmpty {
                 FormStyledSection(
@@ -103,30 +143,14 @@ extension FoodForm {
                     verticalPadding: 0)
                 {
                     NavigationLink {
-    //                    BarcodesForm()
-    //                        .environmentObject(viewModel)
+                        barcodesForm
                     } label: {
-                        BarcodesView(
-                            barcodeValues: Binding<[FieldValue]>(
-                                get: { fields.barcodes.map { $0.value } },
-                                set: { _ in }
-                            ),
-                            showAsSquares: Binding<Bool>(
-                                get: { fields.hasSquareBarcodes },
-                                set: { _ in }
-                            )
-                        )
+                        barcodesView
                     }
                 }
             } else {
                 FormStyledSection(header: header, footer: footer) {
-                    Button {
-//                        viewModel.showingAddBarcodeMenu = true
-                    } label: {
-                        Text("Add a barcode")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(Rectangle())
-                    }
+                    addBarcodeButton
                 }
             }
         }
