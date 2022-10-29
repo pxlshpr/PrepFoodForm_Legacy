@@ -46,13 +46,13 @@ We will not verify foods that are solely based on their data, [as MyFitnessPal t
 """)
                 .listRowSeparator(.hidden)
                 .foregroundColor(.primary)
-                HStack {
+                HStack(alignment: .top) {
                     Text("•")
                     Text("a **photo** of the nutrition label")
                 }
                 .listRowSeparator(.hidden)
                 .foregroundColor(.primary)
-                HStack {
+                HStack(alignment: .top) {
                     Text("•")
                     Text("a **link** to a verifiable source (such as the supplier's website) or")
                 }
