@@ -35,14 +35,14 @@ The search is considerably slow as the speed is throttled on their end. **A quic
             }
             
             
-            Section("Submission for Verification") {
+            Section("Submission to the Public Database") {
                 Text("""
 We will not verify foods that are solely based on their data, [as MyFitnessPal themselves do not guarantee the information to be accurate](https://support.myfitnesspal.com/hc/en-us/articles/360032273292-What-does-the-check-mark-mean-).
 """)
                 .listRowSeparator(.hidden)
                 .foregroundColor(.secondary)
                 Text("""
-**If you would like the food to be verified** [(and generate subscription points)](google.com), you would still need to provide either:
+**If you would like the food to be verified into the public database** [(and generate subscription points)](google.com), you would still need to provide either:
 """)
                 .listRowSeparator(.hidden)
                 .foregroundColor(.primary)
