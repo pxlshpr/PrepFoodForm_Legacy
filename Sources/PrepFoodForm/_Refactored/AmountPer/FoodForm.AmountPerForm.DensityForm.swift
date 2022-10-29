@@ -58,12 +58,15 @@ extension FoodForm.AmountPerForm.DensityForm {
         .sheet(isPresented: $showingVolumeUnitPicker) { volumeUnitPicker }
     }
     
+    @ViewBuilder
     var fillOptionsSections: some View {
-        FoodForm.FillInfo(
-            field: field,
-            shouldAnimate: $shouldAnimateOptions,
-            didTapImage: didTapImage,
-            didTapFillOption: didTapFillOption
-        )
+        if fields.hasFillOptions(for: field.value) {
+            FoodForm.FillInfo(
+                field: field,
+                shouldAnimate: $shouldAnimateOptions,
+                didTapImage: didTapImage,
+                didTapFillOption: didTapFillOption
+            )
+        }
     }
 }

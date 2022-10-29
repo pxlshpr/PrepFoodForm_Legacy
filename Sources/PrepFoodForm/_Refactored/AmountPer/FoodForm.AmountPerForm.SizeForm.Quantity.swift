@@ -35,6 +35,7 @@ extension FoodForm.AmountPerForm.SizeForm.Quantity {
             .keyboardType(.decimalPad)
             .focused($isFocused)
             .font(field.sizeQuantityString.isEmpty ? .body : .largeTitle)
+            .frame(minHeight: 50)
     }
 
     var stepper: some View {

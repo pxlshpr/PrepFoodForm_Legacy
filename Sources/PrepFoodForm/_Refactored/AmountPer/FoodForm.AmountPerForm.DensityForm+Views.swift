@@ -58,8 +58,9 @@ extension FoodForm.AmountPerForm.DensityForm {
         return TextField("weight", text: binding)
             .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
-            .font(.title2)
             .focused($focusedField, equals: .weight)
+//            .font(.title2)
+            .font(field.value.weight.string.isEmpty ? .body : .title2)
     }
     
 
@@ -92,23 +93,23 @@ extension FoodForm.AmountPerForm.DensityForm {
     
     var volumeTextField: some View {
         let binding = Binding<String>(
-            get: { fields.density.value.volume.string },
+            get: { field.value.volume.string },
             set: {
-                if !doNotRegisterUserInput, focusedField == .volume, $0 != fields.density.value.volume.string {
+                if !doNotRegisterUserInput, focusedField == .volume, $0 != field.value.volume.string {
                     withAnimation {
-                        fields.density.registerUserInput()
+                        field.registerUserInput()
                     }
                 }
-//                field.value.volume.string = $0
-                fields.density.value.volume.string = $0
+                field.value.volume.string = $0
             }
         )
         
         return TextField("volume", text: binding)
             .multilineTextAlignment(.center)
             .keyboardType(.decimalPad)
-            .font(.title2)
             .focused($focusedField, equals: .volume)
+//            .font(.title2)
+            .font(field.value.volume.string.isEmpty ? .body : .title2)
     }
     
     var volumeUnitButton: some View {

@@ -13,7 +13,10 @@ extension FoodForm.AmountPerForm.DensityView {
         HStack {
             Image(systemName: "arrow.triangle.swap")
                 .foregroundColor(Color(.tertiaryLabel))
-            if let description = field.value.densityValue?.description(weightFirst: isWeightBased) {
+            if let densityValue = field.value.densityValue,
+               densityValue.isValid,
+               let description = densityValue.description(weightFirst: isWeightBased)
+            {
                 Text(description)
                     .foregroundColor(Color(.secondaryLabel))
             } else {

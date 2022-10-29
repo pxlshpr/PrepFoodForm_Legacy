@@ -40,6 +40,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
             .keyboardType(.decimalPad)
             .focused($isFocused)
             .font(field.sizeAmountString.isEmpty ? .body : .largeTitle)
+            .frame(minHeight: 50)
     }
     
     var unitButton: some View {

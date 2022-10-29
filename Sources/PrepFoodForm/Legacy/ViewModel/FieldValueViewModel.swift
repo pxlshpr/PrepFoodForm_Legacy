@@ -115,6 +115,8 @@ class Field: ObservableObject, Identifiable {
         switch value {
         case .size(let sizeValue):
             return sizeValue.size.isValid
+        case .density(let densityValue):
+            return densityValue.isValid
         default:
             return false
         }

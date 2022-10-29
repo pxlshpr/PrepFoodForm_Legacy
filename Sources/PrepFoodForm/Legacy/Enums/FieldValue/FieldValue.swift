@@ -382,6 +382,15 @@ extension FieldValue {
         
         static let DefaultWeight = DoubleValue(unit: .weight(.g))
         static let DefaultVolume = DoubleValue(unit: .volume(.cup))
+        
+        var isValid: Bool {
+            guard let w = weight.double, let v = volume.double else {
+                return false
+            }
+            return w > 0 && v > 0
+            && weight.unit.unitType == .weight
+            && volume.unit.unitType == .volume
+        }
     }
 }
 

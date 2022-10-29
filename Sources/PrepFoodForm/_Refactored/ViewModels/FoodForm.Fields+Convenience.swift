@@ -68,10 +68,7 @@ extension FoodForm.Fields {
     //MARK: Density
     
     var hasValidDensity: Bool {
-        densityWeightAmount > 0
-        && densityVolumeAmount > 0
-        && density.value.weight.unit.unitType == .weight
-        && density.value.volume.unit.unitType == .volume
+        density.isValid
     }
 
     var densityWeightAmount: Double {
