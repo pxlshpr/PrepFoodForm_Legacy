@@ -4,6 +4,7 @@ import PrepDataTypes
 extension FoodForm.AmountPerForm.SizesList {
     struct Cell: View {
         let size: FormSize
+        let iconSystemImage: String?
     }
 }
 
@@ -23,6 +24,10 @@ extension FoodForm.AmountPerForm.SizesList.Cell {
             Spacer()
             Text(size.scaledAmountString)
                 .foregroundColor(Color(.secondaryLabel))
+            if let iconSystemImage {
+                Image(systemName: iconSystemImage)
+                    .foregroundColor(Color(.quaternaryLabel))
+            }
         }
     }
     

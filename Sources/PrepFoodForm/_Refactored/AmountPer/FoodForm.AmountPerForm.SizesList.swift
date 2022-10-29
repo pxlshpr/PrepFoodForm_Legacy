@@ -37,7 +37,7 @@ extension FoodForm.AmountPerForm.SizesList {
                     Button {
                         sizeToEdit = fields.standardSizes[index]
                     } label: {
-                        Cell(size: size)
+                        Cell(size: size, iconSystemImage: fields.standardSizes[index].fill.iconSystemImage)
                     }
                 }
             }
@@ -62,7 +62,8 @@ extension FoodForm.AmountPerForm.SizesList {
                     Button {
                         sizeToEdit = fields.volumePrefixedSizes[index]
                     } label: {
-                        Cell(size: size)
+                        //TODO: NEXT only show icon if we have non user input fills
+                        Cell(size: size, iconSystemImage: fields.standardSizes[index].fill.iconSystemImage)
                     }
                 }
             }
