@@ -2,7 +2,7 @@ import SwiftUI
 
 extension FoodForm.AmountPerForm.SizeForm {
     struct Quantity: View {
-        @ObservedObject var sizeViewModel: Field
+        @ObservedObject var field: Field
         
         @Environment(\.dismiss) var dismiss
         @FocusState var isFocused: Bool
@@ -23,21 +23,22 @@ extension FoodForm.AmountPerForm.SizeForm.Quantity {
         .navigationTitle("Quantity")
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.never)
-        .interactiveDismissDisabled(sizeViewModel.sizeQuantityString.isEmpty)
+        .interactiveDismissDisabled(field.sizeQuantityString.isEmpty)
         .onAppear { isFocused = true }
     }
     
     //MARK: - Components
     
     var textField: some View {
-        TextField("Required", text: $sizeViewModel.sizeQuantityString)
+        TextField("Required", text: $field.sizeQuantityString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
+            .font(field.sizeQuantityString.isEmpty ? .body : .largeTitle)
     }
 
     var stepper: some View {
-        Stepper("", value: $sizeViewModel.sizeQuantity, in: 1...100000)
+        Stepper("", value: $field.sizeQuantity, in: 1...100000)
             .labelsHidden()
     }
 
@@ -53,7 +54,7 @@ This is used when nutritional labels display nutrients for more than a single se
 For e.g. when the serving size reads '5 cookies (57g)', you would enter 5 as the quantity here. This allows us determine the nutrients for a single cookie.
 """
         )
-        .foregroundColor(sizeViewModel.sizeQuantityString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
+        .foregroundColor(field.sizeQuantityString.isEmpty ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
 

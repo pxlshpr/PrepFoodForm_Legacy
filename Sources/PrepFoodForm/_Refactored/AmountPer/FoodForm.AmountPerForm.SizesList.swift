@@ -33,16 +33,38 @@ extension FoodForm.AmountPerForm.SizesList {
     var standardSizesSection: some View {
         Section {
             ForEach(fields.standardSizes.indices, id: \.self) { index in
-                if let size = fields.standardSizes[index].value.size {
-                    Button {
-                        sizeToEdit = fields.standardSizes[index]
-                    } label: {
-                        Cell(size: size, iconSystemImage: fields.standardSizes[index].fill.iconSystemImage)
-                    }
-                }
+                cellForStandardSize(at: index)
             }
             .onDelete(perform: deleteStandardSizes)
             .onMove(perform: moveStandardSizes)
+        }
+    }
+    
+    func cellForStandardSize(at index: Int) -> some View {
+        let size = fields.standardSizes[index].value.size
+        let icon = fields.standardSizes[index].fill.iconSystemImage
+        return Group {
+            if let size {
+                Button {
+                    sizeToEdit = fields.standardSizes[index]
+                } label: {
+                    Cell(size: size, icon: icon)
+                }
+            }
+        }
+    }
+    
+    func cellForVolumePrefixedSize(at index: Int) -> some View {
+        let size = fields.volumePrefixedSizes[index].value.size
+        let icon = fields.volumePrefixedSizes[index].fill.iconSystemImage
+        return Group {
+            if let size {
+                Button {
+                    sizeToEdit = fields.volumePrefixedSizes[index]
+                } label: {
+                    Cell(size: size, icon: icon)
+                }
+            }
         }
     }
     
@@ -58,14 +80,7 @@ extension FoodForm.AmountPerForm.SizesList {
         
         return Section(header: header, footer: footer) {
             ForEach(fields.volumePrefixedSizes.indices, id: \.self) { index in
-                if let size = fields.volumePrefixedSizes[index].value.size {
-                    Button {
-                        sizeToEdit = fields.volumePrefixedSizes[index]
-                    } label: {
-                        //TODO: NEXT only show icon if we have non user input fills
-                        Cell(size: size, iconSystemImage: fields.standardSizes[index].fill.iconSystemImage)
-                    }
-                }
+                cellForVolumePrefixedSize(at: index)
             }
             .onDelete(perform: deleteVolumePrefixedSizes)
             .onMove(perform: moveVolumePrefixedSizes)

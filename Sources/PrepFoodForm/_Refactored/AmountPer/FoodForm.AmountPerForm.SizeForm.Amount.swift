@@ -5,7 +5,7 @@ extension FoodForm.AmountPerForm.SizeForm {
     struct Amount: View {
         @EnvironmentObject var fields: FoodForm.Fields
         @EnvironmentObject var formViewModel: SizeFormViewModel
-        @ObservedObject var sizeViewModel: Field
+        @ObservedObject var field: Field
         
         @Environment(\.dismiss) var dismiss
         @State var showingUnitPicker = false
@@ -35,10 +35,11 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
     //MARK: - Components
     
     var textField: some View {
-        TextField("Required", text: $sizeViewModel.sizeAmountString)
+        TextField("Required", text: $field.sizeAmountString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
             .focused($isFocused)
+            .font(field.sizeAmountString.isEmpty ? .body : .largeTitle)
     }
     
     var unitButton: some View {
@@ -46,7 +47,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(sizeViewModel.sizeAmountUnitString)
+                Text(field.sizeAmountUnitString)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
@@ -56,14 +57,14 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
     
     var unitPickerForAmount: some View {
         FoodForm.AmountPerForm.UnitPicker(
-            pickedUnit: sizeViewModel.sizeAmountUnit,
+            pickedUnit: field.sizeAmountUnit,
             includeServing: formViewModel.includeServing,
             servingDescription: fields.serving.doubleValueDescription,
             allowAddSize: formViewModel.allowAddSize)
         {
             showingSizeForm = true
         } didPickUnit: { unit in
-            sizeViewModel.sizeAmountUnit = unit
+            field.sizeAmountUnit = unit
         }
         .environmentObject(fields)
         .sheet(isPresented: $showingSizeForm) {
@@ -71,7 +72,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
             FoodForm.AmountPerForm.SizeForm(includeServing: fields.hasServing, allowAddSize: false) { sizeViewModel in
                 guard let size = sizeViewModel.size else { return }
                 withAnimation {
-                    self.sizeViewModel.sizeAmountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+                    self.field.sizeAmountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         Haptics.feedback(style: .rigid)
                         showingUnitPicker = false
@@ -83,23 +84,23 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
     }
     
     var header: some View {
-        Text(sizeViewModel.sizeAmountUnit.unitType.description.lowercased())
+        Text(field.sizeAmountUnit.unitType.description.lowercased())
     }
     
     @ViewBuilder
     var footer: some View {
-        Text("\(sizeViewModel.sizeAmountIsValid ? "This is" : "Enter") \(description).")
-            .foregroundColor(!sizeViewModel.sizeAmountIsValid ? FormFooterEmptyColor : FormFooterFilledColor)
+        Text("\(field.sizeAmountIsValid ? "This is" : "Enter") \(description).")
+            .foregroundColor(!field.sizeAmountIsValid ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
     //MARK: Convenience
     
     var quantiativeName: String {
-        "\(sizeViewModel.sizeQuantityString) \(sizeViewModel.sizeNameString.isEmpty ? "of this size" : sizeViewModel.sizeNameString.lowercased())"
+        "\(field.sizeQuantityString) \(field.sizeNameString.isEmpty ? "of this size" : field.sizeNameString.lowercased())"
     }
     
     var description: String {
-        switch sizeViewModel.sizeAmountUnit {
+        switch field.sizeAmountUnit {
         case .volume:
             return "the volume of \(quantiativeName)"
         case .weight:
