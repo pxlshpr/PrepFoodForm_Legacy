@@ -50,7 +50,7 @@ extension FoodForm.AmountPerForm.DensityForm {
                 guard let densityValue = info.densityValue else {
                     return
                 }
-                setDensityValue(densityValue)
+                setDensityValue(densityValue, fill: .prefill(info))
             case .scanned(let info):
                 guard let densityValue = info.densityValue else {
                     return
@@ -60,7 +60,7 @@ extension FoodForm.AmountPerForm.DensityForm {
             default:
                 break
             }
-            doNotRegisterUserInput = false
+            doNotRegisterUserInput = true
             dismiss()
 //            saveAndDismiss()
         }
@@ -77,11 +77,12 @@ extension FoodForm.AmountPerForm.DensityForm {
         showingTextPicker = true
     }
 
-    func setDensityValue(_ densityValue: FieldValue.DensityValue) {
+    func setDensityValue(_ densityValue: FieldValue.DensityValue, fill: Fill = .userInput) {
         field.value.weight.double = densityValue.weight.double
         field.value.weight.unit = densityValue.weight.unit
         field.value.volume.double = densityValue.volume.double
         field.value.volume.unit = densityValue.volume.unit
+        field.value.fill = fill
     }
     
 //    func saveAndDismiss() {

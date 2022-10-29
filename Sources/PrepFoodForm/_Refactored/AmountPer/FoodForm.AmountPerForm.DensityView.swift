@@ -4,6 +4,7 @@ extension FoodForm.AmountPerForm {
     struct DensityView: View {
         @ObservedObject var field: Field
         @Binding var isWeightBased: Bool
+        @Binding var shouldShowFillIcon: Bool
     }
 }
 extension FoodForm.AmountPerForm.DensityView {
@@ -20,6 +21,15 @@ extension FoodForm.AmountPerForm.DensityView {
                     .foregroundColor(Color(.quaternaryLabel))
             }
             Spacer()
+            fillTypeIcon
+        }
+    }
+    
+    @ViewBuilder
+    var fillTypeIcon: some View {
+        if shouldShowFillIcon {
+            Image(systemName: field.value.fill.iconSystemImage)
+                .foregroundColor(Color(.secondaryLabel))
         }
     }
 }

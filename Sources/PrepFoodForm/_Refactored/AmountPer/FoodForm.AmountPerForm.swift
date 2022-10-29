@@ -91,21 +91,21 @@ extension FoodForm.AmountPerForm {
     }
 
     var densitySection: some View {
-
-        var header: some View {
-            Text("Unit Conversion")
-        }
-    
-        let isWeightBased = Binding<Bool>(
-            get: { fields.isWeightBased },
-            set: { _ in }
-        )
-
-        return FormStyledSection(header: header, footer: densityFooter) {
+        FormStyledSection(header: Text("Unit Conversion"), footer: densityFooter) {
             NavigationLink {
                 densityForm
             } label: {
-                DensityView(field: fields.density, isWeightBased: isWeightBased)
+                DensityView(
+                    field: fields.density,
+                    isWeightBased: Binding<Bool>(
+                        get: { fields.isWeightBased },
+                        set: { _ in }
+                    ),
+                    shouldShowFillIcon: Binding<Bool>(
+                        get: { fields.hasNonUserInputFills },
+                        set: { _ in }
+                    )
+                )
             }
         }
     }
