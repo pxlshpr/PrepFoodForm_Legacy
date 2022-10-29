@@ -118,47 +118,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension Field {
-    var barcodeValue: FieldValue.BarcodeValue? {
-        value.barcodeValue
-    }
-}
-
-extension VNBarcodeSymbology {
-
-    var preferenceRank: Int {
-        switch self {
-        case .code128: return 1
-        case .upce: return 1
-        case .code39: return 1
-        case .ean8: return 1
-        case .ean13: return 1
-        case .code93: return 1
-        case .pdf417: return 1
-        case .qr: return 2
-        case .aztec: return 3
-        default:
-            return 4
-        }
-    }
-    
-    var objectType: AVMetadataObject.ObjectType {
-        switch self {
-        case .code128: return .code128
-        case .upce: return .upce
-        case .code39: return .code39
-        case .ean8: return .ean8
-        case .ean13: return .ean13
-        case .code93: return .code93
-        case .pdf417: return .pdf417
-        case .qr: return .qr
-        case .aztec: return .aztec
-        default:
-            return .code128
-        }
-    }
-}
-
 extension FoodFormViewModel {
     var hasDetails: Bool {
         !nameViewModel.value.isEmpty

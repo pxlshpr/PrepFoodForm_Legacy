@@ -580,36 +580,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension FormSize {
-    var asFieldViewModelForUserInput: Field {
-        Field(fieldValue: .size(.init(size: self, fill: .userInput)))
-    }
-}
-
-extension FieldValue {
-    var size: FormSize? {
-        get {
-            switch self {
-            case .size(let sizeValue):
-                return sizeValue.size
-            default:
-                return nil
-            }
-        }
-        set {
-            guard let newValue else {
-                return
-            }
-            switch self {
-            case .size(let sizeValue):
-                self = .size(.init(size: newValue, fill: sizeValue.fill))
-            default:
-                break
-            }
-        }
-    }
-}
-
 extension FoodFormViewModel {
     func micronutrientFieldViewModel(for nutrientType: NutrientType) -> Field? {
         for group in micronutrients {
@@ -623,36 +593,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension FieldValue.MicroValue {
-    var convertedFromPercentage: (amount: Double, unit: NutrientUnit)? {
-        guard let double, unit == .p else {
-            return nil
-        }
-        return nutrientType.convertRDApercentage(double)
-    }
-}
-
-
-extension Array where Element == Field {
-    func containsSizeNamed(_ name: String) -> Bool {
-        contains(where: { $0.isSizeNamed(name) })
-    }
-}
-
-extension Field {
-    func isSizeNamed(_ name: String) -> Bool {
-        size?.name == name
-    }
-}
-
-extension Field {
-    var doubleValueDescription: String {
-        guard !value.isEmpty else {
-            return ""
-        }
-        return "\(value.doubleValue.string) \(value.doubleValue.unitDescription)"
-    }
-}
 
 extension FoodFormViewModel {
     

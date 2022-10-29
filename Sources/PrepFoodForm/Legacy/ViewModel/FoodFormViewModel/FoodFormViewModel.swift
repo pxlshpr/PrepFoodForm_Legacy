@@ -289,43 +289,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension ImageViewModel {
-    func saveScanResultToJson() {
-        guard let scanResult else {
-            return
-        }
-        
-        let encoder = JSONEncoder()
-        do {
-            let data = try encoder.encode(scanResult)
-            
-            if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                url.appendPathComponent("scanResult.json")
-                try data.write(to: url)
-                print("📝 Wrote scanResult to: \(url)")
-            }
-        } catch {
-            print(error)
-        }
-    }
-}
-
-extension MFPProcessedFood {
-    func saveToJson() {
-        let encoder = JSONEncoder()
-        do {
-            let data = try encoder.encode(self)
-            
-            if var url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                url.appendPathComponent("mfpProcessedFood.json")
-                try data.write(to: url)
-                print("📝 Wrote mfpProcessedFood to: \(url)")
-            }
-        } catch {
-            print(error)
-        }
-    }
-}
 
 
 //extension FoodFormViewModel: FoodLabelDataSource {

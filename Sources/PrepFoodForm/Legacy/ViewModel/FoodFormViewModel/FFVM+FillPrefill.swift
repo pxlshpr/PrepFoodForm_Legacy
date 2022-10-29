@@ -197,51 +197,6 @@ extension FoodFormViewModel {
     }
 }
 
-extension Field {
-    var nutrientType: NutrientType? {
-        value.microValue.nutrientType
-    }
-}
-
-extension AmountUnit {
-    func formUnit(withSize size: FormSize? = nil) -> FormUnit {
-        switch self {
-        case .weight(let weightUnit):
-            return .weight(weightUnit)
-        case .volume(let volumeUnit):
-            return .volume(volumeUnit)
-        case .serving:
-            return .serving
-        case .size:
-            /// We should have had a size (pre-created from the actual `MFPProcessedFood.Size`) and passed into this function—otherwise fallback to a serving unit
-            guard let size else {
-                return .serving
-            }
-            return .size(size, nil)
-        }
-    }
-}
-
-extension ServingUnit {
-    func formUnit(withSize size: FormSize? = nil) -> FormUnit {
-        switch self {
-        case .weight(let weightUnit):
-            return .weight(weightUnit)
-        case .volume(let volumeUnit):
-            return .volume(volumeUnit)
-        case .size:
-            /// We should have had a size (pre-created from the actual `MFPProcessedFood.Size`) and passed into this function—otherwise fallback to a default unit
-            guard let size else {
-                return .weight(.g)
-            }
-            return .size(size, .cup)
-        }
-    }
-}
-
-
-//TODO: Write an extension on FieldValue or RecognizedText that provides alternative `FoodLabelValue`s for a specific type of `FieldValue`—so if its energy and we have a number, return it as the value with both units, or the converted value in kJ or kcal. If its simply a macro/micro value—use the stuff where we move the decimal place back or forward or correct misread values such as 'g' for '9', 'O' for '0' and vice versa.
-
 //MARK: FFVM + Prefill Helpers
 extension FoodFormViewModel {
     
@@ -288,63 +243,5 @@ extension FoodFormViewModel {
         allFieldValues.first(where: {
             $0.fill.uses(text: text)
         })
-    }
-}
-
-extension MFPProcessedFood.Size {
-    var size: FormSize {
-        FormSize(
-            quantity: quantity,
-            volumePrefixUnit: prefixVolumeUnit?.formUnit,
-            name: name.lowercased(),
-            amount: amount,
-            unit: amountUnit.formUnit
-        )
-    }
-    
-    var fieldValue: FieldValue {
-        size.fieldValue
-    }
-    
-    var isVolumePrefixed: Bool {
-        prefixVolumeUnit != nil
-    }
-}
-
-extension FormSize {
-    var fieldValue: FieldValue {
-        .size(FieldValue.SizeValue(
-            size: self,
-            fill: .prefill())
-        )
-    }
-}
-
-extension AmountUnit {
-    var formUnit: FormUnit {
-        switch self {
-        case .weight(let weightUnit):
-            return .weight(weightUnit)
-        case .volume(let volumeUnit):
-            return .volume(volumeUnit)
-        case .serving:
-            return .serving
-        case .size(let processedSize):
-            return .size(processedSize.size, nil)
-        }
-    }
-    
-    var weightUnit: WeightUnit? {
-        switch self {
-        case .weight(let weightUnit):
-            return weightUnit
-        default:
-            return nil
-        }
-    }
-}
-extension VolumeUnit {
-    var formUnit: FormUnit {
-        .volume(self)
     }
 }

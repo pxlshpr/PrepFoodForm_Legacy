@@ -3,42 +3,6 @@ import ActivityIndicatorView
 import SwiftUISugar
 import FoodLabelScanner
 
-extension ScanResult {
-    var dataPointsCount: Int {
-        var count = nutrientsCount
-        if serving?.amount != nil {
-            count += 1
-        }
-        let count1 = allSizeViewModels(at: 1).count
-        let count2 = allSizeViewModels(at: 2).count
-        count += max(count1, count2)
-//        if let serving {
-//            if serving.amount != nil {
-//                count += 1
-//            }
-//            if serving.perContainer != nil {
-//                count += 1
-//            }
-//            if serving.equivalentSize != nil {
-//                count += 1
-//            }
-//        }
-//        if let headers {
-//            
-//            if headers.header1Type != nil {
-//                count += 1
-//            }
-//            if headers.header2Type != nil {
-//                count += 1
-//            }
-//        }
-        if densityFieldValue != nil {
-            count += 1
-        }
-        count += barcodes.count
-        return count
-    }
-}
 extension FoodFormViewModel {
     var scannedNutrientCount: Int {
         imageViewModels.reduce(0) { partialResult, imageViewModel in
