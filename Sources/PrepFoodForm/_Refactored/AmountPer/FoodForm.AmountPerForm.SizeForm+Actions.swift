@@ -36,6 +36,11 @@ extension FoodForm.AmountPerForm.SizeForm {
         }
     }
     
+    func disappeared() {
+        /// Reset this so it doesn't get ignored when checking for conflicts later
+        fields.sizeBeingEdited = nil
+    }
+    
     func didTapFillOption(_ fillOption: FillOption) {
         switch fillOption.type {
         case .select:

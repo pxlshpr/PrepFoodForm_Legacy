@@ -25,7 +25,7 @@ struct EnergyForm: View {
     }
     
     var unitPicker: some View {
-        Picker("", selection: $fieldViewModel.value.energyValue.unit) {
+        return Picker("", selection: $fieldViewModel.value.energyValue.unit) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)

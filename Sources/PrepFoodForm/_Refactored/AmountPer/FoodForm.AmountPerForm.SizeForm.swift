@@ -85,6 +85,7 @@ extension FoodForm.AmountPerForm.SizeForm {
             }
         }
         .onAppear(perform: appeared)
+        .onDisappear(perform: disappeared)
         .onChange(of: showingVolumePrefixToggle, perform: changedShowingVolumePrefixToggle)
         .onChange(of: field.sizeAmountUnit, perform: sizeChanged)
         .interactiveDismissDisabled(isDirty && !isEmpty)

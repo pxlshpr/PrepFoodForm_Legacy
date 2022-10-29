@@ -30,7 +30,7 @@ extension FoodForm.AmountPerForm.DensityView {
     
     @ViewBuilder
     var fillTypeIcon: some View {
-        if shouldShowFillIcon {
+        if shouldShowFillIcon, field.value.densityValue?.isValid == true {
             Image(systemName: field.value.fill.iconSystemImage)
                 .foregroundColor(Color(.secondaryLabel))
         }

@@ -18,8 +18,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/EmojiPicker", from: "0.0.14"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.28"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.19"),
-        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.72"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelCamera", from: "0.0.20"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.73"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.57"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.8"),
         .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.18"),
@@ -29,9 +29,9 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
         .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.73"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.35"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.204"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.206"),
         .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.39"),
-        .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.73"),
+        .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.74"),
         
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),

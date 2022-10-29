@@ -28,7 +28,6 @@ extension FoodForm.AmountPerForm.DensityForm {
         }
     }
     
-    //MARK: - Weight
     var weightStack: some View {
         HStack {
             weightTextField
@@ -42,6 +41,20 @@ extension FoodForm.AmountPerForm.DensityForm {
         .background(showColors ? .brown : .clear)
     }
     
+    var volumeStack: some View {
+        HStack {
+            volumeTextField
+                .padding(.vertical, 5)
+                .fixedSize(horizontal: true, vertical: false)
+                .layoutPriority(1)
+            volumeUnitButton
+                .background(showColors ? .blue : .clear)
+        }
+        .background(showColors ? .pink : .clear)
+    }
+    
+    //MARK: - TextFields
+
     var weightTextField: some View {
         let binding = Binding<String>(
             get: { field.value.weight.string },
@@ -63,34 +76,6 @@ extension FoodForm.AmountPerForm.DensityForm {
             .font(field.value.weight.string.isEmpty ? .body : .title2)
     }
     
-
-    var weightUnitButton: some View {
-        Button {
-            showingWeightUnitPicker = true
-        } label: {
-            HStack(spacing: 5) {
-                Text(field.value.weight.unitDescription)
-//                    Image(systemName: "chevron.up.chevron.down")
-//                        .imageScale(.small)
-            }
-        }
-        .buttonStyle(.borderless)
-    }
-    
-    //MARK: - Volume
-     
-    var volumeStack: some View {
-        HStack {
-            volumeTextField
-                .padding(.vertical, 5)
-                .fixedSize(horizontal: true, vertical: false)
-                .layoutPriority(1)
-            volumeUnitButton
-                .background(showColors ? .blue : .clear)
-        }
-        .background(showColors ? .pink : .clear)
-    }
-    
     var volumeTextField: some View {
         let binding = Binding<String>(
             get: { field.value.volume.string },
@@ -110,6 +95,21 @@ extension FoodForm.AmountPerForm.DensityForm {
             .focused($focusedField, equals: .volume)
 //            .font(.title2)
             .font(field.value.volume.string.isEmpty ? .body : .title2)
+    }
+    
+    //MARK: Unit Buttons
+     
+    var weightUnitButton: some View {
+        Button {
+            showingWeightUnitPicker = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(field.value.weight.unitDescription)
+//                    Image(systemName: "chevron.up.chevron.down")
+//                        .imageScale(.small)
+            }
+        }
+        .buttonStyle(.borderless)
     }
     
     var volumeUnitButton: some View {

@@ -6,7 +6,7 @@ extension FoodForm.NutrientsList {
         @ObservedObject var existingField: Field
         @StateObject var field: Field
         
-        @State var unit: NutrientUnit
+//        @State var unit: NutrientUnit
         
         init(existingField: Field) {
             self.existingField = existingField
@@ -14,7 +14,7 @@ extension FoodForm.NutrientsList {
             let field = existingField
             _field = StateObject(wrappedValue: field)
             
-            _unit = State(initialValue: existingField.value.microValue.unit)
+//            _unit = State(initialValue: existingField.value.microValue.unit)
         }
     }
 }
@@ -25,18 +25,18 @@ extension FoodForm.NutrientsList.MicroForm {
         FoodForm.FieldForm(
             field: field,
             existingField: existingField,
-            unitView: unitPicker,
+            unitView: unitView,
             supplementaryView: percentageInfoView,
             supplementaryViewHeaderString: supplementaryViewHeaderString,
             supplementaryViewFooterString: supplementaryViewFooterString,
             tappedPrefillFieldValue: tappedPrefillFieldValue,
             setNewValue: setNewValue
         )
-        .onChange(of: unit) { newValue in
-            withAnimation {
-                field.value.microValue.unit = newValue
-            }
-        }
+//        .onChange(of: unit) { newValue in
+//            withAnimation {
+//                field.value.microValue.unit = newValue
+//            }
+//        }
     }
     
     var supplementaryViewHeaderString: String? {
@@ -76,19 +76,30 @@ extension FoodForm.NutrientsList.MicroForm {
     }
     
     @ViewBuilder
-    var unitPicker: some View {
+    var unitView: some View {
         if supportedUnits.count > 1 {
-            Picker("", selection: $unit) {
-                ForEach(supportedUnits, id: \.self) { unit in
-                    Text(unit.shortDescription).tag(unit)
-                }
-            }
-            .pickerStyle(.menu)
+            unitPicker
         } else {
             Text(field.value.microValue.unitDescription)
                 .foregroundColor(.secondary)
                 .font(.title3)
         }
+    }
+    
+    var unitPicker: some View {
+        let binding = Binding<NutrientUnit> (
+            get: { existingField.value.microValue.unit },
+            set: { newValue in
+                existingField.value.microValue.unit = newValue
+                existingField.value.fill = .userInput
+            }
+        )
+        return Picker("", selection: binding) {
+            ForEach(supportedUnits, id: \.self) { unit in
+                Text(unit.shortDescription).tag(unit)
+            }
+        }
+        .pickerStyle(.menu)
     }
 
     func tappedPrefillFieldValue(_ fieldValue: FieldValue) {

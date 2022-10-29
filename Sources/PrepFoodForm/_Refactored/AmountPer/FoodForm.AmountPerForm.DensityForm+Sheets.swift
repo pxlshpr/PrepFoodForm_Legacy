@@ -7,6 +7,7 @@ extension FoodForm.AmountPerForm.DensityForm {
             filteredType: .weight)
         { unit in
             field.value.weight.unit = unit
+            field.value.fill = .userInput
         }
         .environmentObject(fields)
     }
@@ -17,6 +18,7 @@ extension FoodForm.AmountPerForm.DensityForm {
             filteredType: .volume)
         { unit in
             field.value.volume.unit = unit
+            field.value.fill = .userInput
         }
         .environmentObject(fields)
     }

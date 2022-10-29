@@ -28,7 +28,14 @@ extension FoodForm.EnergyForm {
     }
     
     var unitPicker: some View {
-        Picker("", selection: $field.value.energyValue.unit) {
+        let binding = Binding<EnergyUnit> (
+            get: { field.value.energyValue.unit },
+            set: { newValue in
+                field.value.energyValue.unit = newValue
+                field.value.fill = .userInput
+            }
+        )
+        return Picker("", selection: binding) {
             ForEach(EnergyUnit.allCases, id: \.self) {
                 unit in
                 Text(unit.shortDescription).tag(unit)
