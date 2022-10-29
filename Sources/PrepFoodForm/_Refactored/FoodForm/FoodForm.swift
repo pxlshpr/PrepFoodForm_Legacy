@@ -43,6 +43,10 @@ public struct FoodForm: View {
     @State var showingWizardOverlay = true
     @State var formDisabled = false
 
+    public init(withMock: MockCase) {
+        
+    }
+    
     public init(didSave: @escaping (FoodFormData) -> ()) {
         Fields.shared = Fields()
         Sources.shared = Sources()
