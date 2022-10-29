@@ -25,11 +25,15 @@ extension FoodForm {
             set: { _ in }
         )
         
-        let microsBinding = Binding<[NutrientType : FoodLabelValue]> {
-            fields.microsDict
-        } set: { newDict in
-            
-        }
+        let microsBinding = Binding<[NutrientType : FoodLabelValue]>(
+            get: { fields.microsDict },
+            set: { _ in }
+        )
+        
+        let amountBinding = Binding<String>(
+            get: { fields.amount.doubleValueDescription },
+            set: { _ in }
+        )
 
         return FoodLabel(
             energyValue: energyBinding,
@@ -37,7 +41,7 @@ extension FoodForm {
             fat: fatBinding,
             protein: proteinBinding,
             nutrients: microsBinding,
-            amountPerString: .constant("amountPerString")
+            amountPerString: amountBinding
         )
     }
     

@@ -83,6 +83,7 @@ extension FoodForm {
                 } else {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }

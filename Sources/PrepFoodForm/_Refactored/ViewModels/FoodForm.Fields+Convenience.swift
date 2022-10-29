@@ -69,13 +69,6 @@ extension FoodForm.Fields {
         name.isEmpty && emoji.isEmpty && detail.isEmpty && brand.isEmpty
     }
 
-    var hasEnergyAndMacros: Bool {
-        !energy.value.isEmpty
-        && !carb.value.isEmpty
-        && !fat.value.isEmpty
-        && !protein.value.isEmpty
-    }
-    
     //MARK: Density
     
     var hasValidDensity: Bool {

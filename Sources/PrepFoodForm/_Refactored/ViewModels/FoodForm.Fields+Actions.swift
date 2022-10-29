@@ -9,11 +9,15 @@ extension FoodForm.Fields {
     }
     
     func updateCanBeSaved() {
-        canBeSaved = !name.isEmpty && hasEnergyAndMacros
+        canBeSaved = !name.isEmpty && shouldShowFoodLabel
     }
     
     func updateShouldShowFoodLabel() {
-        shouldShowFoodLabel = hasEnergyAndMacros
+        shouldShowFoodLabel = !energy.value.isEmpty
+        && !amount.value.isEmpty
+        && !carb.value.isEmpty
+        && !fat.value.isEmpty
+        && !protein.value.isEmpty
     }
     
     func updateShouldShowDensity() {

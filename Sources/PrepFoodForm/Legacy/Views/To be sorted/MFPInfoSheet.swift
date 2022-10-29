@@ -28,7 +28,7 @@ This works by loading the search results on our servers and providing you with t
                 .listRowSeparator(.hidden)
                 .foregroundColor(.secondary)
                 Text("""
-The search is considerably slow as the speed is throttled on their end. **A quicker option** might be to take a screenshot of the food in their app and use our image scanner to fill in the data instead.
+The search is considerably slow as the speed is throttled on their end. **A quicker option** might be to take a screenshot of the food in their app and [use our image scanner to fill in the data](linkwithinapp.com) instead.
 """)
                 .listRowSeparator(.hidden)
                 .foregroundColor(.secondary)
@@ -54,7 +54,7 @@ We will not verify foods that are solely based on their data, [as MyFitnessPal t
                 .foregroundColor(.primary)
                 HStack(alignment: .top) {
                     Text("•")
-                    Text("a **link** to a verifiable source (such as the supplier's website) or")
+                    Text("a **link** to a verifiable source (such as the supplier's website)")
                 }
                 .listRowSeparator(.hidden)
                 .foregroundColor(.primary)
