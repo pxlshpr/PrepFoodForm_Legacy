@@ -3,7 +3,7 @@ import NamePicker
 
 extension FoodForm.AmountPerForm.SizeForm {
     var quantityForm: some View {
-        Quantity(sizeViewModel: field)
+        Quantity(field: field)
     }
     
     var nameForm: some View {
@@ -31,7 +31,7 @@ extension FoodForm.AmountPerForm.SizeForm {
     }
     
     var amountForm: some View {
-        Amount(sizeViewModel: field)
+        Amount(field: field)
             .environmentObject(formViewModel)
     }
     
