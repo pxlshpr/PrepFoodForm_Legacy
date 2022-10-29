@@ -5,7 +5,7 @@ extension FoodForm.AmountPerForm.SizeForm {
         @ObservedObject var sizeViewModel: Field
         
         @Environment(\.dismiss) var dismiss
-        @State var hasBecomeFirstResponder: Bool = false
+        @FocusState var isFocused: Bool
     }
 }
 
@@ -20,43 +20,20 @@ extension FoodForm.AmountPerForm.SizeForm.Quantity {
                 }
             }
         }
-        .navigationTitle("Size Quantity")
+        .navigationTitle("Quantity")
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.never)
-        .introspectTextField(customize: introspectTextField)
-        .toolbar { keyboardToolbarContents }
         .interactiveDismissDisabled(sizeViewModel.sizeQuantityString.isEmpty)
-    }
-    
-    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
-    func introspectTextField(_ uiTextField: UITextField) {
-        guard !hasBecomeFirstResponder else {
-            return
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            uiTextField.becomeFirstResponder()
-            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
-            hasBecomeFirstResponder = true
-        }
+        .onAppear { isFocused = true }
     }
     
     //MARK: - Components
     
-    var keyboardToolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("Done") {
-                dismiss()
-            }
-            .disabled(sizeViewModel.sizeQuantityString.isEmpty)
-        }
-    }
-
     var textField: some View {
         TextField("Required", text: $sizeViewModel.sizeQuantityString)
             .multilineTextAlignment(.leading)
             .keyboardType(.decimalPad)
+            .focused($isFocused)
     }
 
     var stepper: some View {

@@ -22,7 +22,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/FoodLabelScanner", from: "0.0.72"),
         .package(url: "https://github.com/pxlshpr/MFPScraper", from: "0.0.57"),
         .package(url: "https://github.com/pxlshpr/MFPSearch", from: "0.0.8"),
-        .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.17"),
+        .package(url: "https://github.com/pxlshpr/NamePicker", from: "0.0.18"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.24"),
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.4"),
@@ -36,7 +36,6 @@ let package = Package(
         .package(url: "https://github.com/exyte/ActivityIndicatorView", from: "1.1.0"),
         .package(url: "https://github.com/yeahdongcn/RSBarcodes_Swift", from: "5.1.1"),
         .package(url: "https://github.com/fermoya/SwiftUIPager", from: "2.5.0"),
-        .package(url: "https://github.com/siteline/SwiftUI-Introspect", from: "0.1.4"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -62,7 +61,6 @@ let package = Package(
                 .product(name: "ZoomableScrollView", package: "zoomablescrollview"),
 
                 .product(name: "ActivityIndicatorView", package: "activityindicatorview"),
-                .product(name: "Introspect", package: "swiftui-introspect"),
                 .product(name: "RSBarcodes_Swift", package: "rsbarcodes_swift"),
                 .product(name: "SwiftUIPager", package: "swiftuipager"),
             ],

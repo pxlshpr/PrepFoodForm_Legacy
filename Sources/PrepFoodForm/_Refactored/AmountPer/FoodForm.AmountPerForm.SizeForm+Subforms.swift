@@ -3,12 +3,7 @@ import NamePicker
 
 extension FoodForm.AmountPerForm.SizeForm {
     var quantityForm: some View {
-        NavigationView {
-            Quantity(sizeViewModel: field)
-        }
-        .onDisappear {
-            refreshBool.toggle()
-        }
+        Quantity(sizeViewModel: field)
     }
     
     var nameForm: some View {
@@ -24,30 +19,20 @@ extension FoodForm.AmountPerForm.SizeForm {
             }
         )
 
-        return NavigationView {
-            NamePicker(
+        return NamePicker(
                 name: binding,
                 showClearButton: true,
                 focusOnAppear: true,
                 lowercased: true,
-                title: "Size Name",
+                title: "Name",
                 titleDisplayMode: .large,
                 presetStrings: ["Bottle", "Box", "Biscuit", "Cookie", "Container", "Pack", "Sleeve"]
             )
-        }
-        .onDisappear {
-            refreshBool.toggle()
-        }
     }
     
     var amountForm: some View {
-        NavigationView {
-            Amount(sizeViewModel: field)
-                .environmentObject(formViewModel)
-        }
-        .onDisappear {
-            refreshBool.toggle()
-        }
+        Amount(sizeViewModel: field)
+            .environmentObject(formViewModel)
     }
     
     var unitPickerForVolumePrefix: some View {

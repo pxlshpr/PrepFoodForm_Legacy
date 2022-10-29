@@ -64,16 +64,15 @@ extension FoodForm.AmountPerForm.AmountForm {
     }
 
     var addSizeForm: some View {
-        Color.blue
-//        SizeForm(includeServing: false, allowAddSize: false) { sizeViewModel in
-//            guard let size = sizeViewModel.size else { return }
-//            field.value.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                Haptics.feedback(style: .rigid)
-//                showingUnitPicker = false
-//            }
-//        }
-//        .environmentObject(viewModel)
+        FoodForm.AmountPerForm.SizeForm(includeServing: false, allowAddSize: false) { sizeField in
+            guard let size = sizeField.size else { return }
+            field.value.doubleValue.unit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                Haptics.feedback(style: .rigid)
+                showingUnitPicker = false
+            }
+        }
+        .environmentObject(fields)
     }
 
     func tappedPrefillFieldValue(_ fieldValue: FieldValue) {

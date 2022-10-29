@@ -8,6 +8,14 @@ import PrepDataTypes
 extension FoodForm.AmountPerForm {
     struct SizeForm: View {
         
+        enum Route: Hashable {
+            case quantity
+            case name
+            case amount
+        }
+        
+        @State var path: [Route] = []
+
         @Environment(\.dismiss) var dismiss
         @EnvironmentObject var fields: FoodForm.Fields
 
@@ -25,9 +33,9 @@ extension FoodForm.AmountPerForm {
         @State var refreshBool = false
 
         @State var showingUnitPickerForVolumePrefix = false
-        @State var showingQuantityForm = false
-        @State var showingNamePicker = false
-        @State var showingAmountForm = false
+//        @State var showingQuantityForm = false
+//        @State var showingNamePicker = false
+//        @State var showingAmountForm = false
 
         var didAddSizeViewModel: ((Field) -> ())?
 
@@ -61,22 +69,29 @@ extension FoodForm.AmountPerForm {
 extension FoodForm.AmountPerForm.SizeForm {
 
     var body: some View {
-        NavigationView {
+        NavigationStack(path: $path) {
             form
             .edgesIgnoringSafeArea(.bottom)
             .navigationTitle("\(isEditing ? "Edit" : "New") Size")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { navigationTrailingContent }
             .toolbar { navigationLeadingContent }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .quantity:     quantityForm
+                case .name:         nameForm
+                case .amount:       amountForm
+                }
+            }
         }
         .onAppear(perform: appeared)
         .onChange(of: showingVolumePrefixToggle, perform: changedShowingVolumePrefixToggle)
         .onChange(of: field.sizeAmountUnit, perform: sizeChanged)
-        .sheet(isPresented: $showingQuantityForm) { quantityForm }
-        .sheet(isPresented: $showingNamePicker) { nameForm }
-        .sheet(isPresented: $showingAmountForm) { amountForm }
-        .sheet(isPresented: $showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
         .interactiveDismissDisabled(isDirty && !isEmpty)
+//        .sheet(isPresented: $showingQuantityForm) { quantityForm }
+//        .sheet(isPresented: $showingNamePicker) { nameForm }
+//        .sheet(isPresented: $showingAmountForm) { amountForm }
+        .sheet(isPresented: $showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
     }
     
     var form: some View {
@@ -84,10 +99,11 @@ extension FoodForm.AmountPerForm.SizeForm {
             FormStyledSection {
                 Editor(
                     field: field,
-                    showingUnitPickerForVolumePrefix: $showingUnitPickerForVolumePrefix,
-                    showingQuantityForm: $showingQuantityForm,
-                    showingNamePicker: $showingNamePicker,
-                    showingAmountForm: $showingAmountForm
+                    path: $path,
+                    showingUnitPickerForVolumePrefix: $showingUnitPickerForVolumePrefix
+//                    showingQuantityForm: $showingQuantityForm,
+//                    showingNamePicker: $showingNamePicker,
+//                    showingAmountForm: $showingAmountForm
                 )
                     .environmentObject(formViewModel)
             }

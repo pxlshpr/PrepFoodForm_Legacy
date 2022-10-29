@@ -20,8 +20,6 @@ extension SizeQuantityForm {
         .navigationTitle("Size Quantity")
         .navigationBarTitleDisplayMode(.large)
         .scrollDismissesKeyboard(.never)
-        .introspectTextField(customize: introspectTextField)
-        .toolbar { keyboardToolbarContents }
         .interactiveDismissDisabled(sizeViewModel.sizeQuantityString.isEmpty)
     }
     
@@ -39,16 +37,6 @@ extension SizeQuantityForm {
     }
     
     //MARK: - Components
-    
-    var keyboardToolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Spacer()
-            Button("Done") {
-                dismiss()
-            }
-            .disabled(sizeViewModel.sizeQuantityString.isEmpty)
-        }
-    }
 
     var textField: some View {
         TextField("Required", text: $sizeViewModel.sizeQuantityString)

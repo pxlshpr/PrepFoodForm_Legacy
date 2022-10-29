@@ -4,7 +4,7 @@ import SwiftHaptics
 import FoodLabelScanner
 import VisionSugar
 import SwiftUISugar
-import Introspect
+//import Introspect
 
 struct FieldValueForm<UnitView: View, SupplementaryView: View>: View {
     var unitView: UnitView?

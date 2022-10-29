@@ -16,7 +16,6 @@ extension FoodForm.AmountPerForm.SizesList {
             .toolbar { bottomBarContents }
             .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
             .navigationTitle("Sizes")
-//            .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $sizeToEdit) { editSizeForm(for: $0) }
     }
     
@@ -28,7 +27,6 @@ extension FoodForm.AmountPerForm.SizesList {
             if !fields.volumePrefixedSizes.isEmpty {
                 volumePrefixedSizesSection
             }
-//            addButtonSection
         }
     }
     
@@ -114,10 +112,6 @@ extension FoodForm.AmountPerForm.SizesList {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
-//            .sheet(isPresented: $showingAddSizeForm) {
-//                SizeForm()
-//                    .environmentObject(viewModel)
-//            }
         }
     }
     

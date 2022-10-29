@@ -6,10 +6,11 @@ extension FoodForm.AmountPerForm.SizeForm {
         @EnvironmentObject var formViewModel: SizeFormViewModel
         @ObservedObject var field: Field
         
+        @Binding var path: [Route]
         @Binding var showingUnitPickerForVolumePrefix: Bool
-        @Binding var showingQuantityForm: Bool
-        @Binding var showingNamePicker: Bool
-        @Binding var showingAmountForm: Bool
+//        @Binding var showingQuantityForm: Bool
+//        @Binding var showingNamePicker: Bool
+//        @Binding var showingAmountForm: Bool
     }
 }
 
@@ -24,7 +25,8 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
             Group {
                 Spacer()
                 button(field.sizeQuantityString) {
-                    showingQuantityForm = true
+                    path.append(.quantity)
+//                    showingQuantityForm = true
                 }
                 Spacer()
                 symbol("×")
@@ -41,7 +43,8 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
                         .layoutPriority(3)
                 }
                 button(field.sizeNameString, placeholder: "name") {
-                    showingNamePicker = true
+                    path.append(.name)
+//                    showingNamePicker = true
                 }
                 .layoutPriority(2)
             }
@@ -51,7 +54,8 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
                     .layoutPriority(3)
                 Spacer()
                 button(field.sizeAmountDescription, placeholder: "amount") {
-                    showingAmountForm = true
+                    path.append(.amount)
+//                    showingAmountForm = true
                 }
                 .layoutPriority(1)
                 Spacer()

@@ -10,7 +10,7 @@ extension FoodForm.AmountPerForm.SizeForm {
         @Environment(\.dismiss) var dismiss
         @State var showingUnitPicker = false
         @State var showingSizeForm = false
-        @State var hasBecomeFirstResponder: Bool = false
+        @FocusState var isFocused: Bool
     }
 }
 
@@ -25,43 +25,36 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
                 }
             }
         }
-        .navigationTitle("Size Amount")
+        .navigationTitle("Amount")
         .navigationBarTitleDisplayMode(.large)
-        .sheet(isPresented: $showingUnitPicker) {
-            unitPickerForAmount
-        }
+        .sheet(isPresented: $showingUnitPicker) { unitPickerForAmount }
         .scrollDismissesKeyboard(.never)
-        .introspectTextField(customize: introspectTextField)
-        .toolbar { keyboardToolbarContents }
-    }
-    
-    /// We're using this to focus the textfield seemingly before this view even appears (as the `.onAppear` modifier—shows the keyboard coming up with an animation
-    func introspectTextField(_ uiTextField: UITextField) {
-        guard !hasBecomeFirstResponder else {
-            return
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            uiTextField.becomeFirstResponder()
-            /// Set this so further invocations of the `introspectTextField` modifier doesn't set focus again (this happens during dismissal for example)
-            hasBecomeFirstResponder = true
-        }
+        .onAppear { isFocused = true }
     }
     
     //MARK: - Components
     
-    var keyboardToolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .keyboard) {
-            Button("Units") {
-                showingUnitPicker = true
-            }
-            Spacer()
-            Button("Done") {
-                dismiss()
+    var textField: some View {
+        TextField("Required", text: $sizeViewModel.sizeAmountString)
+            .multilineTextAlignment(.leading)
+            .keyboardType(.decimalPad)
+            .focused($isFocused)
+    }
+    
+    var unitButton: some View {
+        Button {
+//            sizeFormViewModel.path.append(.amountUnit)
+            showingUnitPicker = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(sizeViewModel.sizeAmountUnitString)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
             }
         }
+        .buttonStyle(.borderless)
     }
-
+    
     var unitPickerForAmount: some View {
         FoodForm.AmountPerForm.UnitPicker(
             pickedUnit: sizeViewModel.sizeAmountUnit,
@@ -90,26 +83,6 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
         }
     }
     
-    var textField: some View {
-        TextField("Required", text: $sizeViewModel.sizeAmountString)
-            .multilineTextAlignment(.leading)
-            .keyboardType(.decimalPad)
-    }
-    
-    var unitButton: some View {
-        Button {
-//            sizeFormViewModel.path.append(.amountUnit)
-            showingUnitPicker = true
-        } label: {
-            HStack(spacing: 5) {
-                Text(sizeViewModel.sizeAmountUnitString)
-                Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
-            }
-        }
-        .buttonStyle(.borderless)
-    }
-    
     var header: some View {
         Text(sizeViewModel.sizeAmountUnit.unitType.description.lowercased())
     }
@@ -120,7 +93,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
             .foregroundColor(!sizeViewModel.sizeAmountIsValid ? FormFooterEmptyColor : FormFooterFilledColor)
     }
     
-    //MARK: - Helpers
+    //MARK: Convenience
     
     var quantiativeName: String {
         "\(sizeViewModel.sizeQuantityString) \(sizeViewModel.sizeNameString.isEmpty ? "of this size" : sizeViewModel.sizeNameString.lowercased())"
