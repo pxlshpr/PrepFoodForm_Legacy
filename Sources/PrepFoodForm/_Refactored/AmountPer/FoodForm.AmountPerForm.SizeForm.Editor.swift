@@ -8,9 +8,6 @@ extension FoodForm.AmountPerForm.SizeForm {
         
         @Binding var path: [Route]
         @Binding var showingUnitPickerForVolumePrefix: Bool
-//        @Binding var showingQuantityForm: Bool
-//        @Binding var showingNamePicker: Bool
-//        @Binding var showingAmountForm: Bool
     }
 }
 
@@ -26,7 +23,6 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
                 Spacer()
                 button(field.sizeQuantityString) {
                     path.append(.quantity)
-//                    showingQuantityForm = true
                 }
                 Spacer()
                 symbol("×")
@@ -44,7 +40,6 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
                 }
                 button(field.sizeNameString, placeholder: "name") {
                     path.append(.name)
-//                    showingNamePicker = true
                 }
                 .layoutPriority(2)
             }
@@ -55,13 +50,11 @@ extension FoodForm.AmountPerForm.SizeForm.Editor {
                 Spacer()
                 button(field.sizeAmountDescription, placeholder: "amount") {
                     path.append(.amount)
-//                    showingAmountForm = true
                 }
                 .layoutPriority(1)
                 Spacer()
             }
         }
-//        .frame(maxWidth: .infinity)
     }
 
     func button(_ string: String, placeholder: String = "", action: @escaping () -> ()) -> some View {

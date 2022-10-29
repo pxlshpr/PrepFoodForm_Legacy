@@ -43,7 +43,6 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
     
     var unitButton: some View {
         Button {
-//            sizeFormViewModel.path.append(.amountUnit)
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {

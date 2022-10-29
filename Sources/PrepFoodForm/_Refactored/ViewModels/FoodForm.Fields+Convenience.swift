@@ -50,6 +50,11 @@ extension FoodForm.Fields {
         || serving.value.doubleValue.unit.isWeightBased
     }
     
+    var isVolumeBased: Bool {
+        amount.value.doubleValue.unit.isVolumeBased
+        || serving.value.doubleValue.unit.isVolumeBased
+    }
+
     var hasSquareBarcodes: Bool {
         barcodes.contains {
             $0.barcodeValue?.symbology.isSquare == true
@@ -58,6 +63,27 @@ extension FoodForm.Fields {
     
     var hasServing: Bool {
         amount.value.doubleValue.unit == .serving
+    }
+    
+    //MARK: Density
+    
+    var hasValidDensity: Bool {
+        densityWeightAmount > 0
+        && densityVolumeAmount > 0
+        && density.value.weight.unit.unitType == .weight
+        && density.value.volume.unit.unitType == .volume
+    }
+
+    var densityWeightAmount: Double {
+        density.value.weight.double ?? 0
+    }
+
+    var densityVolumeAmount: Double {
+        density.value.volume.double ?? 0
+    }
+    
+    var densityDescription: String? {
+        density.value.densityValue?.description(weightFirst: isWeightBased)
     }
 
     //MARK: Fills

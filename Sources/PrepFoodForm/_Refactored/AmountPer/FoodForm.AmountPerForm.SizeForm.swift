@@ -88,9 +88,6 @@ extension FoodForm.AmountPerForm.SizeForm {
         .onChange(of: showingVolumePrefixToggle, perform: changedShowingVolumePrefixToggle)
         .onChange(of: field.sizeAmountUnit, perform: sizeChanged)
         .interactiveDismissDisabled(isDirty && !isEmpty)
-//        .sheet(isPresented: $showingQuantityForm) { quantityForm }
-//        .sheet(isPresented: $showingNamePicker) { nameForm }
-//        .sheet(isPresented: $showingAmountForm) { amountForm }
         .sheet(isPresented: $showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
     }
     
@@ -101,9 +98,6 @@ extension FoodForm.AmountPerForm.SizeForm {
                     field: field,
                     path: $path,
                     showingUnitPickerForVolumePrefix: $showingUnitPickerForVolumePrefix
-//                    showingQuantityForm: $showingQuantityForm,
-//                    showingNamePicker: $showingNamePicker,
-//                    showingAmountForm: $showingAmountForm
                 )
                     .environmentObject(formViewModel)
             }

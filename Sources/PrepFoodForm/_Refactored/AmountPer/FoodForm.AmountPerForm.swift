@@ -25,9 +25,9 @@ extension FoodForm.AmountPerForm {
             if fields.shouldShowSizes {
                 sizesSection
             }
-//            if fields.shouldShowDensity {
-//                densitySection
-//            }
+            if fields.shouldShowDensity {
+                densitySection
+            }
         }
     }
    
@@ -89,44 +89,44 @@ extension FoodForm.AmountPerForm {
             }
         }
     }
-//
-//    var densitySection: some View {
-//
-//        var header: some View {
-//            Text("Unit Conversion")
-//        }
-//
-//        return FormStyledSection(header: header, footer: densityFooter) {
-//            NavigationLink {
-//                densityForm
-//            } label: {
-//                HStack {
-//                    Image(systemName: "arrow.triangle.swap")
-//                        .foregroundColor(Color(.tertiaryLabel))
-//                    if viewModel.hasValidDensity, let description = viewModel.densityDescription {
-//                        Text(description)
-//                            .foregroundColor(Color(.secondaryLabel))
-//                    } else {
-//                        Text("Optional")
-//                            .foregroundColor(Color(.quaternaryLabel))
-//                    }
-//                    Spacer()
-//                }
-//            }
-//        }
-//    }
-//
-//    @ViewBuilder
-//    var densityFooter: some View {
-//        Group {
-//            if viewModel.isWeightBased {
-//                Text("Enter this to be able to log this food using volume units, like cups.")
-//            } else if viewModel.isVolumeBased {
-//                Text("Enter this to be able to log this food using using its weight.")
-//            }
-//        }
-//        .foregroundColor(!viewModel.hasValidDensity ? FormFooterEmptyColor : FormFooterFilledColor)
-//    }
+
+    var densitySection: some View {
+
+        var header: some View {
+            Text("Unit Conversion")
+        }
+
+        return FormStyledSection(header: header, footer: densityFooter) {
+            NavigationLink {
+                densityForm
+            } label: {
+                HStack {
+                    Image(systemName: "arrow.triangle.swap")
+                        .foregroundColor(Color(.tertiaryLabel))
+                    if fields.hasValidDensity, let description = fields.densityDescription {
+                        Text(description)
+                            .foregroundColor(Color(.secondaryLabel))
+                    } else {
+                        Text("Optional")
+                            .foregroundColor(Color(.quaternaryLabel))
+                    }
+                    Spacer()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    var densityFooter: some View {
+        Group {
+            if fields.isWeightBased {
+                Text("Enter this to be able to log this food using volume units, like cups.")
+            } else if fields.isVolumeBased {
+                Text("Enter this to be able to log this food using using its weight.")
+            }
+        }
+        .foregroundColor(!fields.hasValidDensity ? FormFooterEmptyColor : FormFooterFilledColor)
+    }
     
     //MARK: - Amount Field
     
@@ -202,11 +202,8 @@ extension FoodForm.AmountPerForm {
             .environmentObject(fields)
     }
 
-//    var densityForm: some View {
-//        DensityForm(
-//            densityViewModel: viewModel.densityViewModel,
-//            orderWeightFirst: viewModel.isWeightBased
-//        )
-//        .environmentObject(viewModel)
-//    }
+    var densityForm: some View {
+        DensityForm(field: fields.density, orderWeightFirst: fields.isWeightBased)
+            .environmentObject(fields)
+    }
 }

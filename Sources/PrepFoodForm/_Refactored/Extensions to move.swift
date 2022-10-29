@@ -38,3 +38,51 @@ extension RecognizedText {
 //        servingArtefacts.count > 0
     }
 }
+
+import PrepDataTypes
+
+extension RecognizedText {
+    var densityValue: FieldValue.DensityValue? {
+        string.detectedValues.densityValue
+    }
+}
+
+extension Array where Element == FoodLabelValue {
+    var firstWeightValue: FoodLabelValue? {
+        first(where: { $0.unit?.unitType == .weight })
+    }
+    
+    var firstVolumeValue: FoodLabelValue? {
+        first(where: { $0.unit?.unitType == .volume })
+    }
+
+    var densityValue: FieldValue.DensityValue? {
+        guard let weightDoubleValue, let volumeDoubleValue else {
+            return nil
+        }
+        return FieldValue.DensityValue(
+            weight: weightDoubleValue,
+            volume: volumeDoubleValue,
+            fill: .discardable
+        )
+    }
+    
+    var weightDoubleValue: FieldValue.DoubleValue? {
+        firstWeightValue?.asDoubleValue
+    }
+    var volumeDoubleValue: FieldValue.DoubleValue? {
+        firstVolumeValue?.asDoubleValue
+    }
+}
+
+extension FoodLabelValue {
+    var asDoubleValue: FieldValue.DoubleValue? {
+        guard let formUnit = unit?.formUnit else { return nil }
+        return FieldValue.DoubleValue(
+            double: amount,
+            string: amount.cleanAmount,
+            unit: formUnit,
+            fill: .discardable
+        )
+    }
+}
