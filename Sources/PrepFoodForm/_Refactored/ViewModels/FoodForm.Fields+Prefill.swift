@@ -8,6 +8,8 @@ extension FoodForm.Fields {
         /// This is used for mock data
         Task(priority: .low) { food.saveToJson() }
 
+        prefillDetails(from: food)
+        
         /// Create sizes first as we might have one as the amount or serving unit
         prefillSizes(from: food)
         
@@ -16,9 +18,21 @@ extension FoodForm.Fields {
         prefillAmountPer(from: food)
         prefillNutrients(from: food)
 
-        updateShouldShowDensity()
+        updateFormState()
         
         prefilledFood = food
+    }
+    
+    func prefillDetails(from food: MFPProcessedFood) {
+        if let fieldValue = food.nameFieldValue {
+            name = fieldValue.string
+        }
+        if let fieldValue = food.detailFieldValue {
+            detail = fieldValue.string
+        }
+        if let fieldValue = food.brandFieldValue {
+            brand = fieldValue.string
+        }
     }
     
     func prefillSizes(from food: MFPProcessedFood) {

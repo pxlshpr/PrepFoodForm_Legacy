@@ -8,15 +8,22 @@ extension FoodForm {
     var detailsSection: some View {
         FormStyledSection(header: Text("Details")) {
             NavigationLink {
-                DetailsForm(name: $name, detail: $detail, brand: $brand)
+                DetailsForm()
+                    .environmentObject(fields)
             } label: {
-                if detailsAreEmpty {
+                if fields.detailsAreEmpty {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))
                 } else {
-                    FoodDetailsView(emoji: $emoji, name: $name, detail: $detail, brand: $brand, didTapEmoji: {
-                        showingEmojiPicker = true
-                    })
+                    FoodDetailsView(
+                        emoji: $fields.emoji,
+                        name: $fields.name,
+                        detail: $fields.detail,
+                        brand: $fields.brand,
+                        didTapEmoji: {
+                            showingEmojiPicker = true
+                        }
+                    )
                 }
             }
         }

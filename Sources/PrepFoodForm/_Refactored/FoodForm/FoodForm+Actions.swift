@@ -25,17 +25,7 @@ extension FoodForm {
     }
 
     func prefill(_ food: MFPProcessedFood) {
-        if let fieldValue = food.nameFieldValue {
-            name = fieldValue.string
-        }
-        if let fieldValue = food.detailFieldValue {
-            detail = fieldValue.string
-        }
-        if let fieldValue = food.brandFieldValue {
-            brand = fieldValue.string
-        }
         fields.prefill(food)
-        fields.updateShouldShowFoodLabel()
     }
     
     func handleScannedBarcodes(_ barcodes: [RecognizedBarcode], on image: UIImage) {
@@ -56,7 +46,7 @@ extension FoodForm {
             didAddABarcode = fields.add(barcodeField: field)
         }
         if didAddABarcode {
-            sources.imageViewModels.append(imageViewModel)
+            sources.addImageViewModel(imageViewModel)
             sources.updateImageSetStatusToScanned()
         }
     }

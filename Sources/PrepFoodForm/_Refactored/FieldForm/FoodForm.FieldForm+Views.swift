@@ -80,8 +80,7 @@ extension FoodForm.FieldForm {
                 }
                 field.value.string = $0
                 
-                fields.updateShouldShowFoodLabel()
-                fields.updateShouldShowDensity()
+                fields.updateFormState()
             }
         )
         

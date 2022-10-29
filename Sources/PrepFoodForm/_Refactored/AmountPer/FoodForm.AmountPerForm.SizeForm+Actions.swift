@@ -89,7 +89,7 @@ extension FoodForm.AmountPerForm.SizeForm {
         }
         
         /// Call this in case a unit change changes whether we show the density or not
-        fields.updateShouldShowDensity()
+        fields.updateFormState()
         
         dismiss()
     }

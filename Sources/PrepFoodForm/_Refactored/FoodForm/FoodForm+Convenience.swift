@@ -3,10 +3,6 @@ import RSBarcodes_Swift
 import AVKit
 
 extension FoodForm {
-    var detailsAreEmpty: Bool {
-        name.isEmpty && emoji.isEmpty && detail.isEmpty && brand.isEmpty
-    }
-    
     func isValidBarcode(_ string: String) -> Bool {
         return true
 //        let isValid = RSUnifiedCodeValidator.shared.isValid(

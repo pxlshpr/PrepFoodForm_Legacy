@@ -5,10 +5,6 @@ import VisionSugar
 extension FoodFormViewModel {
     public func didCapture(_ image: UIImage) {
         dismissWizard()
-//        withAnimation {
-//            showingWizard = false
-//        }
-
         imageViewModels.append(ImageViewModel(image))
     }
     

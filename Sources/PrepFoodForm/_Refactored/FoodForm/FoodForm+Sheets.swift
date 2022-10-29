@@ -14,11 +14,16 @@ extension FoodForm {
             includeCancelButton: true
         ) { emoji in
             Haptics.successFeedback()
-            self.emoji = emoji
+            fields.emoji = emoji
             showingEmojiPicker = false
         }
     }
     
+    var camera: some View {
+        Camera { image in
+            sources.addImageViewModel(ImageViewModel(image))
+        }
+    }
     var foodLabelCamera: some View {
         FoodLabelCamera(foodLabelScanHandler: didReceiveScanFromFoodLabelCamera)
     }

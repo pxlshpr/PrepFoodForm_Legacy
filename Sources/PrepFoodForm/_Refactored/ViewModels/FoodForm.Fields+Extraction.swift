@@ -29,8 +29,7 @@ extension FoodForm.Fields {
             replaceOrSetExtractedFieldValue(barcodeField.value)
         }
         
-        updateShouldShowDensity()
-        updateShouldShowFoodLabel()
+        updateFormState()
 
         FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
     }

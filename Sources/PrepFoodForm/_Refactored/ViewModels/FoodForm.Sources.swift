@@ -10,6 +10,8 @@ extension FoodForm {
         
         static var shared = Sources()
         
+        @Published var canBePublished: Bool = false
+
         @Published var imageViewModels: [ImageViewModel] = []
         @Published var imageSetStatus: ImageSetStatus = .loading()
         @Published var linkInfo: LinkInfo? = nil
@@ -30,7 +32,7 @@ extension FoodForm.Sources {
     
     func add(_ image: UIImage, with scanResult: ScanResult) {
         let imageViewModel = ImageViewModel(image: image, scanResult: scanResult, delegate: self)
-        imageViewModels.append(imageViewModel)
+        addImageViewModel(imageViewModel)
     }
     
     func selectedPhotosChanged(to items: [PhotosPickerItem]) {
@@ -38,7 +40,14 @@ extension FoodForm.Sources {
             let imageViewModel = ImageViewModel(photosPickerItem: item, delegate: self)
             imageViewModels.append(imageViewModel)
         }
+        updateCanBePublished()
         selectedPhotos = []
+    }
+    
+    func updateCanBePublished() {
+        withAnimation {
+            canBePublished = !imageViewModels.isEmpty || linkInfo != nil
+        }
     }
     
     func updateImageSetStatusToScanned() {
@@ -104,14 +113,34 @@ extension FoodForm.Sources {
 }
 
 extension FoodForm.Sources {
+    
+    func addLink(_ linkInfo: LinkInfo) {
+        self.linkInfo = linkInfo
+        withAnimation {
+            updateCanBePublished()
+        }
+    }
     func removeLink() {
         linkInfo = nil
+        withAnimation {
+            updateCanBePublished()
+        }
     }
     
     func removeImage(at index: Int) {
         imageViewModels.remove(at: index)
+        withAnimation {
+            updateCanBePublished()
+        }
     }
-
+    
+    func addImageViewModel(_ imageViewModel: ImageViewModel) {
+        imageViewModels.append(imageViewModel)
+        withAnimation {
+            updateCanBePublished()
+        }
+    }
+    
 }
 
 //MARK: - Convenience

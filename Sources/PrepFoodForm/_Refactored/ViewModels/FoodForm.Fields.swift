@@ -12,6 +12,11 @@ extension FoodForm {
         
         static var shared = Fields()
         
+        @Published var name: String = ""
+        @Published var emoji: String = ""
+        @Published var detail: String = ""
+        @Published var brand: String = ""
+        
         @Published var amount: Field
         @Published var serving: Field
         @Published var energy: Field
@@ -37,6 +42,8 @@ extension FoodForm {
         @Published var shouldShowFoodLabel: Bool = false
         @Published var shouldShowDensity = false
         
+        @Published var canBeSaved: Bool = false
+        
         /**
          These are the last extracted `FieldValues` returned from the `FieldsExtractor`,
          which would have analysed and picked the best values from all available `ScanResult`s
@@ -48,6 +55,7 @@ extension FoodForm {
         var sizeBeingEdited: FormSize? = nil
 
         init() {
+            self.emoji = randomFoodEmoji()
             self.amount = .init(fieldValue: DefaultAmount)
             self.serving = .init(fieldValue: .serving())
             self.energy = .init(fieldValue: .energy())
@@ -61,8 +69,7 @@ extension FoodForm {
             self.init()
             self.prefilledFood = mfpFood
             self.prefill(mfpFood)
-            self.updateShouldShowDensity()
-            self.updateShouldShowFoodLabel()
+            self.updateFormState()
         }
     }
 }

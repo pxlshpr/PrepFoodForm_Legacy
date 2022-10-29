@@ -11,9 +11,11 @@ extension FoodForm {
         @Environment(\.dismiss) var dismiss
         @FocusState private var focusedField: FocusedField?
         
-        @Binding var name: String
-        @Binding var detail: String
-        @Binding var brand: String
+        @EnvironmentObject var fields: FoodForm.Fields
+        
+        @State var name: String = ""
+        @State var detail: String = ""
+        @State var brand: String = ""
         
         @State var fieldFocus: [Bool] = [false, false, false]
         @State var hasBecomeFirstResponder: Bool = false
@@ -30,6 +32,9 @@ extension FoodForm.DetailsForm {
             .scrollDismissesKeyboard(.interactively)
             .interactiveDismissDisabled()
             .onAppear {
+                name = fields.name
+                detail = fields.detail
+                brand = fields.brand
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     fieldFocus[0] = true
                 }
@@ -39,11 +44,42 @@ extension FoodForm.DetailsForm {
                     dismiss()
                 }
             }
+            .onChange(of: name) {
+                fields.name = $0
+                fields.updateCanBeSaved()
+            }
+            .onChange(of: detail) {
+                fields.detail = $0
+            }
+            .onChange(of: brand) {
+                fields.brand = $0
+            }
     }
     
     var form: some View {
         Form {
             Section("Name") {
+//                HStack {
+//                    FormTextField (
+//                        placeholder: "Required",
+//                        text: $name,
+//                        focusable: $fieldFocus,
+//                        returnedOnLastField: $returnedOnLastField,
+//                        returnKeyType: .next,
+//                        autocapitalizationType: .words,
+//                        keyboardType: .default,
+//                        tag: 0
+//                    )
+//                    Button {
+//                        Haptics.feedback(style: .rigid)
+//                        name = ""
+//                    } label: {
+//                        Image(systemName: "xmark.circle.fill")
+//                            .foregroundColor(Color(.quaternaryLabel))
+//                    }
+//                    .opacity((fieldFocus[0] && !name.isEmpty) ? 1 : 0)
+//                    .animation(.default, value: name)
+//                }
                 field(textField: nameTextField, text: $name, fieldIndex: 0)
             }
             Section("Detail") {

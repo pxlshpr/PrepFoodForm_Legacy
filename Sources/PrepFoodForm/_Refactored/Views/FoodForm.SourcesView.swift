@@ -26,7 +26,7 @@ extension FoodForm.SourcesView {
     }
     
     var emptyContent: some View {
-        FormStyledSection(header: header, footer: footer) {
+        FormStyledSection(header: header, footer: emptyFooter) {
             Button {
                 didTapAddSource()
             } label: {
@@ -38,7 +38,7 @@ extension FoodForm.SourcesView {
     }
     
     var content: some View {
-        FormStyledSection(header: header, horizontalPadding: 0, verticalPadding: 0) {
+        FormStyledSection(header: header, footer: filledFooter, horizontalPadding: 0, verticalPadding: 0) {
             navigationLink
         }
     }
@@ -108,7 +108,7 @@ extension FoodForm.SourcesView {
     }
     
     @ViewBuilder
-    var footer: some View {
+    var emptyFooter: some View {
         Button {
             
         } label: {
@@ -121,5 +121,11 @@ extension FoodForm.SourcesView {
             }
             .font(.footnote)
         }
+    }
+    
+    var filledFooter: some View {
+        Text("This food can now be submitted for verification.")
+            .foregroundColor(Color(.secondaryLabel))
+            .multilineTextAlignment(.leading)
     }
 }

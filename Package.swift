@@ -27,9 +27,9 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/PrepNetworkController", from: "0.0.22"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.4"),
         .package(url: "https://github.com/pxlshpr/SwiftHaptics", from: "0.1.3"),
-        .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.73"),
+        .package(url: "https://github.com/pxlshpr/SwiftSugar", from: "0.0.74"),
         .package(url: "https://github.com/pxlshpr/SwiftUICamera", from: "0.0.35"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.206"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.208"),
         .package(url: "https://github.com/pxlshpr/ZoomableScrollView", from: "0.0.39"),
         .package(url: "https://github.com/pxlshpr/VisionSugar", from: "0.0.74"),
         

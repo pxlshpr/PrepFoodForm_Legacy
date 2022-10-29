@@ -2,13 +2,18 @@ import SwiftUI
 
 extension FoodForm.Fields {
     
+    func updateFormState() {
+        updateCanBeSaved()
+        updateShouldShowDensity()
+        updateShouldShowFoodLabel()
+    }
+    
+    func updateCanBeSaved() {
+        canBeSaved = !name.isEmpty && hasEnergyAndMacros
+    }
+    
     func updateShouldShowFoodLabel() {
-        shouldShowFoodLabel = (
-            !energy.value.isEmpty
-            && !carb.value.isEmpty
-            && !fat.value.isEmpty
-            && !protein.value.isEmpty
-        )
+        shouldShowFoodLabel = hasEnergyAndMacros
     }
     
     func updateShouldShowDensity() {
@@ -22,7 +27,7 @@ extension FoodForm.Fields {
     
     //TODO: AmountPerForm Test if this ever gets called
     func amountChanged() {
-        updateShouldShowDensity()
+        updateFormState()
         if amount.value.doubleValue.unit != .serving {
             serving.value.doubleValue.double = nil
             serving.value.doubleValue.string = ""
@@ -34,7 +39,7 @@ extension FoodForm.Fields {
     func servingChanged() {
         /// If we've got a serving-based unit for the serving size—modify it to make sure the values equate
         modifyServingUnitIfServingBased()
-        updateShouldShowDensity()
+        updateFormState()
 //        if !servingString.isEmpty && amountString.isEmpty {
 //            amountString = "1"
 //        }

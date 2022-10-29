@@ -3,7 +3,6 @@ import FoodLabelScanner
 
 extension FoodForm {
 
-    
     func didReceiveScanFromFoodLabelCamera(_ scanResult: ScanResult, image: UIImage) {
         sources.add(image, with: scanResult)
         extractFieldsOrShowColumnSelectionInfo()

@@ -84,7 +84,10 @@ extension FoodForm {
                 textInputIsValid: textInputIsValidHandler,
                 textInputHandler:
                     { string in
-                        sources.linkInfo = LinkInfo(string)
+                        guard let linkInfo = LinkInfo(string) else {
+                            return
+                        }
+                        sources.addLink(linkInfo)
                     }
             )
         )

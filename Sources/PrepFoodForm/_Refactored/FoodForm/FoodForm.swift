@@ -10,11 +10,6 @@ public struct FoodForm: View {
     
     let didSave: (FoodFormData) -> ()
     
-    @State var emoji: String = ""
-    @State var name: String = ""
-    @State var detail: String = ""
-    @State var brand: String = ""
-    
     /// ViewModels
     @StateObject var fields: Fields
     @StateObject var sources: Sources
@@ -49,7 +44,6 @@ public struct FoodForm: View {
         Sources.shared = Sources()
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
-        _emoji = State(initialValue: randomFoodEmoji())
         self.didSave = didSave
         
         _shouldShowWizard = State(initialValue: false)
@@ -60,7 +54,6 @@ public struct FoodForm: View {
         Sources.shared = Sources()
         _fields = StateObject(wrappedValue: Fields.shared)
         _sources = StateObject(wrappedValue: Sources.shared)
-        _emoji = State(initialValue: randomFoodEmoji())
         self.didSave = didSave
     }
     
@@ -75,6 +68,7 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingEmojiPicker) { emojiPicker }
                 .sheet(isPresented: $showingFoodLabelCamera) { foodLabelCamera }
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
+                .sheet(isPresented: $showingCamera) { camera }
                 .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
                 .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
@@ -100,10 +94,13 @@ public struct FoodForm: View {
         ZStack {
             formLayer
             wizardLayer
+            buttonsLayer
         }
     }
     
     //MARK: - Layers
+    
+    @State var showingSaveButtons = false
     
     @ViewBuilder
     var formLayer: some View {
@@ -115,16 +112,27 @@ public struct FoodForm: View {
             sourcesSection
             prefillSection
         }
-//        .safeAreaInset(edge: .bottom) {
-//            //TODO: Programmatically get this inset (67516AA6)
-//            Spacer().frame(height: 150)
-//        }
-        .overlay(
-            Color(.quaternarySystemFill)
-                .opacity(showingWizardOverlay ? 0.3 : 0)
-        )
+        .safeAreaInset(edge: .bottom) { safeAreaInset }
+        .overlay(overlay)
         .blur(radius: showingWizardOverlay ? 5 : 0)
         .disabled(formDisabled)
+    }
+    
+    @ViewBuilder
+    var safeAreaInset: some View {
+        if fields.canBeSaved {
+            //TODO: Programmatically get this inset (67516AA6)
+            Spacer()
+                .frame(height: sources.canBePublished ? 150 : 100)
+        }
+    }
+    
+    @ViewBuilder
+    var overlay: some View {
+        if showingWizardOverlay {
+            Color(.quaternarySystemFill)
+                .opacity(showingWizardOverlay ? 0.3 : 0)
+        }
     }
     
     @ViewBuilder
@@ -132,6 +140,51 @@ public struct FoodForm: View {
         if showingWizard {
             Wizard(tapHandler: tappedWizardButton)
         }
+    }
+    
+    @ViewBuilder
+    var buttonsLayer: some View {
+        if fields.canBeSaved {
+            VStack {
+                Spacer()
+                saveButtons
+            }
+            .edgesIgnoringSafeArea(.bottom)
+            .transition(.move(edge: .bottom))
+        }
+    }
+    
+    var saveButtons: some View {
+        var publicButton: some View {
+            FormPrimaryButton(title: "Add to Public Database") {
+//                didSave(foodFormDataPublic)
+                dismiss()
+            }
+        }
+        
+        var privateButton: some View {
+            FormSecondaryButton(title: "Add to Private Database") {
+//                didSave(foodFormDataPrivate)
+                dismiss()
+            }
+        }
+        
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                if sources.canBePublished {
+                    publicButton
+                        .padding(.top)
+                    privateButton
+                } else {
+                    privateButton
+                        .padding(.vertical)
+                }
+            }
+            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+            .padding(.bottom, 30)
+        }
+        .background(.thinMaterial)
     }
     
     //MARK: - Toolbars
