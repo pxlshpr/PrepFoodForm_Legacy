@@ -12,8 +12,8 @@ extension FoodForm.AmountPerForm {
         }
         
         @EnvironmentObject var fields: FoodForm.Fields
-        @ObservedObject var existingField: Field
-        @StateObject var field: Field
+        @ObservedObject var field: Field
+//        @StateObject var field: Field
 
         @Environment(\.dismiss) var dismiss
         
@@ -31,8 +31,8 @@ extension FoodForm.AmountPerForm {
         
         init(field: Field, orderWeightFirst: Bool) {
             
-            self.existingField = field
-            _field = StateObject(wrappedValue: field)
+            self.field = field
+//            _field = StateObject(wrappedValue: field)
             
             self.weightFirst = orderWeightFirst
             _doNotRegisterUserInput = State(initialValue: true)

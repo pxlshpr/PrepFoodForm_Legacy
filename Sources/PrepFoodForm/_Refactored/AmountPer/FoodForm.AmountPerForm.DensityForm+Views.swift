@@ -92,14 +92,15 @@ extension FoodForm.AmountPerForm.DensityForm {
     
     var volumeTextField: some View {
         let binding = Binding<String>(
-            get: { field.value.volume.string },
+            get: { fields.density.value.volume.string },
             set: {
-                if !doNotRegisterUserInput, focusedField == .volume, $0 != field.value.volume.string {
+                if !doNotRegisterUserInput, focusedField == .volume, $0 != fields.density.value.volume.string {
                     withAnimation {
-                        field.registerUserInput()
+                        fields.density.registerUserInput()
                     }
                 }
-                field.value.volume.string = $0
+//                field.value.volume.string = $0
+                fields.density.value.volume.string = $0
             }
         )
         

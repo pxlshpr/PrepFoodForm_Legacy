@@ -82,10 +82,6 @@ extension FoodForm.Fields {
         density.value.volume.double ?? 0
     }
     
-    var densityDescription: String? {
-        density.value.densityValue?.description(weightFirst: isWeightBased)
-    }
-
     //MARK: Fills
     
     var hasNonUserInputFills: Bool {

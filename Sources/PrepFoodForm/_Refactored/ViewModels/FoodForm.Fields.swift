@@ -36,7 +36,7 @@ extension FoodForm {
 
         @Published var shouldShowFoodLabel: Bool = false
         @Published var shouldShowDensity = false
-
+        
         /**
          These are the last extracted `FieldValues` returned from the `FieldsExtractor`,
          which would have analysed and picked the best values from all available `ScanResult`s

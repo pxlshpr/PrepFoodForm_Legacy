@@ -95,23 +95,17 @@ extension FoodForm.AmountPerForm {
         var header: some View {
             Text("Unit Conversion")
         }
+    
+        let isWeightBased = Binding<Bool>(
+            get: { fields.isWeightBased },
+            set: { _ in }
+        )
 
         return FormStyledSection(header: header, footer: densityFooter) {
             NavigationLink {
                 densityForm
             } label: {
-                HStack {
-                    Image(systemName: "arrow.triangle.swap")
-                        .foregroundColor(Color(.tertiaryLabel))
-                    if fields.hasValidDensity, let description = fields.densityDescription {
-                        Text(description)
-                            .foregroundColor(Color(.secondaryLabel))
-                    } else {
-                        Text("Optional")
-                            .foregroundColor(Color(.quaternaryLabel))
-                    }
-                    Spacer()
-                }
+                DensityView(field: fields.density, isWeightBased: isWeightBased)
             }
         }
     }

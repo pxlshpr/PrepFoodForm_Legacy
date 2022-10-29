@@ -61,7 +61,8 @@ extension FoodForm.AmountPerForm.DensityForm {
                 break
             }
             doNotRegisterUserInput = false
-            saveAndDismiss()
+            dismiss()
+//            saveAndDismiss()
         }
     }
     
@@ -83,9 +84,9 @@ extension FoodForm.AmountPerForm.DensityForm {
         field.value.volume.unit = densityValue.volume.unit
     }
     
-    func saveAndDismiss() {
-        doNotRegisterUserInput = true
-        existingField.copyData(from: field)
-        dismiss()
-    }
+//    func saveAndDismiss() {
+//        doNotRegisterUserInput = true
+//        existingField.copyData(from: field)
+//        dismiss()
+//    }
 }
