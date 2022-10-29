@@ -113,7 +113,7 @@ extension FoodForm.SourcesView {
             
         } label: {
             VStack(alignment: .leading, spacing: 5) {
-                Text("Add a source if you would like this food to be verified and earn you subscription tokens.")
+                Text("Add a source if you would like this food to be verified and generate subscription tokens.")
                     .foregroundColor(Color(.secondaryLabel))
                     .multilineTextAlignment(.leading)
                 Label("Learn more", systemImage: "info.circle")
