@@ -5,7 +5,7 @@ struct MFPInfoSheet: View {
     var body: some View {
         NavigationView {
             form
-                .navigationTitle("Third Party Foods")
+                .navigationTitle("MyFitnessPal Foods")
                 .navigationBarTitleDisplayMode(.inline)
         }
     }

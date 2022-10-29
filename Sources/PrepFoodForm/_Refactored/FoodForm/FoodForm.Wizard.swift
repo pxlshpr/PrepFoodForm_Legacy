@@ -115,7 +115,7 @@ extension FoodForm.Wizard {
     
     var thirdPartyFoodSection: some View {
         var header: some View {
-            Text("Prefill a third-party food")
+            Text("Prefill a MyFitnessPal Food")
         }
         var footer: some View {
             Button {
