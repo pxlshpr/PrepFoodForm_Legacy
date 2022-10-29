@@ -33,6 +33,18 @@ extension FoodForm.Fields {
         }
     }
     
+    var shouldShowSizes: Bool {
+        !amount.value.isEmpty
+    }
+
+    var shouldShowServing: Bool {
+        !amount.value.isEmpty && amountIsServing
+    }
+
+    var amountIsServing: Bool {
+        amount.value.doubleValue.unit == .serving
+    }
+
     var isWeightBased: Bool {
         amount.value.doubleValue.unit.isWeightBased
         || serving.value.doubleValue.unit.isWeightBased
@@ -42,6 +54,10 @@ extension FoodForm.Fields {
         barcodes.contains {
             $0.barcodeValue?.symbology.isSquare == true
         }
+    }
+    
+    var hasServing: Bool {
+        amount.value.doubleValue.unit == .serving
     }
 
     //MARK: Fills

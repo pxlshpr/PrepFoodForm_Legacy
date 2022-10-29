@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import FoodLabel
 import PrepDataTypes
+import PrepViews
 
 extension FoodForm {
     var detailsSection: some View {
@@ -67,11 +68,11 @@ extension FoodForm {
     var servingSection: some View {
         FormStyledSection(header: Text("Amount Per")) {
             NavigationLink {
-                Color.blue
-//                AmountPerForm()
+                AmountPerForm()
+                    .environmentObject(fields)
             } label: {
                 if fields.hasAmount {
-                    foodAmountView
+                    foodAmountPerView
                 } else {
                     Text("Required")
                         .foregroundColor(Color(.tertiaryLabel))

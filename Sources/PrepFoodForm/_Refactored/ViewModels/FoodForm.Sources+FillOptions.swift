@@ -1,38 +1,38 @@
 //import Foundation
 //
 //extension FoodForm.Sources {
-// 
+//
 //    func haveFillOptions(for fieldValue: FieldValue) -> Bool {
 //        !fillOptions(for: fieldValue).isEmpty
 //    }
 //
 //    func fillOptions(for fieldValue: FieldValue) -> [FillOption] {
 //        var fillOptions: [FillOption] = []
-//        
+//
 //        /// Detected text option (if its available) + its alts
 //        fillOptions.append(contentsOf: scannedFillOptions(for: fieldValue))
 //        fillOptions.append(contentsOf: selectionFillOptions(for: fieldValue))
 //        fillOptions.append(contentsOf: prefillOptions(for: fieldValue))
-//        
-//        
+//
+//
 //        if let selectFillOption = selectFillOption(for: fieldValue) {
 //            fillOptions .append(selectFillOption)
 //        }
-//        
+//
 //        return fillOptions
 //    }
-//    
+//
 //    //MARK: - Scanned
-//    
+//
 //    func scannedFillOptions(for fieldValue: FieldValue) -> [FillOption] {
 //        let scannedFieldValues = FoodFormViewModel.shared.scannedFieldValues(for: fieldValue)
 //        var fillOptions: [FillOption] = []
-//        
+//
 //        for scannedFieldValue in scannedFieldValues {
 //            guard case .scanned(let info) = scannedFieldValue.fill else {
 //                continue
 //            }
-//            
+//
 //            fillOptions.append(
 //                FillOption(
 //                    string: fillButtonString(for: scannedFieldValue),
@@ -42,7 +42,7 @@
 //                    type: .fill(scannedFieldValue.fill)
 //                )
 //            )
-//            
+//
 //            /// Show alts if selected (only check the text because it might have a different value attached to it)
 //            for altValue in scannedFieldValue.altValues {
 //                fillOptions.append(
@@ -55,12 +55,12 @@
 //                )
 //            }
 //        }
-//                
+//
 //        return fillOptions
 //    }
-//    
+//
 //    //MARK: - Selection
-//    
+//
 //    func selectionFillOptions(for fieldValue: FieldValue) -> [FillOption] {
 //        guard case .density = fieldValue else {
 //            return fieldValue.selectionFillOptions
@@ -72,7 +72,7 @@
 //        else {
 //            return []
 //        }
-//        
+//
 //        return [
 //            FillOption(
 //                string: fillButtonString(for: fieldValue),
@@ -82,14 +82,14 @@
 //            )
 //        ]
 //    }
-//    
+//
 //    //MARK: - Prefill
-//    
+//
 //    func prefillOptions(for fieldValue: FieldValue) -> [FillOption] {
 //        var fillOptions: [FillOption] = []
-//        
+//
 //        for prefillFieldValue in prefillOptionFieldValues(for: fieldValue) {
-//            
+//
 //            let info = prefillInfo(for: prefillFieldValue)
 //            let option = FillOption(
 //                string: prefillString(for: prefillFieldValue),
@@ -102,10 +102,10 @@
 //        }
 //        return fillOptions
 //    }
-//    
+//
 //    func prefillOptionFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
 //        guard let food = prefilledFood else { return [] }
-//        
+//
 //        switch fieldValue {
 //        case .name, .detail, .brand:
 //            return food.stringBasedFieldValues
@@ -124,7 +124,7 @@
 //        case .size:
 //            return prefillOptionSizeFieldValues(for: fieldValue)
 ////        case .size:
-//            
+//
 ////            return food.detail
 ////        case .barcode(let stringValue):
 ////            return nil
@@ -134,12 +134,12 @@
 //            return []
 //        }
 //    }
-//    
+//
 //    func prefillOptionSizeFieldValues(for fieldValue: FieldValue) -> [FieldValue] {
 //        guard let food = prefilledFood else { return [] }
 //        return prefillSizeOptionFieldValues(for: fieldValue, from: food.sizeFieldValues)
 //    }
-//    
+//
 //    func prefillSizeOptionFieldValues(for fieldValue: FieldValue, from sizeFieldValues: [FieldValue]) -> [FieldValue] {
 //        sizeFieldValues
 //            .filter { $0.isSize }
@@ -148,7 +148,7 @@
 //                guard fieldValue.size != $0.size, let size = $0.size else {
 //                    return true
 //                }
-//                
+//
 //                /// If we're currently editing a size—it may not be filtered in as we'd want it to if the user has edited it slightly.
 //                /// This is because it would not match the current `fieldValue.size` (since the user has edited it)
 //                ///     while still being present in the `allSizes` array—as the user hasn't commited the change yet.
@@ -156,12 +156,12 @@
 ////                if let sizeBeingEdited, sizeBeingEdited == $0.size {
 ////                    return true
 ////                }
-//                
+//
 //                /// Make sure we're not using it already
 //                return !containsSize(withName: size.name, andVolumePrefixUnit: size.volumePrefixUnit, ignoring: sizeBeingEdited)
 //            }
 //    }
-//    
+//
 //    func prefillInfo(for fieldValue: FieldValue) -> PrefillFillInfo {
 //        switch fieldValue {
 //        case .name, .brand, .detail:
@@ -174,7 +174,7 @@
 //            return PrefillFillInfo()
 //        }
 //    }
-//    
+//
 //    func prefillString(for fieldValue: FieldValue) -> String {
 //        ""
 ////        switch fieldValue {
@@ -199,9 +199,9 @@
 ////            return "(barcodes prefill not supported)"
 ////        }
 //    }
-//    
+//
 //    //MARK: - Select Button
-//    
+//
 //    func selectFillOption(for fieldValue: FieldValue) -> FillOption? {
 //        //TODO: Only show this when we actually have sources
 ////        guard fieldValue.supportsSelectingText,
@@ -215,9 +215,9 @@
 //            type: .select
 //        )
 //    }
-//    
+//
 //    //MARK: - Helpers
-//    
+//
 //    func fillButtonString(for fieldValue: FieldValue) -> String {
 //        ""
 ////        switch fieldValue {

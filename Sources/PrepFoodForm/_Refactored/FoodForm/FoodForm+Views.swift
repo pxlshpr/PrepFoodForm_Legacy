@@ -1,6 +1,7 @@
 import SwiftUI
 import FoodLabel
 import PrepDataTypes
+import PrepViews
 
 extension FoodForm {
     var foodLabel: FoodLabel {
@@ -40,7 +41,7 @@ extension FoodForm {
         )
     }
     
-    var foodAmountView: some View {
+    var foodAmountPerView: some View {
         
         let amountDescription = Binding<String>(
             get: { fields.amount.doubleValueDescription },
@@ -57,7 +58,7 @@ extension FoodForm {
             set: { _ in }
         )
 
-        return FoodAmountView(
+        return FoodAmountPerView(
             amountDescription: amountDescription,
             servingDescription: servingDescription,
             numberOfSizes: numberOfSizes

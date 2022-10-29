@@ -29,7 +29,7 @@ extension FoodForm.Fields {
             replaceOrSetExtractedFieldValue(barcodeField.value)
         }
         
-        updateShouldShowDensitiesSection()
+        updateShouldShowDensity()
         updateShouldShowFoodLabel()
 
         FoodForm.Sources.shared.markAllImageViewModelsAsProcessed()
@@ -107,7 +107,7 @@ extension FoodForm.Fields {
 //    func fillMicroFieldValue(_ fieldValue: FieldValue, for nutrientType: NutrientType) {
 //        micronutrientField(for: nutrientType)?.fill(with: fieldValue)
 //        //TODO: Next
-//        
+//
 //    }
     
     func replaceOrSetExtractedFieldValue(_ fieldValue: FieldValue) {

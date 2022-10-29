@@ -1,14 +1,19 @@
 import SwiftUI
 import NamePicker
 
-struct SizeFormField: View {
-    @EnvironmentObject var viewModel: FoodFormViewModel
-    @EnvironmentObject var formViewModel: SizeFormViewModel
-    @ObservedObject var sizeViewModel: Field
-    let existingSizeViewModel: Field?
+extension FoodForm.AmountPerForm.SizeForm {
+    struct Editor: View {
+        @EnvironmentObject var formViewModel: SizeFormViewModel
+        @ObservedObject var field: Field
+        
+        @Binding var showingUnitPickerForVolumePrefix: Bool
+        @Binding var showingQuantityForm: Bool
+        @Binding var showingNamePicker: Bool
+        @Binding var showingAmountForm: Bool
+    }
 }
 
-extension SizeFormField {
+extension FoodForm.AmountPerForm.SizeForm.Editor {
     
     var body: some View {
         content
@@ -18,8 +23,8 @@ extension SizeFormField {
         HStack {
             Group {
                 Spacer()
-                button(sizeViewModel.sizeQuantityString) {
-//                    formViewModel.showingQuantityForm = true
+                button(field.sizeQuantityString) {
+                    showingQuantityForm = true
                 }
                 Spacer()
                 symbol("×")
@@ -28,15 +33,15 @@ extension SizeFormField {
             }
             HStack(spacing: 0) {
                 if formViewModel.showingVolumePrefix {
-                    button(sizeViewModel.sizeVolumePrefixString) {
-//                        formViewModel.showingUnitPickerForVolumePrefix = true
+                    button(field.sizeVolumePrefixString) {
+                        showingUnitPickerForVolumePrefix = true
                     }
                     .layoutPriority(2)
                     symbol(", ")
                         .layoutPriority(3)
                 }
-                button(sizeViewModel.sizeNameString, placeholder: "name") {
-//                    formViewModel.showingNamePicker = true
+                button(field.sizeNameString, placeholder: "name") {
+                    showingNamePicker = true
                 }
                 .layoutPriority(2)
             }
@@ -45,8 +50,8 @@ extension SizeFormField {
                 symbol("=")
                     .layoutPriority(3)
                 Spacer()
-                button(sizeViewModel.sizeAmountDescription, placeholder: "amount") {
-//                    formViewModel.showingAmountForm = true
+                button(field.sizeAmountDescription, placeholder: "amount") {
+                    showingAmountForm = true
                 }
                 .layoutPriority(1)
                 Spacer()

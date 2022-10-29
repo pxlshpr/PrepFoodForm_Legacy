@@ -89,10 +89,10 @@ struct SizeForm: View {
 //                doNotRegisterUserInput = true
             }
         }
-        .sheet(isPresented: $formViewModel.showingQuantityForm) { quantityForm }
-        .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
-        .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
-        .sheet(isPresented: $formViewModel.showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
+//        .sheet(isPresented: $formViewModel.showingQuantityForm) { quantityForm }
+//        .sheet(isPresented: $formViewModel.showingNamePicker) { nameForm }
+//        .sheet(isPresented: $formViewModel.showingAmountForm) { amountForm }
+//        .sheet(isPresented: $formViewModel.showingUnitPickerForVolumePrefix) { unitPickerForVolumePrefix }
 //        .presentationDetents([.height(detentHeight), .large])
 //        .presentationDragIndicator(.hidden)
         .interactiveDismissDisabled(isDirty && !isEmpty)
@@ -360,13 +360,5 @@ struct SizeForm_NewPreview: View {
 struct SizeForm_New_Previews: PreviewProvider {
     static var previews: some View {
         SizeForm_NewPreview()
-    }
-}
-
-extension RecognizedText {
-    /// Returns the first `Size` that can be extracted from this text
-    var size: FormSize? {
-        nil
-//        servingArtefacts.count > 0
     }
 }

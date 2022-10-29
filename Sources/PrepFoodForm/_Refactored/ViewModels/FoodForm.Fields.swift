@@ -35,7 +35,7 @@ extension FoodForm {
         @Published var barcodes: [Field] = []
 
         @Published var shouldShowFoodLabel: Bool = false
-        @Published var shouldShowDensitiesSection = false
+        @Published var shouldShowDensity = false
 
         /**
          These are the last extracted `FieldValues` returned from the `FieldsExtractor`,

@@ -8,11 +8,10 @@ class SizeFormViewModel: ObservableObject {
     @Published var showingVolumePrefix: Bool
     @Published var formState: FormState
     
-    
-    @Published var showingUnitPickerForVolumePrefix = false
-    @Published var showingQuantityForm = false
-    @Published var showingNamePicker = false
-    @Published var showingAmountForm = false
+//    @Published var showingUnitPickerForVolumePrefix = false
+//    @Published var showingQuantityForm = false
+//    @Published var showingNamePicker = false
+//    @Published var showingAmountForm = false
 
     init(includeServing: Bool, allowAddSize: Bool, formState: FormState) {
         self.includeServing = includeServing

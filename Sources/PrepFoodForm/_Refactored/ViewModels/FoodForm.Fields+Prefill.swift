@@ -13,7 +13,7 @@ extension FoodForm.Fields {
         prefillAmountPer(from: food)
         prefillNutrients(from: food)
 
-        updateShouldShowDensitiesSection()
+        updateShouldShowDensity()
 
         prefilledFood = food
     }

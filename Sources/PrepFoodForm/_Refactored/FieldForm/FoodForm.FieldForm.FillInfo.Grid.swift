@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftHaptics
 import SwiftUISugar
 
-extension FoodForm.FieldForm.FillInfo {
+extension FoodForm.FillInfo {
     struct OptionsGrid: View {
         @EnvironmentObject var fields: FoodForm.Fields
         
@@ -13,7 +13,7 @@ extension FoodForm.FieldForm.FillInfo {
     }
 }
 
-extension FoodForm.FieldForm.FillInfo.OptionsGrid {
+extension FoodForm.FillInfo.OptionsGrid {
     
     var body: some View {
         flowLayout

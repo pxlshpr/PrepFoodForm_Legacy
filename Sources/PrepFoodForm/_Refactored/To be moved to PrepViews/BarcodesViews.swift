@@ -1,3 +1,4 @@
+//TODO: Move this PrepUnits after moving FieldValue (which we should move after cleaning it and changing BarcodeView to not use VN...Symbology—using our custom type instead)
 import SwiftUI
 
 struct BarcodesView: View {

@@ -131,7 +131,7 @@ extension FoodForm.FieldForm {
     @ViewBuilder
     var fillInfo: some View {
         if fields.hasFillOptions(for: field.value) {
-            FillInfo(
+            FoodForm.FillInfo(
                 field: field,
                 shouldAnimate: $shouldAnimateOptions,
                 didTapImage: {

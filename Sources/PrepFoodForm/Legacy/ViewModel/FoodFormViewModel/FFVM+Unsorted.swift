@@ -114,10 +114,6 @@ extension FoodFormViewModel {
         !micronutrientsIsEmpty
     }
     
-    var shouldShowServingInField: Bool {
-        !amountViewModel.value.isEmpty && amountIsServing
-    }
-    
     func updateShouldShowDensitiesSection() {
         
         withAnimation {
@@ -131,7 +127,10 @@ extension FoodFormViewModel {
     var amountIsServing: Bool {
         amountViewModel.value.doubleValue.unit == .serving
     }
-
+    var shouldShowServingInField: Bool {
+        !amountViewModel.value.isEmpty && amountIsServing
+    }
+    
     var isWeightBased: Bool {
         amountViewModel.value.doubleValue.unit.isWeightBased || servingViewModel.value.doubleValue.unit.isWeightBased
     }

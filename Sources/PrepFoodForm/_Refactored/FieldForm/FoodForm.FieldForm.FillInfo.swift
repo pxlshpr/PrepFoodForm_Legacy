@@ -8,7 +8,7 @@ import SwiftUISugar
 import ActivityIndicatorView
 import SwiftUISugar
 
-extension FoodForm.FieldForm {
+extension FoodForm {
     struct FillInfo: View {
         @ObservedObject var field: Field
         @Binding var shouldAnimate: Bool
@@ -20,7 +20,7 @@ extension FoodForm.FieldForm {
     }
 }
 
-extension FoodForm.FieldForm.FillInfo {
+extension FoodForm.FillInfo {
 
     var body: some View {
         Group {
