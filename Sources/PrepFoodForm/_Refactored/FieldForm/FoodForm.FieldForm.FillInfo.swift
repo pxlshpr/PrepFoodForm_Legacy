@@ -112,7 +112,7 @@ extension FoodForm.FillInfo {
             showingAutofillInfo = true
         } label: {
             HStack {
-                Text("Autofill")
+                Text("AutoFill")
                 Image(systemName: "info.circle")
                     .foregroundColor(.accentColor)
             }

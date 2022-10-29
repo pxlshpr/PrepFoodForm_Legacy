@@ -70,6 +70,7 @@ public struct FoodForm: View {
                 .sheet(isPresented: $showingPrefill) { mfpSearch }
                 .sheet(isPresented: $showingCamera) { camera }
                 .sheet(isPresented: $showingBarcodeScanner) { barcodeScanner }
+                .sheet(isPresented: $showingPrefillInfo) { prefillInfo }
                 .fullScreenCover(isPresented: $showingTextPicker) { textPicker }
                 .photosPicker(
                     isPresented: $showingPhotosPicker,

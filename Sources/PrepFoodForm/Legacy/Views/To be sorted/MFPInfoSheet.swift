@@ -12,38 +12,61 @@ struct MFPInfoSheet: View {
     
     var form: some View {
         Form {
+            
+            
             Section {
                 Text("""
-Search over 11 million foods in the [MyFitnessPal](https://www.myfitnesspal.com) database. Pre-fill this form with its data to speed up the creation process.
+Use this feature to pre-fill the form with a food from [MyFitnessPal](https://www.myfitnesspal.com).
 """)
+            }
+            
+            
+            Section("How it works") {
                 Text("""
-This food will still be ineligible for submission to the public database until you provide a verifiable source (such as a photo of the food label).
+This works by loading the search results on our servers and providing you with the raw data so you don't have to type it out yourself.
 """)
+                .listRowSeparator(.hidden)
+                .foregroundColor(.secondary)
+                Text("""
+The search is considerably slow as the speed is throttled on their end. **A quicker option** might be to take a screenshot of the food in their app and use our image scanner to fill in the data instead.
+""")
+                .listRowSeparator(.hidden)
                 .foregroundColor(.secondary)
             }
-            Section {
+            
+            
+            Section("Submission for Verification") {
                 Text("""
-As we rely on their servers for this information—its accuracy and the speed at which it is retrieved cannot be guaranteed. The availability of this feature might also be intermittently unavilabile.
+We will not verify foods that are solely based on their data, [as MyFitnessPal themselves do not guarantee the information to be accurate](https://support.myfitnesspal.com/hc/en-us/articles/360032273292-What-does-the-check-mark-mean-).
 """)
-                Text("""
-A better option would be to search for the food using their app or website, and use screenshots to import their data instead.
-""")
-                .bold()
-                Text("""
-Keep in mind that these photos would not be considered verifable sources—[as they do not guarantee the information to be accurate](https://support.myfitnesspal.com/hc/en-us/articles/360032273292-What-does-the-check-mark-mean-).
-""")
+                .listRowSeparator(.hidden)
                 .foregroundColor(.secondary)
+                Text("""
+**If you would like the food to be verified** [(and generate subscription points)](google.com), you would still need to provide either:
+""")
+                .listRowSeparator(.hidden)
+                .foregroundColor(.primary)
+                HStack {
+                    Text("•")
+                    Text("a **photo** of the nutrition label")
+                }
+                .listRowSeparator(.hidden)
+                .foregroundColor(.primary)
+                HStack {
+                    Text("•")
+                    Text("a **link** to a verifiable source (such as the supplier's website) or")
+                }
+                .listRowSeparator(.hidden)
+                .foregroundColor(.primary)
             }
+            
+            
             Section("Disclaimer") {
                 Text("""
 We are in no way affiliated with MyFitnessPal, and do not claim ownership over any of the data they provide.
 """)
                 .italic()
-                .bold()
-                Text("""
-We are using their publically facing website's search functionality as an alternative to using screenshots or entering the data yourself.
-""")
-                .foregroundColor(.secondary)
+                .foregroundColor(Color(.tertiaryLabel))
             }
         }
     }

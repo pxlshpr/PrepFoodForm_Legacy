@@ -19,6 +19,12 @@ extension FoodForm {
         }
     }
     
+    var prefillInfo: some View {
+        MFPInfoSheet()
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.hidden)
+    }
+    
     var camera: some View {
         Camera { image in
             sources.addImageViewModel(ImageViewModel(image))

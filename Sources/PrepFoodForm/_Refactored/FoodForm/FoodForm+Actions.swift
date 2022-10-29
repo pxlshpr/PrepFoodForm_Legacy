@@ -137,11 +137,9 @@ extension FoodForm {
     //MARK: - Wizard Actions
     func tappedWizardButton(_ button: WizardButton) {
         Haptics.feedback(style: .soft)
-        dismissWizard()
         switch button {
         case .background, .startWithEmptyFood:
             break
-//            dismissWizard()
         case .takePhotos:
             showingCamera = true
         case .scanAFoodLabel:
@@ -152,6 +150,10 @@ extension FoodForm {
             showingPrefill = true
         case .prefillInfo:
             showingPrefillInfo = true
+        }
+        
+        if button != .prefillInfo {
+            dismissWizard()
         }
     }
     
