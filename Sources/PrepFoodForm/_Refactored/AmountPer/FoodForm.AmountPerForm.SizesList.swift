@@ -13,6 +13,7 @@ extension FoodForm.AmountPerForm.SizesList {
     var body: some View {
         list
             .toolbar { navigationTrailingContent }
+            .toolbar { bottomBarContents }
             .sheet(isPresented: $showingAddSizeForm) { addSizeForm }
             .navigationTitle("Sizes")
 //            .navigationBarTitleDisplayMode(.inline)
@@ -27,7 +28,7 @@ extension FoodForm.AmountPerForm.SizesList {
             if !fields.volumePrefixedSizes.isEmpty {
                 volumePrefixedSizesSection
             }
-            addButtonSection
+//            addButtonSection
         }
     }
     
@@ -73,13 +74,13 @@ extension FoodForm.AmountPerForm.SizesList {
     }
     
     var addSizeForm: some View {
-        SizeForm()
+        FoodForm.AmountPerForm.SizeForm()
             .environmentObject(fields)
     }
     
     @ViewBuilder
     func editSizeForm(for sizeField: Field) -> some View {
-        SizeForm(fieldViewModel: sizeField) { sizeViewModel in
+        FoodForm.AmountPerForm.SizeForm(field: sizeField) { sizeField in
             
         }
         .environmentObject(fields)

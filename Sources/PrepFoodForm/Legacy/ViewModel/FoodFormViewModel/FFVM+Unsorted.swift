@@ -450,6 +450,7 @@ extension FoodFormViewModel {
         case phillyCheese = "philly_cheese"
         case yoghurt = "yoghurt"
         case spinach = "spinach"
+        case carrot = "carrot"
         case pumpkinSeeds = "pumpkin_seeds"
         case iceCream = "ice_cream"
         case milk = "milk"

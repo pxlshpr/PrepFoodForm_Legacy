@@ -29,8 +29,8 @@ extension FoodForm_Legacy {
     var servingSection: some View {
         FormStyledSection(header: Text("Amount Per")) {
             NavigationLink {
-                AmountPerForm()
-                    .environmentObject(viewModel)
+//                AmountPerForm()
+//                    .environmentObject(viewModel)
             } label: {
                 NutrientsPerCell()
                     .environmentObject(viewModel)

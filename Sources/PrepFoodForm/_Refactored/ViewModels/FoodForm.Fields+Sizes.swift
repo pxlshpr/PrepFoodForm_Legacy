@@ -8,13 +8,13 @@ extension FoodForm.Fields {
      
      Also includes the `fieldValue` provided.
      */
-    func newSizeFieldValues(from fieldValues: [FieldValue], including fieldValue: FieldValue) -> [FieldValue] {
+    func newSizeFieldValues(from fieldValues: [FieldValue], including fieldToInclude: FieldValue) -> [FieldValue] {
         fieldValues
             .filter { $0.isSize }
             .filter { fieldValue in
                 
                 /// Always include the size that's being used by this fieldValue currently (so that we can see it toggled on)
-                if fieldValue.size == fieldValue.size {
+                if fieldValue.size == fieldToInclude.size {
                     return true
                 }
                 

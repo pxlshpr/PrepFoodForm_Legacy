@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import FoodLabelScanner
 import PhotosUI
+import MFPScraper
 
 public struct FoodForm: View {
     
@@ -38,13 +39,20 @@ public struct FoodForm: View {
     @State var showingFoodLabel = false
 
     /// Wizard
-    @State var shouldShowWizard = true
+    @State var shouldShowWizard: Bool = true
     @State var showingWizard = true
     @State var showingWizardOverlay = true
     @State var formDisabled = false
 
-    public init(withMock: MockCase) {
+    public init(mockMfpFood: MFPProcessedFood, didSave: @escaping (FoodFormData) -> ()) {
+        Fields.shared = Fields(mockPrefilledFood: mockMfpFood)
+        Sources.shared = Sources()
+        _fields = StateObject(wrappedValue: Fields.shared)
+        _sources = StateObject(wrappedValue: Sources.shared)
+        _emoji = State(initialValue: randomFoodEmoji())
+        self.didSave = didSave
         
+        _shouldShowWizard = State(initialValue: false)
     }
     
     public init(didSave: @escaping (FoodFormData) -> ()) {

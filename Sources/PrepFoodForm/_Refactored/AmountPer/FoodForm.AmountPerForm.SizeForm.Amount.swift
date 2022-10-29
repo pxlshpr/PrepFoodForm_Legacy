@@ -76,7 +76,7 @@ extension FoodForm.AmountPerForm.SizeForm.Amount {
         .environmentObject(fields)
         .sheet(isPresented: $showingSizeForm) {
             Color.red
-            SizeForm(includeServing: fields.hasServing, allowAddSize: false) { sizeViewModel in
+            FoodForm.AmountPerForm.SizeForm(includeServing: fields.hasServing, allowAddSize: false) { sizeViewModel in
                 guard let size = sizeViewModel.size else { return }
                 withAnimation {
                     self.sizeViewModel.sizeAmountUnit = .size(size, size.volumePrefixUnit?.defaultVolumeUnit)

@@ -56,5 +56,13 @@ extension FoodForm {
             self.protein = .init(fieldValue: .macro(FieldValue.MacroValue(macro: .protein)))
             self.density = .init(fieldValue: .density(FieldValue.DensityValue()))
         }
+        
+        convenience init(mockPrefilledFood mfpFood: MFPProcessedFood) {
+            self.init()
+            self.prefilledFood = mfpFood
+            self.prefill(mfpFood)
+            self.updateShouldShowDensity()
+            self.updateShouldShowFoodLabel()
+        }
     }
 }
